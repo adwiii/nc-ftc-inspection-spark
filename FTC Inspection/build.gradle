@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'application'
+
+group = 'ftc-inspection'
+version = '1.0'
+
+description = """"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = "nc.ftc.inspection.Server"
+
+repositories {
+     jcenter()
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'com.sparkjava', name: 'spark-core', version:'2.5'
+    compile group: 'com.sparkjava', name: 'spark-debug-tools', version:'0.5'
+    compile group: 'com.sparkjava', name: 'spark-template-velocity', version:'2.3'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.13'
+    compile 'org.xerial:sqlite-jdbc:3.7.2'
+}
