@@ -1,0 +1,27 @@
+#macro(mainLayout)
+<html>
+<head>
+    <title>FTC Inspection App</title>
+    <link rel="stylesheet" href="/main.css">
+    <link rel="icon" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<header>
+    <nav>
+    	<a href="$WebPath.getIndex()"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
+    	<a href="$WebPath.getInspection()">Inspection</a>
+    	<a href="$WebPath.getConsole()">Console</a>
+    </nav>
+</header>
+<main>
+    <div id="content">
+        $bodyContent
+    </div>
+</main>
+<footer>
+    This is a footer.
+</footer>
+</body>
+</html>
+#end

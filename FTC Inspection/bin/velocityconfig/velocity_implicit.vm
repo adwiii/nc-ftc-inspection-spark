@@ -1,0 +1,2 @@
+#* @implicitly included *#
+#* @vtlvariable name="WebPath" type="nc.ftc.inspection.spark.util.Path.Web" *#
