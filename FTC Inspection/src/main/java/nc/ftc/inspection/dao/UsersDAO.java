@@ -61,11 +61,12 @@ public class UsersDAO {
 	}
 	
 	/**
-	 * 
-	 * @param username
-	 * @param hashedPw
-	 * @param type
-	 * @return
+	 * Adds a new user to the database. Returns true is the operation succeeds. If a user with that name already exists or the current password is
+	 * incorrect, returns false. 
+	 * @param username The new username to add
+	 * @param hashedPw Their hashed password
+	 * @param type The type of the new user.
+	 * @return true is successful, false if user already exists or password is incorrect.
 	 */
 	public boolean addUser(String username, String hashedPw, int type){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
