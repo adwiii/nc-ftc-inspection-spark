@@ -32,14 +32,17 @@ public class Server {
 		
 		port(80);
 		staticFiles.location("/public");
+		//TODO remove the debug screen for release?
 		enableDebugScreen();
 		
-		before("*", Filters.addTrailingSlashes);
+		before("*", Filters.addTrailingSlashesAndLowercase);
 		
 		before("/superSecret/", Filters.getAuthenticationFilter(User.SYSADMIN));
 		
 		get(Path.Web.INDEX, DefaultPages.indexPage);
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
+		//TODO make change password/new user page
+		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
