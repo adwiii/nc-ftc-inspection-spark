@@ -1,6 +1,14 @@
 package nc.ftc.inspection.model;
 
 public class User {
+	
+	public static int SYSADMIN = -1;
+	public static int ADMIN = 0;
+	public static int KEY_VOLUNTEER = 10;
+	public static int VOLUNTEER = 20;
+	public static int TEAM = 30;
+	public static int GENERAL = 40;
+	
 	private String username;
 	private String realName;
 	private String hashedPw;

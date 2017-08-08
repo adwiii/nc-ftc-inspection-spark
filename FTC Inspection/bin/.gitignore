@@ -1,6 +1,3 @@
-/public/
-/db/
-<<<<<<< HEAD
 /nc/
-=======
->>>>>>> branch 'master' of https://github.com/adwiii/nc-ftc-inspection-spark
+/db/
+/velocity/

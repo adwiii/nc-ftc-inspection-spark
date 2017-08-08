@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import nc.ftc.inspection.dao.UsersDAO;
+import nc.ftc.inspection.model.User;
+import nc.ftc.inspection.spark.pages.DefaultPages;
+import nc.ftc.inspection.spark.pages.LoginPage;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
 import nc.ftc.inspection.spark.util.ViewUtil;
@@ -26,18 +29,19 @@ public class Server {
 			e1.printStackTrace();
 		}
 		
+		
 		port(80);
 		staticFiles.location("/public");
 		enableDebugScreen();
 		
 		before("*", Filters.addTrailingSlashes);
 		
-		get(Path.Web.INDEX, (req, res) -> {
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("currTime", System.currentTimeMillis());
-			return ViewUtil.render(req, map , Path.Template.INDEX)	;
-		});
-		get("*", ViewUtil.notFound);
+		get(Path.Web.INDEX, DefaultPages.indexPage);
+		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
+		
+		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
+		
+		get(Path.Web.ALL, DefaultPages.notFound);
 		
 		after("*", Filters.addGzipHeader);
 	}
