@@ -1,0 +1,22 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<form id="loginForm" method="post">
+    #if($authenticationFailed)
+        <p class="bad notification">The given username and password are invalid</p>
+    #elseif($authenticationSucceeded)
+        <p class="good notification">Welcome back, $currentUser</p>
+    #elseif($loggedOut)
+        <p class="notification">You have been successfully logged out</p>
+    #end
+    <h1>Login</h1>
+    <p>Please enter your username and password.</p>
+    <label>Username: </label>
+    <input type="text" name="username"  required>
+    <label>Password: </label>
+    <input type="password" name="password" required>
+    #if($loginRedirect)
+        <input type="hidden" name="loginRedirect" value="$loginRedirect">
+    #end
+    <input type="submit" value="Login">
+</form>
+#end
