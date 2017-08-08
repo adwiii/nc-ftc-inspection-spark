@@ -7,20 +7,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.model.User;
 
 
 public class UsersDAO {
 	
-	static final String PASSWORD_SQL = "SELECT hashedPassword FROM users where username = ?";
-	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ? WHERE username = ? AND hashedPassword = ?";
-	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?)";
+	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName FROM users where username = ?";
+	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ? WHERE username = ?";
+	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?)";
+	
+
 	
 	/**
-	 * Looks up the hashed password for a given user.
-	 * @param username The username to retrieved password for.
-	 * @return The hashed password, or null if no username.
+	 * Authenticates a user given the username and plaintext password.
+	 * @param username The username to verify.
+	 * @return The user object, or null if invalid.
 	 */
-	public String getHashedPassword(String username){
+	public static User authenticate(String username, String pw){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(PASSWORD_SQL);
 			ps.setString(1, username);
@@ -28,8 +31,9 @@ public class UsersDAO {
 			if(!rs.next()){
 				return null;
 			}
-			String hash = rs.getString(1);
-			return hash;
+			User user = new User(username, rs.getString(1), rs.getString(2), rs.getInt(4), rs.getString(5));
+			//TODO authenticate.
+			return user;
 		}catch(Exception e){
 			e.printStackTrace();
 			return null;
@@ -38,17 +42,24 @@ public class UsersDAO {
 	
 	/**
 	 * Updates the password of a given user.
-	 * @param username The username to edit
-	 * @param oldHashedPw The current hashed pw, used to verify
-	 * @param newHashedPw The hash of the new password
+	 * @param username The username to update
+	 * @param oldHashedPw The current pw, used to verify
+	 * @param newHashedPw The new password in plaintext
 	 * @return True if successful, false if failed (due to either no username found or incorrect current username).
 	 */
-	public boolean updatePassword(String username, String oldHashedPw, String newHashedPw){
+	public static boolean updatePassword(String username, String oldPassword, String newHashedPw){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			User user = authenticate(username, oldPassword);
+			if(user == null){
+				return false;
+			}
+			
+			//TODO Set the appropriate fields in the object.
+			
 			PreparedStatement ps = conn.prepareStatement(UPDATE_PASSWORD_SQL);
-			ps.setString(1, newHashedPw);
-			ps.setString(2, username);
-			ps.setString(3, oldHashedPw);
+			ps.setString(1, user.getHashedPw());
+			ps.setString(2, user.getSalt());
+			ps.setString(3, user.getUsername());
 			int affected = ps.executeUpdate();
 			if(affected > 1){
 				throw new RuntimeException("OMFG WE HAD >1 USER ENTRIES -- WE DONE SCREWED UP");
@@ -64,16 +75,22 @@ public class UsersDAO {
 	 * Adds a new user to the database. Returns true is the operation succeeds. If a user with that name already exists or the current password is
 	 * incorrect, returns false. 
 	 * @param username The new username to add
-	 * @param hashedPw Their hashed password
+	 * @param hashedPw Their plaintext password
 	 * @param type The type of the new user.
+	 * @param realName The user's real name
 	 * @return true is successful, false if user already exists or password is incorrect.
 	 */
-	public boolean addUser(String username, String hashedPw, int type){
+	public static boolean addUser(String username, String password, String realName, int type){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL);
+			String salt = null;
+			String hashedPw = null;
+			//TODO fill these in.
 			ps.setString(1, username);
 			ps.setString(2, hashedPw);
 			ps.setInt(3, type);
+			ps.setString(4, salt);
+			ps.setString(5,realName);
 			int affected = ps.executeUpdate(); //Existing user will throw SQL exception for PK violation
 			if(affected > 1){
 				throw new RuntimeException("WTF?");
