@@ -48,8 +48,21 @@ public class AuthenticationManager {
 			this.expirationTime = expirationTime;
 		}
 
+		
+		public User getUser() {
+			return user;
+		}
+		
 		public long getExpirationTime() {
 			return expirationTime;
 		}
+	}
+
+	public static int getUserType(String sessionToken) {
+		Session session = sessions.get(sessionToken);
+		if (session != null) {
+			return session.getUser().getType();
+		}
+		return User.NONE;
 	}
 }

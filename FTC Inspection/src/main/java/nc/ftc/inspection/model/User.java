@@ -9,6 +9,8 @@ public class User {
 	public static int TEAM = 30;
 	public static int GENERAL = 40;
 	
+	public static int NONE = Integer.MAX_VALUE;
+	
 	private String username;
 	private String realName;
 	private String hashedPw;

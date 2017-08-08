@@ -8,6 +8,9 @@
     #elseif($loggedOut)
         <p class="notification">You have been successfully logged out</p>
     #end
+    #if($loginRedirect)
+		<font color="red"><p>You must login to view that page</p></font>
+	#end
     <h1>Login</h1>
     <p>Please enter your username and password.</p>
     <label>Username: </label>

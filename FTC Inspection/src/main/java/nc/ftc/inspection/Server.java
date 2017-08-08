@@ -36,10 +36,14 @@ public class Server {
 		
 		before("*", Filters.addTrailingSlashes);
 		
+		before("/superSecret/", Filters.getAuthenticationFilter(User.SYSADMIN));
+		
 		get(Path.Web.INDEX, DefaultPages.indexPage);
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
+		get(Path.Web.ERROR_403, DefaultPages.error403);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
+		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

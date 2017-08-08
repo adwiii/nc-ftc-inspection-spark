@@ -40,13 +40,11 @@ public class LoginPage {
         return render(request, model, Path.Template.LOGIN);
     };
 	
-    // The origin of the request (request.pathInfo()) is saved in the session so
-    // the user can be redirected back after login
-    public static void ensureUserIsLoggedIn(Request request, Response response) {
-        if (AuthenticationManager.isLoggedIn(request.session().attribute("sessionToken"))) {
-        	request.session().attribute("sessionToken", null); //ensure there is no sessionToken going in
-            request.session().attribute("loginRedirect", request.pathInfo());
-            response.redirect(Path.Web.LOGIN);
-        }
+    public static Route handleLogoutPost = (Request request, Response response) -> {
+    	request.session().removeAttribute("currentUser");
+    	request.session().removeAttribute("sessionToken");
+        request.session().attribute("loggedOut", true);
+        response.redirect(Path.Web.LOGIN);
+        return null;
     };
 }
