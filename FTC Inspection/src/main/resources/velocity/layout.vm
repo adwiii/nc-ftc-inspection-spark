@@ -12,6 +12,17 @@
     	<a href="$WebPath.getIndex()"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
     	<a href="$WebPath.getInspection()">Inspection</a>
     	<a href="$WebPath.getConsole()">Console</a>
+    	<ul id="menu">
+            #if($currentUser)
+                <li>
+                    <form method="post" action="$WebPath.getLogout()">
+                        <button id="logout">Hello $currentUser. Logout?</button>
+                    </form>
+                </li>
+            #else
+                <li><a href="$WebPath.getLogin()"">Login</a></li>
+            #end
+        </ul>
     </nav>
 </header>
 <main>

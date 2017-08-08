@@ -23,5 +23,5 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.13'
     compile 'org.xerial:sqlite-jdbc:3.7.2'	
     compile group: 'org.projectlombok', name: 'lombok', version:'1.16.6'
-	
+	compile group: 'org.mindrot', name: 'jbcrypt', version: '0.3m'
 }

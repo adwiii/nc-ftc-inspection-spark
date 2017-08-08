@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.model.User;
 
+import org.mindrot.jbcrypt.*;
 
 public class UsersDAO {
 	
@@ -24,6 +25,9 @@ public class UsersDAO {
 	 * @return The user object, or null if invalid.
 	 */
 	public static User authenticate(String username, String pw){
+		if (username.isEmpty() || pw.isEmpty()) {
+			return null;
+		}
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(PASSWORD_SQL);
 			ps.setString(1, username);
@@ -31,30 +35,33 @@ public class UsersDAO {
 			if(!rs.next()){
 				return null;
 			}
-			User user = new User(username, rs.getString(1), rs.getString(2), rs.getInt(4), rs.getString(5));
-			//TODO authenticate.
-			return user;
+			User user = new User(username, rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4));
+			String hashedPassword = BCrypt.hashpw(pw, user.getSalt());
+			if (hashedPassword.equals(user.getHashedPw())) {
+				return user;
+			}
 		}catch(Exception e){
 			e.printStackTrace();
-			return null;
 		}
+		return null;
 	}
 	
 	/**
 	 * Updates the password of a given user.
 	 * @param username The username to update
-	 * @param oldHashedPw The current pw, used to verify
-	 * @param newHashedPw The new password in plaintext
+	 * @param oldPw The current pw, used to verify
+	 * @param newPw The new password in plaintext
 	 * @return True if successful, false if failed (due to either no username found or incorrect current username).
 	 */
-	public static boolean updatePassword(String username, String oldPassword, String newHashedPw){
+	public static boolean updatePassword(String username, String oldPw, String newPw){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			User user = authenticate(username, oldPassword);
+			User user = authenticate(username, oldPw);
 			if(user == null){
 				return false;
 			}
 			
-			//TODO Set the appropriate fields in the object.
+			user.setSalt(BCrypt.gensalt());
+			user.setHashedPw(BCrypt.hashpw(newPw, user.getSalt()));
 			
 			PreparedStatement ps = conn.prepareStatement(UPDATE_PASSWORD_SQL);
 			ps.setString(1, user.getHashedPw());
@@ -83,8 +90,8 @@ public class UsersDAO {
 	public static boolean addUser(String username, String password, String realName, int type){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL);
-			String salt = null;
-			String hashedPw = null;
+			String salt = BCrypt.gensalt();
+			String hashedPw = BCrypt.hashpw(password, salt);
 			//TODO fill these in.
 			ps.setString(1, username);
 			ps.setString(2, hashedPw);

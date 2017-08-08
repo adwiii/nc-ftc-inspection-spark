@@ -1,7 +1,6 @@
 package nc.ftc.inspection.spark.util;
 
 import org.apache.velocity.app.*;
-import org.eclipse.jetty.http.*;
 import spark.*;
 import spark.template.velocity.*;
 import java.util.*;
@@ -18,16 +17,6 @@ public class ViewUtil {
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
         return strictVelocityEngine().render(new ModelAndView(model, templatePath));
     }
-
-    public static Route notAcceptable = (Request request, Response response) -> {
-        response.status(HttpStatus.NOT_ACCEPTABLE_406);
-        return "No suitable content found. Please specify either 'html/text' or 'application/json'.";
-    };
-
-    public static Route notFound = (Request request, Response response) -> {
-        response.status(HttpStatus.NOT_FOUND_404);
-        return render(request, new HashMap<>(), Path.Template.NOT_FOUND);
-    };
 
     private static VelocityTemplateEngine strictVelocityEngine() {
         VelocityEngine configuredEngine = new VelocityEngine();
