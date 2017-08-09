@@ -16,6 +16,7 @@ public class UsersDAO {
 	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
 	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?";
 	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,0)";
+	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
 	
 
 	
@@ -104,6 +105,7 @@ public class UsersDAO {
 		return false;
 	}
 
+	
 	public static User getUser(String username) {
 		if (username.isEmpty()) {
 			return null;
@@ -121,6 +123,22 @@ public class UsersDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static int getRoleAtEvent(String username, String eventCode){
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(EVENT_ROLE_SQL);
+			ps.setString(1, username);
+			ps.setString(2, eventCode);
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next()){
+				return -1;
+			}
+			return rs.getInt(0);
+		}catch(Exception e){
+			e.printStackTrace();
+			return -1;
+		}
 	}
 
 }
