@@ -55,8 +55,8 @@ public class Server {
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);
-		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreatAccountPost);
-		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreatAccountPost);
+		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
+		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

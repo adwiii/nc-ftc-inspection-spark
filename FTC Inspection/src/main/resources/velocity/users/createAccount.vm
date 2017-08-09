@@ -1,6 +1,9 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <form id="loginForm" method="post">
+	#if($success)
+		<p class="good notification">Successfully added $success users.</p>
+	#end
 	#if(!$newUserCount)
 		#set($newUserCount = 1)
 	#end
