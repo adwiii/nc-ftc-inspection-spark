@@ -33,13 +33,17 @@ public class LoginPage {
 
 	public static Route serveCreateAccountPage = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
+		return serveCreateAccountPage(request, response, model);
+	};
+	
+	public static Object serveCreateAccountPage(Request request, Response response, Map<String, Object> model) {
 		try {
 			model.put("newUserCount", Integer.parseInt(request.params(":id")));
 		} catch (Exception e) {
 			model.put("newUserCount", 1);
 		}
 		return render(request, model, Path.Template.CREATE_ACCOUNT);
-	};
+	}
 
 	public static Route handlePasswordChangePost = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
@@ -103,6 +107,7 @@ public class LoginPage {
 
 	public static Route handleCreateAccountPost = (Request request, Response response) -> {
 		int i = 1; 
+		int success = 0;
 		try {
 			while (true) {
 				String username = request.queryParams("username" + i);
@@ -120,16 +125,18 @@ public class LoginPage {
 					type = User.KEY_VOLUNTEER;
 					break;
 				}
-				UsersDAO.addUser(username, username, realname, type);
+				//if the username was left blank this will fail
+				if (UsersDAO.addUser(username, username, realname, type)) {
+					success++;
+				}
 				i++;
 			}
 		} catch (Exception e) {
 			//this happens when we loop past the last one
 		}
-		i--;
 		Map<String, Object> model = new HashMap<>();
-		model.put("success", i);
-		return render(request, model, Path.Template.CREATE_ACCOUNT);
+		model.put("success", success);
+		return serveCreateAccountPage(request, response, model);
 	};
 
 	public static Route handleLogoutPost = (Request request, Response response) -> {

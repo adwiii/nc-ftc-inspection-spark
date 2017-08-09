@@ -14,7 +14,7 @@
 	#foreach($i in $range)
    		<h2>New user $i:</h2>
    		<label>Username:</label>
-   		<input type="text" name="username$i" required>
+   		<input type="text" name="username$i">
    		<label>Real Name:</label>
    		<input type="text" name="realname$i">
    		<label>Type:</label>
