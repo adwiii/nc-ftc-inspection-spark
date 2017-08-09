@@ -18,6 +18,10 @@ public class DefaultPages {
 		return render(req, map , Path.Template.INDEX)	;
 	};
 	
+	public static Route ipPage = (req, res) -> {
+		return render(req, Path.Template.IP_PAGE);
+	};
+	
     public static Route notAcceptable = (Request request, Response response) -> {
         response.status(HttpStatus.NOT_ACCEPTABLE_406);
         return "No suitable content found. Please specify either 'html/text' or 'application/json'.";

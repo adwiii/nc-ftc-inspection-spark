@@ -1,4 +1,4 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-    <h1>We can't find the page you're looking for <small>(error 404)</small></h1>
+    <h1>Could not find page $currentPath <small>(error 404)</small></h1>
 #end

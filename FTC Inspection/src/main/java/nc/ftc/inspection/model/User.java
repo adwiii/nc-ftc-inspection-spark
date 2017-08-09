@@ -55,7 +55,24 @@ public class User {
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
+
+	/**
+	 * This checks to see if this users type is at least the type given.
+	 * @param type The type to check against
+	 * @return if this user is at least the type given
+	 */
+	public boolean is(int type) {
+		return this.type <= type;
+	}
 	
+	/**
+	 * Checks to see if this user strictly outranks the other user.
+	 * @param other The user to check against
+	 * @return if this user strictly outranks the other user
+	 */
+	public boolean outRanks(User other) {
+		return this.type < other.type;
+	}
 	
 
 }

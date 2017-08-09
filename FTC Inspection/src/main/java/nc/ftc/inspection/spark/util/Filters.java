@@ -12,7 +12,10 @@ public class Filters {
         if (!request.pathInfo().endsWith("/")) {
             response.redirect(request.pathInfo().toLowerCase() + "/");
         } else {
-        	response.redirect(request.pathInfo().toLowerCase());
+        	//check to see if we need to go to lower case
+        	if (!request.pathInfo().equals(request.pathInfo().toLowerCase())) {
+        		response.redirect(request.pathInfo().toLowerCase());
+        	}
         }
     };
     

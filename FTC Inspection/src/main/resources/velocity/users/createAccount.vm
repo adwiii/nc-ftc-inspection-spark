@@ -1,0 +1,28 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<form id="loginForm" method="post">
+	#if(!$newUserCount)
+		#set($newUserCount = 1)
+	#end
+	<h1>Create new user account#if($newUserCount>1)s#end </h1>
+	#set($start = 1)
+	#set($end = $newUserCount)
+	#set($range = [$start..$end])
+	#foreach($i in $range)
+   		<h2>New user $i:</h2>
+   		<label>Username:</label>
+   		<input type="text" name="username$i" required>
+   		<label>Real Name:</label>
+   		<input type="text" name="realname$i">
+   		<label>Type:</label>
+   		<select name="type$i">
+  			<option value="team">Team member</option>
+  			<option value="volunteer">Volunteer</option>
+  			<option value="key">Key volunteer</option>
+		</select>	
+		<br><br>
+	#end
+	
+    <input type="submit" value="Create Account#if($newUserCount>1)s#end">
+</form>
+#end

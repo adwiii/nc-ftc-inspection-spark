@@ -2,9 +2,17 @@
 #@mainLayout()
 <form id="loginForm" method="post">
     #if($authenticationFailed)
-        <p class="bad notification">The given username and password are invalid</p>
+    	#if($changePW)
+    		<p class="bad notification">$reason</p>
+    	#else
+    		<p class="bad notification">The given username and password are invalid</p>
+    	#end
     #elseif($authenticationSucceeded)
-        <p class="good notification">Welcome back, $currentUser</p>
+    	#if($changePW)
+        	<p class="good notification">Your password has been successfully changed.</p>
+        #else
+        	<p class="good notification">Welcome back, $currentUser</p>
+        #end
     #elseif($loggedOut)
         <p class="notification">You have been successfully logged out</p>
     #end
@@ -14,12 +22,26 @@
     <h1>Login</h1>
     <p>Please enter your username and password.</p>
     <label>Username: </label>
-    <input type="text" name="username"  required>
-    <label>Password: </label>
-    <input type="password" name="password" required>
+    #if($username)
+    	<input type="text" name="username" value="$username" required>
+    #else
+    	<input type="text" name="username" required>
+    #end
     #if($loginRedirect)
         <input type="hidden" name="loginRedirect" value="$loginRedirect">
     #end
-    <input type="submit" value="Login">
+    #if($changePW)
+        <label>Old password: </label>
+    	<input type="password" name="password" required>
+    	<label>New password: </label>
+    	<input type="password" name="newPassword1" required>
+    	<label>Re-enter new password: </label>
+    	<input type="password" name="newPassword2" required>
+    	<input type="submit" value="Change Password">
+    #else
+        <label>Password: </label>
+    	<input type="password" name="password" required>
+    	<input type="submit" value="Login">
+    #end
 </form>
 #end

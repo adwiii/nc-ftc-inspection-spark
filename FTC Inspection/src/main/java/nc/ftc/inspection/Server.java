@@ -37,16 +37,26 @@ public class Server {
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);
 		
-		before("/superSecret/", Filters.getAuthenticationFilter(User.SYSADMIN));
+		before(Path.Web.CREATE_ACCOUNT, Filters.getAuthenticationFilter(User.ADMIN));
+		before(Path.Web.CREATE_ACCOUNT_SIMPLE, Filters.getAuthenticationFilter(User.ADMIN));
+		
 		
 		get(Path.Web.INDEX, DefaultPages.indexPage);
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
+		get(Path.Web.IP_PAGE, DefaultPages.ipPage);
+		get(Path.Web.CHANGE_PW, LoginPage.servePasswordChangePage);
+		get(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.serveCreateAccountPage);
+		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
+		
 		//TODO make change password/new user page
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
+		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);
+		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreatAccountPost);
+		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreatAccountPost);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

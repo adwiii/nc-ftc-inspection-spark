@@ -25,23 +25,10 @@ public class UsersDAO {
 	 * @return The user object, or null if invalid.
 	 */
 	public static User authenticate(String username, String pw){
-		if (username.isEmpty() || pw.isEmpty()) {
-			return null;
-		}
-		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(PASSWORD_SQL);
-			ps.setString(1, username);
-			ResultSet rs = ps.executeQuery();
-			if(!rs.next()){
-				return null;
-			}
-			User user = new User(username, rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4));
-			String hashedPassword = BCrypt.hashpw(pw, user.getSalt());
-			if (hashedPassword.equals(user.getHashedPw())) {
-				return user;
-			}
-		}catch(Exception e){
-			e.printStackTrace();
+		User user = getUser(username);
+		String hashedPassword = BCrypt.hashpw(pw, user.getSalt());
+		if (hashedPassword.equals(user.getHashedPw())) {
+			return user;
 		}
 		return null;
 	}
@@ -112,6 +99,25 @@ public class UsersDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public static User getUser(String username) {
+		if (username.isEmpty()) {
+			return null;
+		}
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(PASSWORD_SQL);
+			ps.setString(1, username);
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next()){
+				return null;
+			}
+			return new User(username, rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4));
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

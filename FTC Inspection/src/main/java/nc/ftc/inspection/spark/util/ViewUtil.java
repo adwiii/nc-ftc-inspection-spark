@@ -14,6 +14,8 @@ public class ViewUtil {
     // and to see if the user is logged in
     public static String render(Request req, Map<String, Object> model, String templatePath) {
         model.put("currentUser", getSessionCurrentUser(req));
+        model.put("currentPath", req.pathInfo());
+        model.put("request", req);
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
         return strictVelocityEngine().render(new ModelAndView(model, templatePath));
     }

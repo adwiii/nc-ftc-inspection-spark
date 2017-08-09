@@ -3,8 +3,10 @@ package nc.ftc.inspection;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import nc.ftc.inspection.model.User;
+import spark.Request;
 
 public class AuthenticationManager {
 	static long DEFAULT_SESSION_LENGTH = 100 * 60 * 60 * 24; //24hr default session length
@@ -24,10 +26,8 @@ public class AuthenticationManager {
 
 	public static String getNewSession(User user, long expirationTime) {
 		while (true) {
-			SecureRandom random = new SecureRandom();
-			byte bytes[] = new byte[128];
-			random.nextBytes(bytes);
-			String token = user.getUsername().hashCode() + bytes.toString();
+			//in theory this is universally unique, so we shouldn't even need to check if it contains
+			String token = UUID.randomUUID().toString(); 
 			if (!sessions.containsKey(token)) {
 				sessions.put(token, new Session(user, expirationTime));
 				return token;
@@ -64,5 +64,17 @@ public class AuthenticationManager {
 			return session.getUser().getType();
 		}
 		return User.NONE;
+	}
+
+	public static int getCurrentType(Request request) {
+		return getUserType(request.queryParams("sessionToken"));
+	}
+
+	public static User getCurrentUser(Request request) {
+		Session session = sessions.get(request.queryParams("sessionToken"));
+		if (session != null) {
+			return session.getUser();
+		}
+		return null;
 	}
 }

@@ -1,0 +1,4 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+Current IP: $request.ip()
+#end
