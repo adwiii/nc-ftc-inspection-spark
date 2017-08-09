@@ -13,9 +13,9 @@ import org.mindrot.jbcrypt.*;
 
 public class UsersDAO {
 	
-	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName FROM users where username = ?";
-	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ? WHERE username = ?";
-	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?)";
+	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
+	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?";
+	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,0)";
 	
 
 	
@@ -34,7 +34,7 @@ public class UsersDAO {
 	}
 	
 	/**
-	 * Updates the password of a given user.
+	 * Updates the password of a given user, and sets changed flag
 	 * @param username The username to update
 	 * @param oldPw The current pw, used to verify
 	 * @param newPw The new password in plaintext
@@ -67,7 +67,7 @@ public class UsersDAO {
 	
 	/**
 	 * Adds a new user to the database. Returns true is the operation succeeds. If a user with that name already exists or the current password is
-	 * incorrect, returns false. 
+	 * incorrect, returns false. Their password changed flag is set to false.
 	 * @param username The new username to add
 	 * @param hashedPw Their plaintext password
 	 * @param type The type of the new user.
@@ -112,7 +112,7 @@ public class UsersDAO {
 			if(!rs.next()){
 				return null;
 			}
-			return new User(username, rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4));
+			return new User(username, rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getBoolean(5));
 			
 		}catch(Exception e){
 			e.printStackTrace();
