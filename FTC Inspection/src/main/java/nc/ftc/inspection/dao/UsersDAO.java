@@ -75,6 +75,9 @@ public class UsersDAO {
 	 * @return true is successful, false if user already exists or password is incorrect.
 	 */
 	public static boolean addUser(String username, String password, String realName, int type){
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL);
 			String salt = BCrypt.gensalt();
