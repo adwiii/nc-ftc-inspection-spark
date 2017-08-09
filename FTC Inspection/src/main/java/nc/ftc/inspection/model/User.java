@@ -16,13 +16,23 @@ public class User {
 	private String hashedPw;
 	private String salt;
 	private int type;
+	private boolean changedPw;
 	
-	public User(String username, String hashedPw, String salt, int type, String rn){
+	public boolean hasChangedPw() {
+		return changedPw;
+	}
+
+	public void setChangedPw(boolean changedPw) {
+		this.changedPw = changedPw;
+	}
+
+	public User(String username, String hashedPw, String salt, int type, String rn, boolean changed){
 		this.username = username;
 		this.hashedPw = hashedPw;
 		this.salt = salt;
 		this.type = type;
 		this.realName = rn;
+		this.changedPw = changed;
 	}
 	
 	public String getUsername() {
