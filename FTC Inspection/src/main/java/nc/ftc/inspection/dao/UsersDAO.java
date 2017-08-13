@@ -17,6 +17,7 @@ public class UsersDAO {
 	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?";
 	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,0)";
 	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
+	static final String ASSIGN_ROLE_SQL = "INSERT OR REPLACE INTO roles VALUES (?,?,?)";
 	
 
 	
@@ -125,6 +126,13 @@ public class UsersDAO {
 		return null;
 	}
 	
+	/**
+	 * Returns the integer identifying the role of the given user at the specified event.
+	 * If the given user is not assigned to work the given event, or the given event/user doesn't exist, returns -1.
+	 * @param username
+	 * @param eventCode
+	 * @return
+	 */
 	public static int getRoleAtEvent(String username, String eventCode){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(EVENT_ROLE_SQL);
@@ -140,5 +148,27 @@ public class UsersDAO {
 			return -1;
 		}
 	}
+	
+	/**
+	 * Assigns the given role to the specified usr for the specified event.
+	 * @param eventCode
+	 * @param user The username of the user to assign
+	 * @param role
+	 * @return
+	 */
+	public static boolean assignRole(String eventCode, String user, int role){
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(ASSIGN_ROLE_SQL);
+			ps.setString(1, user);
+			ps.setString(2,  eventCode);
+			ps.setInt(3,  role);
+			int affected = ps.executeUpdate();
+			return affected == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 
 }
