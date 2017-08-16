@@ -15,8 +15,10 @@ public class Path {
         public static final String CREATE_ACCOUNT_SIMPLE = "/create/account/";
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
         public static final String CREATE_EVENT = "/create/event/";
+        public static final String MANAGE_EVENT = "/event/:event/manage/";
 		public static final String ALL = "*";
         
+		
         public String getIndex() {
         	return INDEX;
         }
@@ -24,7 +26,7 @@ public class Path {
         	return "";
         }
         public String getInspection() {
-        	return "";
+        	return "";a
         }
         public String getLogout() {
         	return LOGOUT;
@@ -44,6 +46,7 @@ public class Path {
         public static final String ERROR_403 = "/velocity/403.vm";
         public static final String CREATE_ACCOUNT = "/velocity/users/createAccount.vm";
         public static final String CREATE_EVENT = "/velocity/event/createEvent.vm";
+        public static final String MANAGE_EVENT = "/velocity/event/manageEvent.vm";
     }
 
 }
