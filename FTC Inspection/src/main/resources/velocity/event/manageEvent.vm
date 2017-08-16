@@ -1,0 +1,24 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<form id="loginForm" method="post">
+	<h2>Manage $eventCode: $eventName</h2>
+	<label>Event Code:</label>
+	<input type="text" value="$eventCode" readonly>
+	<label>Event Name:</label>
+	<input type="text" value="$eventName" name="eventName">
+	<label>Event Date:</label>
+	<!-- the id="datepicker" lets jquery know that this needs to be all fancy-->
+	<input type="text" name="eventDate" id="datepicker" value="$eventDate">
+	<label>Event State:</label>
+	<select name="eventStage">
+  		<option value="future">Future</option>
+  		<option value="setup">Setup</option>
+  		<option value="inspection">Inspection</option>
+  		<option value="quals">Qualifications</option>
+  		<option value="elims">Eliminations</option>
+  		<option value="final">Completed</option>
+	</select>	
+	
+	<input type="submit" value="Update Event">
+</form>
+#end

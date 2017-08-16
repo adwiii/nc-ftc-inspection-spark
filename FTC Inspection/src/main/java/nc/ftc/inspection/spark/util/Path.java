@@ -12,10 +12,13 @@ public class Path {
         public static final String LOGOUT = "/logout/";
         public static final String ERROR_403 = "/error403/";
         public static final String IP_PAGE = "/ip/";
-        public static final String CREATE_ACCOUNT_SIMPLE = "/createaccount/";
+        public static final String CREATE_ACCOUNT_SIMPLE = "/create/account/";
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
+        public static final String CREATE_EVENT = "/create/event/";
+        public static final String MANAGE_EVENT = "/event/:event/manage/";
 		public static final String ALL = "*";
         
+		
         public String getIndex() {
         	return INDEX;
         }
@@ -42,6 +45,8 @@ public class Path {
         public static final String IP_PAGE = "/velocity/index/ip.vm";
         public static final String ERROR_403 = "/velocity/403.vm";
         public static final String CREATE_ACCOUNT = "/velocity/users/createAccount.vm";
+        public static final String CREATE_EVENT = "/velocity/event/createEvent.vm";
+        public static final String MANAGE_EVENT = "/velocity/event/manageEvent.vm";
     }
 
 }

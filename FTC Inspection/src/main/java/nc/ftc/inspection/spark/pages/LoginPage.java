@@ -3,8 +3,6 @@ package nc.ftc.inspection.spark.pages;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
-
 import nc.ftc.inspection.AuthenticationManager;
 import nc.ftc.inspection.dao.UsersDAO;
 import nc.ftc.inspection.model.User;
@@ -51,7 +49,7 @@ public class LoginPage {
 		User user = UsersDAO.authenticate(getQueryUsername(request), getQueryPassword(request));
 		if (user == null) {
 			User temp = UsersDAO.getUser(getQueryUsername(request));
-			//if you are
+			//if you are a higher level than someone then you can change their password
 			User admin = AuthenticationManager.getCurrentUser(request);
 			if (!(admin != null && admin.is(User.ADMIN) && admin.outRanks(temp))) {
 				model.put("authenticationFailed", true);

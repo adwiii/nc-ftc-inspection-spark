@@ -17,12 +17,19 @@ public class ViewUtil {
         model.put("currentPath", req.pathInfo());
         model.put("request", req);
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
-        return strictVelocityEngine().render(new ModelAndView(model, templatePath));
+        return velocityEngine().render(new ModelAndView(model, templatePath));
     }
 
     private static VelocityTemplateEngine strictVelocityEngine() {
         VelocityEngine configuredEngine = new VelocityEngine();
         configuredEngine.setProperty("runtime.references.strict", true);
+        configuredEngine.setProperty("resource.loader", "class");
+        configuredEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        return new VelocityTemplateEngine(configuredEngine);
+    }
+    private static VelocityTemplateEngine velocityEngine() {
+        VelocityEngine configuredEngine = new VelocityEngine();
+        configuredEngine.setProperty("runtime.references.strict", false);
         configuredEngine.setProperty("resource.loader", "class");
         configuredEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
         return new VelocityTemplateEngine(configuredEngine);

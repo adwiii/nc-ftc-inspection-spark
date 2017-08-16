@@ -1,0 +1,24 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<form id="loginForm" method="post">
+
+	#if($success)
+		#if($success == 1)
+			<p class="good notification">$resp</p>
+		#else
+			<p class="bad notification">$resp</p>
+		#end
+	#end
+	
+	<h1>Create new event</h1>
+	<label>Event code:</label>
+	<input type="text" name="eventCode" value="$!eventCode">
+	<label>Event name:</label>
+	<input type="text" name="eventName" value="$!eventName">
+	<label>Event date:</label>
+	<!-- the id="datepicker" lets jquery know that this needs to be all fancy-->
+	<input type="text" name="eventDate" id="datepicker" value="$!eventDate">
+	
+	<input type="submit" value="Create Event">
+</form>
+#end
