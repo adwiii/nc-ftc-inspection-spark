@@ -22,6 +22,7 @@ import spark.Route;
 
 public class Server {
 	public static final String GLOBAL_DB = "jdbc:sqlite:src/main/resources/db/global.db"; 
+	
 	public static void main(String[] args) {
 		try {//idk, somethings up with gradle but this makes it work.
 			Class.forName("org.sqlite.JDBC");
