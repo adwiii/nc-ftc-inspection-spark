@@ -3,24 +3,12 @@ package nc.ftc.inspection;
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-
-import nc.ftc.inspection.dao.UsersDAO;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
 import nc.ftc.inspection.spark.pages.LoginPage;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
-import nc.ftc.inspection.spark.util.ViewUtil;
-import spark.template.velocity.*;
-import spark.utils.SparkUtils;
-import spark.Route;
-import spark.Spark;
 
 public class Server {
 	public static final String GLOBAL_DB = "jdbc:sqlite:src/main/resources/db/global.db"; 
