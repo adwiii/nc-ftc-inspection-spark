@@ -3,8 +3,6 @@ package nc.ftc.inspection.spark.pages;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
-
 import nc.ftc.inspection.AuthenticationManager;
 import nc.ftc.inspection.dao.UsersDAO;
 import nc.ftc.inspection.model.User;
