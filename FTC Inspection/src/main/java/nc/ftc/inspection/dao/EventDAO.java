@@ -12,7 +12,8 @@ import nc.ftc.inspection.model.Event;
 
 public class EventDAO {
 	static final String CREATE_EVENT_SQL = "INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)";
-
+	static final String CREATE_EVENT_DB_SQL = "ATTACH DATABASE ?.db AS local;" + 
+											"SELECT INTO ?.forms FROM forms";//TODO create each local table and populate it with SELECT INTO
 	public static List<Event> getEvents(){
 		return null;
 	}
@@ -33,6 +34,21 @@ public class EventDAO {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public static boolean createEventDatabase(String code){
+		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = global.prepareStatement(CREATE_EVENT_DB_SQL);
+			//fill parameters for each table with eventcode.
+			for(int i = 0; i < 2; i++){
+				ps.setString(i + 1, code);				
+			}
+			ps.executeUpdate();
+			return true;
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	
