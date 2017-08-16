@@ -26,7 +26,7 @@ public class Path {
         	return "";
         }
         public String getInspection() {
-        	return "";a
+        	return "";
         }
         public String getLogout() {
         	return LOGOUT;
