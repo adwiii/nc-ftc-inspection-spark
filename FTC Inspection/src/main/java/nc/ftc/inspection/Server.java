@@ -12,13 +12,15 @@ import java.util.HashMap;
 import nc.ftc.inspection.dao.UsersDAO;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
+import nc.ftc.inspection.spark.pages.EventPages;
 import nc.ftc.inspection.spark.pages.LoginPage;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
 import nc.ftc.inspection.spark.util.ViewUtil;
 import spark.template.velocity.*;
-
+import spark.utils.SparkUtils;
 import spark.Route;
+import spark.Spark;
 
 public class Server {
 	public static final String GLOBAL_DB = "jdbc:sqlite:src/main/resources/db/global.db"; 
@@ -28,7 +30,6 @@ public class Server {
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		
 		
 		port(80);
 		staticFiles.location("/public");
@@ -45,6 +46,7 @@ public class Server {
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
 		get(Path.Web.IP_PAGE, DefaultPages.ipPage);
 		get(Path.Web.CHANGE_PW, LoginPage.servePasswordChangePage);
+		get(Path.Web.CREATE_EVENT, EventPages.serveEventCreationPage);
 		get(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.serveCreateAccountPage);
 		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
 		
@@ -55,6 +57,7 @@ public class Server {
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);
+		post(Path.Web.CREATE_EVENT, EventPages.handleEventCreationPost);
 		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
 		

@@ -51,7 +51,7 @@ public class LoginPage {
 		User user = UsersDAO.authenticate(getQueryUsername(request), getQueryPassword(request));
 		if (user == null) {
 			User temp = UsersDAO.getUser(getQueryUsername(request));
-			//if you are
+			//if you are a higher level than someone then you can change their password
 			User admin = AuthenticationManager.getCurrentUser(request);
 			if (!(admin != null && admin.is(User.ADMIN) && admin.outRanks(temp))) {
 				model.put("authenticationFailed", true);
