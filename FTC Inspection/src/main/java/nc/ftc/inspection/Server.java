@@ -3,6 +3,7 @@ package nc.ftc.inspection;
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
 
+import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
@@ -11,8 +12,13 @@ import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
 
 public class Server {
-	public static final String GLOBAL_DB = "jdbc:sqlite:src/main/resources/db/global.db"; 
+	public static final String DB_PATH;// = "src/main/resources/db/";
+	public static final String GLOBAL_DB;// = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 	
+	static{ //TODO check if were in eclipse. If not, change DB path to lib folder?
+		DB_PATH = "src/main/resources/db/";
+		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
+	}
 	public static void main(String[] args) {
 		try {//idk, somethings up with gradle but this makes it work.
 			Class.forName("org.sqlite.JDBC");
