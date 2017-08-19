@@ -19,14 +19,14 @@ public class EventDAO {
 	static final String[] CREATE_EVENT_DB_SQL ={ 
 											"ATTACH DATABASE ':code.db' AS local;" , 
 											"CREATE TABLE local.teams(number INTEGER PRIMARY KEY);",
-											"CREATE TABLE local.formData (formID VARCHAR(2), type VARCHAR(1), row INTEGER, columns INTEGER, description VARCHAR, rule VARCHAR(128), PRIMARY KEY (formID, row));",
-											"CREATE TABLE local.formRows (cbIndex INTEGER, formID VARCHAR(2), row INTEGER, PRIMARY KEY(cbIndex, formID), FOREIGN KEY(formID, row) references formData(formId, row));",
-											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, cbIndex));" ,
+											"CREATE TABLE local.formRows (formID VARCHAR(2), type INTEGER, row INTEGER, columns INTEGER, description VARCHAR, rule VARCHAR(128), PRIMARY KEY (formID, row));",
+											"CREATE TABLE local.formItems (itemIndex INTEGER, formID VARCHAR(2), row INTEGER, label VARCHAR, PRIMARY KEY(itemIndex, formID), FOREIGN KEY(formID, row) references formRows(formID, row));",
+											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, itemIndex));" ,
 											"CREATE TABLE local.formComments(team INTEGER REFERENCES teams(number), formID VARCHAR(2), comment VARCHAR, PRIMARY KEY (team, formID));",
 											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
 											"CREATE TABLE local.inspection (team INTEGER PRIMARY KEY REFERENCES teams(number), ci BOOLEAN, hw BOOLEAN, sw BOOLEAN, fld BOOLEAN, sc BOOLEAN);",
-											"INSERT INTO local.formData SELECT * FROM formData;",
-											"INSERT INTO local.formRows SELECT * FROM formRows;"										
+											"INSERT INTO local.formRows SELECT * FROM formRows;",
+											"INSERT INTO local.formItems SELECT * FROM formItems;"										
 											};//TODO create each local table and populate it with SELECT INTO
 	static final String SET_EVENT_STATUS_SQL = "UPDATE events SET STATUS = ? WHERE code = ?;";
 	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
@@ -122,6 +122,8 @@ public class EventDAO {
 		}
 		return false;
 	}
+	
+	
 	
 	
 }

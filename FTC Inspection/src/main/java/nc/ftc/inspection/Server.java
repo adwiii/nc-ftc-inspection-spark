@@ -25,6 +25,7 @@ public class Server {
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
+		EventDAO.createEventDatabase("test2");
 		
 		port(80);
 		staticFiles.location("/public");
@@ -55,6 +56,7 @@ public class Server {
 		post(Path.Web.CREATE_EVENT, EventPages.handleEventCreationPost);
 		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
+		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		
