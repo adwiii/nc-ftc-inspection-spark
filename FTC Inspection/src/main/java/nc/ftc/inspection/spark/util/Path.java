@@ -16,6 +16,7 @@ public class Path {
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
+        public static final String EDIT_FORM = "/event/edit";
 		public static final String ALL = "*";
         
 		
@@ -47,6 +48,7 @@ public class Path {
         public static final String CREATE_ACCOUNT = "/velocity/users/createAccount.vm";
         public static final String CREATE_EVENT = "/velocity/event/createEvent.vm";
         public static final String MANAGE_EVENT = "/velocity/event/manageEvent.vm";
+        public static final String EDIT_FORM = "/velocity/index/index.vm";//event/editForm.vm";//just renders form for now
     }
 
 }

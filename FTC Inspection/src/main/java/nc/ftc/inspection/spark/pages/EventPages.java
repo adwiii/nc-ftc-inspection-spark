@@ -61,4 +61,14 @@ public class EventPages {
 //		model.pu
 		return render(request, model, Path.Template.MANAGE_EVENT);
 	};
+	
+	public static Route serveFormEditPage = (Request request, Response response) ->{
+		
+		Map<String, Object> model = new HashMap<>();
+		model.put("currTime", System.currentTimeMillis());
+		String eventCode = null;//request.params("event");
+		String formID = request.queryParams("form");
+		System.out.println("HI: "+eventCode+", "+formID);
+		return render(request, model, Path.Template.EDIT_FORM);
+	};
 }

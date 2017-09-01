@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+Hello this is the index page :)
+<br>
+This page was rendered at: 
+#end

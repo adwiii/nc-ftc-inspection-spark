@@ -3,7 +3,10 @@ package nc.ftc.inspection;
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
 
+import java.util.List;
+
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
@@ -25,7 +28,11 @@ public class Server {
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		EventDAO.createEventDatabase("test2");
+		//EventDAO.createEventDatabase("test2");
+//		List<FormRow> rows = EventDAO.getForm("test2", "HW");
+//		for(FormRow fr : rows){
+//			System.out.println(fr);
+//		}
 		
 		port(80);
 		staticFiles.location("/public");
@@ -46,6 +53,8 @@ public class Server {
 		get(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.serveCreateAccountPage);
 		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
 		
+		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);
+		
 		//TODO make change password/new user page
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);
@@ -56,6 +65,7 @@ public class Server {
 		post(Path.Web.CREATE_EVENT, EventPages.handleEventCreationPost);
 		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
+		
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
