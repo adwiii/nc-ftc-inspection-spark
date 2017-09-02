@@ -2,12 +2,14 @@ package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Event;
+import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
+import java.awt.Point;
 import java.sql.Date;
 
 import spark.Request;
@@ -65,10 +67,16 @@ public class EventPages {
 	public static Route serveFormEditPage = (Request request, Response response) ->{
 		
 		Map<String, Object> model = new HashMap<>();
-		model.put("currTime", System.currentTimeMillis());
-		String eventCode = null;//request.params("event");
+		String eventCode = request.params("event");
 		String formID = request.queryParams("form");
-		System.out.println("HI: "+eventCode+", "+formID);
+		List<FormRow> form = EventDAO.getForm(eventCode, formID);
+		int max = 0;
+		for(FormRow fr : form){
+			max = Math.max(max, fr.getColumnData().length);
+		}
+		model.put("max", max);
+		model.put("form", form);
+		model.put("headerColor", "#E6B222");
 		return render(request, model, Path.Template.EDIT_FORM);
 	};
 }

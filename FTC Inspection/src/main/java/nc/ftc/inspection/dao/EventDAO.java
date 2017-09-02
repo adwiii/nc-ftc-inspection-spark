@@ -166,7 +166,6 @@ public class EventDAO {
 				FormRow fr = map.get(row);
 				switch(fr.getType()){
 				case FormRow.HEADER:
-					System.out.println("HEADER:" + row+" "+rs.getString(3));
 					fr.addItemData(rs.getString(3));
 					break;
 				case FormRow.NON_HEADER:

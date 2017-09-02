@@ -1,6 +1,34 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-Hello this is the index page :)
-<br>
-This page was rendered at: 
+<table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
+	#foreach($f in $form)
+		#set ($x = $max / $f.columnData.size())		
+		#if($f.type == 1)	
+			<tr bgcolor=$headerColor>
+			#foreach($c in $f.columnData)						
+					<th colspan=$x>$c</th>				
+			#end
+			<th>$f.description</th>
+			<th>$f.rule</th>
+			</tr>
+		#else
+			<tr height=30px>
+				#foreach($c in $f.req)
+					
+					<td colspan=$x>
+						#if($c == 0)
+							N/A
+						#elseif($c == 1)
+							REQ
+						#else
+							OPT
+						#end
+					</td>
+				#end
+				<td>$f.description</td>
+				<td>$f.rule</td>
+			</tr>
+		#end
+	#end
+</table>
 #end

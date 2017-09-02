@@ -25,8 +25,7 @@ public class FormRow {
 		}
 		this.row = row;
 		this.description = d;
-		this.rule = rule;
-		System.out.println("New Row: "+ row+": "+type);
+		this.rule = rule.replaceAll("<", "&lt;");
 		
 	}
 	public void addItemData(Object item){
@@ -42,6 +41,21 @@ public class FormRow {
 	}
 	public int getType(){
 		return type;
+	}
+	public String getRule(){
+		return rule;
+	}
+	public String getDescription(){
+		return description;
+	}
+	public Object[] getColumnData(){
+		return columnData;
+	}
+	public boolean[] getChecked(){
+		return checked;
+	}
+	public int[] getReq(){
+		return req;
 	}
 	public String toString(){
 		String s = "";
