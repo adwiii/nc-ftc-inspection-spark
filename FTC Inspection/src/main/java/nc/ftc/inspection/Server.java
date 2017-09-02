@@ -54,7 +54,7 @@ public class Server {
 		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
 		
 		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);
-		
+		get(Path.Web.INSPECT, EventPages.serveInspectionPage);
 		//TODO make change password/new user page
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);

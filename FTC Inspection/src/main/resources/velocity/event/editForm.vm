@@ -5,20 +5,20 @@
 		#set ($x = $max / $f.columnData.size())		
 		#if($f.type == 1)	
 			<tr bgcolor=$headerColor>
-			#foreach($c in $f.columnData)						
-					<th colspan=$x>$c</th>				
+			#foreach($c in $f.items)						
+					<th colspan=$x>$c.label</th>				
 			#end
 			<th>$f.description</th>
 			<th>$f.rule</th>
 			</tr>
 		#else
 			<tr height=30px>
-				#foreach($c in $f.req)
+				#foreach($c in $f.items)
 					
 					<td colspan=$x>
-						#if($c == 0)
+						#if($c.required == 0)
 							N/A
-						#elseif($c == 1)
+						#elseif($c.required == 1)
 							REQ
 						#else
 							OPT

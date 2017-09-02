@@ -17,7 +17,9 @@ public class Path {
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
         public static final String EDIT_FORM = "/event/:event/edit/";
-		public static final String ALL = "*";
+		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
+		public static final String INSPECT_SELECT = "/event/:event/select/:form"; //page to select teams to inspect
+        public static final String ALL = "*";
         
 		
         public String getIndex() {
@@ -49,6 +51,7 @@ public class Path {
         public static final String CREATE_EVENT = "/velocity/event/createEvent.vm";
         public static final String MANAGE_EVENT = "/velocity/event/manageEvent.vm";
         public static final String EDIT_FORM = "/velocity/event/editForm.vm";//just renders form for now
+        public static final String INSPECT = "/velocity/event/inspect.vm";
     }
 
 }

@@ -30,15 +30,15 @@ public class EventDAO {
 											"CREATE TABLE local.inspection (team INTEGER PRIMARY KEY REFERENCES teams(number), ci BOOLEAN, hw BOOLEAN, sw BOOLEAN, fld BOOLEAN, sc BOOLEAN);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
 											"INSERT INTO local.formItems SELECT * FROM formItems;"										
-											};//TODO create each local table and populate it with SELECT INTO
+											};
 	static final String SET_EVENT_STATUS_SQL = "UPDATE events SET STATUS = ? WHERE code = ?;";
 	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
 	static final String GET_EVENT_LIST_SQL = "SELECT * FROM events;";
 	static final String GET_EVENT_SQL = "SELECT * FROM events WHERE code = ?;";
 	static final String GET_FORM_ROWS = "SELECT * FROM formRows WHERE formID = ? ORDER BY row";
 	static final String GET_FORM_ITEMS = "SELECT items.row, items.itemIndex, items.label, items.req :teamColumns FROM formItems items";
-	static final String TEAM_JOINS = " LEFT JOIN formStatus ? ON ?.cbIndex = items.itemIndex AND team = ? AND items.formID = ?.formID";
-	static final String FORM_ITEMS_WHERE = " WHERE formID = ?";
+	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
+	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -146,18 +146,14 @@ public class EventDAO {
 			String teamJoins = "";
 			char c = 'a';
 			for(int i = 0; i < teams.length; i++, c++){
-				teamColumns += ", "+c+".status"+teams[i];
-				teamJoins += TEAM_JOINS;
+				teamColumns += ", "+c+".status";//+teams[i];
+				teamJoins += TEAM_JOINS.replaceAll(":alias", c+"");
 			}
 			//row, index, label, req, [#.status, #.status, ...]
 			ps = local.prepareStatement(GET_FORM_ITEMS.replaceAll(":teamColumns", teamColumns) + teamJoins + FORM_ITEMS_WHERE );
-			c = 'a';
 			int i = 0;
-			for(; i < teams.length; i += 4, c++){
-				ps.setString(i + 1, c + "");
-				ps.setString(i + 2, c + "");
-				ps.setInt(i + 3, teams[i]);
-				ps.setString(i + 4, c + "");
+			for(; i < teams.length; i++){
+				ps.setInt(i + 1, teams[i]);
 			}
 			ps.setString(i + 1, formCode);
 			rs = ps.executeQuery();
@@ -166,18 +162,28 @@ public class EventDAO {
 				FormRow fr = map.get(row);
 				switch(fr.getType()){
 				case FormRow.HEADER:
-					fr.addItemData(rs.getString(3));
+					if(teams.length == 0){
+						fr.addHeaderItem(rs.getInt(2), rs.getString(3), -1);
+					} else{
+						for(int team : teams){
+							fr.addHeaderItem(rs.getInt(2), rs.getString(3) + (teams.length > 1 ? "<br/>("+team+")" : ""), team);
+						}
+					}
 					break;
 				case FormRow.NON_HEADER:
 					int itemId = rs.getInt(2);
 					if(teams.length == 0){
-						fr.addItemData(itemId, rs.getInt(4), false);
-					}
-					for(int ti = 0; ti < teams.length; ti++){
-						fr.addItemData(itemId + "_" + teams[ti], rs.getInt(4), rs.getBoolean(5 + ti));
+						fr.addDataItem(itemId, rs.getInt(4), false, -1);
+					} else{
+						for(int ti = 0; ti < teams.length; ti++){
+							fr.addDataItem(itemId, rs.getInt(4), rs.getBoolean(5 + ti), teams[ti]);
+						}
 					}
 					break;
 				}				
+			}
+			for(FormRow row : form){
+				row.postProcess();
 			}
 			return form;
 		} catch (Exception e) {

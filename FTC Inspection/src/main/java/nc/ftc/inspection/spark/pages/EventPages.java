@@ -6,6 +6,7 @@ import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,5 +79,35 @@ public class EventPages {
 		model.put("form", form);
 		model.put("headerColor", "#E6B222");
 		return render(request, model, Path.Template.EDIT_FORM);
+	};
+	
+	public static Route serveInspectionPage = (Request request, Response response) ->{
+		Map<String, Object> model = new HashMap<>();
+		String eventCode = request.params("event");
+		String formID = request.params("form").toUpperCase();
+		String team = request.queryParams("team");
+		String teams = request.queryParams("teams");
+		//if both provided, use the "teams" param.
+		if(teams == null && team != null){
+			teams = team;
+		}
+		if(teams == null){
+			return "";
+		}
+		String[] s = teams.split(",");
+		int[] teamList = new int[s.length];
+		for(int i = 0; i < s.length; i++){
+			teamList[i] = Integer.parseInt(s[i]);
+		}
+		List<FormRow> form = EventDAO.getForm(eventCode, formID, teamList);
+		int max = 0;
+		for(FormRow fr : form){
+			max = Math.max(max, fr.getColumnData().length);
+		}
+		model.put("max", max);
+		model.put("form", form);
+		model.put("teams", teamList);
+		model.put("headerColor", "#E6B222");
+		return render(request, model, Path.Template.INSPECT);
 	};
 }
