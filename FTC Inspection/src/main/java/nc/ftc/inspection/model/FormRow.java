@@ -37,6 +37,9 @@ public class FormRow {
 		public int getRequired(){
 			return required;
 		}
+		public boolean getChecked(){
+			return checked;
+		}
 	}
 	String formID;
 	int type;
