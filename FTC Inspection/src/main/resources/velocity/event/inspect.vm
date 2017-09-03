@@ -5,6 +5,9 @@ function update(src){
 	var x = !eval(src.dataset.checked);
 	src.dataset.checked = x;
 	src.innerHTML = x ? "&#x2713" : "";
+	var sp = src.id.split("_");
+	var postObj = {formID:sp[0], team:sp[1], index:sp[2], state:x};
+	$.post("./",postObj,function(data, status){alert('hi');});
 }
 </script>
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">

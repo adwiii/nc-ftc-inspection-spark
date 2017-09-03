@@ -65,6 +65,7 @@ public class Server {
 		post(Path.Web.CREATE_EVENT, EventPages.handleEventCreationPost);
 		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
+		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
 		
 		
 		

@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.awt.Point;
 import java.sql.Date;
 
+import spark.QueryParamsMap;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -110,4 +112,11 @@ public class EventPages {
 		model.put("headerColor", "#E6B222");
 		return render(request, model, Path.Template.INSPECT);
 	};
+	
+	public static Route handleInspectionItemPost = (Request request, Response response) ->{
+		
+		response.status(501); //not implemented
+		return request.queryParams("state");
+	};
+	
 }
