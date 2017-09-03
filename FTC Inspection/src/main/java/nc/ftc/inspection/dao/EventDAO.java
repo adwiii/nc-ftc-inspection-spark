@@ -29,7 +29,8 @@ public class EventDAO {
 											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
 											"CREATE TABLE local.inspection (team INTEGER PRIMARY KEY REFERENCES teams(number), ci BOOLEAN, hw BOOLEAN, sw BOOLEAN, fld BOOLEAN, sc BOOLEAN);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
-											"INSERT INTO local.formItems SELECT * FROM formItems;"										
+											"INSERT INTO local.formItems SELECT * FROM formItems;"			
+											//TODO create trigger for adding item to row
 											};
 	static final String SET_EVENT_STATUS_SQL = "UPDATE events SET STATUS = ? WHERE code = ?;";
 	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
@@ -39,6 +40,7 @@ public class EventDAO {
 	static final String GET_FORM_ITEMS = "SELECT items.row, items.itemIndex, items.label, items.req :teamColumns FROM formItems items";
 	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
 	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
+	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -128,6 +130,24 @@ public class EventDAO {
 		return false;
 	}
 	
+	/**
+	 * This method populates the formStatus, formComments, teamStatus tables. Any table
+	 * that has team related data. This method should be called at the beginning of the inspection stage, after the
+	 * setup stage. Once this is called, the inspection forms can only be edited in specific ways:
+	 * change checkbox to NA or OPT, add OPT or NA box, edit wording. If a team is added, need to
+	 * populate data for all of these tables on their addition. 
+	 * @param event
+	 * @return
+	 */
+	public static boolean populateStatusTables(String event){
+		try(Connection local = getLocalDB(event)){
+			
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public static List<FormRow> getForm(String eventCode, String formCode, int ... teams){
 		try(Connection local = getLocalDB(eventCode)){
 			PreparedStatement ps = local.prepareStatement(GET_FORM_ROWS);
@@ -190,6 +210,23 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static boolean setFormStatus(String event, String form, int team, int itemIndex, boolean status){
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SET_FORM_STATUS_SQL);
+			//System.out.println(status+","+form+","+team+","+itemIndex);
+			ps.setBoolean(1,  status);
+			ps.setString(2, form);
+			ps.setInt(3,  team);
+			ps.setInt(4,  itemIndex);
+			int affected = ps.executeUpdate();
+			//System.out.println(affected);
+			return affected == 1;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	

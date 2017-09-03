@@ -114,9 +114,20 @@ public class EventPages {
 	};
 	
 	public static Route handleInspectionItemPost = (Request request, Response response) ->{
-		
-		response.status(501); //not implemented
+//		Set<String> params = request.queryParams();
+//		for(String k : params){
+//			System.out.println(k+": "+request.queryParams(k));
+//		}
+		String event = request.params("event");
+		String form = request.queryParams("form");
+		int team =  Integer.parseInt(request.queryParams("team"));
+		int itemIndex = Integer.parseInt(request.queryParams("index"));
+		boolean status = Boolean.parseBoolean(request.queryParams("state"));
+		response.status(EventDAO.setFormStatus(event, form,team, itemIndex, status) ? 200 : 500);
 		return request.queryParams("state");
+		//Client perspective:
+		//If 200 & state matches, we good. If 200 & state wrong, timing issue, do nothing
+		//if 500, failed.
 	};
 	
 }
