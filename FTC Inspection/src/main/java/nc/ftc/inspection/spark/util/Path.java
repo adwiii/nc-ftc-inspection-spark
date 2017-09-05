@@ -20,6 +20,9 @@ public class Path {
 		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
 		public static final String INSPECT_SELECT = "/event/:event/select/:form"; //page to select teams to inspect
         public static final String INSPECT_ITEM = "/event/:event/inspect/:form/";
+        public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
+        public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
+        public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
 		public static final String ALL = "*";
         
 		

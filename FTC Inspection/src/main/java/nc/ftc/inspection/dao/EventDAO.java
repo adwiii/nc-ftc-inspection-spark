@@ -27,13 +27,21 @@ public class EventDAO {
 											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, itemIndex));" ,
 											"CREATE TABLE local.formComments(team INTEGER REFERENCES teams(number), formID VARCHAR(2), comment VARCHAR, PRIMARY KEY (team, formID));",
 											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
-											"CREATE TABLE local.inspection (team INTEGER PRIMARY KEY REFERENCES teams(number), ci BOOLEAN, hw BOOLEAN, sw BOOLEAN, fld BOOLEAN, sc BOOLEAN);",
+											"CREATE TABLE local.inspectionStatus (team INTEGER PRIMARY KEY REFERENCES teams(number), ci TINYINT, hw TINYINT, sw TINYINT, fld TINYINT, sc TINYINT);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
-											"INSERT INTO local.formItems SELECT * FROM formItems;"			
+											"INSERT INTO local.formItems SELECT * FROM formItems;"
+											//sig table			
 											//TODO create trigger for adding item to row
 											};
 	static final String SET_EVENT_STATUS_SQL = "UPDATE events SET STATUS = ? WHERE code = ?;";
+	static final String[] POPULATE_TEAMS_SQL = {
+											"INSERT INTO inspectionStatus (team) SELECT number FROM teams;",
+											"INSERT INTO formStatus SELECT number, form.formID, itemIndex, 0 FROM teams LEFT JOIN formRows form ON type = 2 LEFT JOIN formItems items ON items.formID = form.formID AND items.row = form.row;",
+											"INSERT INTO formComments (tean, formID) select number, formID FROM teams LEFT JOIN (SELECT DISTINCT formID from formRows);"
+											//sig table
+	};
 	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
+	static final String ADD_TEAM_LATE = "";
 	static final String GET_EVENT_LIST_SQL = "SELECT * FROM events;";
 	static final String GET_EVENT_SQL = "SELECT * FROM events WHERE code = ?;";
 	static final String GET_FORM_ROWS = "SELECT * FROM formRows WHERE formID = ? ORDER BY row";
@@ -41,10 +49,13 @@ public class EventDAO {
 	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
 	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
 	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
+	static final String GET_STATUS_SQL = "SELECT * FROM inspectionStatus";
+	static final String GET_STATUS_WHERE = " WHERE team = ?";
+	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
-	}
+	} 
 	
 	public static List<Event> getEvents(){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
@@ -103,6 +114,7 @@ public class EventDAO {
 	}
 	
 	public static boolean addTeamToEvent(int team, String eventCode){
+		//TODO IF EVENT PAST SETUP, need to do ADD_TEAM_LATE_SQL
 		try(Connection conn = getLocalDB(eventCode)){
 			PreparedStatement ps = conn.prepareStatement(ADD_TEAM_SQL);
 			ps.setInt(1, team);
@@ -131,7 +143,7 @@ public class EventDAO {
 	}
 	
 	/**
-	 * This method populates the formStatus, formComments, teamStatus tables. Any table
+	 * This method populates the formStatus, formComments, inspectionStatus tables. Any table
 	 * that has team related data. This method should be called at the beginning of the inspection stage, after the
 	 * setup stage. Once this is called, the inspection forms can only be edited in specific ways:
 	 * change checkbox to NA or OPT, add OPT or NA box, edit wording. If a team is added, need to
@@ -228,6 +240,22 @@ public class EventDAO {
 		}
 		return false;
 	}
+	
+	
+	public static boolean setTeamStatus(String event, String form, int team, int status){
+		//TODO handle same status returning false in calling method by checking!
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SET_STATUS_SQL.replaceAll(":column", form));
+			ps.setInt(1, status);
+			ps.setInt(2, team);
+			int affected = ps.executeUpdate();
+			return affected == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	
 	
 	

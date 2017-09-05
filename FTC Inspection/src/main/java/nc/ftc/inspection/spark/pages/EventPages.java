@@ -114,10 +114,6 @@ public class EventPages {
 	};
 	
 	public static Route handleInspectionItemPost = (Request request, Response response) ->{
-//		Set<String> params = request.queryParams();
-//		for(String k : params){
-//			System.out.println(k+": "+request.queryParams(k));
-//		}
 		String event = request.params("event");
 		String form = request.queryParams("form");
 		int team =  Integer.parseInt(request.queryParams("team"));

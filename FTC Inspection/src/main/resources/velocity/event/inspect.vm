@@ -7,9 +7,18 @@ function update(src){ //TODO move this to a separate js file.
 	src.innerHTML = x ? "&#x2713" : "";
 	var sp = src.id.split("_");
 	var postObj = {form:sp[0], team:sp[1], index:sp[2], state:x};
-	$.post("./",postObj,function(data, status){
-		//TODO handle response
-	});
+	src.bgColor = "#FFFF00";
+	$.post("./",postObj).done(function(data){
+		if(eval(data) == eval(src.dataset.checked)){
+			//we good.
+			src.bgColor = "#FFFFFF";
+		} else{
+			//probs been clicked since query sent, we dont care no more.
+			console.log("OH NO!");
+		}
+	}).fail( function(xhr, textStatus, errorThrown) {
+        src.bgColor = "#FF0000";
+    });
 }
 </script>
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">

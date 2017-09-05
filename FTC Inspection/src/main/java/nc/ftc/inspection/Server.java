@@ -10,6 +10,7 @@ import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
+import nc.ftc.inspection.spark.pages.GlobalPages;
 import nc.ftc.inspection.spark.pages.LoginPage;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
@@ -58,6 +59,7 @@ public class Server {
 		//TODO make change password/new user page
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);
+		get(Path.Web.MASTER_TEAM_LIST, GlobalPages.handleTeamListGet);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -66,6 +68,9 @@ public class Server {
 		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
 		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
+		post(Path.Web.NEW_TEAM, GlobalPages.handleNewTeamPost);
+		
+		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		
 		
 		
