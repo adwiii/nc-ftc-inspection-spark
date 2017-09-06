@@ -23,6 +23,8 @@ public class Path {
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
+        public static final String EVENT_STATUS = "/event/:event/status/data"; //Endpoint to get data
+        public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
 		public static final String ALL = "*";
         
 		

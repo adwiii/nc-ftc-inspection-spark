@@ -75,7 +75,7 @@ public class EventPages {
 		List<FormRow> form = EventDAO.getForm(eventCode, formID);
 		int max = 0;
 		for(FormRow fr : form){
-			max = Math.max(max, fr.getColumnData().length);
+			max = Math.max(max, fr.getItems().length);
 		}
 		model.put("max", max);
 		model.put("form", form);
@@ -104,8 +104,9 @@ public class EventPages {
 		List<FormRow> form = EventDAO.getForm(eventCode, formID, teamList);
 		int max = 0;
 		for(FormRow fr : form){
-			max = Math.max(max, fr.getColumnData().length);
+			max = Math.max(max, fr.getItems().length);
 		}
+		System.out.println(max);
 		model.put("max", max);
 		model.put("form", form);
 		model.put("teams", teamList);
@@ -124,6 +125,11 @@ public class EventPages {
 		//Client perspective:
 		//If 200 & state matches, we good. If 200 & state wrong, timing issue, do nothing
 		//if 500, failed.
+	};
+	
+	public static Route handleGetStatusGet = (Request request, Response response) -> {
+		String event = request.params("event");
+		return EventDAO.getStatus(event);
 	};
 	
 }

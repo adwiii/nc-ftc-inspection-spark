@@ -2,14 +2,14 @@
 #@mainLayout()
 <script>
 function update(src){ //TODO move this to a separate js file.
-	var x = !eval(src.dataset.checked);
-	src.dataset.checked = x;
+	var x = !eval(src.checked);
+	src.checked = x;
 	src.innerHTML = x ? "&#x2713" : "";
 	var sp = src.id.split("_");
 	var postObj = {form:sp[0], team:sp[1], index:sp[2], state:x};
 	src.bgColor = "#FFFF00";
 	$.post("./",postObj).done(function(data){
-		if(eval(data) == eval(src.dataset.checked)){
+		if(eval(data) == eval(src.checked)){
 			//we good.
 			src.bgColor = "#FFFFFF";
 		} else{
@@ -23,7 +23,7 @@ function update(src){ //TODO move this to a separate js file.
 </script>
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
 	#foreach($f in $form)
-		#set ($x = $max / $f.columnData.size())		
+		#set ($x = $max / $f.items.size())		
 		#if($f.type == 1)	
 			<tr bgcolor=$headerColor>	
 					#foreach($c in $f.items)						
@@ -35,7 +35,7 @@ function update(src){ //TODO move this to a separate js file.
 		#else
 			<tr height=30px>
 					#foreach($c in $f.items)						
-						<td colspan=$x id=$c.id class=$c.required align="center" onclick="update(this)" data-checked = $c.checked>
+						<td colspan=$x id=$c.id class=$c.required align="center" onclick="update(this)" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
 							#end

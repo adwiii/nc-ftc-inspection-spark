@@ -2,7 +2,7 @@
 #@mainLayout()
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
 	#foreach($f in $form)
-		#set ($x = $max / $f.columnData.size())		
+		#set ($x = $max / $f.items.size())		
 		#if($f.type == 1)	
 			<tr bgcolor=$headerColor>
 			#foreach($c in $f.items)						

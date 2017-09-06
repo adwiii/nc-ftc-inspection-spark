@@ -43,9 +43,6 @@ public class FormRow {
 	}
 	String formID;
 	int type;
-	Object[] columnData; //String for header, int for cb (int is index)
-	int[] req;//requirement level for each checkbox (if not header)
-	boolean[] checked;//checked status for each checkbox (if not header)
 	int row;
 	Item[] items;
 	String description;
@@ -60,26 +57,16 @@ public class FormRow {
 		this.formID = form;
 		this.type = type;
 		this.items = new Item[columnCount];
-		this.columnData = new Object[columnCount];
-		if(type == NON_HEADER){
-			checked = new boolean[columnCount];
-			req = new int[columnCount];
-		}
 		this.row = row;
 		this.description = d;
 		this.rule = rule.replaceAll("<", "&lt;");
 		
 	}
 	public void addHeaderItem(int index, String label, int team){
-//		System.out.println(item);
-//		columnData[pointer++] = item;
 		items[pointer++] = new HeaderItem(index, team, label);
 	}
 	public void addDataItem(int index, int req, boolean cb, int team){
 		items[pointer++] = new DataItem(index, team, req, cb);
-//		this.req[pointer] = req;
-//		this.checked[pointer] = cb;
-//		addItemData(item);
 	}
 	public int getRow(){
 		return row;
@@ -92,15 +79,6 @@ public class FormRow {
 	}
 	public String getDescription(){
 		return description;
-	}
-	public Object[] getColumnData(){
-		return columnData;
-	}
-	public boolean[] getChecked(){
-		return checked;
-	}
-	public int[] getReq(){
-		return req;
 	}
 	public Item[] getItems(){
 		return items;
@@ -117,12 +95,11 @@ public class FormRow {
 	}
 	public String toString(){
 		String s = "";
-		for(Object o : columnData){
-			s += o + "|";
+		for(Item o : items){
+			s += o.index + "|";
 		}
 		s += description + "|"+rule;
 		return s;
 	}
-	//public void addColumn(int )
 
 }

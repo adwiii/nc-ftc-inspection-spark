@@ -1,5 +1,6 @@
 package nc.ftc.inspection.dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.model.Event;
@@ -27,7 +30,7 @@ public class EventDAO {
 											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, itemIndex));" ,
 											"CREATE TABLE local.formComments(team INTEGER REFERENCES teams(number), formID VARCHAR(2), comment VARCHAR, PRIMARY KEY (team, formID));",
 											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
-											"CREATE TABLE local.inspectionStatus (team INTEGER PRIMARY KEY REFERENCES teams(number), ci TINYINT, hw TINYINT, sw TINYINT, fld TINYINT, sc TINYINT);",
+											"CREATE TABLE local.inspectionStatus (team INTEGER PRIMARY KEY REFERENCES teams(number), ci TINYINT, hw TINYINT, sw TINYINT, fd TINYINT, sc TINYINT);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
 											"INSERT INTO local.formItems SELECT * FROM formItems;"
 											//sig table			
@@ -37,7 +40,7 @@ public class EventDAO {
 	static final String[] POPULATE_TEAMS_SQL = {
 											"INSERT INTO inspectionStatus (team) SELECT number FROM teams;",
 											"INSERT INTO formStatus SELECT number, form.formID, itemIndex, 0 FROM teams LEFT JOIN formRows form ON type = 2 LEFT JOIN formItems items ON items.formID = form.formID AND items.row = form.row;",
-											"INSERT INTO formComments (tean, formID) select number, formID FROM teams LEFT JOIN (SELECT DISTINCT formID from formRows);"
+											"INSERT INTO formComments (team, formID) SELECT number, formID FROM teams LEFT JOIN (SELECT DISTINCT formID from formRows);"
 											//sig table
 	};
 	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
@@ -49,14 +52,14 @@ public class EventDAO {
 	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
 	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
 	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
-	static final String GET_STATUS_SQL = "SELECT * FROM inspectionStatus";
-	static final String GET_STATUS_WHERE = " WHERE team = ?";
+	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
+	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
+	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
 	} 
-	
 	public static List<Event> getEvents(){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
@@ -153,7 +156,12 @@ public class EventDAO {
 	 */
 	public static boolean populateStatusTables(String event){
 		try(Connection local = getLocalDB(event)){
-			
+			Statement sql = local.createStatement();
+			for(String s : POPULATE_TEAMS_SQL){
+				sql.addBatch(s);
+			}
+			sql.executeBatch();
+			return true;
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -256,7 +264,36 @@ public class EventDAO {
 		return false;
 	}
 	
-	
+	public static List<String> getStatus(String event){
+		try(Connection local = getLocalDB(event)){
+			Statement stmt = local.createStatement();
+			stmt.execute(ATTACH_GLOBAL.replaceAll(":path", Server.DB_PATH));
+			//TODO get which columns are enabled.
+			List<String> columns = new ArrayList<String>(5);
+			for(String c : new String[]{"hw", "sw", "fd", "sc", "ci"}){
+				columns.add(c);
+			}
+			stmt.execute(GET_STATUS_SQL.replaceAll(":columns", String.join(",", columns)));
+			ResultSet rs = stmt.getResultSet();
+			List<String> result = new ArrayList<String>();
+			while(rs.next()){				
+				String s = '{' + "\"number\":"+rs.getInt("team")+",\"name\":\""+rs.getString("name")+"\", ";
+				s += String.join(",", columns.stream().map(o -> {
+					try {
+						return '"'+o+"\":"+rs.getByte(o);
+					} catch (SQLException e) {
+						e.printStackTrace();
+						return "";
+					}
+				}).toArray(String[]::new));
+				result.add(s);
+			}
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	
 }

@@ -10,7 +10,7 @@ import spark.Route;
 
 public class GlobalPages {
 	public static Route handleTeamListGet = (Request request, Response response) -> {
-		return GlobalDAO.getMasterTeamList();//.stream().map(Object::toString).collect(Collectors.toList());	
+		return GlobalDAO.getMasterTeamList().stream().map(Object::toString).collect(Collectors.toList());	
 	};
 	
 	public static Route handleNewTeamPost = (Request request, Response response) -> {
