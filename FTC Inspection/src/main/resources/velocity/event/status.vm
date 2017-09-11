@@ -1,0 +1,30 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<h1 align=center>$event</h1>
+<body>
+<table id="statusTable" align=center>
+	<tr class="header">
+		#foreach ($h in $headers)
+			<th>$h</th>
+		#end
+		<th>Team</th>
+		<th>Name</th>
+	</tr>
+	#foreach ($r in $teams)
+		<tr id="row_"$r.number>
+		#foreach ($h in $headers)
+			<td id=${h}_$r.number>${h}_$r.number</td>
+		#end
+		<td>$r.number</td>
+		<td>$r.name</td>
+		</tr>
+	#end
+</table>
+</body>
+<script>
+	function updatePage(){
+		//If detect structure change, reload entire page
+		//ex: add/remove column, team, change order of columns
+	}
+</script>
+#end

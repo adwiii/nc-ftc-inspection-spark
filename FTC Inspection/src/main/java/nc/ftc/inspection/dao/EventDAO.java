@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.model.Event;
 import nc.ftc.inspection.model.FormRow;
+import nc.ftc.inspection.model.Team;
 
 public class EventDAO {
 	public static final SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
@@ -264,29 +265,33 @@ public class EventDAO {
 		return false;
 	}
 	
-	public static List<String> getStatus(String event){
+	public static List<Team> getStatus(String event, String ... columns){
 		try(Connection local = getLocalDB(event)){
 			Statement stmt = local.createStatement();
 			stmt.execute(ATTACH_GLOBAL.replaceAll(":path", Server.DB_PATH));
-			//TODO get which columns are enabled.
-			List<String> columns = new ArrayList<String>(5);
-			for(String c : new String[]{"hw", "sw", "fd", "sc", "ci"}){
-				columns.add(c);
+			if(columns.length == 0){
+				columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
 			}
 			stmt.execute(GET_STATUS_SQL.replaceAll(":columns", String.join(",", columns)));
 			ResultSet rs = stmt.getResultSet();
-			List<String> result = new ArrayList<String>();
-			while(rs.next()){				
-				String s = '{' + "\"number\":"+rs.getInt("team")+",\"name\":\""+rs.getString("name")+"\", ";
-				s += String.join(",", columns.stream().map(o -> {
-					try {
-						return '"'+o+"\":"+rs.getByte(o);
-					} catch (SQLException e) {
-						e.printStackTrace();
-						return "";
-					}
-				}).toArray(String[]::new));
-				result.add(s);
+			List<Team> result = new ArrayList<Team>();
+			while(rs.next()){			
+				Team team = new Team(rs.getInt("team"), rs.getString("name"));
+				for(String c : columns){
+					team.setStatus(c, rs.getByte(c));
+				}
+				
+//				
+//				String s = '{' + "\"number\":"+rs.getInt("team")+",\"name\":\""+rs.getString("name")+"\", ";
+//				s += String.join(",", columns.stream().map(o -> {
+//					try {
+//						return '"'+o+"\":"+rs.getByte(o);
+//					} catch (SQLException e) {
+//						e.printStackTrace();
+//						return "";
+//					}
+//				}).toArray(String[]::new));
+				result.add(team);
 			}
 			return result;
 		} catch (SQLException e) {

@@ -3,6 +3,7 @@ package nc.ftc.inspection.spark.pages;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Event;
 import nc.ftc.inspection.model.FormRow;
+import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.awt.Point;
 import java.sql.Date;
 
@@ -129,7 +131,21 @@ public class EventPages {
 	
 	public static Route handleGetStatusGet = (Request request, Response response) -> {
 		String event = request.params("event");
-		return EventDAO.getStatus(event);
+		System.out.println("hi");
+
+		//TODO get which columns are enabled.
+		String[] columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
+		return EventDAO.getStatus(event, columns).stream().map(Team::toStatusString).collect(Collectors.toList());
+	};
+	
+	public static Route serveStatusPage = (Request request, Response response) -> {
+		String event = request.params("event");
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("event", event);//TODO get the event name from db
+		String[] columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
+		model.put("headers", columns);
+		model.put("teams", EventDAO.getStatus(event));
+		return render(request, model, Path.Template.STATUS_PAGE);
 	};
 	
 }

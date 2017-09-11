@@ -30,7 +30,7 @@ public class Server {
 			e1.printStackTrace();
 		}
 		
-//		System.out.println(EventDAO.getStatus("test2"));
+		System.out.println(EventDAO.getStatus("test2"));
 		
 //		EventDAO.createEventDatabase("test3");
 //		EventDAO.addTeamToEvent(10, "test3");
@@ -67,6 +67,8 @@ public class Server {
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		get(Path.Web.MASTER_TEAM_LIST, GlobalPages.handleTeamListGet);
+		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
+		get(Path.Web.EVENT_STATUS, EventPages.handleGetStatusGet);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
