@@ -1,6 +1,6 @@
 package nc.ftc.inspection.model;
 
-public class Event {
+public class EventData {
 	private String code;
 	private String name;
 	private int status;
@@ -12,7 +12,7 @@ public class Event {
 	public static final int ELIMS = 4;
 	public static final int FINAL = 5;
 
-	public Event(String code, String name, int status, java.sql.Date date){
+	public EventData(String code, String name, int status, java.sql.Date date){
 		this.code = code;
 		this.name = name;
 		this.status= status;

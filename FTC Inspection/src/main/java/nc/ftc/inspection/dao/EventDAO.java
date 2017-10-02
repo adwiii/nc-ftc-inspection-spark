@@ -16,7 +16,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import nc.ftc.inspection.Server;
-import nc.ftc.inspection.model.Event;
+import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Team;
 
@@ -33,7 +33,13 @@ public class EventDAO {
 											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
 											"CREATE TABLE local.inspectionStatus (team INTEGER PRIMARY KEY REFERENCES teams(number), ci TINYINT, hw TINYINT, sw TINYINT, fd TINYINT, sc TINYINT);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
-											"INSERT INTO local.formItems SELECT * FROM formItems;"
+											"INSERT INTO local.formItems SELECT * FROM formItems;",
+											
+											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S TINYINT, red2 INTEGER REFERECNES teams(number), red2S TINYINT, blue1 INTEGER REFERENCES teams(number), blue1S TINYINT, blue2 INTEGER REFERENCES teams(number), blue2S TINYINT);", //non-game specific info
+											"CREATE TABLE local.qualsData(match INTEGER, status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
+											"CREATE TABLE local.qualsresults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
+											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyps INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing TINYINT, relic1Zone INTEGER, relic1Standing INTEGER, balanced INTEGER, cyprotbox1 INTEGER, cryptobox2 INTEGER, PRIMARY KEY (match, alliance) );" //completely game specific
+											
 											//sig table			
 											//TODO create trigger for adding item to row
 											};
@@ -61,13 +67,13 @@ public class EventDAO {
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
 	} 
-	public static List<Event> getEvents(){
+	public static List<EventData> getEvents(){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
 			ResultSet rs = ps.executeQuery();
-			List<Event> result = new ArrayList<Event>();
+			List<EventData> result = new ArrayList<EventData>();
 			while(rs.next()){
-				Event e = new Event(rs.getString(0), rs.getString(1), rs.getInt(3), rs.getDate(2));
+				EventData e = new EventData(rs.getString(0), rs.getString(1), rs.getInt(3), rs.getDate(2));
 				result.add(e);
 			}
 			return result;
@@ -77,13 +83,13 @@ public class EventDAO {
 		return null;
 	}
 	
-	public static Event getEvent(String code){
+	public static EventData getEvent(String code){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
 			ps.setString(1, code);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.next())return null;
-			return new Event(rs.getString(0), rs.getString(1), rs.getInt(3), rs.getDate(2));
+			return new EventData(rs.getString(0), rs.getString(1), rs.getInt(3), rs.getDate(2));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -168,6 +174,9 @@ public class EventDAO {
 		}
 		return false;
 	}
+	
+	
+	
 	
 	public static List<FormRow> getForm(String eventCode, String formCode, int ... teams){
 		try(Connection local = getLocalDB(eventCode)){

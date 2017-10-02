@@ -1,7 +1,7 @@
 package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.dao.EventDAO;
-import nc.ftc.inspection.model.Event;
+import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.spark.util.Path;
@@ -63,7 +63,7 @@ public class EventPages {
 		Map<String, Object> model = new HashMap<>();
 		String eventCode = request.params("event");
 		//TODO handle an event that is not here
-		Event event = EventDAO.getEvent(eventCode);
+		EventData event = EventDAO.getEvent(eventCode);
 		model.put("eventName", event.getName());
 //		model.pu
 		return render(request, model, Path.Template.MANAGE_EVENT);
