@@ -16,8 +16,10 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
+import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.Team;
 
 public class EventDAO {
@@ -35,10 +37,11 @@ public class EventDAO {
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
 											"INSERT INTO local.formItems SELECT * FROM formItems;",
 											
-											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S TINYINT, red2 INTEGER REFERECNES teams(number), red2S TINYINT, blue1 INTEGER REFERENCES teams(number), blue1S TINYINT, blue2 INTEGER REFERENCES teams(number), blue2S TINYINT);", //non-game specific info
-											"CREATE TABLE local.qualsData(match INTEGER, status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
-											"CREATE TABLE local.qualsresults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
-											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyps INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing TINYINT, relic1Zone INTEGER, relic1Standing INTEGER, balanced INTEGER, cyprotbox1 INTEGER, cryptobox2 INTEGER, PRIMARY KEY (match, alliance) );" //completely game specific
+											//TODO where to put cards - qualsData & qualsResults?  matches- red1Card, red2Card, blue1Card, blue2Card?
+											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S BOOLEAN, red2 INTEGER REFERENCES teams(number), red2S BOOLEAN, blue1 INTEGER REFERENCES teams(number), blue1S BOOLEAN, blue2 INTEGER REFERENCES teams(number), blue2S BOOLEAN);", //non-game specific info
+											"CREATE TABLE local.qualsData(match INTEGER REFERENCES quals(match), status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
+											"CREATE TABLE local.qualsResults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
+											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyps INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cyprotbox1 INTEGER, cryptobox2 INTEGER, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
 											
 											//sig table			
 											//TODO create trigger for adding item to row
@@ -63,6 +66,9 @@ public class EventDAO {
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
+	
+	static final String CREATE_SCHEDULE_SQL = "INSERT INTO quals VALUES (?,?,?,?,?,?,?,?,?);";
+	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -309,5 +315,43 @@ public class EventDAO {
 		return null;
 	}
 	
+	public static boolean createSchedule(String event, List<Match> matches){
+		try(Connection local = getLocalDB(event)){
+			for(Match m : matches){
+				PreparedStatement ps = local.prepareStatement(CREATE_SCHEDULE_SQL);
+				ps.setInt(1, m.getNumber());
+				Alliance red = m.getRed();
+				Alliance blue = m.getBlue();
+				ps.setInt(2, red.getTeam1());
+				ps.setBoolean(3,  red.is1Surrogate());
+				ps.setInt(4, red.getTeam2());
+				ps.setBoolean(5,  red.is2Surrogate());
+				ps.setInt(6, blue.getTeam1());
+				ps.setBoolean(7,  blue.is1Surrogate());
+				ps.setInt(8, blue.getTeam2());
+				ps.setBoolean(9,  blue.is2Surrogate());
+				ps.executeUpdate();
+			}			
+		} catch(Exception e){
+			return false;
+		}
+		return true;
+	}
+	
+	public static List<Match> getSchedule(String event){
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_SCHEDULE_SQL);
+			ResultSet rs = ps.executeQuery();
+			List<Match> matches = new ArrayList<>();
+			while(rs.next()){
+				Alliance red = new Alliance(rs.getInt(2), rs.getBoolean(3), rs.getInt(4), rs.getBoolean(5));
+				Alliance blue = new Alliance(rs.getInt(6), rs.getBoolean(7), rs.getInt(8), rs.getBoolean(9));
+				matches.add(new Match(rs.getInt(1), red, blue));
+			}
+			return matches;
+		}catch(Exception e){
+			return null;
+		}
+	}
 	
 }

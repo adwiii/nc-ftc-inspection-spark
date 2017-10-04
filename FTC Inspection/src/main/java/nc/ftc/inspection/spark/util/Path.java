@@ -25,6 +25,8 @@ public class Path {
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
         public static final String EVENT_STATUS = "/event/:event/status/data/"; //Endpoint to get data
         public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
+        public static final String UPLOAD_SCHEDULE = "/event/:event/scheduleUpload/";
+        public static final String SCHEDULE = "/event/:event/schedule/";
 		public static final String ALL = "*";
         
 		
@@ -59,6 +61,7 @@ public class Path {
         public static final String EDIT_FORM = "/velocity/event/editForm.vm";//just renders form for now
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
+        public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
     }
 
 }

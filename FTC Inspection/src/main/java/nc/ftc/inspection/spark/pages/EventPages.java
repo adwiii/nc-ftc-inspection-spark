@@ -1,8 +1,10 @@
 package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
+import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
@@ -11,8 +13,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.Part;
+
 import java.awt.Point;
 import java.sql.Date;
 
@@ -148,4 +155,72 @@ public class EventPages {
 		return render(request, model, Path.Template.STATUS_PAGE);
 	};
 	
+	public static Route serveSchedulePage = (Request request, Response response) ->{
+		String event = request.params("event");
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("event", event);//TODO get the event name from db
+		model.put("matches", EventDAO.getSchedule(event));
+		return render(request, model, Path.Template.SCHEDULE_PAGE);
+	};
+	
+	public static Route handleScheduleUpload = (Request request, Response response) ->{
+			
+
+		String location = "public";          // the directory location where files will be stored
+		long maxFileSize = 100000000;       // the maximum size allowed for uploaded files
+		long maxRequestSize = 100000000;    // the maximum size allowed for multipart/form-data requests
+		int fileSizeThreshold = 1024;       // the size threshold after which files will be written to disk
+		
+		MultipartConfigElement multipartConfigElement = new MultipartConfigElement(
+		     location, maxFileSize, maxRequestSize, fileSizeThreshold);
+		 request.raw().setAttribute("org.eclipse.jetty.multipartConfig",
+		     multipartConfigElement);
+			
+		 	String event = request.params("event");
+			Part p = request.raw().getPart("file");
+			List<Match> matches = new ArrayList<>();
+			Scanner scan = new Scanner(p.getInputStream());
+			scan.useDelimiter("\\|");
+			try{
+			while(scan.hasNextLine()){
+				scan.nextInt();
+				scan.nextInt();
+				int match = scan.nextInt();
+				int red1 = scan.nextInt();
+				int red2 = scan.nextInt();
+				scan.nextInt();
+				int blue1 = scan.nextInt();
+				int blue2 = scan.nextInt();
+				scan.nextInt();
+				scan.nextInt();
+				scan.nextInt();
+				scan.nextInt();
+				scan.nextBoolean();
+				scan.nextBoolean();
+				scan.nextBoolean();
+				scan.nextInt();
+				scan.nextInt();
+				scan.nextInt();
+				scan.nextBoolean();
+				scan.nextBoolean();
+				scan.nextBoolean();
+				int r1S = scan.nextInt();
+				int r2S = scan.nextInt();
+				scan.nextInt();
+				int b1S = scan.nextInt();
+				int b2S = scan.nextInt();
+				scan.nextLine();
+				Alliance red = new Alliance(red1, r1S == 1, red2, r2S == 1);
+				Alliance blue = new Alliance(blue1, b1S == 1, blue2, b2S == 1);
+				matches.add(new Match(match, red, blue));
+			//	System.out.println(match+":"+red1+(r1S == 1 ? "*":"")+","+red2+(r2S == 1 ? "*":"")+","+blue1+(b1S == 1 ? "*":"")+","+blue2+(b2S == 1 ? "*":""));
+			}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			scan.close();
+			EventDAO.createSchedule(event, matches);
+			response.status(200);
+			return "OK";
+		};
 }
