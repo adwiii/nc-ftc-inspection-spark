@@ -1,0 +1,36 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<script>
+
+var isActive = true;
+
+$().ready(function () {
+    //EITHER USE A GLOBAL VAR OR PLACE VAR IN HIDDEN FIELD
+    //IF FOR WHATEVER REASON YOU WANT TO STOP POLLING
+    pollServer();
+});
+function pollServer()
+{
+    if (isActive)
+    {
+            $.ajax({
+                url: "../random/",
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    //TODO handle rerandomize?
+                    console.log("yay!");
+                    console.log(data);
+                    console.log(data.rand);
+                    isActive = false;
+                },
+                error: function () {
+                    //ERROR HANDLING
+                    console.log("Error");
+                    window.setTimeout(pollServer, 5000);
+                }});
+    }
+}
+</script>
+<div id="d1">Waiting for randomization</div>
+#end

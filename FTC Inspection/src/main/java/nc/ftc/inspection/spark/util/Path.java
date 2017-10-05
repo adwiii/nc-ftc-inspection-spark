@@ -27,6 +27,12 @@ public class Path {
         public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
         public static final String UPLOAD_SCHEDULE = "/event/:event/scheduleUpload/";
         public static final String SCHEDULE = "/event/:event/schedule/";
+        //TODO have a subdir for scoring/match stuff under /event?
+        public static final String RANDOMIZE = "/event/:event/randomize/";
+        public static final String RERANDOMIZE = "/event/:event/rerandomize/";
+        public static final String HEAD_REF = "/event/:event/headref/";
+        public static final String REF = "/event/:event/ref/";
+        public static final String GET_RANDOM = "/event/:event/random/";
 		public static final String ALL = "*";
         
 		
@@ -62,6 +68,8 @@ public class Path {
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
+        public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
+        public static final String REF = "/velocity/event/ref.vm"; 
     }
 
 }

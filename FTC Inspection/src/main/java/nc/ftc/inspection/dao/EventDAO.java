@@ -16,6 +16,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
@@ -67,22 +68,30 @@ public class EventDAO {
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
 	
+	//TODO change to >= 2 when Inspection is stored in active events.
+	static final String GET_ACTIVE_EVENTS_SQL = "SELECT * FROM events WHERE status >= 3 AND status <= 5;";
 	static final String CREATE_SCHEDULE_SQL = "INSERT INTO quals VALUES (?,?,?,?,?,?,?,?,?);";
+	static final String CREATE_SCHEDULE_DATA_SQL = "INSERT INTO qualsData VALUES (?,?,?);";
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
+	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
+	
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
 	} 
+	private static List<EventData> createEventList(ResultSet rs) throws SQLException{
+		List<EventData> result = new ArrayList<EventData>();
+		while(rs.next()){
+			EventData e = new EventData(rs.getString(1), rs.getString(2), rs.getInt(4), rs.getDate(3));
+			result.add(e);
+		}
+		return result;
+	}
 	public static List<EventData> getEvents(){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
 			ResultSet rs = ps.executeQuery();
-			List<EventData> result = new ArrayList<EventData>();
-			while(rs.next()){
-				EventData e = new EventData(rs.getString(0), rs.getString(1), rs.getInt(3), rs.getDate(2));
-				result.add(e);
-			}
-			return result;
+			return createEventList(rs);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -331,26 +340,63 @@ public class EventDAO {
 				ps.setInt(8, blue.getTeam2());
 				ps.setBoolean(9,  blue.is2Surrogate());
 				ps.executeUpdate();
+				ps = local.prepareStatement(CREATE_SCHEDULE_DATA_SQL);
+				ps.setInt(1,  m.getNumber());
+				ps.setInt(2, 0);
+				ps.setInt(3, 0);
+				ps.executeUpdate();
 			}			
 		} catch(Exception e){
 			return false;
 		}
 		return true;
 	}
-	
+	private static Match parseMatch(ResultSet rs) throws SQLException{
+		Alliance red = new Alliance(rs.getInt(2), rs.getBoolean(3), rs.getInt(4), rs.getBoolean(5));
+		Alliance blue = new Alliance(rs.getInt(6), rs.getBoolean(7), rs.getInt(8), rs.getBoolean(9));
+		return new Match(rs.getInt(1), red, blue);
+	}
 	public static List<Match> getSchedule(String event){
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(GET_SCHEDULE_SQL);
 			ResultSet rs = ps.executeQuery();
 			List<Match> matches = new ArrayList<>();
 			while(rs.next()){
-				Alliance red = new Alliance(rs.getInt(2), rs.getBoolean(3), rs.getInt(4), rs.getBoolean(5));
-				Alliance blue = new Alliance(rs.getInt(6), rs.getBoolean(7), rs.getInt(8), rs.getBoolean(9));
-				matches.add(new Match(rs.getInt(1), red, blue));
+				matches.add(parseMatch(rs));
 			}
 			return matches;
 		}catch(Exception e){
 			return null;
+		}
+	}
+	public static Match getNextMatch(String event){
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_NEXT_MATCH_SQL);
+			ResultSet rs = ps.executeQuery();
+			List<Match> matches = new ArrayList<>();
+			while(rs.next()){
+				matches.add(parseMatch(rs));
+			}
+			return matches.get(0);
+		}catch(Exception e){
+			return null;
+		}
+	}
+	
+	public static void loadActiveEvents(){
+		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
+			Statement stmt = global.createStatement();
+			ResultSet rs = stmt.executeQuery(GET_ACTIVE_EVENTS_SQL);
+			List<EventData> events = createEventList(rs);
+			for(EventData ed : events){
+				Event e = new Event(ed);
+				//TODO eventually remove this step, done via event management page/software
+				e.setCurrentMatch(getNextMatch(ed.getCode()));
+				Server.activeEvents.put(ed.getCode(), e);
+				System.out.println(ed.getCode());
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 	

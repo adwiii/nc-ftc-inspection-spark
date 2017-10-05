@@ -47,7 +47,7 @@ public class Server {
 		
 //		System.out.println(EventDAO.getStatus("test2"));
 		
-		//EventDAO.createEventDatabase("test10");
+//		EventDAO.createEventDatabase("test10");
 //		EventDAO.addTeamToEvent(10, "test3");
 //		EventDAO.addTeamToEvent(11, "test3");
 //		EventDAO.populateStatusTables("test3");
@@ -56,6 +56,7 @@ public class Server {
 //		for(FormRow fr : rows){
 //			System.out.println(fr);
 //		}
+		EventDAO.loadActiveEvents();
 		
 		port(80);
 		staticFiles.location("/public");
@@ -85,6 +86,9 @@ public class Server {
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
 		get(Path.Web.EVENT_STATUS, EventPages.handleGetStatusGet);
 		get(Path.Web.SCHEDULE, EventPages.serveSchedulePage);
+		get(Path.Web.HEAD_REF, EventPages.serveHeadRef);
+		get(Path.Web.REF, EventPages.serveRef);
+		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -96,6 +100,8 @@ public class Server {
 		post(Path.Web.NEW_TEAM, GlobalPages.handleNewTeamPost);
 		
 		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
+		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
+		post(Path.Web.RERANDOMIZE, EventPages.handleReRandomizePost);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		

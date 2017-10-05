@@ -1,10 +1,13 @@
 package nc.ftc.inspection.spark.pages;
 
+import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
+import nc.ftc.inspection.model.MatchStatus;
 import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
+
+import org.apache.commons.collections.bag.SynchronizedSortedBag;
 
 import java.awt.Point;
 import java.sql.Date;
@@ -163,6 +168,7 @@ public class EventPages {
 		return render(request, model, Path.Template.SCHEDULE_PAGE);
 	};
 	
+	
 	public static Route handleScheduleUpload = (Request request, Response response) ->{
 			
 
@@ -222,5 +228,70 @@ public class EventPages {
 			EventDAO.createSchedule(event, matches);
 			response.status(200);
 			return "OK";
+		};
+		
+		public static Route handleRandomizePost = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e.getCurrentMatch().isRandomized()){
+				response.status(500);
+				return "Match already randomized!";
+			}
+			e.getCurrentMatch().setStatus(MatchStatus.AUTO);
+			return "{\"rand\":\"" + e.getCurrentMatch().randomize() +"\"}";
+		};
+		
+		public static Route handleReRandomizePost = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				return null;
+			}
+			if(e.getCurrentMatch() == null){
+				return null;
+			}
+			if(!e.getCurrentMatch().isRandomized()){
+				response.status(500);
+				return "Match not randomized!";
+			}
+			return "{\"rand\":\"" + e.getCurrentMatch().randomize() +"\"}";
+		};
+		
+		public static Route serveHeadRef = (Request request, Response response) -> {
+			System.out.println("Hey");
+			return render(request, new HashMap<String, Object>(), Path.Template.HEAD_REF);
+		};
+		
+		public static Route serveRef = (Request request, Response response) ->{
+			System.out.println("ref");
+			return render(request, new HashMap<String, Object>(), Path.Template.REF);
+		};
+		
+		public static Route handleGetRandom = (Request request, Response response) ->{
+			//TODO this is the call that will long-poll / websocket to simulate a push to 
+			//clients when randomization complete.
+			//Wait on the enum state.
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return null;
+			}
+			if(event.getCurrentMatch() == null){
+				response.status(500);
+				return null;
+			}
+			if(event.getCurrentMatch().isRandomized()){
+				return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
+			}
+			//wait.
+			synchronized(MatchStatus.AUTO){
+				MatchStatus.AUTO.wait();
+			}
+			return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
+		};
+		
+		public static Route handleGetCurrentMatch = (Request request, Response response) ->{
+			return null;
 		};
 }
