@@ -37,6 +37,7 @@ public class Match {
 		status = stat;
 		//TODO Fire events to any observers 
 		//Pre-random->auto= scorekeeper, AD? (show result of random), non-HR tablets
+		//
 		synchronized(stat){
 			stat.notifyAll();
 		}
