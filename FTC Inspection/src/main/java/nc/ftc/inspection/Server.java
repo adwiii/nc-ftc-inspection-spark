@@ -89,6 +89,8 @@ public class Server {
 		get(Path.Web.HEAD_REF, EventPages.serveHeadRef);
 		get(Path.Web.REF, EventPages.serveRef);
 		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
+
+		get(Path.Web.SCORE, EventPages.handleGetScore);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -102,8 +104,10 @@ public class Server {
 		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
 		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
 		post(Path.Web.RERANDOMIZE, EventPages.handleReRandomizePost);
+		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
+		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
 		
 		
 		

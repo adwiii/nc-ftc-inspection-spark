@@ -15,4 +15,8 @@ public enum MatchStatus {
 			return PRE_RANDOM;		
 		}
 	}
+	
+	public boolean canAcceptScores(){
+		return this == AUTO || this == TELEOP || this == AUTO_REVIEW || this == REVIEW; 
+	}
 }

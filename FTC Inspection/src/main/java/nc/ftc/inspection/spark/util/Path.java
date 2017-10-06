@@ -31,8 +31,16 @@ public class Path {
         public static final String RANDOMIZE = "/event/:event/randomize/";
         public static final String RERANDOMIZE = "/event/:event/rerandomize/";
         public static final String HEAD_REF = "/event/:event/headref/";
-        public static final String REF = "/event/:event/ref/";
+        public static final String REF = "/event/:event/ref/"; //TODO /:alliance/ --> /test/ref/red/   ?
         public static final String GET_RANDOM = "/event/:event/random/";
+        //Updating vs submitting. updating is during the match. submit is after
+        public static final String SCORE = "/event/:event/score/:alliance/"; 
+        public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
+        public static final String MATCH_CONTROL = "/event/:event/control/";
+        public static final String START_MATCH = "event/:event/time/start/";
+        //restarting teleop vs restarting match??
+        public static final String ABORT_MATCH = "event/:event/time/abort/"; 
+        public static final String COMMIT_SCORES = "event/:event/score/commit/";
 		public static final String ALL = "*";
         
 		

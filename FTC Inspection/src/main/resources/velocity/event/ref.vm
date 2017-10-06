@@ -19,8 +19,7 @@ function pollServer()
                 dataType: 'json',
                 success: function (data) {
                     //TODO handle rerandomize?
-                    console.log("yay!");
-                    console.log(data);
+                    document.getElementById("d1").innerHTML = "Field Configuration: " + data.rand +"<br>Now scoring auto.";
                     console.log(data.rand);
                     isActive = false;
                 },

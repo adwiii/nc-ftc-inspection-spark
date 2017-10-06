@@ -36,9 +36,24 @@ public class Match {
 	public void setStatus(MatchStatus stat){
 		status = stat;
 		//TODO Fire events to any observers 
-		//Pre-random->random = scorekeeper, AD? (show result of random), non-HR tablets
+		//Pre-random->auto= scorekeeper, AD? (show result of random), non-HR tablets
 		synchronized(stat){
 			stat.notifyAll();
 		}
+		red.initializeScores();
+		blue.initializeScores();
+	}
+	public MatchStatus getStatus(){
+		return status;
+	}
+	public Alliance getAlliance(String a){
+		return a.equals("red") ? red : (a.equals("blue") ? blue : null);
+	}
+	public boolean scoreSubmitted(){
+		return red.scoreSubmitted() && blue.scoreSubmitted();
+	}
+	public void clearSubmitted(){
+		red.setSubmitted(false);
+		blue.setSubmitted(false);
 	}
 }

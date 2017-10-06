@@ -13,6 +13,7 @@ import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -258,19 +259,16 @@ public class EventPages {
 		};
 		
 		public static Route serveHeadRef = (Request request, Response response) -> {
-			System.out.println("Hey");
 			return render(request, new HashMap<String, Object>(), Path.Template.HEAD_REF);
 		};
 		
 		public static Route serveRef = (Request request, Response response) ->{
-			System.out.println("ref");
 			return render(request, new HashMap<String, Object>(), Path.Template.REF);
 		};
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{
 			//TODO this is the call that will long-poll / websocket to simulate a push to 
 			//clients when randomization complete.
-			//Wait on the enum state.
 			String eventCode = request.params("event");
 			Event event = Server.activeEvents.get(eventCode);
 			if(event == null){
@@ -284,7 +282,8 @@ public class EventPages {
 			if(event.getCurrentMatch().isRandomized()){
 				return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
 			}
-			//wait.
+			//Not yet randomized. Wait until it is.
+			//TODO some form of timeout? half an hour?
 			synchronized(MatchStatus.AUTO){
 				MatchStatus.AUTO.wait();
 			}
@@ -293,5 +292,114 @@ public class EventPages {
 		
 		public static Route handleGetCurrentMatch = (Request request, Response response) ->{
 			return null;
+		};
+		
+		public static Route handleGetScore = (Request request, Response response) -> {
+			String eventCode = request.params("event");
+			String alliance = request.params("alliance");
+			Event event = Server.activeEvents.get(eventCode);
+			try{
+				if(event == null){
+					response.status(500);
+					return "Event not active.";
+				}
+				Match match = event.getCurrentMatch();
+				if(match == null){
+					response.status(500);
+					return "No match loaded.";
+				}
+				Alliance a = match.getAlliance(alliance);
+				if(a == null){
+					return "Invalid Alliance";
+				}
+				return "{"+String.join(",", a.getScores())+"}";
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			return "";
+		};
+		
+		private static String updateScores(Request request, Response response){
+			String eventCode = request.params("event");
+			String alliance = request.params("alliance");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(!match.getStatus().canAcceptScores()){
+				response.status(500);
+				return "Match not ready for scores.";
+			}
+			Set<String> params = request.queryParams();
+			for(String key : params){
+				if(alliance.equals("red")){
+					match.getRed().updateScore(key, request.queryParams(key));
+				} else if(alliance.equals("blue")){
+					match.getBlue().updateScore(key, request.queryParams(key));
+				}
+			}
+			response.status(200);
+			return "OK";
+		}
+		
+		public static Route handleScoreUpdate = (Request request, Response response) -> {
+			return updateScores(request, response);
+		};
+		
+		public static Route handleScoreSubmit = (Request request, Response response) ->{
+			//TODO if not in REVIEW status, reject.
+			String res = updateScores(request, response);
+			String eventCode = request.params("event");
+			String alliance = request.params("alliance");
+			if(response.status() == 200){
+				Event event = Server.activeEvents.get(eventCode);
+				event.getCurrentMatch().getAlliance(alliance).setSubmitted(true);
+				//both alliances scores submitted -> go to teleop or pre-commit
+				//Front end needs to say submitted until post-commit.
+				if(event.getCurrentMatch().scoreSubmitted()){
+					if(event.getCurrentMatch().getStatus() == MatchStatus.AUTO_REVIEW){
+						event.getCurrentMatch().setStatus(MatchStatus.TELEOP);
+						event.getCurrentMatch().clearSubmitted();
+					} else if(event.getCurrentMatch().getStatus() == MatchStatus.REVIEW){
+						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
+					}
+				}
+			}
+			return res;
+		};
+		
+		public static Route handleStartMatch = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(match.getStatus() == MatchStatus.AUTO){
+				match.setStatus(MatchStatus.AUTO_REVIEW);
+			}
+			if(match.getStatus() == MatchStatus.TELEOP){
+				match.setStatus(MatchStatus.REVIEW);
+			}
+			return "OK";
 		};
 }
