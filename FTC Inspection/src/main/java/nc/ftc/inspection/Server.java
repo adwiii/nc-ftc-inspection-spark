@@ -91,6 +91,7 @@ public class Server {
 		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
 
 		get(Path.Web.SCORE, EventPages.handleGetScore);
+		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -105,6 +106,7 @@ public class Server {
 		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
 		post(Path.Web.RERANDOMIZE, EventPages.handleReRandomizePost);
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
+		post(Path.Web.SUBMIT_SCORE, EventPages.handleScoreSubmit);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);

@@ -1,11 +1,14 @@
 package nc.ftc.inspection.event;
 
+import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.Match;
+import nc.ftc.inspection.model.MatchStatus;
 
 public class Event {
 	EventData data;
 	Match currentMatch;
+	Match previousMatch;
 	public Event(EventData ed){
 		this.data = ed;
 	}
@@ -15,5 +18,12 @@ public class Event {
 	public void setCurrentMatch(Match nextMatch) {
 		currentMatch = nextMatch;
 		
+	}
+	public void loadNextMatch(){
+		previousMatch = currentMatch;
+		currentMatch = EventDAO.getNextMatch(data.getCode());
+		previousMatch.setStatus(MatchStatus.POST_COMMIT);
+		currentMatch.setStatus(MatchStatus.PRE_RANDOM);
+		System.out.println("Loaded match #"+currentMatch.getNumber());
 	}
 }

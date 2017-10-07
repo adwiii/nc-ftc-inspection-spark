@@ -19,4 +19,8 @@ public enum MatchStatus {
 	public boolean canAcceptScores(){
 		return this == AUTO || this == TELEOP || this == AUTO_REVIEW || this == REVIEW; 
 	}
+	
+	public boolean isReview(){
+		return this == AUTO_REVIEW || this == REVIEW;
+	}
 }

@@ -78,6 +78,7 @@ public class Path {
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
         public static final String REF = "/velocity/event/ref.vm"; 
+        public static final String CONTROL = "/velocity/event/control.vm";
     }
 
 }

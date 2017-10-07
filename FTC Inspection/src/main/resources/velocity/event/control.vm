@@ -1,0 +1,19 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<script>
+
+function start(){
+	var postObj = {};
+	$.post("../time/start/",postObj).done(function(data){
+		console.log(data);
+		//TODO listen for randomization by scorekeeper
+		//after button click, HR has option to rerandomize until match starts
+		//once match starts, HR has info and stuff. And can enter cards.
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+</script>
+<button onClick="start()">Start (And Immediately End) Match!</button>
+#end

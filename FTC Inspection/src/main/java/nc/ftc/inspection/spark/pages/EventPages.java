@@ -358,24 +358,43 @@ public class EventPages {
 		
 		public static Route handleScoreSubmit = (Request request, Response response) ->{
 			//TODO if not in REVIEW status, reject.
+			try{
 			String res = updateScores(request, response);
 			String eventCode = request.params("event");
 			String alliance = request.params("alliance");
-			if(response.status() == 200){
-				Event event = Server.activeEvents.get(eventCode);
+			Event event = Server.activeEvents.get(eventCode);
+			if(event.getCurrentMatch().getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(!event.getCurrentMatch().getStatus().isReview()){
+				response.status(500);
+				return "Not in review phase!";
+			}
+			if(res.equals("OK") ){ 
 				event.getCurrentMatch().getAlliance(alliance).setSubmitted(true);
 				//both alliances scores submitted -> go to teleop or pre-commit
 				//Front end needs to say submitted until post-commit.
 				if(event.getCurrentMatch().scoreSubmitted()){
 					if(event.getCurrentMatch().getStatus() == MatchStatus.AUTO_REVIEW){
+
+						System.out.println("TELEOP TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.TELEOP);
 						event.getCurrentMatch().clearSubmitted();
 					} else if(event.getCurrentMatch().getStatus() == MatchStatus.REVIEW){
+						System.out.println("AUTO TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
 					}
 				}
+			} else{
+				response.status(500);
+				return res;
 			}
-			return res;
+			return "OK";
+			}catch(Exception e){
+				e.printStackTrace();
+				return null;
+			}
 		};
 		
 		public static Route handleStartMatch = (Request request, Response response) ->{
@@ -401,5 +420,33 @@ public class EventPages {
 				match.setStatus(MatchStatus.REVIEW);
 			}
 			return "OK";
+		};
+
+		public static Route handleScoreCommit = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(500);
+				return "No match loaded";
+			}
+			if(e.getCurrentMatch().getStatus() == null){
+				response.status(500);
+				return "Null status";
+			}
+			if(e.getCurrentMatch().getStatus() == MatchStatus.PRE_COMMIT){
+				response.status(500);
+				return "Not ready to commit scores.";
+			}
+			if(EventDAO.commitScores(event, e.getCurrentMatch())){
+				e.loadNextMatch();
+			}
+			return null;
+		};
+		public static Route serveMatchControlPage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.CONTROL);
 		};
 }

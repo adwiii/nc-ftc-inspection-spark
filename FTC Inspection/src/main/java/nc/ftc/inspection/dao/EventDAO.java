@@ -400,4 +400,16 @@ public class EventDAO {
 		}
 	}
 	
+	public static boolean commitScores(String event, Match match){
+		try(Connection local = getLocalDB(event)){
+			//TODO save both alliance scores
+			//TODO save match data to mark complete & save random
+			//TODO save match score & penalties to results
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 }
