@@ -74,7 +74,7 @@ public class EventDAO {
 	static final String CREATE_SCHEDULE_DATA_SQL = "INSERT INTO qualsData VALUES (?,?,?);";
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
 	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
-	
+	static final String COMMIT_MATCH_DATA = "UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -405,7 +405,12 @@ public class EventDAO {
 			//TODO save both alliance scores
 			//TODO save match data to mark complete & save random
 			//TODO save match score & penalties to results
-			return true;
+			PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_DATA);
+			ps.setInt(1, 1);
+			ps.setInt(2, match.getRandomization());
+			ps.setInt(3,  match.getNumber());
+			int affected = ps.executeUpdate();
+			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;

@@ -437,7 +437,7 @@ public class EventPages {
 				response.status(500);
 				return "Null status";
 			}
-			if(e.getCurrentMatch().getStatus() == MatchStatus.PRE_COMMIT){
+			if(e.getCurrentMatch().getStatus() != MatchStatus.PRE_COMMIT){
 				response.status(500);
 				return "Not ready to commit scores.";
 			}
