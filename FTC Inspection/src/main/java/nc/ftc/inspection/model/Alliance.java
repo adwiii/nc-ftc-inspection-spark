@@ -15,8 +15,13 @@ public class Alliance {
 	//Keep scores in hash map - easy to change each year, easy to isolate for PUT requests.
 	Map<String, Object> scores;
 	transient boolean scoreSubmitted = false;
+	//how they are stored in the db in the matchScores tables
+	public static transient final int RED = 0;
+	public static transient final int BLUE = 1;
 	static Map<String, Number> scoreMap = new HashMap<>();
 	static{
+		//TODO put all the possible fields in an array/db, make this support multiple years.
+		//table with name, points, type
 		scoreMap.put("autoGlyphs", 15);
 		scoreMap.put("cryptoboxKeys", 30);
 		scoreMap.put("jewels", 30);
@@ -83,6 +88,10 @@ public class Alliance {
 			scores.put(field, value);
 			//TODO notify anyone who needs update on scores. Different than state change cuz need to know what field changed
 		}
+	}
+	
+	public Object getScore(String field){
+		return scores.get(field);
 	}
 	
 	public List<String> getScores(){

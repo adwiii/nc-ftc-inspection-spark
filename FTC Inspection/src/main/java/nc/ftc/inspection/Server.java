@@ -47,7 +47,7 @@ public class Server {
 		
 //		System.out.println(EventDAO.getStatus("test2"));
 		
-//		EventDAO.createEventDatabase("test10");
+		//EventDAO.createEventDatabase("test10");
 //		EventDAO.addTeamToEvent(10, "test3");
 //		EventDAO.addTeamToEvent(11, "test3");
 //		EventDAO.populateStatusTables("test3");

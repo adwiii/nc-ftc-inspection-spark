@@ -41,8 +41,10 @@ public class Match {
 		synchronized(stat){
 			stat.notifyAll();
 		}
-		red.initializeScores();
-		blue.initializeScores();
+		if(status == MatchStatus.PRE_RANDOM){
+			red.initializeScores();
+			blue.initializeScores();
+		}
 	}
 	public MatchStatus getStatus(){
 		return status;

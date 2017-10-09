@@ -15,14 +15,19 @@ public class Event {
 	public Match getCurrentMatch(){
 		return currentMatch;
 	}
-	public void setCurrentMatch(Match nextMatch) {
-		currentMatch = nextMatch;
-		
-	}
+//	public void setCurrentMatch(Match nextMatch) {
+//		currentMatch = nextMatch;
+//	}
 	public void loadNextMatch(){
 		previousMatch = currentMatch;
 		currentMatch = EventDAO.getNextMatch(data.getCode());
-		previousMatch.setStatus(MatchStatus.POST_COMMIT);
+		if(currentMatch == null){
+			System.err.println("Unable to load matches for event "+data.getCode());
+			return;
+		}
+		if(previousMatch != null){
+			previousMatch.setStatus(MatchStatus.POST_COMMIT);
+		}
 		currentMatch.setStatus(MatchStatus.PRE_RANDOM);
 		System.out.println("Loaded match #"+currentMatch.getNumber());
 	}

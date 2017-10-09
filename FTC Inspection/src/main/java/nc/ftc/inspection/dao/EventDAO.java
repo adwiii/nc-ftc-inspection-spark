@@ -6,7 +6,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLType;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +44,7 @@ public class EventDAO {
 											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S BOOLEAN, red2 INTEGER REFERENCES teams(number), red2S BOOLEAN, blue1 INTEGER REFERENCES teams(number), blue1S BOOLEAN, blue2 INTEGER REFERENCES teams(number), blue2S BOOLEAN);", //non-game specific info
 											"CREATE TABLE local.qualsData(match INTEGER REFERENCES quals(match), status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
 											"CREATE TABLE local.qualsResults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
-											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyps INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cyprotbox1 INTEGER, cryptobox2 INTEGER, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
+											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
 											
 											//sig table			
 											//TODO create trigger for adding item to row
@@ -72,9 +74,13 @@ public class EventDAO {
 	static final String GET_ACTIVE_EVENTS_SQL = "SELECT * FROM events WHERE status >= 3 AND status <= 5;";
 	static final String CREATE_SCHEDULE_SQL = "INSERT INTO quals VALUES (?,?,?,?,?,?,?,?,?);";
 	static final String CREATE_SCHEDULE_DATA_SQL = "INSERT INTO qualsData VALUES (?,?,?);";
+	static final String CREATE_SCHEDULE_RESULTS_SQL = "INSERT INTO qualsResults (match) VALUES (?);";
+	static final String CREATE_SCHEDULE_SCORES_SQL = "INSERT INTO qualsScores (match, alliance) VALUES (?,?);";
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
 	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
 	static final String COMMIT_MATCH_DATA = "UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;";
+	static final String COMMIT_MATCH_RESULTS = "UPDATE qualsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;";
+	static final String COMMIT_MATCH_SCORES = "UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=? WHERE match=? AND alliance=?";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -345,6 +351,17 @@ public class EventDAO {
 				ps.setInt(2, 0);
 				ps.setInt(3, 0);
 				ps.executeUpdate();
+				ps = local.prepareStatement(CREATE_SCHEDULE_RESULTS_SQL);
+				ps.setInt(1, m.getNumber());
+				ps.executeUpdate();
+				ps = local.prepareStatement(CREATE_SCHEDULE_SCORES_SQL);
+				ps.setInt(1, m.getNumber());
+				ps.setInt(2, 0);
+				ps.executeUpdate();
+				ps = local.prepareStatement(CREATE_SCHEDULE_SCORES_SQL);
+				ps.setInt(1,  m.getNumber());
+				ps.setInt(2,  1);
+				ps.executeUpdate();
 			}			
 		} catch(Exception e){
 			return false;
@@ -377,6 +394,7 @@ public class EventDAO {
 			while(rs.next()){
 				matches.add(parseMatch(rs));
 			}
+			System.out.println(matches.get(0));
 			return matches.get(0);
 		}catch(Exception e){
 			return null;
@@ -391,7 +409,8 @@ public class EventDAO {
 			for(EventData ed : events){
 				Event e = new Event(ed);
 				//TODO eventually remove this step, done via event management page/software
-				e.setCurrentMatch(getNextMatch(ed.getCode()));
+				//e.setCurrentMatch(getNextMatch(ed.getCode()));
+				e.loadNextMatch();
 				Server.activeEvents.put(ed.getCode(), e);
 				System.out.println(ed.getCode());
 			}
@@ -402,19 +421,67 @@ public class EventDAO {
 	
 	public static boolean commitScores(String event, Match match){
 		try(Connection local = getLocalDB(event)){
-			//TODO save both alliance scores
-			//TODO save match data to mark complete & save random
-			//TODO save match score & penalties to results
 			PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_DATA);
 			ps.setInt(1, 1);
 			ps.setInt(2, match.getRandomization());
 			ps.setInt(3,  match.getNumber());
 			int affected = ps.executeUpdate();
+			if(affected != 1){
+				return false;
+			}
+			
+			ps = local.prepareStatement(COMMIT_MATCH_RESULTS);
+			ps.setInt(1, match.getRed().calculateScore());
+			ps.setInt(2,  match.getBlue().calculateScore());
+			ps.setInt(3, match.getRed().getPenaltyPoints());
+			ps.setInt(4,  match.getBlue().getPenaltyPoints());
+			ps.setInt(5,  match.getNumber());
+			affected = ps.executeUpdate();
+			if(affected != 1){
+				return false;
+			}
+			
+			commitAllianceScore(match.getNumber(), match.getBlue(), Alliance.BLUE, local);
+			commitAllianceScore(match.getNumber(), match.getRed(), Alliance.RED, local);
+			
 			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	private static void setParam(PreparedStatement ps, int index, Alliance a, String field, int type) throws SQLException{
+		Object o = a.getScore(field);
+		if(o == null){
+			ps.setNull(index, type);
+		} else{
+			ps.setObject(index, o);
+		}
+	}
+	//UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=? WHERE match=? AND alliance=?
+	private static int commitAllianceScore(int match, Alliance a, int aI, Connection local) throws SQLException{
+		//TODO make this a loop.
+		PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_SCORES);
+		setParam(ps, 1, a, "autoGlyphs", Types.INTEGER);
+		setParam(ps, 2, a, "cryptoboxKeys", Types.INTEGER);
+		setParam(ps, 3, a, "jewels", Types.INTEGER);
+		setParam(ps, 4, a, "parkedAuto", Types.INTEGER);
+		setParam(ps, 5, a, "glyphs", Types.INTEGER);
+		setParam(ps, 6, a, "rows", Types.INTEGER);
+		setParam(ps, 7, a, "columns", Types.INTEGER);
+		setParam(ps, 8, a, "ciphers", Types.INTEGER);
+		setParam(ps, 9, a, "relic1Zone", Types.INTEGER);
+		setParam(ps, 10, a, "relic1Standing", Types.INTEGER);
+		setParam(ps, 11, a, "relic2Zone", Types.INTEGER);
+		setParam(ps, 12, a, "relic2Standing", Types.INTEGER);
+		setParam(ps, 13, a, "balanced", Types.INTEGER);
+		setParam(ps, 14, a, "major", Types.INTEGER);
+		setParam(ps, 15, a, "minor", Types.INTEGER);
+		setParam(ps, 16, a, "cryptobox1", Types.INTEGER);
+		setParam(ps, 17, a, "cryptobox2", Types.INTEGER);
+		ps.setInt(18, match);
+		ps.setInt(19,  aI);		
+		return ps.executeUpdate();
 	}
 	
 }
