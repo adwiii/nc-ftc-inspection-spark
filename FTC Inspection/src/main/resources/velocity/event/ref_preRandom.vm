@@ -5,8 +5,6 @@
 var isActive = true;
 
 $().ready(function () {
-    //EITHER USE A GLOBAL VAR OR PLACE VAR IN HIDDEN FIELD
-    //IF FOR WHATEVER REASON YOU WANT TO STOP POLLING
     pollServer();
 });
 function pollServer()
@@ -22,6 +20,7 @@ function pollServer()
                     document.getElementById("d1").innerHTML = "Field Configuration: " + data.rand +"<br>Now scoring auto.";
                     console.log(data.rand);
                     isActive = false;
+                    location.reload(true);
                 },
                 error: function () {
                     //ERROR HANDLING

@@ -263,7 +263,34 @@ public class EventPages {
 		};
 		
 		public static Route serveRef = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.REF);
+			Map<String, Object> model = new HashMap<>();
+			String template = "";
+			String alliance = request.params("alliance");
+			Match match = Server.activeEvents.get(request.params("event")).getCurrentMatch();
+			model.put("alliance", alliance);
+			switch(match.getStatus()){
+			case PRE_RANDOM:
+				template = Path.Template.REF_PRE_RANDOM;
+				break;
+			case AUTO:
+				template = Path.Template.REF_AUTO;
+				model.put("rand", match.getRandomization());
+				break;
+			case AUTO_REVIEW:
+				break;
+			case POST_COMMIT:
+				break;
+			case PRE_COMMIT:
+				break;
+			case REVIEW:
+				break;
+			case TELEOP:
+				break;
+			default:
+				break;
+			
+			}
+			return render(request, model, template);
 		};
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{

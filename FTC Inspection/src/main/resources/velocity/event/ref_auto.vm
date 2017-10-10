@@ -1,0 +1,11 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<script>
+	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
+</script>
+<label>Glyphs:</label><input type="text" id="glyphs"></input><br>
+<label>Glyph Keys:</label><input type="checkbox">0</input><input type="checkbox">1</input><input type="checkbox">2</input><br>
+
+<label>Robots Parked:</label><input type="checkbox">0</input><input type="checkbox">1</input><input type="checkbox">2</input><br>
+<button>Review</button>
+#end

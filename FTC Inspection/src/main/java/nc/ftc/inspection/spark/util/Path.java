@@ -31,7 +31,7 @@ public class Path {
         public static final String RANDOMIZE = "/event/:event/randomize/";
         public static final String RERANDOMIZE = "/event/:event/rerandomize/";
         public static final String HEAD_REF = "/event/:event/headref/";
-        public static final String REF = "/event/:event/ref/"; //TODO /:alliance/ --> /test/ref/red/   ?
+        public static final String REF = "/event/:event/ref/:alliance/";// --> /test/ref/red/   ?
         public static final String GET_RANDOM = "/event/:event/random/";
         //Updating vs submitting. updating is during the match. submit is after
         public static final String SCORE = "/event/:event/score/:alliance/"; 
@@ -77,7 +77,8 @@ public class Path {
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
-        public static final String REF = "/velocity/event/ref.vm"; 
+        public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm"; 
+        public static final String REF_AUTO = "/velocity/event/ref_auto.vm";
         public static final String CONTROL = "/velocity/event/control.vm";
     }
 
