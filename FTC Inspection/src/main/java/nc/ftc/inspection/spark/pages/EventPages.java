@@ -266,7 +266,14 @@ public class EventPages {
 			Map<String, Object> model = new HashMap<>();
 			String template = "";
 			String alliance = request.params("alliance");
-			Match match = Server.activeEvents.get(request.params("event")).getCurrentMatch();
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				return "No active match";
+			}
 			model.put("alliance", alliance);
 			switch(match.getStatus()){
 			case PRE_RANDOM:
@@ -277,15 +284,20 @@ public class EventPages {
 				model.put("rand", match.getRandomization());
 				break;
 			case AUTO_REVIEW:
-				break;
-			case POST_COMMIT:
-				break;
-			case PRE_COMMIT:
-				break;
-			case REVIEW:
+				template = Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
+				template = Path.Template.REF_TELEOP;
 				break;
+			case REVIEW:
+				template = Path.Template.REF_REVIEW;
+				break;
+			case PRE_COMMIT:
+				template = Path.Template.REF_POST_SUBMIT;
+				break;
+			case POST_COMMIT:
+				template = Path.Template.REF_PRE_RANDOM;
+				break;			
 			default:
 				break;
 			
@@ -310,7 +322,7 @@ public class EventPages {
 				return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
 			}
 			//Not yet randomized. Wait until it is.
-			//TODO some form of timeout? half an hour?
+			//TODO some form of timeout? half an hour? - just put in .wait(ms) call
 			synchronized(MatchStatus.AUTO){
 				MatchStatus.AUTO.wait();
 			}
