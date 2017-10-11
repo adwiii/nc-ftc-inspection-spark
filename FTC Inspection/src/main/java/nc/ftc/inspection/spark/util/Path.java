@@ -79,7 +79,12 @@ public class Path {
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
         public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm"; 
         public static final String REF_AUTO = "/velocity/event/ref_auto.vm";
+        public static final String REF_AUTO_REVIEW = "/velocity/event/ref_autoReview.vm";
+        public static final String REF_TELEOP = "/velocity/event/ref_teleop.vm";
+        public static final String REF_REVIEW = "/velocity/event/ref_review.vm";
+        public static final String REF_POST_SUBMIT = "/velocity/event/ref_postSubmit.vm";
         public static final String CONTROL = "/velocity/event/control.vm";
+        
     }
 
 }
