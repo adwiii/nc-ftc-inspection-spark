@@ -3,9 +3,11 @@
 <script>
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
 </script>
-<label>Glyphs:</label><input type="text" id="glyphs"></input><br>
-<label>Glyph Keys:</label><input type="checkbox">0</input><input type="checkbox">1</input><input type="checkbox">2</input><br>
-
-<label>Robots Parked:</label><input type="checkbox">0</input><input type="checkbox">1</input><input type="checkbox">2</input><br>
-<button>Review</button>
+<p class="${alliance}Alliance banner">Autonomous</p>
+<table>
+<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()auto_glyph#end</td></tr>
+<tr><td class="left"><label>Glyph Keys:</label></td><td class="right nowrap"><label><input type="radio" name="glyph_keys" checked />0</label><label><input type="radio" name="glyph_keys"/>1</label><label><input type="radio" name="glyph_keys"/>2</label></td></tr>
+<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><label><input type="radio" name="parked" checked />0</label><label><input type="radio" name="parked"/>1</label><label><input type="radio"name="parked" />2</label></td></tr>
+</table>
+<input type="submit" value="Review">
 #end

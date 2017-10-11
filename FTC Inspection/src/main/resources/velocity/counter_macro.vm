@@ -1,0 +1,26 @@
+#macro(labelID)
+<script>
+function onDown$bodyContent() {
+	var cur = document.getElementById('$bodyContent').textContent;
+	if (cur == '') {
+		cur = 0;
+	} else {
+		cur = parseInt(cur) - 1;
+	}
+	if (cur < 0) {
+		cur = 0;
+	}
+	document.getElementById('$bodyContent').textContent = cur;
+}
+function onUp$bodyContent() {
+	var cur = document.getElementById('$bodyContent').textContent;
+	if (cur == '') {
+		cur = 0;
+	} else {
+		cur = parseInt(cur) + 1;
+	}
+	document.getElementById('$bodyContent').textContent = cur;
+}
+</script>
+<input type="button" class="counterButton nowrap" onClick="onDown$bodyContent()" value="-1" style="width:40%"/><label id="$bodyContent" style="padding:5px;width:20%">0</label><input class="counterButton nowrap" type="button" onClick="onUp$bodyContent()" value="+1" style="width:40%"/>
+#end

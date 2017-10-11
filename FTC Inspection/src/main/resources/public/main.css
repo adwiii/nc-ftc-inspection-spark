@@ -227,7 +227,7 @@ nav a {
     width: 100%
 }
 
-#loginForm input {
+input {
     border: 1px solid #ddd;
     padding: 8px 12px;
     width: 100%;
@@ -235,11 +235,52 @@ nav a {
     margin: 2px 0 20px 0;
 }
 
-#loginForm input[type="submit"] {
+input[type="submit"] {
     color: white;
     background: #274555;
     border: 0;
     cursor: pointer;
+}
+.counterButton {
+    color: white;
+    background: #274555;
+    border: 0;
+    cursor: pointer;
+}
+td {
+	padding: 5px;
+	width: 20%;
+}
+table {
+    table-layout: auto;
+    border-collapse: collapse;
+    width: 100%;
+}
+table .absorbing-column {
+    width: 100%;
+}
+.redAlliance {
+	background: #EE1D23;
+}
+.blueAlliance {
+	background: #0166B3; 
+}
+.banner {
+	color: white;
+	padding: 10px;
+	width: 100%;
+	border: 1px solid #ddd;
+	text-align: center;
+}
+.nowrap {
+	white-space:nowrap;
+	display: inline-block;
+}
+.left {
+	text-align:right;
+}
+.right {
+	text-align:left;
 }
 
 .notification {
