@@ -22,5 +22,5 @@ function onUp$bodyContent() {
 	document.getElementById('$bodyContent').textContent = cur;
 }
 </script>
-<input type="button" class="counterButton nowrap" onClick="onDown$bodyContent()" value="-1" style="width:40%"/><label id="$bodyContent" style="padding:5px;width:20%">0</label><input class="counterButton nowrap" type="button" onClick="onUp$bodyContent()" value="+1" style="width:40%"/>
+<input type="button" class="counterButton nowrap" onClick="onDown$bodyContent()" value="-1" style="width:40%"/><textarea id="$bodyContent" style="width:20%;border:none;overflow:visible;resize:none;text-align:center;vertical-align:top;font-size:200%;" cols=3 readonly>0</textarea><input class="counterButton nowrap" type="button" onClick="onUp$bodyContent()" value="+1" style="width:40%"/>
 #end

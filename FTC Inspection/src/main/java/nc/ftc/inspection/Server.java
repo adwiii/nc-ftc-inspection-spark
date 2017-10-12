@@ -76,6 +76,7 @@ public class Server {
 		get(Path.Web.CREATE_EVENT, EventPages.serveEventCreationPage);
 		get(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.serveCreateAccountPage);
 		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
+		get(Path.Web.USER_PAGE, LoginPage.serveUserPage );
 		
 		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);
 		get(Path.Web.INSPECT, EventPages.serveInspectionPage);

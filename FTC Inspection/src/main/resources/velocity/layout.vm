@@ -14,18 +14,19 @@
 <body>
 <header>
     <nav>
-    	<a href="$WebPath.getIndex()"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
+    	#if(!$mobile)
+    		<a href="$WebPath.getIndex()"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
+    	#end
     	<a href="$WebPath.getInspection()">Inspection</a>
     	<a href="$WebPath.getConsole()">Console</a>
-    	<ul id="menu">
+    	<ul id="menu" #if($mobile) style="margin-top:0px;" #end>
             #if($currentUser)
                 <li>
-                    <form method="post" action="$WebPath.getLogout()">
-                        <button id="logout">Hello $currentUser. Logout?</button>
-                    </form>
+                    <a href="$WebPath.getUserPage()">
+                        Hello $currentUser.</a>
                 </li>
             #else
-                <li><a href="$WebPath.getLogin()"">Login</a></li>
+                <li><a href="$WebPath.getLogin()">Login</a></li>
             #end
         </ul>
     </nav>

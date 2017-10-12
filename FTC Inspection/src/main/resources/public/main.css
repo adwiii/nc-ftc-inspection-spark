@@ -40,8 +40,9 @@ nav {
 }
 
 nav #menu {
-    margin-top: 20px;
-    float: right;
+    position:absolute;
+    right: 0;
+    bottom: 10
 }
 
 a {

@@ -42,7 +42,12 @@ public class LoginPage {
 		}
 		return render(request, model, Path.Template.CREATE_ACCOUNT);
 	}
-
+	
+	public static Route serveUserPage = (Request request, Response response) -> {
+		Map<String, Object> model = new HashMap<>();
+		return render(request, model, Path.Template.USER_PAGE);
+	};
+	
 	public static Route handlePasswordChangePost = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
 		model.put("changePW", true);
