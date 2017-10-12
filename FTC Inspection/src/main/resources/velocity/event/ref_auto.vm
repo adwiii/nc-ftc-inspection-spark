@@ -1,12 +1,54 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <script>
+// Red  - #EE1D23
+// Blue - #0166B3
+	var red  = '#EE1D23';
+	var blue = '#0166B3'; 
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
+	$( document ).ready(function() {
+		if (rand < 4) {
+			document.getElementById("j_1,1").style.backgroundColor = red;
+			document.getElementById("j_1,2").style.backgroundColor = blue;
+			document.getElementById("j_2,1").style.backgroundColor = red;
+			document.getElementById("j_2,2").style.backgroundColor = blue;	
+		} else {
+			document.getElementById("j_1,1").style.backgroundColor = blue;
+			document.getElementById("j_1,2").style.backgroundColor = red;
+			document.getElementById("j_2,1").style.backgroundColor = blue;
+			document.getElementById("j_2,2").style.backgroundColor = red;
+		}
+	});
+	function jewelToggle(set, id){
+		var j = document.getElementById("j_"+set+","+id);
+		if(j.style.backgroundColor != 'white'){
+			j.style.backgroundColor = 'white';
+			j.style.borderColor = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
+		} else{
+			//get original color and set it back to that
+			j.style.backgroundColor = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
+			j.style.borderColor = "#000";
+		}
+	}
 </script>
 <p class="${alliance}Alliance banner">Autonomous</p>
 <table>
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()auto_glyph#end</td></tr>
 <tr><td class="left"><label>Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" checked />0</label><label style="width:33%"><input type="radio" name="glyph_keys"/>1</label><label style="width:33%"><input type="radio" name="glyph_keys"/>2</label></div></td></tr>
+<tr>
+<td class ="left">Jewel Set 1:</td>
+<td>
+<table cellspacing = 5vw id="jewelset1" frame="box" rules="none"><tr><td>
+<div class="circle" id="j_1,1" onclick="jewelToggle(1,1)"></div></td><td><div class="circle" id="j_1,2" onclick="jewelToggle(1,2)"></div></html>
+</td></tr></table>
+</td>
+<tr>
+<td class="left">Jewel Set 2:</td>
+<td>
+<table cellspacing = 5vw id="jewelset2" frame="box" rules="none"><tr><td>
+<div class="circle" id="j_2,1" onclick="jewelToggle(2,1)"></div></td><td><div class="circle" id="j_2,2" onclick="jewelToggle(2,2)"></div></html>
+</td></tr></table></td>
+</tr>
 <tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" checked />0</label><label style="width:33%"><input type="radio" name="parked"/>1</label><label style="width:33%"><input type="radio"name="parked" />2</label></div></td></tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor_penalties#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major_penalties#end</td></tr>

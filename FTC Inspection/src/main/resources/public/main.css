@@ -31,7 +31,18 @@ header {
     border-bottom: 5px solid #ff7761;
     box-shadow: 0 1px 0 0 rgba(0,0,0,.6);
 }
-
+ .circle {
+      width: 10vw;
+      height: 10vw;
+      -webkit-border-radius: 5vw;
+      -moz-border-radius: 5vw;
+      border-radius: 5vw;
+	  border: 1px solid #000;
+      background: red;
+      margin:auto;
+      text-align:center;
+      vertical-align:bottom;
+    }
 nav {
     padding: 15px;
     margin: 0 auto;

@@ -16,6 +16,8 @@ public class ViewUtil {
         model.put("currentUser", getSessionCurrentUser(req));
         model.put("currentPath", req.pathInfo());
         model.put("request", req);
+        System.out.println(req.userAgent().toLowerCase().contains("mobile") + ": " + req.userAgent());
+        model.put("mobile", req.userAgent().toLowerCase().contains("mobile"));
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
         return velocityEngine().render(new ModelAndView(model, templatePath));
     }
