@@ -74,8 +74,11 @@ public class Alliance {
 		scores.put("relic2Zone", 0);
 		scores.put("relic2Standing", false);
 		scores.put("balanced", 0);
+		//Field-status 
 		scores.put("cryptobox1", 0);
 		scores.put("cryptobox2", 0);
+		scores.put("jewelSet1", 0b11);
+		scores.put("jewelSet2", 0b11);
 	}
 	
 	public void updateScore(String field, Object value){

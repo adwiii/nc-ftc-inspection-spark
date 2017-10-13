@@ -45,6 +45,7 @@ public class Match {
 			red.initializeScores();
 			blue.initializeScores();
 		}
+		//TODO auto->auto review: calculate jewels from other alliance
 	}
 	public MatchStatus getStatus(){
 		return status;
