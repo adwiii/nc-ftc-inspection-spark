@@ -25,6 +25,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
+import org.omg.CORBA.PRIVATE_MEMBER;
 
 import java.awt.Point;
 import java.sql.Date;
@@ -275,13 +276,16 @@ public class EventPages {
 				return "No active match";
 			}
 			model.put("alliance", alliance);
+			if (match.getStatus() != MatchStatus.PRE_RANDOM) {
+				model.put("rand", match.getRandomization());
+			}
 			switch(match.getStatus()){
 			case PRE_RANDOM:
 				template = Path.Template.REF_PRE_RANDOM;
 				break;
 			case AUTO:
-				template = Path.Template.REF_AUTO;
-				model.put("rand", match.getRandomization());
+				//template = Path.Template.REF_AUTO;
+				template = Path.Template.REF_TELEOP;
 				break;
 			case AUTO_REVIEW:
 				template = Path.Template.REF_AUTO_REVIEW;

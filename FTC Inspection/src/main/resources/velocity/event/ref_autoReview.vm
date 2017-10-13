@@ -24,7 +24,7 @@
 			break;
 		case 1: keyloc = 'Left';
 			break;
-		case 2: keyloc = ''
+		case 2: keyloc = 'Center'
 			break;
 		}
 		document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
@@ -41,10 +41,11 @@
 		}
 	}
 </script>
-<p class="${alliance}Alliance banner">Autonomous</p>
+<p class="${alliance}Alliance banner">Autonomous Review</p>
 <table>
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()auto_glyph#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" checked />0</label><label style="width:33%"><input type="radio" name="glyph_keys"/>1</label><label style="width:33%"><input type="radio" name="glyph_keys"/>2</label></div></td></tr>
+<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()jewel_count#end</td></tr>
 <tr>
 <td class ="left">Jewel Set 1:</td>
 <td>
@@ -63,5 +64,5 @@
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor_penalties#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major_penalties#end</td></tr>
 </table>
-<input type="submit" value="Review">
+<input type="submit" class="bad notification" value="Submit Auto">
 #end
