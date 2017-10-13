@@ -284,8 +284,7 @@ public class EventPages {
 				template = Path.Template.REF_PRE_RANDOM;
 				break;
 			case AUTO:
-				//template = Path.Template.REF_AUTO;
-				template = Path.Template.REF_TELEOP;
+				template = Path.Template.REF_AUTO;
 				break;
 			case AUTO_REVIEW:
 				template = Path.Template.REF_AUTO_REVIEW;
