@@ -286,8 +286,9 @@ public class EventPages {
 			case AUTO:
 				template = Path.Template.REF_AUTO;
 				break;
-			case AUTO_REVIEW:
-				template = Path.Template.REF_AUTO_REVIEW;
+			case AUTO_REVIEW: //if already submitted, load teleop. (For the first ref to submit)
+				Alliance a = e.getCurrentMatch().getAlliance(alliance);
+				template = a.scoreSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
 				template = Path.Template.REF_TELEOP;

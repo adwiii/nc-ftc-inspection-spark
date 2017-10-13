@@ -40,6 +40,37 @@
 			j.style.borderColor = "#000";
 		}
 	}
+	
+	function scoreUpdate(obj){
+	/*	$.put("../../score/$alliance/",obj).done(function(data){
+			//we good
+		}).fail(function (xhr, textStatus, errorThrown) {
+       		console.log("Error");
+    	});*/
+    	
+    	$.ajax({
+                url: "../../score/$alliance/",
+                type: "PUT",
+                data: obj,
+                success: function (data) {
+                    //we good
+                    console.log("we good");
+                },
+                error: function () {
+                    //ERROR HANDLING
+                    console.log("Error");
+                }});
+	}
+	
+	function submit(){
+		//Send a PUT with all data (do a score update with everything)
+		//iff sucessful, reload the page. 
+		//For now, must be done after auto ends
+		//TODO add jewel state 
+		obj = {autoGlyphs:0,cryptoboxKeys:0,parked:0,minor:0,major:1};
+		//scoreUpdate(obj);
+		location.reload(true);
+	}
 </script>
 <p class="${alliance}Alliance banner">Autonomous</p>
 <table>
@@ -63,5 +94,5 @@
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor_penalties#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major_penalties#end</td></tr>
 </table>
-<input type="submit" value="Review">
+<input type="submit" value="Review" onclick="submit()">
 #end

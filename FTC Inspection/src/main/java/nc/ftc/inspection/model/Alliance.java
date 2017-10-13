@@ -122,6 +122,7 @@ public class Alliance {
 	}
 	
 	public void setSubmitted(boolean sub){
+		System.out.println("Submitted");
 		this.scoreSubmitted = sub;
 	}
 	public boolean scoreSubmitted(){

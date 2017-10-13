@@ -40,6 +40,15 @@
 			j.style.borderColor = "#000";
 		}
 	}
+	
+	function submit(){
+		//TODO send a POST to the submit. Iff successful, reload the page
+		$.post("../../score/$alliance/submit/",{}).done(function(data){
+			location.reload(true);
+		}).fail(function (xhr, textStatus, errorThrown) {
+       		console.log("Error");
+    	});
+	}
 </script>
 <p class="${alliance}Alliance banner">Autonomous Review</p>
 <table>
@@ -64,5 +73,5 @@
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor_penalties#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major_penalties#end</td></tr>
 </table>
-<input type="submit" class="bad notification" value="Submit Auto">
+<input type="submit" class="bad notification" value="Submit Auto" onclick="submit()">
 #end
