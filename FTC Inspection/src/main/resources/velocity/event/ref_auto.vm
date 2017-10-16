@@ -29,6 +29,14 @@
 		}
 		document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
 	});
+	function addJewelScore(set, obj){
+		var j1 = document.getElementById("j_"+set+",1");
+		var j2 = document.getElementById("j_"+set+",2");
+		var val = j1.style.backgroundColor == 'white' ? 0 : 2; //set MSB
+		val += j2.style.backgroundColor == 'white' ? 0 : 1; //set LSB
+		//var obj = {};
+		obj["jewelSet"+set] = val;
+	}
 	function jewelToggle(set, id){
 		var j = document.getElementById("j_"+set+","+id);
 		if(j.style.backgroundColor != 'white'){
@@ -39,12 +47,15 @@
 			j.style.backgroundColor = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
 			j.style.borderColor = "#000";
 		}
+		/*
 		var j1 = document.getElementById("j_"+set+",1");
 		var j2 = document.getElementById("j_"+set+",2");
 		var val = j1.style.backgroundColor == 'white' ? 0 : 2; //set MSB
 		val += j2.style.backgroundColor == 'white' ? 0 : 1; //set LSB
+		*/
 		var obj = {};
-		obj["jewelSet"+set] = val;
+	//	obj["jewelSet"+set] = val;
+		addJewelScore(set, obj);
 		scoreUpdate(obj);
 	}
 	
@@ -71,7 +82,14 @@
 	
 	function getScoreObject(){
 		obj = {};
-		obj.autoGlyphs = parseInt(document.getElementById('authoGlyphs').textContent);
+		//TODO make these parse calls inside the macro?
+		obj.autoGlyphs = parseInt(document.getElementById('autoGlyphs').textContent);
+		obj.cryptoboxKeys = parseInt(document.getElementById('cryptoboxKeys').textContent);
+		obj.major = parseInt(document.getElementById('major').textContent);
+		obj.minor = parseInt(document.getElementById('minor').textContent);
+		//TODO add parking
+		addJewelScore(1, obj);
+		addJewelScore(2, obj);
 		return obj;
 	}
 	
@@ -79,9 +97,10 @@
 		//Send a PUT with all data (do a score update with everything)
 		//iff sucessful, reload the page. 
 		//For now, must be done after auto ends
-		//TODO add jewel state 
-		obj = {autoGlyphs:0,cryptoboxKeys:0,parked:0,minor:0,major:1};
-		//scoreUpdate(obj);
+		
+		//TODO ensure any previous PUTS are now invalid.
+		obj = getScoreObject();
+		scoreUpdate(obj);
 		location.reload(true);
 	}
 </script>
