@@ -14,12 +14,20 @@
 			document.getElementById("j_1,1").style.backgroundColor = ($jewelSet1 & 0b10) ? 'red' : 'white';
 			document.getElementById("j_1,2").style.backgroundColor = ($jewelSet1 & 0b01) ? 'blue' : 'white';
 			document.getElementById("j_2,1").style.backgroundColor = ($jewelSet2 & 0b10) ? 'red' : 'white';
-			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? 'blue' : 'white';	
+			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? 'blue' : 'white';
+			document.getElementById("j_1,1").style.borderColor = ($jewelSet1 & 0b10) ? 'black' : 'red';
+			document.getElementById("j_1,2").style.borderColor = ($jewelSet1 & 0b01) ? 'black' : 'blue';
+			document.getElementById("j_2,1").style.borderColor = ($jewelSet2 & 0b10) ? 'black' : 'red';
+			document.getElementById("j_2,2").style.borderColor = ($jewelSet2 & 0b01) ? 'black' : 'blue';
 		} else {
 			document.getElementById("j_1,1").style.backgroundColor = ($jewelSet1 & 0b10) ? 'blue' : 'white';
 			document.getElementById("j_1,2").style.backgroundColor = ($jewelSet1 & 0b01) ? 'red' : 'white';
 			document.getElementById("j_2,1").style.backgroundColor = ($jewelSet2 & 0b10) ? 'blue' : 'white';
 			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? 'red' : 'white';
+			document.getElementById("j_1,1").style.borderColor = ($jewelSet1 & 0b10) ? 'black' : 'blue';
+			document.getElementById("j_1,2").style.borderColor = ($jewelSet1 & 0b01) ? 'black' : 'red';
+			document.getElementById("j_2,1").style.borderColor = ($jewelSet2 & 0b10) ? 'black' : 'blue';
+			document.getElementById("j_2,2").style.borderColor = ($jewelSet2 & 0b01) ? 'black' : 'red';
 		}
 		var keyloc = '';
 		switch (rand % 3) {
