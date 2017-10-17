@@ -56,7 +56,7 @@ public class LoginPage {
 			User temp = UsersDAO.getUser(getQueryUsername(request));
 			//if you are a higher level than someone then you can change their password
 			User admin = AuthenticationManager.getCurrentUser(request);
-			if (!(admin != null && admin.is(User.ADMIN) && admin.outRanks(temp))) {
+			if (!(admin != null && ((admin.is(User.ADMIN) && !temp.is(User.ADMIN))||(admin.is(User.SYSADMIN) && !temp.is(User.SYSADMIN))))) {
 				model.put("authenticationFailed", true);
 				model.put("username", getQueryUsername(request));
 				model.put("reason", "The given username and password are invalid");

@@ -33,8 +33,8 @@ public class Filters {
                 request.session().attribute("loginRedirect", request.pathInfo());
                 response.redirect(Path.Web.LOGIN);
     		}
-    		//if the level is lower than us then we need to redirect
-    		if (level < user) {
+    		//if the user cannot access this page, then 403
+    		if ((user & level) == 0) {
     			response.redirect(Path.Web.ERROR_403);
     		}
     	};

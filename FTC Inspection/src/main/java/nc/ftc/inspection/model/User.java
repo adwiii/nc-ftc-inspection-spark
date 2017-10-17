@@ -2,14 +2,15 @@ package nc.ftc.inspection.model;
 
 public class User {
 	
-	public static int SYSADMIN = -1;
-	public static int ADMIN = 0;
-	public static int KEY_VOLUNTEER = 10;
-	public static int VOLUNTEER = 20;
-	public static int TEAM = 30;
-	public static int GENERAL = 40;
+	public static int SYSADMIN = 1<<31;
+	public static int ADMIN = 1<<30;
+	public static int KEY_VOLUNTEER = 1<<29;
+	public static int VOLUNTEER = 1<<2;
+	public static int TEAM = 1<<1;
+	public static int GENERAL = 1<<0;
 	
-	public static int NONE = Integer.MAX_VALUE;
+	public static int NONE = 0; //this is for if you are not logged in
+	
 	
 	private String username;
 	private String realName;
@@ -72,16 +73,8 @@ public class User {
 	 * @return if this user is at least the type given
 	 */
 	public boolean is(int type) {
-		return this.type <= type;
-	}
-	
-	/**
-	 * Checks to see if this user strictly outranks the other user.
-	 * @param other The user to check against
-	 * @return if this user strictly outranks the other user
-	 */
-	public boolean outRanks(User other) {
-		return this.type < other.type;
+		//the check for this.type == type is to allow for 0 == 0 for general
+		return (this.type & type) != 0 || this.type == type;
 	}
 	
 
