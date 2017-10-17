@@ -93,6 +93,11 @@ public class Alliance {
 		}
 	}
 	
+	public Set<String> getScoreFields(){
+		return scores.keySet();
+	}
+	
+	
 	public Object getScore(String field){
 		return scores.get(field);
 	}

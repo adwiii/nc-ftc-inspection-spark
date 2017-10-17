@@ -109,6 +109,7 @@ public class Server {
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		post(Path.Web.SUBMIT_SCORE, EventPages.handleScoreSubmit);
 		post(Path.Web.COMMIT_SCORES, EventPages.handleScoreCommit);
+		post(Path.Web.SCORE, EventPages.handleScoreFullUpate);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);

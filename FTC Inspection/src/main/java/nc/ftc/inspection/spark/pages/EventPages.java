@@ -276,8 +276,14 @@ public class EventPages {
 				return "No active match";
 			}
 			model.put("alliance", alliance);
+			Alliance a = match.getAlliance(alliance);
 			if (match.getStatus() != MatchStatus.PRE_RANDOM) {
 				model.put("rand", match.getRandomization());
+			}
+			if(match.getStatus().canAcceptScores()) {				
+				for(String key : a.getScoreFields()) {
+					model.put(key, a.getScore(key));
+				}
 			}
 			switch(match.getStatus()){
 			case PRE_RANDOM:
@@ -285,9 +291,10 @@ public class EventPages {
 				break;
 			case AUTO:
 				template = Path.Template.REF_AUTO;
+//				model.put(arg0, arg1)
 				break;
-			case AUTO_REVIEW: //if already submitted, load teleop. (For the first ref to submit)
-				Alliance a = e.getCurrentMatch().getAlliance(alliance);
+			case AUTO_REVIEW: //if already submitted, load teleop. (Only matters for first ref to submit)
+				//Alliance a = e.getCurrentMatch().getAlliance(alliance);
 				template = a.scoreSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
@@ -397,6 +404,24 @@ public class EventPages {
 		
 		public static Route handleScoreUpdate = (Request request, Response response) -> {
 			return updateScores(request, response);
+		};
+		
+		//POST that is done by hitting "review" button. always saves the info, but returns
+		//error if not ready for review phase.
+		//could change this to long poll in the future.
+		public static Route handleScoreFullUpate = (Request request, Response response) -> {
+			String res = updateScores(request, response);
+			if(res.equals("OK")) {
+				//If not in review phase, dont return 200. That way client knows not to load
+				//review page yet.
+				String e = request.params("event");
+				if(!Server.activeEvents.get(e).getCurrentMatch().getStatus().isReview()) {
+					response.status(409);
+					return "Not ready to review.";
+				}				
+			}
+			return res;
+			
 		};
 		
 		public static Route handleScoreSubmit = (Request request, Response response) ->{
