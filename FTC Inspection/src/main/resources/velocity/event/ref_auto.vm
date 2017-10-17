@@ -3,6 +3,9 @@
 <script>
 // Red  - #EE1D23
 // Blue - #0166B3
+	var parked = 0; //TODO default here and in radio button checked attr based on this
+	var keys = 0;
+	
 	var red  = '#EE1D23';
 	var blue = '#0166B3'; 
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
@@ -29,6 +32,15 @@
 		}
 		document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
 	});
+	function radioParked(value){
+		parked = value;
+		scoreUpdate({parkedAuto:value});
+	}
+	function radioKeys(value){
+		keys = value;
+		scoreUpdate({cryptoboxKeys:value});
+	}
+	
 	function addJewelScore(set, obj){
 		var j1 = document.getElementById("j_"+set+",1");
 		var j2 = document.getElementById("j_"+set+",2");
@@ -47,14 +59,7 @@
 			j.style.backgroundColor = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
 			j.style.borderColor = "#000";
 		}
-		/*
-		var j1 = document.getElementById("j_"+set+",1");
-		var j2 = document.getElementById("j_"+set+",2");
-		var val = j1.style.backgroundColor == 'white' ? 0 : 2; //set MSB
-		val += j2.style.backgroundColor == 'white' ? 0 : 1; //set LSB
-		*/
 		var obj = {};
-	//	obj["jewelSet"+set] = val;
 		addJewelScore(set, obj);
 		scoreUpdate(obj);
 	}
@@ -84,10 +89,10 @@
 		obj = {};
 		//TODO make these parse calls inside the macro?
 		obj.autoGlyphs = parseInt(document.getElementById('autoGlyphs').textContent);
-		obj.cryptoboxKeys = parseInt(document.getElementById('cryptoboxKeys').textContent);
 		obj.major = parseInt(document.getElementById('major').textContent);
 		obj.minor = parseInt(document.getElementById('minor').textContent);
-		//TODO add parking
+		obj.cryptoboxKeys = keys;
+		obj.parkedAuto = parked;
 		addJewelScore(1, obj);
 		addJewelScore(2, obj);
 		return obj;
@@ -107,7 +112,7 @@
 <p class="${alliance}Alliance banner">Autonomous</p>
 <table>
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()autoGlyphs#end</td></tr>
-<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="cryptoboxKeys" onclick="scoreUpdate({cryptoboxKeys:0})" checked />0</label><label style="width:33%"><input type="radio" name="glyph_keys" onclick="scoreUpdate({cryptoboxKeys:1})" />1</label><label style="width:33%"><input type="radio" name="glyph_keys" onclick="scoreUpdate({cryptoboxKeys:2})"/>2</label></div></td></tr>
+<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="cryptoboxKeys" onclick="radioKeys(2)" checked />0</label><label style="width:33%"><input type="radio" name="glyph_keys" onclick="radioKeys(1)" />1</label><label style="width:33%"><input type="radio" name="glyph_keys" onclick="radioKeys(2)"/>2</label></div></td></tr>
 <tr>
 <td class ="left">Jewel Set 1:</td>
 <td>
@@ -122,7 +127,7 @@
 <div class="circle" id="j_2,1" onclick="jewelToggle(2,1)"></div></td><td><div class="circle" id="j_2,2" onclick="jewelToggle(2,2)"></div></html>
 </td></tr></table></td>
 </tr>
-<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" onclick="scoreUpdate({parkedAuto:0})" checked />0</label><label style="width:33%"><input type="radio" name="parked" onclick="scoreUpdate({parkedAuto:1})"  />1</label><label style="width:33%"><input type="radio"name="parked" onclick="scoreUpdate({parkedAuto:2})" />2</label></div></td></tr>
+<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" onclick="radioParked(0)" checked />0</label><label style="width:33%"><input type="radio" name="parked" onclick="radioParked(1)"  />1</label><label style="width:33%"><input type="radio"name="parked" onclick="radioParked(2)" />2</label></div></td></tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major#end</td></tr>
 </table>
