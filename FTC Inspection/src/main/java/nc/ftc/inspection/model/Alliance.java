@@ -15,6 +15,8 @@ public class Alliance {
 	//Keep scores in hash map - easy to change each year, easy to isolate for PUT requests.
 	Map<String, Object> scores;
 	transient boolean scoreSubmitted = false;
+	transient boolean inReview = false;
+	transient int randomization = 0;//set by match & stored in match.
 	//how they are stored in the db in the matchScores tables
 	public static transient final int RED = 0;
 	public static transient final int BLUE = 1;
@@ -130,10 +132,44 @@ public class Alliance {
 	}
 	
 	public void setSubmitted(boolean sub){
-		System.out.println("Submitted");
 		this.scoreSubmitted = sub;
 	}
 	public boolean scoreSubmitted(){
 		return scoreSubmitted;
+	}
+	
+	public void setInReview(boolean ir) {
+		this.inReview = ir;
+	}
+	public boolean isInReview() {
+		return inReview;
+	}
+	
+	//1,2,3 is red left, 4, 5, 6, is blue left
+	public int getRedJewels() {
+		int count = 0;
+		if(randomization < 4) {
+			//left
+			if((int)scores.get("jewelSet1") == 0b10)count++;
+			if((int)scores.get("jewelSet2") == 0b10)count++;
+		} else {
+			//right
+			if((int)scores.get("jewelSet1") == 0b01)count++;
+			if((int)scores.get("jewelSet2") == 0b01)count++;
+		}
+		return count;
+	}
+	public int getBlueJewels() {
+		int count = 0;
+		if(randomization > 3) {
+			//left
+			if((int)scores.get("jewelSet1") == 0b10)count++;
+			if((int)scores.get("jewelSet2") == 0b10)count++;
+		} else {
+			//right
+			if((int)scores.get("jewelSet1") == 0b01)count++;
+			if((int)scores.get("jewelSet2") == 0b01)count++;
+		}
+		return count;
 	}
 }

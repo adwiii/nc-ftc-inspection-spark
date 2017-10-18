@@ -295,6 +295,7 @@ public class EventPages {
 				break;
 			case AUTO_REVIEW: //if already submitted, load teleop. (Only matters for first ref to submit)
 				//Alliance a = e.getCurrentMatch().getAlliance(alliance);
+				//TODO use alliance.isInReview() to serve a waiting page that waits until both refs enter review phase.
 				template = a.scoreSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
@@ -418,7 +419,10 @@ public class EventPages {
 				if(!Server.activeEvents.get(e).getCurrentMatch().getStatus().isReview()) {
 					response.status(409);
 					return "Not ready to review.";
-				}				
+				}	
+				Match match = Server.activeEvents.get(e).getCurrentMatch();
+				match.getAlliance(request.params("alliance")).setInReview(true);
+				match.calculateEndAuto();
 			}
 			return res;
 			
@@ -441,9 +445,11 @@ public class EventPages {
 			}
 			if(res.equals("OK") ){ 
 				event.getCurrentMatch().getAlliance(alliance).setSubmitted(true);
+				event.getCurrentMatch().getAlliance(alliance).setInReview(false);
 				//both alliances scores submitted -> go to teleop or pre-commit
-				//Front end needs to say submitted until post-commit.
+				//Front end needs to say submitted until post-commit (after teleop).
 				if(event.getCurrentMatch().scoreSubmitted()){
+					
 					if(event.getCurrentMatch().getStatus() == MatchStatus.AUTO_REVIEW){
 
 						System.out.println("TELEOP TIME!");

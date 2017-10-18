@@ -25,6 +25,8 @@ public class Match {
 	public int randomize(){
 		Random r = new Random();
 		randomization = r.nextInt(6) + 1;
+		red.randomization = this.randomization;
+		blue.randomization = this.randomization;
 		return randomization;
 	}
 	public boolean isRandomized(){
@@ -59,5 +61,13 @@ public class Match {
 	public void clearSubmitted(){
 		red.setSubmitted(false);
 		blue.setSubmitted(false);
+	}
+	public boolean isInReview() {
+		return red.isInReview() && blue.isInReview();
+	}
+	
+	public void calculateEndAuto() {
+		red.updateScore("jewels", red.getRedJewels() + blue.getRedJewels());
+		blue.updateScore("jewels", blue.getBlueJewels() + red.getBlueJewels());
 	}
 }
