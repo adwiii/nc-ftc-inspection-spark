@@ -150,12 +150,12 @@ public class Alliance {
 		int count = 0;
 		if(randomization < 4) {
 			//left
-			if((int)scores.get("jewelSet1") == 0b10)count++;
-			if((int)scores.get("jewelSet2") == 0b10)count++;
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b10)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b10)count++;
 		} else {
 			//right
-			if((int)scores.get("jewelSet1") == 0b01)count++;
-			if((int)scores.get("jewelSet2") == 0b01)count++;
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b01)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b01)count++;
 		}
 		return count;
 	}
@@ -163,12 +163,12 @@ public class Alliance {
 		int count = 0;
 		if(randomization > 3) {
 			//left
-			if((int)scores.get("jewelSet1") == 0b10)count++;
-			if((int)scores.get("jewelSet2") == 0b10)count++;
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b10)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b10)count++;
 		} else {
 			//right
-			if((int)scores.get("jewelSet1") == 0b01)count++;
-			if((int)scores.get("jewelSet2") == 0b01)count++;
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b01)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b01)count++;
 		}
 		return count;
 	}

@@ -3,7 +3,7 @@
 <script>
 // Red  - #EE1D23
 // Blue - #0166B3
-	var parked = $parkedAuto; //TODO default radio button checked attr based on this
+	var parked = $parkedAuto; 
 	var keys = $cryptoboxKeys;
 	
 	var red  = '#EE1D23';

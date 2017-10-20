@@ -135,8 +135,8 @@
 <tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap"><div style="width:125%"><label ><input type="radio" name="relic1" checked value="0" />0</label><label ><input type="radio" name="relic1" value="1" />1</label><label ><input type="radio" name="relic1" value="2" />2</label><label ><input type="radio"name="relic1" value="3" />3</label><br style="display:block;margin:1px 0"/><label><input type="checkbox" id="relic1Upright"/>Upright?</label></div></td></tr>
 <tr><td class="left"><label>Relic 2 Zone:</label></td><td class="right nowrap"><div style="width:125%"><label ><input type="radio" name="relic2" checked value="0" />0</label><label ><input type="radio" name="relic2" value="1" />1</label><label ><input type="radio" name="relic2" value="2" />2</label><label ><input type="radio"name="relic2" value="3" />3</label><br style="display:block;margin:1px 0"/><label><input type="checkbox" id="relic2Upright"/>Upright?</label></div></td></tr>
 <tr><td class="left"><label>Robots Balanced:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="balanced" checked />0</label><label style="width:33%"><input type="radio" name="parked"/>1</label><label style="width:33%"><input type="radio"name="parked" />2</label></div></td></tr>
-<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor_penalties#end</td></tr>
-<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major_penalties#end</td></tr>
+<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
+<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
 <input type="submit" value="Review">
 #end

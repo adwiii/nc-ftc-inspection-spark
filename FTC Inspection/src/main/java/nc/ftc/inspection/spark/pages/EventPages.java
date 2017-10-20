@@ -264,6 +264,7 @@ public class EventPages {
 		};
 		
 		public static Route serveRef = (Request request, Response response) ->{
+			
 			Map<String, Object> model = new HashMap<>();
 			String template = "";
 			String alliance = request.params("alliance");
@@ -315,6 +316,7 @@ public class EventPages {
 			
 			}
 			return render(request, model, template);
+			//return "";
 		};
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{
