@@ -58,7 +58,7 @@
 	});
 	
 	function initCryptobox(cb, val){
-		console.log(val.toString(2));
+		//console.log(val.toString(2));
 		for(var r = 0; r < 4; r++){
 			for(var c = 0; c < 3; c++){
 				var cell = document.getElementById("cb_"+cb+","+r+","+c);
@@ -139,6 +139,46 @@
                     console.log("Error");
                 }});
 	}
+	
+	function getScoreObject(){
+		obj = {};
+		obj.major = parseInt(document.getElementById('major').textContent);
+		obj.minor = parseInt(document.getElementById('minor').textContent);
+		obj.cryptobox1 = getCryptoboxData(1);
+		obj.cryptobox2 = getCryptoboxData(2);
+		obj.relic1Zone = $('input[name=relic1]:checked').val();
+		obj.relic1Standing = document.getElementById('relic1Upright').checked;
+		obj.relic2Zone = $('input[name=relic2]:checked').val();
+		obj.relic2Standing = document.getElementById('relic2Upright').checked;
+		obj.balanced = $('input[name=balanced]:checked').val();
+		return obj;
+	}
+	
+	function submit(){
+		//Send a PUT with all data (do a score update with everything)
+		//iff sucessful, reload the page. 
+		//Must be done after teleop ends, otherwise loads same page
+		obj = getScoreObject();
+		$.ajax({
+                url: "../../score/$alliance/",
+                type: "POST",
+                data: obj,
+                success: function (data) {
+                    //we good                   
+					location.reload(true);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    if(xhr.status == 409){
+                    	//Not in review phase yet.
+                    	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until completion of match!";
+                    } else{
+                    	//Oh no. actual problem :(
+	                    console.log(xhr);
+	                    console.log(ajaxOptions);
+	                    console.log(thrownError);
+	                }
+                }});
+	}
 
 </script>
 <p class="${alliance}Alliance banner">Teleop</p>
@@ -216,5 +256,6 @@
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
-<input type="submit" value="Review">
+<input type="submit" value="Review" onclick="submit()">
+<div id="errmsg" align="center" color="red"></div>
 #end
