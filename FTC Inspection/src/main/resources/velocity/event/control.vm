@@ -1,6 +1,225 @@
-#parse("/velocity/layout.vm")
-#@mainLayout()
+<html>
+<body>
+<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
+  	<script>
+  	function updateScoreBreakdown(obj){
+  		document.getElementById("blueAutoScore").innerHTML = obj.blue.autoPoints;
+  		document.getElementById("blueJewelPoints").innerHTML = obj.blue.jewelPoints;
+  		document.getElementById("blueAutoGlyphPoints").innerHTML = obj.blue.glyphAutoPoints;
+  		document.getElementById("blueKeyPoints").innerHTML = obj.blue.keyPoints;
+  		document.getElementById("blueParkingPoints").innerHTML = obj.blue.parkingPoints;
+  		document.getElementById("blueTeleopScore").innerHTML = obj.blue.teleopPoints;
+  		document.getElementById("blueGlyphPoints").innerHTML = obj.blue.glyphPoints;
+  		document.getElementById("blueRowPoints").innerHTML = obj.blue.rowPoints;
+  		document.getElementById("blueColumnPoints").innerHTML = obj.blue.columnPoints;
+  		document.getElementById("blueCipherPoints").innerHTML = obj.blue.cipherPoints;
+  		document.getElementById("blueRelicPoints").innerHTML = obj.blue.relicPoints;
+  		document.getElementById("blueBalancePoints").innerHTML = obj.blue.balancePoints;
+  		document.getElementById("blueFoulScore").innerHTML = obj.blue.foulPoints;
+  	}
+  	
+  	function getScoreUpdate(){
+  		$.ajax({
+  			url: "../scorebreakdown/",
+  			type: "GET",
+  			dataType: 'json',
+  			success: function(data){
+  				updateScoreBreakdown(data);
+  				window.setTimeout(getScoreUpdate, 1000);
+  			},
+  			error: function(){
+  			}});
+  	}
+  	$().ready(function(){getScoreUpdate();});
+  	
+  	</script>
+<style>
+	body { margin:0; }
+	#top{
+		width:100%;
+		height:20%;
+		background:magenta;
+	}
+	#menuBar{
+		width:100%;
+		height:5%;
+		background:yellow;
+	}
+	#matchControl{
+		width:100%;
+		height: 10%;
+		background:orange;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	#tabBar{
+		width:100%;
+		height:5%;
+		background:green;
+		display: flex;
+		align-items: center;
+		justify-content: left;
+	}
+	#bottom{
+		width:100%;
+		height:60%;
+	}
+	#leftScores{
+		width:50%;
+		height:100%;
+		background:red;
+		float:left;
+	}
+	#rightScores{
+		width:50%;
+		height:100%;
+		background:blue;
+		float:left;
+	}
+	.teamSlotHeader{
+		width:100%;
+		height:10%;
+		background:purple;
+	}
+	.teamSlot{
+		width:100%;
+		height:30%;
+		background:red;
+		display: flex;
+		align-items: center;
+	}
+	#leftTeams{
+		width:40%;
+		height:100%;
+		background:pink;
+		float:left;
+	}
+	#rightTeams{
+		width:40%;
+		height:100%;
+		background:cyan;
+		float:left;
+	}
+	#centerTop{
+		width:20%;
+		height:100%;
+		background:white;
+		float:left;
+	}
+	.matchControlButton{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 10px;
+		cursor: pointer;
+	}
+	.matchControlButton:hover {
+		background-color: #3e8e41;
+	}
+	.matchControlButton:disabled{
+		background-color: #d3d3d3;
+	}
+	.matchControlButton[state="back"]{
+		background-color: yellow;
+	}
+	.matchControlButton[state="warn"]{
+		background-color: red;
+	}
+	.tabButton{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 2px 6px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 10px;
+		cursor: pointer;
+	}
+	
+	.tabButton:hover {
+		background-color: #3e8e41;
+	}
+	.dqBox{
+		margin: 10px 10px;
+	}
+	.teamNumber{
+		width:70px;
+	}
+	.teamCard{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: black;
+		padding: 1px 1px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 1px 10px;
+		cursor: pointer;
+		border-radius: 3px;
+	}
+	.teamCard[value="yellow"]{
+		background-color: yellow;
+	}
+	.teamCard[value="red"]{
+		background-color:red;
+	}
+	.scoreBreakdown{
+		float:left;
+		
+	}
+	
+	</style>
+
 <script>
+
+function toggleCard(src){
+	if(src.value == "green"){
+		src.value = "yellow";
+	} else if(src.value== "yellow"){
+		src.value = "red";
+	} else{
+		src.value = "green";
+	}
+}
+
+function randomize(){
+	var postObj = {};
+	$.post("../randomize/",postObj).done(function(data){
+		console.log(data);
+		//TODO listen for randomization by head ref
+		//after button click, HR has option to rerandomize until match starts
+		//once match starts, HR has info and stuff. And can enter cards.
+		
+		
+		var rand = document.getElementById("randomBtn");
+		rand.setAttribute("state", "warn");
+		rand.innerHTML = "Re-Randomize";
+		var showRand = document.getElementById("showBtn");
+		showRand.disabled = false;
+		showRand.setAttribute("state", "ready");
+		var startBtn = document.getElementById("startBtn");
+		startBtn.disabled = false;
+		startBtn.setAttribute("state","ready");
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function showRandom(){
+	
+}
 
 function start(){
 	var postObj = {};
@@ -9,6 +228,20 @@ function start(){
 		//TODO listen for randomization by scorekeeper
 		//after button click, HR has option to rerandomize until match starts
 		//once match starts, HR has info and stuff. And can enter cards.
+		var preview = document.getElementById("previewBtn");
+		preview.setAttribute("state", "off");
+		preview.disabled = true;
+		var rand = document.getElementById("randomBtn");
+		rand.setAttribute("state", "off");
+		rand.disabled = true;
+		var showRand = document.getElementById("showBtn");
+		showRand.disabled = true;
+		showRand.setAttribute("state", "off");
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","warn");
+		startBtn.innerHTML = "Abort Match";
+		
+		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
@@ -28,6 +261,85 @@ function commit(){
 
 
 </script>
-<button onClick="start()">Start (And Immediately End) Match!</button><br>
-<button onClick="commit()">Commit Scores</button>
-#end
+<div id="menuBar"></div>
+		<div id="top">
+			<div id="leftTeams">
+				<div class="teamSlotHeader" style="text-align:right">DQ</div>
+				<div class="teamSlot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+				<div class="teamSlot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+				<div class="teamSlot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+			</div>
+			<div id="centerTop"></div>
+			<div id="rightTeams">
+				<div class="teamSlotHeader">DQ</div>
+				<div class="teamSlot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+				<div class="teamSlot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+				<div class="teamSlot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+			</div>
+		</div>
+		<div id="matchControl">
+			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Match Preview</button>
+			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
+			<button class="matchControlButton" id="showBtn"   onclick="showRandom()" state = "off" disabled>Show Randomization</button>
+			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>
+			<button class="matchControlButton" id="commitBtn" onclick="commit()"     state = "off" disabled>Commit Scores</button>
+			<button class="matchControlButton" id="postBtn"   onclick="post()"       state = "off" disabled>Post Results</button>
+			
+		</div>
+		<!-- TODO https://www.w3schools.com/howto/howto_js_tabs.asp -->
+		<div id="tabBar">
+			<button class="tabButton">Schedule</button>
+			<button class="tabButton">Scores</button>
+			<button class="tabButton">Settings</button>
+		</div>
+		<div id="bottom">
+			<div id="leftScores"></div>
+			<div id="rightScores">
+			<div class="scoreBreakdown">
+			<fieldset>
+			<legend>Score</legend>
+				<table >
+					<tr><th>Auto</th><th id="blueAutoScore">0</th></tr>					
+					<tr><td>Jewel Points</td><td id="blueJewelPoints">0</td></tr>
+					<tr><td>Glyph Points</td><td id="blueAutoGlyphPoints">0</td></tr>
+					<tr><td>Key Bonus</td><td id="blueKeyPoints">0</td></tr>
+					<tr><td>Parking Points</td><td id="blueParkingPoints">0</td></tr>
+					<tr><th>Teleop</th><th id="blueTeleopScore">0</th></tr>
+					<tr><td>Glyph Points</td><td id="blueGlyphPoints">0</td></tr>
+					<tr><td>Row Bonus</td><td id="blueRowPoints">0</td></tr>
+					<tr><td>Column Bonus</td><td id="blueColumnPoints">0</td></tr>
+					<tr><td>Cipher Bonus</td><td id="blueCipherPoints">0</td></tr>
+					<tr><td>Relic Points</td><td id="blueRelicPoints">0</td></tr>
+					<tr><td>Balance Points</td><td id="blueBalancePoints">0</td></tr>
+					<tr><th>Foul</th><th id="blueFoulScore">0</th></tr>
+				</table>
+				</fieldset>
+			</div>
+			</div>
+		</div>
+	</body>
+</html>

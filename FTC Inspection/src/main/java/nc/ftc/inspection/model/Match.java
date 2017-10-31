@@ -1,5 +1,7 @@
 package nc.ftc.inspection.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Match {
@@ -69,5 +71,58 @@ public class Match {
 	public void calculateEndAuto() {
 		red.updateScore("jewels", red.getRedJewels() + blue.getRedJewels());
 		blue.updateScore("jewels", blue.getBlueJewels() + red.getBlueJewels());
+	}
+	
+	private String json(String name, Object value) {
+		return "\"" + name + "\":\"" + value.toString() + "\"";
+	}
+	
+	private List<String> getScoreBreakdownNoPenalty(Alliance a) {
+		List<String> list = new ArrayList<String>();
+		int jewelPoints = 0;
+		if(a == red) {
+			jewelPoints = red.getRedJewels() + blue.getRedJewels();
+		}
+		else {
+			jewelPoints = red.getBlueJewels() + blue.getBlueJewels();
+		}
+		jewelPoints *= 30;
+		int glyphAutoPoints = 15 * Integer.parseInt(a.scores.get("autoGlyphs").toString());
+		int keyBonus = 30 * Integer.parseInt(a.scores.get("cryptoboxKeys").toString());
+		int parkingPoints = 10 * Integer.parseInt( a.scores.get("parkedAuto").toString());
+		int autoPoints = jewelPoints + glyphAutoPoints + keyBonus + parkingPoints;
+		list.add(json("jewelPoints", jewelPoints));
+		list.add(json("glyphAutoPoints", glyphAutoPoints));
+		list.add(json("keyPoints", keyBonus));
+		list.add(json("parkingPoints", parkingPoints));
+		list.add(json("autoPoints", autoPoints));
+		
+		int glyphPoints = 2 * Integer.parseInt(a.scores.get("glyphs").toString());
+		int rowPoints = 10 * Integer.parseInt(a.scores.get("rows").toString());
+		int columnPoints = 20 * Integer.parseInt(a.scores.get("columns").toString());
+		int cipherPoints = 30 * Integer.parseInt(a.scores.get("ciphers").toString());
+		int relicPoints = a.getRelicPoints();
+		int balancePoints = 20 * Integer.parseInt(a.scores.get("balanced").toString());
+		int teleopPoints = glyphPoints + rowPoints + columnPoints + cipherPoints + relicPoints + balancePoints; 
+		
+		list.add(json("glyphPoints", glyphPoints));
+		list.add(json("rowPoints", rowPoints));
+		list.add(json("columnPoints", columnPoints));
+		list.add(json("cipherPoints", cipherPoints));
+		list.add(json("relicPoints", relicPoints));
+		list.add(json("balancePoints", balancePoints));
+		list.add(json("teleopPoints", teleopPoints));
+		
+		return list;
+	}
+	
+	private String getScoreBreakdown(Alliance a) {
+		String res =  String.join(",", getScoreBreakdownNoPenalty(a))+", \"foulPoints\":\"";
+		res += (a == red ? blue : red).getPenaltyPoints() + "\"";
+		return res;
+	}
+	
+	public String getScoreBreakdown(){
+		return "{\"red\":{"+getScoreBreakdown(red)+"},\"blue\":{"+getScoreBreakdown(blue)+"}}";
 	}
 }

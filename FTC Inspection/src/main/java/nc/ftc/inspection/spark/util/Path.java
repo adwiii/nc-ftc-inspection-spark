@@ -36,6 +36,7 @@ public class Path {
         public static final String GET_RANDOM = "/event/:event/random/";
         //Updating vs submitting. updating is during the match. submit is after
         //need to be separate b/c both PUT and POST used on updating
+        public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";

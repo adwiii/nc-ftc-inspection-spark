@@ -93,6 +93,7 @@ public class Server {
 
 		get(Path.Web.SCORE, EventPages.handleGetScore);
 		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);
+		get(Path.Web.SCORE_BREAKDOWN, EventPages.handleGetScoreBreakdown);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);

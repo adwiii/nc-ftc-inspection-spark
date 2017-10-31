@@ -525,4 +525,19 @@ public class EventPages {
 		public static Route serveMatchControlPage = (Request request, Response response) ->{
 			return render(request, new HashMap<String, Object>(), Path.Template.CONTROL);
 		};
+		
+		public static Route handleGetScoreBreakdown = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(500);
+				return "No match loaded";
+			}
+			
+			return e.getCurrentMatch().getScoreBreakdown();
+		};
 }

@@ -112,6 +112,8 @@ public class Alliance {
 		return list;
 	}
 	
+	
+	
 	public int calculateScore(){
 		int score = 0;
 		for(Entry<String, Number> entry : scoreMap.entrySet()){
@@ -128,7 +130,7 @@ public class Alliance {
 	}
 	
 	public int getPenaltyPoints(){
-		return 10 * ((Number)scores.get("minor")).intValue() + 40 * ((Number)scores.get("major")).intValue();
+		return 10 * Integer.parseInt(scores.get("minor").toString())+ 40 * Integer.parseInt(scores.get("major").toString());
 	}
 	
 	public void setSubmitted(boolean sub){
@@ -172,4 +174,18 @@ public class Alliance {
 		}
 		return count;
 	}
+	public int zonePoints(int zone) {
+		if(zone == 1)return 10;
+		if(zone == 2)return 20;
+		if(zone == 3)return 40;
+		return 0;
+	}
+	public int getRelicPoints() {
+		int points = zonePoints(Integer.parseInt(scores.get("relic1Zone").toString()));
+		points += zonePoints(Integer.parseInt(scores.get("relic2Zone").toString()));
+		points += Boolean.parseBoolean(scores.get("relic1Standing").toString()) ? 15 : 0;
+		points += Boolean.parseBoolean(scores.get("relic2Standing").toString()) ? 15 : 0;
+		return points;
+	}
+	
 }
