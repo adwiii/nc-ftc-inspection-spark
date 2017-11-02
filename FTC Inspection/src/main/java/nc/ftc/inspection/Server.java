@@ -94,6 +94,8 @@ public class Server {
 		get(Path.Web.SCORE, EventPages.handleGetScore);
 		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);
 		get(Path.Web.SCORE_BREAKDOWN, EventPages.handleGetScoreBreakdown);
+		get(Path.Web.SCHEDULE_STATUS, EventPages.handleGetScheduleStatus);
+		get(Path.Web.GET_MATCH, EventPages.handleGetCurrentMatch);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -111,6 +113,7 @@ public class Server {
 		post(Path.Web.SUBMIT_SCORE, EventPages.handleScoreSubmit);
 		post(Path.Web.COMMIT_SCORES, EventPages.handleScoreCommit);
 		post(Path.Web.SCORE, EventPages.handleScoreFullUpate);
+		post(Path.Web.LOAD_MATCH, EventPages.handleLoadMatch);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);

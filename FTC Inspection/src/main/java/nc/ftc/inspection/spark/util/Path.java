@@ -28,6 +28,7 @@ public class Path {
         public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
         public static final String UPLOAD_SCHEDULE = "/event/:event/scheduleUpload/";
         public static final String SCHEDULE = "/event/:event/schedule/";
+        public static final String SCHEDULE_STATUS = "/event/:event/schedule/status/";
         //TODO have a subdir for scoring/match stuff under /event?
         public static final String RANDOMIZE = "/event/:event/randomize/";
         public static final String RERANDOMIZE = "/event/:event/rerandomize/";
@@ -41,6 +42,8 @@ public class Path {
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
         public static final String START_MATCH = "event/:event/time/start/";
+        public static final String GET_MATCH = "event/:event/match/";
+        public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
         public static final String COMMIT_SCORES = "event/:event/score/commit/";

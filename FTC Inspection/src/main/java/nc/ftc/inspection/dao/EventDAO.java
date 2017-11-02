@@ -78,9 +78,13 @@ public class EventDAO {
 	static final String CREATE_SCHEDULE_SCORES_SQL = "INSERT INTO qualsScores (match, alliance) VALUES (?,?);";
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
 	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
+	static final String GET_MATCH_SQL = "SELECT q.* FROM quals q WHERE q.match=? ORDER BY match LIMIT 1;";
+	
 	static final String COMMIT_MATCH_DATA = "UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;";
 	static final String COMMIT_MATCH_RESULTS = "UPDATE qualsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;";
 	static final String COMMIT_MATCH_SCORES = "UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=? WHERE match=? AND alliance=?";
+	
+	static final String GET_SCHEDULE_STATUS_QUALS = "SELECT q.match, red1, red2, blue1, blue2, status, redScore, blueScore FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -482,6 +486,54 @@ public class EventDAO {
 		ps.setInt(18, match);
 		ps.setInt(19,  aI);		
 		return ps.executeUpdate();
+	}
+	
+	private static String json(String name, Object value) {
+		return "\"" + name + "\":\"" + (value == null ? "" : value.toString()) + "\"";
+	}
+	
+	public static String getScheduleStatusJSON(String event) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_SCHEDULE_STATUS_QUALS);
+			ResultSet rs = ps.executeQuery();
+			String result = "[";
+			while(rs.next()) {
+				result += "{";
+				List<String> list = new ArrayList<String>();
+				list.add(json("match", rs.getObject(1)));
+				list.add(json("red1", rs.getObject(2)));
+				list.add(json("red2", rs.getObject(3)));
+				list.add(json("blue1", rs.getObject(4)));
+				list.add(json("blue2", rs.getObject(5)));
+				list.add(json("status", rs.getObject(6)));
+				list.add(json("redScore", rs.getObject(7)));
+				list.add(json("blueScore", rs.getObject(8)));
+				result += String.join(",", list);
+				result += "},";
+			}
+			result = result.substring(0, result.length() - 1);
+			result = result + "]";
+			return result;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	public static Match getMatch(String event, int num) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_MATCH_SQL);
+			ps.setInt(1,  num);
+			ResultSet rs = ps.executeQuery();
+			Match m = null;
+			while(rs.next()){
+				m = parseMatch(rs);
+			}
+			if(m == null)return null;
+			return m;
+		}catch(Exception e){
+			return null;
+		}
 	}
 	
 }

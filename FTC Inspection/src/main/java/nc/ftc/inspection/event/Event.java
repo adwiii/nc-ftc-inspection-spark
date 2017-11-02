@@ -31,4 +31,17 @@ public class Event {
 		currentMatch.setStatus(MatchStatus.PRE_RANDOM);
 		System.out.println("Loaded match #"+currentMatch.getNumber());
 	}
+	
+	public void loadMatch(int num) {
+		Match temp = currentMatch;
+		currentMatch = EventDAO.getMatch(data.getCode(), num);
+		if(currentMatch == null) {
+			currentMatch = temp;
+		} else {
+			previousMatch = currentMatch;
+			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
+			System.out.println("Loaded match #"+currentMatch.getNumber());
+		}
+		
+	}
 }

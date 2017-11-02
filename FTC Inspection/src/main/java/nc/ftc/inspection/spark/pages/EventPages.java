@@ -343,9 +343,7 @@ public class EventPages {
 			return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
 		};
 		
-		public static Route handleGetCurrentMatch = (Request request, Response response) ->{
-			return null;
-		};
+		
 		
 		public static Route handleGetScore = (Request request, Response response) -> {
 			String eventCode = request.params("event");
@@ -523,7 +521,9 @@ public class EventPages {
 			return null;
 		};
 		public static Route serveMatchControlPage = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.CONTROL);
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			return render(request, map, Path.Template.CONTROL);
 		};
 		
 		public static Route handleGetScoreBreakdown = (Request request, Response response) ->{
@@ -540,4 +540,58 @@ public class EventPages {
 			
 			return e.getCurrentMatch().getScoreBreakdown();
 		};
+		
+		public static Route handleGetScheduleStatus = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(500);
+				return "No match loaded";
+			}
+			return EventDAO.getScheduleStatusJSON(event);
+		};
+		
+		public static Route handleLoadMatch = (Request request, Response response) ->{
+			String event  = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			int match = 0;
+			try {
+				match = Integer.parseInt(request.params("match"));
+			} catch(Exception e1) {
+				return "Invalid match";
+			}
+			e.loadMatch(match);
+			return "";
+		};
+		
+		public static Route handleGetCurrentMatch = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			Match m = e.getCurrentMatch();
+			String res = "{";
+			res += "\"number\":" + m.getNumber()+",";
+			res += "\"red1\":"+m.getRed().getTeam1()+",";
+			res += "\"red2\":"+m.getRed().getTeam2()+",";
+			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
+			res += "\"blue2\":"+m.getBlue().getTeam2();
+			res += "}";
+			return res;
+		};
+		
 }
