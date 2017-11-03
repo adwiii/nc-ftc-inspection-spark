@@ -155,7 +155,7 @@
 	}
 	
 	function submit(){
-		//Send a PUT with all data (do a score update with everything)
+		//Send a POST with all data (do a score update with everything)
 		//iff sucessful, reload the page. 
 		//Must be done after teleop ends, otherwise loads same page
 		obj = getScoreObject();

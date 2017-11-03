@@ -404,7 +404,11 @@ public class EventPages {
 		}
 		
 		public static Route handleScoreUpdate = (Request request, Response response) -> {
-			return updateScores(request, response);
+			String s = updateScores(request, response);
+			if(s.equals("OK")) {
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+			}
+			return s;
 		};
 		
 		//POST that is done by hitting "review" button. always saves the info, but returns
@@ -416,13 +420,17 @@ public class EventPages {
 				//If not in review phase, dont return 200. That way client knows not to load
 				//review page yet.
 				String e = request.params("event");
-				if(!Server.activeEvents.get(e).getCurrentMatch().getStatus().isReview()) {
+				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
+				if(!status.isReview()) {
 					response.status(409);
 					return "Not ready to review.";
 				}	
 				Match match = Server.activeEvents.get(e).getCurrentMatch();
 				match.getAlliance(request.params("alliance")).setInReview(true);
-				match.calculateEndAuto();
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+				if(status == MatchStatus.AUTO) {
+					match.calculateEndAuto();
+				}
 			}
 			return res;
 			

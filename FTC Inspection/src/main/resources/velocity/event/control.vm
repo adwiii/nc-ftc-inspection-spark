@@ -381,7 +381,61 @@ function randomize(){
 }
 
 function showRandom(){
+}
+
+function endTeleop(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","off");
+	startBtn.innerHTML = "Start Auto";
+	startBtn.disabled = true;
+	startBtn.setAttribute("onclick", "start()");
 	
+	var commitBn = document.getElementById("commitBtn");
+	commitBtn.setAttribute("state", "back");
+	commitBtn.disabled = false;
+	//this is where we long poll for refs to finish review
+	//after refs done, then can edit scores.... not helpful... should scores unlock now?
+	//have another button for finish review that shuts out referees?
+}
+
+function abortTeleop(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","ready");
+	startBtn.innerHTML = "Start Teleop";
+	startBtn.setAttribute("onclick", "startTeleop()");
+}
+
+function startTeleop(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","warn");
+	startBtn.innerHTML = "Stop Teleop";	
+	startBtn.setAttribute("onclick", "abortTeleop()");
+	
+	endTeleop();
+}
+
+function endAuto(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","ready");
+	startBtn.innerHTML = "Start Teleop";
+	startBtn.setAttribute("onclick", "startTeleop()");
+}
+
+function abortAuto(){ //reactivate match preview, rerandomize, and show random
+	var preview = document.getElementById("previewBtn");
+	preview.setAttribute("state", "back");
+	preview.disabled = true;
+	var rand = document.getElementById("randomBtn");
+	rand.setAttribute("state", "warn");
+	rand.disabled = true;
+	var showRand = document.getElementById("showBtn");
+	showRand.disabled = true;
+	showRand.setAttribute("state", "back");
+	
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","ready");
+	startBtn.innerHTML = "Start Auto";
+	startBtn.setAttribute("onclick", "start()");
 }
 
 function start(){
@@ -402,8 +456,9 @@ function start(){
 		showRand.setAttribute("state", "off");
 		var startBtn = document.getElementById("startBtn");
 		startBtn.setAttribute("state","warn");
-		startBtn.innerHTML = "Abort Match";
-		
+		startBtn.innerHTML = "Stop Auto";
+		startBtn.setAttribute("onclick", "abortAuto()");
+		endAuto();
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
@@ -414,12 +469,37 @@ function commit(){
 	var postObj = {};
 	$.post("../score/commit/",postObj).done(function(data){
 		console.log(data);
+		
+		var postBtn = document.getElementById("postBtn");
+		postBtn.setAttribute("state","ready");
+		postBtn.disabled = false;
+		var commitBn = document.getElementById("commitBtn");
+		commitBtn.setAttribute("state", "off");
+		commitBtn.disabled = true;
+		
+		
+		
 		//TODO listen for randomization by scorekeeper
 		//after button click, HR has option to rerandomize until match starts
 		//once match starts, HR has info and stuff. And can enter cards.
+		
+		//IDK WHAT THE HECK THIS COMMENT IS HERE FOR!!!???	
+		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
+}
+
+function post(){ //posts results to AD
+	var postBtn = document.getElementById("postBtn");
+	postBtn.setAttribute("state","off");
+	
+	var preview = document.getElementById("previewBtn");
+	preview.setAttribute("state", "ready");
+	preview.disabled = false;
+	var rand = document.getElementById("randomBtn");
+	rand.setAttribute("state", "ready");
+	rand.disabled = false;
 }
 
 function openTab(event, tabName){

@@ -187,5 +187,55 @@ public class Alliance {
 		points += Boolean.parseBoolean(scores.get("relic2Standing").toString()) ? 15 : 0;
 		return points;
 	}
+	/**
+	 * DO NOT CALL FROM REVIEW PAGE
+	 */
+	public void calculateGlyphs() {
+		//calculate number of glyphs, number of rows, number of columns, number of ciphers.
+		int ciphers = 0;
+		int rows = 0;
+		int columns = 0;
+		int glyphs = 0;
+		for(int i = 1 ; i < 3; i++) {
+			int cb = Integer.parseInt(scores.get("cryptobox"+i).toString());
+			int cbInv = ((~cb) & 0xFFFFFF);
+			if(cb == 6710886 || cbInv == 6710886 || cb == 6908265 || cbInv == 6908265 || cb == 10065510 || cbInv == 10065510) {
+				ciphers++;
+			}
+			
+			for(int r = 0; r < 4; r++) {
+				int t = (cb >> (r * 6)) & 0x3F; //t is the value for the row.
+				int thisRow = 0;
+				while(t > 0) {
+					thisRow++;
+					t = t & (t-1);
+				}
+				glyphs += thisRow;
+				if(thisRow == 3) {
+					rows++;
+				}
+			}
+			
+			final int COLUMN_MASK = 0b11000011000011000011;
+			for(int c = 0; c < 3; c++) {
+				int t = cb & (COLUMN_MASK << (2*c));
+				int thisColumn = 0;
+				while(t > 0) {
+					thisColumn++;
+					t = t & (t-1);
+				}
+				glyphs += thisColumn;
+				if(thisColumn == 4) {
+					columns++;
+				}
+			}			
+		}
+		 // each glyph counted twice.
+		glyphs /= 2;
+		scores.put("glyphs", glyphs);
+		scores.put("rows", rows);
+		scores.put("columns", columns);
+		scores.put("ciphers", ciphers);
+	}
 	
 }
