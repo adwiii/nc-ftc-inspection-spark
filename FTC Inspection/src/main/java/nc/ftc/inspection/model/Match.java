@@ -70,9 +70,13 @@ public class Match {
 		return red.isInReview() && blue.isInReview();
 	}
 	
-	public void calculateEndAuto() {
+	
+	public void updateJewels() {
 		red.updateScore("jewels", red.getRedJewels() + blue.getRedJewels());
 		blue.updateScore("jewels", blue.getBlueJewels() + red.getBlueJewels());
+	}
+	public void calculateEndAuto() {
+		updateJewels();
 	}
 	
 	private String json(String name, Object value) {
@@ -88,6 +92,7 @@ public class Match {
 		else {
 			jewelPoints = red.getBlueJewels() + blue.getBlueJewels();
 		}
+		jewelPoints = Integer.parseInt(a.scores.get("jewels").toString());
 		jewelPoints *= 30;
 		int glyphAutoPoints = 15 * Integer.parseInt(a.scores.get("autoGlyphs").toString());
 		int keyBonus = 30 * Integer.parseInt(a.scores.get("cryptoboxKeys").toString());

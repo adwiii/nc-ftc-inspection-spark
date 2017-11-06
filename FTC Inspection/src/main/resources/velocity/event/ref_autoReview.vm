@@ -67,6 +67,7 @@
 		obj.minor = parseInt(document.getElementById('minor').textContent);
 		obj.cryptoboxKeys = keys;
 		obj.parkedAuto = parked;
+		obj.jewels = parseInt(document.getElementById('jewels').textContent);
 		addJewelScore(1, obj);
 		addJewelScore(2, obj);
 		return obj;
@@ -87,7 +88,7 @@
 <table>
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 1)checked#end/>1</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 2)checked#end/>2</label></div></td></tr>
-<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels)jewel_count#end</td></tr>
+<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels)jewels#end</td></tr>
 <tr>
 <td class ="left">Jewel Set 1:</td>
 <td>

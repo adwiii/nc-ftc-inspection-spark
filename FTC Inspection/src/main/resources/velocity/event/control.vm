@@ -707,6 +707,8 @@ function start(){
 
 function commit(){
 	var postObj = {};
+	//TODO send DQs and cards. Server should already have all scores. 
+	//TODO after commit, update schedule tab
 	$.post("../score/commit/",postObj).done(function(data){
 		console.log(data);
 		

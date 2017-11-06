@@ -474,7 +474,12 @@ public class EventPages {
 		public static Route handleScoreUpdate = (Request request, Response response) -> {
 			String s = updateScores(request, response);
 			if(s.equals("OK")) {
-				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+				String e = request.params("event");
+				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
+				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
+					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
+				}
+				Server.activeEvents.get(e).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			}
 			return s;
@@ -489,7 +494,11 @@ public class EventPages {
 				//If not in review phase, dont return 200. That way client knows not to load
 				//review page yet.
 				String e = request.params("event");
+				
 				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
+				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
+					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
+				}
 				if(!status.isReview()) {
 					Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 					response.status(409);
@@ -498,9 +507,9 @@ public class EventPages {
 				Match match = Server.activeEvents.get(e).getCurrentMatch();
 				match.getAlliance(request.params("alliance")).setInReview(true);
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
-				if(status == MatchStatus.AUTO) {
-					match.calculateEndAuto();
-				}
+//				if(status == MatchStatus.AUTO) {
+//					match.calculateEndAuto();
+//				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			}
 			return res;
@@ -525,11 +534,20 @@ public class EventPages {
 				return "Not in review phase!";
 			}
 			if(res.equals("OK") ){ 
+				//if not both refs in review - dont allow
+				if(!event.getCurrentMatch().isInReview()) {
+					response.status(409);
+					return "Red & Blue must both be in review";
+				}
 				event.getCurrentMatch().getAlliance(alliance).setSubmitted(true);
-				event.getCurrentMatch().getAlliance(alliance).setInReview(false);
+//				TODO commented this out recently, if stuff breaks maybe this
+				//event.getCurrentMatch().getAlliance(alliance).setInReview(false);
+				
 				//both alliances scores submitted -> go to teleop or pre-commit
 				//Front end needs to say submitted until post-commit (after teleop).
 				if(event.getCurrentMatch().scoreSubmitted()){
+					event.getCurrentMatch().getRed().setInReview(false);
+					event.getCurrentMatch().getBlue().setInReview(false);
 					
 					if(event.getCurrentMatch().getStatus() == MatchStatus.AUTO_REVIEW){
 
