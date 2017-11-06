@@ -8,7 +8,7 @@ import nc.ftc.inspection.model.MatchStatus;
 public class Event {
 	EventData data;
 	Match currentMatch;
-	Match previousMatch;
+	Match previousMatch;	
 	public Event(EventData ed){
 		this.data = ed;
 	}
@@ -44,4 +44,6 @@ public class Event {
 		}
 		
 	}
+	
+	
 }

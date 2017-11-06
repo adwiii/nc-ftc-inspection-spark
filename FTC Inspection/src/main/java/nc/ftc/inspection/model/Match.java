@@ -10,6 +10,8 @@ public class Match {
 	Alliance blue;
 	public transient MatchStatus status; //pre-match (pre-randomize), auto, auto-review, teleop, teleop-review, pre-commit, post-commit
 	transient int randomization = 0; 
+	long lastChange = 0;
+	Object scoreLock = new Object();
 	public Match(int num, Alliance red, Alliance blue){
 		this.red = red;
 		this.blue = blue;
@@ -123,6 +125,25 @@ public class Match {
 	}
 	
 	public String getScoreBreakdown(){
-		return "{\"red\":{"+getScoreBreakdown(red)+"},\"blue\":{"+getScoreBreakdown(blue)+"}}";
+		return "{\"red\":{"+getScoreBreakdown(red)+"},\"blue\":{"+getScoreBreakdown(blue)+"}, \"ts\":"+lastChange+"}";
+	}
+	
+	public String getFullScores() {
+		return "{\"red\":{"+String.join(",", red.getScores())+"},\"blue\":{"+String.join(",",blue.getScores())+"}, \"ts\":"+lastChange+"}";
+	}
+	
+	public long getLastUpdate() {
+		return lastChange;
+	}
+	
+	public Object getUpdateLock() {
+		return scoreLock;
+	}
+	
+	public void updateNotify() {
+		lastChange = System.currentTimeMillis();
+		synchronized(scoreLock) {
+			scoreLock.notifyAll();
+		}
 	}
 }

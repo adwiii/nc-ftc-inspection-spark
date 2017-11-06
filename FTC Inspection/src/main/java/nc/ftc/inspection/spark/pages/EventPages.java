@@ -370,9 +370,77 @@ public class EventPages {
 			return "";
 		};
 		
+		
+		public static Route handleGetFullScore = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			try{
+				if(event == null){
+					response.status(500);
+					return "Event not active.";
+				}
+				Match match = event.getCurrentMatch();
+				if(match == null){
+					response.status(500);
+					return "No match loaded.";
+				}
+				
+				String block = request.queryParams("block");
+				if(block != null && Boolean.parseBoolean(block)) {
+					long last = 0;
+					String lastParam = request.queryParams("last");
+					if(lastParam != null) {
+						Match m =event.getCurrentMatch();
+						last = Long.parseLong(lastParam);
+						if(m.getLastUpdate() <= last) {
+							synchronized(m.getUpdateLock()) {
+								m.getUpdateLock().wait(10000);
+							}
+						}
+					}
+				}
+				
+				return event.getCurrentMatch().getFullScores();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			return "";			
+		};
+		
+		public static Route handleGetScoreBreakdown = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(500);
+				return "No match loaded";
+			}
+			String block = request.queryParams("block");
+			if(block != null && Boolean.parseBoolean(block)) {
+				long last = 0;
+				String lastParam = request.queryParams("last");
+				if(lastParam != null) {
+					last = Long.parseLong(lastParam);
+					Match m = e.getCurrentMatch();
+					if(m.getLastUpdate() <= last) {
+						synchronized(m.getUpdateLock()) {
+							m.getUpdateLock().wait(10000);
+						}
+					}
+				}
+			}
+			return e.getCurrentMatch().getScoreBreakdown();
+		};
+		
+		
+		
 		private static String updateScores(Request request, Response response){
 			String eventCode = request.params("event");
 			String alliance = request.params("alliance");
+			
 			Event event = Server.activeEvents.get(eventCode);
 			if(event == null){
 				response.status(500);
@@ -407,6 +475,7 @@ public class EventPages {
 			String s = updateScores(request, response);
 			if(s.equals("OK")) {
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			}
 			return s;
 		};
@@ -422,6 +491,7 @@ public class EventPages {
 				String e = request.params("event");
 				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
 				if(!status.isReview()) {
+					Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 					response.status(409);
 					return "Not ready to review.";
 				}	
@@ -431,6 +501,7 @@ public class EventPages {
 				if(status == MatchStatus.AUTO) {
 					match.calculateEndAuto();
 				}
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			}
 			return res;
 			
@@ -438,6 +509,8 @@ public class EventPages {
 		
 		public static Route handleScoreSubmit = (Request request, Response response) ->{
 			//TODO if not in REVIEW status, reject.
+			//TODO handle submit after teleop started for auto.
+			//so maybe dont reject?
 			try{
 			String res = updateScores(request, response);
 			String eventCode = request.params("event");
@@ -468,6 +541,7 @@ public class EventPages {
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
 					}
 				}
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			} else{
 				response.status(500);
 				return res;
@@ -534,20 +608,7 @@ public class EventPages {
 			return render(request, map, Path.Template.CONTROL);
 		};
 		
-		public static Route handleGetScoreBreakdown = (Request request, Response response) ->{
-			String event = request.params("event");
-			Event e = Server.activeEvents.get(event);
-			if(e == null){
-				response.status(500);
-				return "Event not active.";
-			}
-			if(e.getCurrentMatch() == null){
-				response.status(500);
-				return "No match loaded";
-			}
-			
-			return e.getCurrentMatch().getScoreBreakdown();
-		};
+		
 		
 		public static Route handleGetScheduleStatus = (Request request, Response response) ->{
 			String event = request.params("event");
@@ -577,6 +638,7 @@ public class EventPages {
 				return "Invalid match";
 			}
 			e.loadMatch(match);
+			e.getCurrentMatch().updateNotify();
 			return "";
 		};
 		

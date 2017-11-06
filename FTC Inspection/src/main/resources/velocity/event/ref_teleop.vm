@@ -16,13 +16,14 @@
 		}
 		$('input[name=relic1]').change(function(){
 			var j = document.getElementById('relic1Upright');
-			scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val()});
 			if ($('input[name=relic1]:checked').val() == 0){
 				j.disabled = true;
 				j.checked  = false;
 			} else {
 				j.disabled = false;
 			}
+			scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
+			
 		});
 		j = document.getElementById('relic2Upright');
 		if ($('input[name=relic2]:checked').val() == 0){
@@ -33,13 +34,13 @@
 		}
 		$('input[name=relic2]').change(function(){
 			var j = document.getElementById('relic2Upright');
-			scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val()});
 			if ($('input[name=relic2]:checked').val() == 0){
 				j.disabled = true;
 				j.checked  = false;
 			} else {
 				j.disabled = false;
 			}
+			scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
 		});
 		$('input[name=balanced]').change(function(){
 			scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
@@ -113,10 +114,11 @@
 	function radioRelic(rel, value){
 		if(rel == 1){
 			relic1 = value;
-			scoreUpdate({relic1Zone:value});
+			scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
 		} else if(rel == 2){
 			relic2 = value;
-			scoreUpdate({relic2Zone:value});
+			if(value == "0")document.getElementById('relic2Upright').checked = false;
+			scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
 		}
 	}
 	

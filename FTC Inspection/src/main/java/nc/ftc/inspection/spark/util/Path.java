@@ -39,6 +39,7 @@ public class Path {
         //need to be separate b/c both PUT and POST used on updating
         public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
+        public static final String BOTH_SCORE = "/event/:event/score/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
         public static final String START_MATCH = "event/:event/time/start/";

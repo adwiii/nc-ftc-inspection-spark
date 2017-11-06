@@ -96,6 +96,8 @@ public class Server {
 		get(Path.Web.SCORE_BREAKDOWN, EventPages.handleGetScoreBreakdown);
 		get(Path.Web.SCHEDULE_STATUS, EventPages.handleGetScheduleStatus);
 		get(Path.Web.GET_MATCH, EventPages.handleGetCurrentMatch);
+		get(Path.Web.BOTH_SCORE, EventPages.handleGetFullScore);
+		
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);

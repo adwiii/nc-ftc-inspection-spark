@@ -76,6 +76,7 @@ public class Alliance {
 		scores.put("relic2Zone", 0);
 		scores.put("relic2Standing", false);
 		scores.put("balanced", 0);
+		scores.put("adjust", 0); //for double red cards
 		//Field-status 
 		scores.put("cryptobox1", 0);
 		scores.put("cryptobox2", 0);

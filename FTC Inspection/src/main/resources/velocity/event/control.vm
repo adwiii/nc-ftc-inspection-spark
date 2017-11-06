@@ -1,36 +1,204 @@
+#macro (scoreField $alliance $key $label) 
+	<div id="${alliance}_${key}_score" class="scoreControl">
+		<label class="scoreLabel">$label</label>
+		<input type="text" class="scoreField" value="0"></input>
+		<div>
+			<button class="arrow" onclick="up('$alliance','$key')">&#9650;</button>
+			<br/>
+			<button class="arrow" onclick="up('$alliance','$key')">&#9660;</button>
+		</div>
+	</div> 
+#end
+
+#macro (relic $alliance $id)
+<div class="relicControl">
+<label>&nbsp;&nbsp;&nbsp;Relic 1</label>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone3" onclick="relicZone('$alliance',$id,3)">3</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone2" onclick="relicZone('$alliance',$id,2)">2</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone1" onclick="relicZone('$alliance',$id,1)">1</button>
+	<label>Standing?</label>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Standing" onclick="toggleStanding('$alliance', $id)">&nbsp;&nbsp;</button>
+</div>
+#end
+
+#macro (breakdown $alliance)
+	<div class="scoreBreakdown">
+		<fieldset class="breakdown">
+			<legend>Score Breakdown</legend>
+			<table >
+				<tr><th>Auto</th><th id="${alliance}AutoScore">0</th></tr>					
+				<tr><td>Jewel Points</td><td id="${alliance}JewelPoints">0</td></tr>
+				<tr><td>Glyph Points</td><td id="${alliance}AutoGlyphPoints">0</td></tr>
+				<tr><td>Key Bonus</td><td id="${alliance}KeyPoints">0</td></tr>
+				<tr><td>Parking Points</td><td id="${alliance}ParkingPoints">0</td></tr>
+				<tr><th>Teleop</th><th id="${alliance}TeleopScore">0</th></tr>
+				<tr><td>Glyph Points</td><td id="${alliance}GlyphPoints">0</td></tr>
+				<tr><td>Row Bonus</td><td id="${alliance}RowPoints">0</td></tr>
+				<tr><td>Column Bonus</td><td id="${alliance}ColumnPoints">0</td></tr>
+				<tr><td>Cipher Bonus</td><td id="${alliance}CipherPoints">0</td></tr>
+				<tr><td>Relic Points</td><td id="${alliance}RelicPoints">0</td></tr>
+				<tr><td>Balance Points</td><td id="${alliance}BalancePoints">0</td></tr>
+				<tr><th>Foul</th><th id="${alliance}FoulScore">0</th></tr>
+			</table>
+			#scoreField($alliance "major" "Major<br>Penalties")
+		    #scoreField($alliance "minor" "Minor Penalties")
+			#scoreField($alliance "adjust" "Adjust")
+		</fieldset>				
+	</div>
+#end
+
+#macro (scores $alliance)
+	#breakdown($alliance)
+	<div id="${alliance}AutoScores" >
+		<fieldset class="breakdown">
+			<legend>Auto Scores</legend>						
+			#scoreField($alliance "autoGlyphs" "Glyphs")
+			#scoreField($alliance "jewels" "Jewels")
+			#scoreField($alliance "cryptoboxKeys" "Keys")
+			#scoreField($alliance "parkedAuto" "Parked")
+		</fieldset>
+	</div>
+	<!--
+	<div id="${alliance}FieldState" >
+		<fieldset class="breakdown">
+			<legend>Field State</legend>
+		</fieldset>
+	</div>
+	<br>
+	-->
+	<div id="${alliance}TeleopScores" style="float:left;">
+		<fieldset class="breakdown">
+			<legend>Teleop Scores</legend>						
+			#scoreField($alliance "glyphs" "Glyphs")
+			#scoreField($alliance "rows" "Rows")
+			#scoreField($alliance "columns" "Columns")						
+			#scoreField($alliance "ciphers" "Ciphers")
+			#scoreField($alliance "balanced" "Balanced")
+		</fieldset>
+	</div>
+	<div id="${alliance}RelicScores" style="float:left;">
+		<fieldset class="relicSet">
+			<legend>Relic Scores</legend>
+			#relic($alliance "1")
+			#relic($alliance "2")
+		</fieldset>
+	</div>
+#end
+
 <html>
 <body>
 <script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
   	<script>
+  	
+  	var lastBreakdown = 0;
+  	var lastFullScore = 0;
+  	
   	function updateScoreBreakdown(obj){
-  		document.getElementById("blueAutoScore").innerHTML = obj.blue.autoPoints;
-  		document.getElementById("blueJewelPoints").innerHTML = obj.blue.jewelPoints;
-  		document.getElementById("blueAutoGlyphPoints").innerHTML = obj.blue.glyphAutoPoints;
-  		document.getElementById("blueKeyPoints").innerHTML = obj.blue.keyPoints;
-  		document.getElementById("blueParkingPoints").innerHTML = obj.blue.parkingPoints;
-  		document.getElementById("blueTeleopScore").innerHTML = obj.blue.teleopPoints;
-  		document.getElementById("blueGlyphPoints").innerHTML = obj.blue.glyphPoints;
-  		document.getElementById("blueRowPoints").innerHTML = obj.blue.rowPoints;
-  		document.getElementById("blueColumnPoints").innerHTML = obj.blue.columnPoints;
-  		document.getElementById("blueCipherPoints").innerHTML = obj.blue.cipherPoints;
-  		document.getElementById("blueRelicPoints").innerHTML = obj.blue.relicPoints;
-  		document.getElementById("blueBalancePoints").innerHTML = obj.blue.balancePoints;
-  		document.getElementById("blueFoulScore").innerHTML = obj.blue.foulPoints;
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "blue" : "red"
+	  		document.getElementById(a + "AutoScore").innerHTML = obj[a].autoPoints;
+	  		document.getElementById(a + "JewelPoints").innerHTML = obj[a].jewelPoints;
+	  		document.getElementById(a + "AutoGlyphPoints").innerHTML = obj[a].glyphAutoPoints;
+	  		document.getElementById(a + "KeyPoints").innerHTML = obj[a].keyPoints;
+	  		document.getElementById(a + "ParkingPoints").innerHTML = obj[a].parkingPoints;
+	  		document.getElementById(a + "TeleopScore").innerHTML = obj[a].teleopPoints;
+	  		document.getElementById(a + "GlyphPoints").innerHTML = obj[a].glyphPoints;
+	  		document.getElementById(a + "RowPoints").innerHTML = obj[a].rowPoints;
+	  		document.getElementById(a + "ColumnPoints").innerHTML = obj[a].columnPoints;
+	  		document.getElementById(a + "CipherPoints").innerHTML = obj[a].cipherPoints;
+	  		document.getElementById(a + "RelicPoints").innerHTML = obj[a].relicPoints;
+	  		document.getElementById(a + "BalancePoints").innerHTML = obj[a].balancePoints;
+	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
+  		}
+  	}
+  	//TODO: editing score should NOT notify listeners. make quiet endpoint that doesnt
+  	function up(alliance, key){
+  		
+  	}
+  	function down(alliance, key){
   	}
   	
-  	function getScoreUpdate(){
+  	//really, this should run from randomization to pre-commit (after ref review done)
+  	//also, server should hold response until change.
+  	//should track timestamp of last update, sends get with that info, server knows last update, block if no update since then
+  	function getScoreUpdate(block){
+  		var data = {};
   		$.ajax({
   			url: "../scorebreakdown/",
   			type: "GET",
   			dataType: 'json',
+  			data: {
+  				block:block,
+  				last:lastBreakdown
+  			},
   			success: function(data){
+  			
+  				lastBreakdown = data.ts;
   				updateScoreBreakdown(data);
-  				window.setTimeout(getScoreUpdate, 1000);
+  				window.setTimeout(getScoreUpdate(true), 1000);
   			},
   			error: function(){
+  				window.setTimeout(getScoreUpdate(true), 1000);
   			}});
+  	}
+  	
+  	//really, this should run after randomization -> pre-commit (after ref review done)
+  	//also, server should hold response util change
+  	//MUST stop during pre-commit editing!
+  	function getScoreControlUpdate(block){
+  		$.ajax({
+  			url: "../score/",
+  			type: "GET",
+  			dataType: 'json',
+  			data: {
+  				block:block,
+  				last:lastFullScore
+  			},
+  			success: function(data){
+  				updateScoreControl(data);
+  				lastFullScore = data.ts;
+  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  			},
+  			error: function(){
+  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  			}});
+  	}
+  	
+  	function updateScoreControl(data){
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "blue" : "red"
+  			for(var key in data[a]){
+  				var elem = document.getElementById(a+"_"+key+"_score");
+  				if(elem){
+  					try{
+  						elem.getElementsByTagName("input")[0].value=data[a][key];
+  					}catch(err){}
+  				}
+  			}
+  			//do the odd ones: relics
+  			if(eval(data[a]["relic1Standing"])!=(document.getElementById(a+"Relic1Standing").getAttribute("state") == "on")){
+				toggleStanding(a,1);
+			}  
+			if(eval(data[a]["relic2Standing"])!=(document.getElementById(a+"Relic2Standing").getAttribute("state") == "on")){
+				toggleStanding(a,2);
+			}  
+			//if(data[a].relic1Zone == 0){	
+				clearZones(a, 1);		
+			//}
+			if(data[a].relic1Zone > 0){
+				document.getElementById(a+"Relic1Zone"+data[a].relic1Zone).setAttribute("state", "on");
+			}
+			//if(data[a].relic2Zone == 0){	
+				clearZones(a, 2);		
+			//}
+			if(data[a].relic2Zone > 0){
+				document.getElementById(a+"Relic2Zone"+data[a].relic2Zone).setAttribute("state", "on");
+			}
+  			
+  			//TODO cryptoboxes and jewels
+  		}
   	}
   	
   	function updateScheduleTab(schedule){
@@ -159,7 +327,36 @@
   			}});
   	}
   	
-  	$().ready(function(){getScheduleStatus();getScoreUpdate();});
+  	function clearZones(alliance, relic){
+  		for(var i = 1; i < 4; i++){
+		 var x = document.getElementById(alliance+"Relic"+relic+"Zone"+i);
+		 x.setAttribute("state","off");
+		}	
+  	}
+  	function relicZone(alliance, relic, zone){
+		var r = document.getElementById(alliance+"Relic"+relic+"Zone"+zone);
+		var next = r.getAttribute("state") == "on" ? "off" : "on";
+		clearZones(alliance, relic);
+		if(zone > 0){		
+			r.setAttribute("state", next);
+		}
+	}
+		
+	function toggleStanding(alliance, relic){
+		var r = document.getElementById(alliance+"Relic"+relic+"Standing");
+		var next = r.getAttribute("state") == "on" ? "off" : "on";
+		r.setAttribute("state", next );
+		r.innerHTML = next == "on" ? "&#10004;" : "&nbsp;&nbsp;";
+		
+	}
+  	
+  	$().ready(function(){
+  		getScheduleStatus();
+  		getScoreUpdate(false);
+  		getScoreControlUpdate(false);
+  		getCurrentMatchData();
+  		document.getElementById("scoreTabBtn").click();
+  	});
   	
   	</script>
 <style>
@@ -341,7 +538,50 @@
 		text-align:center;
 	}
 	
-	
+	.scoreField{
+		float:left;
+		width:41;
+		height:41;
+		font-size:24px;
+	}
+	.scoreLabel{
+		float:left;
+		width: 70;
+	}
+	.scoreControl{
+		
+	}
+	.breakdown{
+		width:150;
+	}
+	.relicSet{
+		width:147;
+	}
+	.relicControl{
+		float:left;
+		
+	}
+	.relicZone{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		font-size: 16px;
+		margin: 1px 10px;
+		cursor: pointer;
+		display: block;
+	}
+	.relicZone:diabled{
+		background-color: #4CAF50;
+	}
+	.relicZone[state="on"]{
+		background-color: #0e5e11;
+	}
+	.relicZone[state="off"]{
+		background-color: #5CBF60; 
+	}
 	</style>
 
 <script>
@@ -563,32 +803,16 @@ function openTab(event, tabName){
 		<!-- TODO https://www.w3schools.com/howto/howto_js_tabs.asp -->
 		<div id="tabBar">
 			<button class="tabButton" onclick="openTab(event, 'ScheduleTab')">Schedule</button>
-			<button class="tabButton" onclick="openTab(event, 'ScoreTab')">Scores</button>
+			<button class="tabButton" onclick="openTab(event, 'ScoreTab')" id="scoreTabBtn">Scores</button>
 			<button class="tabButton" onclick="openTab(event, 'SettingsTab')">Settings</button>
 		</div>
 		<div class="tabContent" id="ScoreTab">
-			<div id="leftScores"></div>
-			<div id="rightScores">
-			<div class="scoreBreakdown">
-			<fieldset>
-			<legend>Score Breakdown</legend>
-				<table >
-					<tr><th>Auto</th><th id="blueAutoScore">0</th></tr>					
-					<tr><td>Jewel Points</td><td id="blueJewelPoints">0</td></tr>
-					<tr><td>Glyph Points</td><td id="blueAutoGlyphPoints">0</td></tr>
-					<tr><td>Key Bonus</td><td id="blueKeyPoints">0</td></tr>
-					<tr><td>Parking Points</td><td id="blueParkingPoints">0</td></tr>
-					<tr><th>Teleop</th><th id="blueTeleopScore">0</th></tr>
-					<tr><td>Glyph Points</td><td id="blueGlyphPoints">0</td></tr>
-					<tr><td>Row Bonus</td><td id="blueRowPoints">0</td></tr>
-					<tr><td>Column Bonus</td><td id="blueColumnPoints">0</td></tr>
-					<tr><td>Cipher Bonus</td><td id="blueCipherPoints">0</td></tr>
-					<tr><td>Relic Points</td><td id="blueRelicPoints">0</td></tr>
-					<tr><td>Balance Points</td><td id="blueBalancePoints">0</td></tr>
-					<tr><th>Foul</th><th id="blueFoulScore">0</th></tr>
-				</table>
-				</fieldset>
+			<div id="leftScores">
+				#scores("red")
 			</div>
+			<div id="rightScores">
+				#scores("blue")
+				
 			</div>
 		</div>
 		<div class="tabContent" id="ScheduleTab">
