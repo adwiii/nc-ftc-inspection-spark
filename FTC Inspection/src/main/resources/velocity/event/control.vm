@@ -760,11 +760,10 @@ function commit(){
 		
 		setControlState(true);
 		
-		//TODO listen for randomization by scorekeeper
-		//after button click, HR has option to rerandomize until match starts
-		//once match starts, HR has info and stuff. And can enter cards.
+		getScheduleStatus();
+  		getCurrentMatchData();
 		
-		//IDK WHAT THE HECK THIS COMMENT IS HERE FOR!!!???	
+		
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
