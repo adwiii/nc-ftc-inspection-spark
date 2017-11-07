@@ -40,14 +40,15 @@ public class Path {
         public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
         public static final String BOTH_SCORE = "/event/:event/score/";
+        public static final String COMMIT_SCORES = "event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
         public static final String START_MATCH = "event/:event/time/start/";
         public static final String GET_MATCH = "event/:event/match/";
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
+        public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
-        public static final String COMMIT_SCORES = "event/:event/score/commit/";
 		public static final String ALL = "*";
         
 		

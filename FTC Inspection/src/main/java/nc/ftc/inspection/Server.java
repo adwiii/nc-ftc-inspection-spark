@@ -97,7 +97,7 @@ public class Server {
 		get(Path.Web.SCHEDULE_STATUS, EventPages.handleGetScheduleStatus);
 		get(Path.Web.GET_MATCH, EventPages.handleGetCurrentMatch);
 		get(Path.Web.BOTH_SCORE, EventPages.handleGetFullScore);
-		
+		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);

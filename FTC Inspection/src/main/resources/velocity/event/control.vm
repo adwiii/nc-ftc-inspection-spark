@@ -1,11 +1,11 @@
 #macro (scoreField $alliance $key $label) 
 	<div id="${alliance}_${key}_score" class="scoreControl">
 		<label class="scoreLabel">$label</label>
-		<input type="text" class="scoreField" value="0"></input>
+		<input type="text" class="scoreField" value="0" disabled></input>
 		<div>
-			<button class="arrow" onclick="up('$alliance','$key')">&#9650;</button>
+			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9650;</button>
 			<br/>
-			<button class="arrow" onclick="up('$alliance','$key')">&#9660;</button>
+			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9660;</button>
 		</div>
 	</div> 
 #end
@@ -13,11 +13,11 @@
 #macro (relic $alliance $id)
 <div class="relicControl">
 <label>&nbsp;&nbsp;&nbsp;Relic 1</label>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone3" onclick="relicZone('$alliance',$id,3)">3</button>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone2" onclick="relicZone('$alliance',$id,2)">2</button>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone1" onclick="relicZone('$alliance',$id,1)">1</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone3" onclick="relicZone('$alliance',$id,3)" disabled>3</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone2" onclick="relicZone('$alliance',$id,2)" disabled>2</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone1" onclick="relicZone('$alliance',$id,1)" disabled>1</button>
 	<label>Standing?</label>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Standing" onclick="toggleStanding('$alliance', $id)">&nbsp;&nbsp;</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Standing" onclick="toggleStanding('$alliance', $id)" disabled>&nbsp;&nbsp;</button>
 </div>
 #end
 
@@ -620,7 +620,40 @@ function randomize(){
     });
 }
 
+
 function showRandom(){
+}
+
+function setControlState(state){
+	var arrows = document.getElementsByClassName("arrow");
+	for(var i =0 ; i < arrows.length; i++){
+		arrows[i].disabled = state;
+	}
+	var relics = document.getElementsByClassName("relicZone");
+	for(var i =0; i < relics.length; i++){
+		relics[i].disabled = state;
+	}
+	var fields = document.getElementsByClassName("scoreField");
+	for(var i =0; i < fields.length; i++){
+		fields[i].disabled = state;
+	}
+}
+
+//this is where we long poll for refs to finish review
+//after refs done, then can edit scores.... not helpful if no refs or problem
+//... should scores unlock now?
+//have another button for finish review that shuts out referees?
+function waitForRefReview(){
+	var obj = {};
+	$.get("../match/status/reviewcomplete/",obj).done(function(data){
+		var commitBn = document.getElementById("commitBtn");
+		commitBtn.setAttribute("state", "ready");
+		commitBtn.disabled = false;
+		setControlState(false);
+	}).fail(function(xhr, textStatus, error){
+		//window.setTimeout(waitForRefReview, 1000);
+		//check if error is match reset, then dont care
+	});
 }
 
 function endTeleop(){
@@ -633,9 +666,8 @@ function endTeleop(){
 	var commitBn = document.getElementById("commitBtn");
 	commitBtn.setAttribute("state", "back");
 	commitBtn.disabled = false;
-	//this is where we long poll for refs to finish review
-	//after refs done, then can edit scores.... not helpful... should scores unlock now?
-	//have another button for finish review that shuts out referees?
+	waitForRefReview();
+	
 }
 
 function abortTeleop(){
@@ -646,12 +678,19 @@ function abortTeleop(){
 }
 
 function startTeleop(){
-	var startBtn = document.getElementById("startBtn");
-	startBtn.setAttribute("state","warn");
-	startBtn.innerHTML = "Stop Teleop";	
-	startBtn.setAttribute("onclick", "abortTeleop()");
+	var postObj = {};
+	$.post("../time/start/",postObj).done(function(data){
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","warn");
+		startBtn.innerHTML = "Stop Teleop";	
+		startBtn.setAttribute("onclick", "abortTeleop()");
+		
+		endTeleop();
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
 	
-	endTeleop();
 }
 
 function endAuto(){
@@ -709,7 +748,7 @@ function commit(){
 	var postObj = {};
 	//TODO send DQs and cards. Server should already have all scores. 
 	//TODO after commit, update schedule tab
-	$.post("../score/commit/",postObj).done(function(data){
+	$.post("../scorecommit/",postObj).done(function(data){
 		console.log(data);
 		
 		var postBtn = document.getElementById("postBtn");
@@ -719,7 +758,7 @@ function commit(){
 		commitBtn.setAttribute("state", "off");
 		commitBtn.disabled = true;
 		
-		
+		setControlState(true);
 		
 		//TODO listen for randomization by scorekeeper
 		//after button click, HR has option to rerandomize until match starts

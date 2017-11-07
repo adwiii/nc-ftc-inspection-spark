@@ -297,13 +297,15 @@ public class EventPages {
 			case AUTO_REVIEW: //if already submitted, load teleop. (Only matters for first ref to submit)
 				//Alliance a = e.getCurrentMatch().getAlliance(alliance);
 				//TODO use alliance.isInReview() to serve a waiting page that waits until both refs enter review phase.
+				a.setInReview(true);//in case refreshed.
 				template = a.scoreSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
 				template = Path.Template.REF_TELEOP;
 				break;
 			case REVIEW:
-				template = Path.Template.REF_REVIEW;
+				template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
+				a.setInReview(true);//in case refreshed.
 				break;
 			case PRE_COMMIT:
 				template = Path.Template.REF_POST_SUBMIT;
@@ -499,6 +501,7 @@ public class EventPages {
 				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
 					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
 				}
+				System.out.println(status);
 				if(!status.isReview()) {
 					Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 					response.status(409);
@@ -557,6 +560,9 @@ public class EventPages {
 					} else if(event.getCurrentMatch().getStatus() == MatchStatus.REVIEW){
 						System.out.println("AUTO TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
+						synchronized (MatchStatus.PRE_COMMIT) {
+							MatchStatus.PRE_COMMIT.notifyAll();
+						}
 					}
 				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
@@ -680,6 +686,29 @@ public class EventPages {
 			res += "\"blue2\":"+m.getBlue().getTeam2();
 			res += "}";
 			return res;
+		};
+		
+		public static Route handleWaitForRefs = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.PRE_COMMIT) {
+				return "OK";
+			} else {
+				synchronized(MatchStatus.PRE_COMMIT) {
+					MatchStatus.PRE_COMMIT.wait();
+				}
+			}
+			return "OK";
 		};
 		
 }
