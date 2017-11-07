@@ -774,13 +774,16 @@ function commit(){
 function post(){ //posts results to AD
 	var postBtn = document.getElementById("postBtn");
 	postBtn.setAttribute("state","off");
+	postBtn.diabled = true;
 	
 	var preview = document.getElementById("previewBtn");
 	preview.setAttribute("state", "ready");
 	preview.disabled = false;
 	var rand = document.getElementById("randomBtn");
 	rand.setAttribute("state", "ready");
+	rand.innerHTML = "Randomize";
 	rand.disabled = false;
+	
 }
 
 function openTab(event, tabName){

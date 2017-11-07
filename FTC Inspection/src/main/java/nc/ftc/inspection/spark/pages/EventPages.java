@@ -624,7 +624,7 @@ public class EventPages {
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				e.loadNextMatch();
 			}
-			return null;
+			return "OK";
 		};
 		public static Route serveMatchControlPage = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<String, Object>();

@@ -40,7 +40,7 @@ public class Path {
         public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
         public static final String BOTH_SCORE = "/event/:event/score/";
-        public static final String COMMIT_SCORES = "event/:event/scorecommit/";
+        public static final String COMMIT_SCORES = "/event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
         public static final String START_MATCH = "event/:event/time/start/";
