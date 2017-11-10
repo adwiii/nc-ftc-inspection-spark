@@ -38,6 +38,56 @@
 			break;
 		}
 		document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
+		
+		var j = document.getElementById('relic1Upright');
+		if ($('input[name=relic1]:checked').val() == 0){
+			j.disabled = true;
+			j.checked  = false;
+		} else {
+			j.disabled = false;
+		}
+		$('input[name=relic1]').change(function(){
+			var j = document.getElementById('relic1Upright');
+			if ($('input[name=relic1]:checked').val() == 0){
+				j.disabled = true;
+				j.checked  = false;
+			} else {
+				j.disabled = false;
+			}
+			scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
+			
+		});
+		j = document.getElementById('relic2Upright');
+		if ($('input[name=relic2]:checked').val() == 0){
+			j.disabled = true;
+			j.checked  = false;
+		} else {
+			j.disabled = false;
+		}
+		$('input[name=relic2]').change(function(){
+			var j = document.getElementById('relic2Upright');
+			if ($('input[name=relic2]:checked').val() == 0){
+				j.disabled = true;
+				j.checked  = false;
+			} else {
+				j.disabled = false;
+			}
+			scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
+		});
+		$('input[name=balanced]').change(function(){
+			scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
+		});
+		$('input[id=relic1Upright]').change(function(){
+			scoreUpdate({relic1Standing:document.getElementById('relic1Upright').checked});
+		});
+		$('input[id=relic2Upright]').change(function(){
+			scoreUpdate({relic2Standing:document.getElementById('relic2Upright').checked});
+		});
+		
+		//init cryptobox
+		initCryptobox(1, $cryptobox1);
+		initCryptobox(2, $cryptobox2);
+		
 	});
 	function jewelToggle(set, id){
 		var j = document.getElementById("j_"+set+","+id);
@@ -59,7 +109,7 @@
 		obj["jewelSet"+set] = val;
 	}
 	
-	function getScoreObject(){
+	function getScoreObject(){ 
 		obj = {};
 		//TODO make these parse calls inside the macro?
 		obj.autoGlyphs = parseInt(document.getElementById('autoGlyphs').textContent);
@@ -69,7 +119,82 @@
 		obj.parkedAuto = parked;
 		addJewelScore(1, obj);
 		addJewelScore(2, obj);
+		//LOOK HERE
+		//I copied this from teleop but idk if its right
+		obj.cryptobox1 = getCryptoboxData(1);
+		obj.cryptobox2 = getCryptoboxData(2);
+		obj.relic1Zone = $('input[name=relic1]:checked').val();
+		obj.relic1Standing = document.getElementById('relic1Upright').checked;
+		obj.relic2Zone = $('input[name=relic2]:checked').val();
+		obj.relic2Standing = document.getElementById('relic2Upright').checked;
+		obj.balanced = $('input[name=balanced]:checked').val();
 		return obj;
+	}
+	function initCryptobox(cb, val){
+		//console.log(val.toString(2));
+		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				var cell = document.getElementById("cb_"+cb+","+r+","+c);
+				var enc = (val >> ((6 * r) + (2*c))) & 3;
+				cell.setAttribute("bgcolor", enc == 0 ? "#FFFFFF" : (enc == 1 ? "#565C05" : "#D6D6CB"));
+			}
+		}
+	
+	}	
+	
+	function getCell(bg){
+		if(bg == "#FFFFFF")return 0;
+		if(bg == "#565C05")return 1;
+		if(bg == "#D6D6CB")return 2;
+	}
+	function getCryptoboxData(cb){
+		var data = 0;
+		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				data += getCell(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor")) << ((r * 6) + (2 * c));
+			}
+		}
+		return data;
+	}
+	function toggle(cb,r,c){
+		var slot = document.getElementById("cb_"+cb+","+r+","+c);
+		bg = slot.getAttribute("bgcolor");
+		if(bg == "#FFFFFF"){
+			slot.setAttribute("bgcolor","#565C05");
+		} else if(bg == "#565C05"){
+			slot.setAttribute("bgcolor","#D6D6CB");
+		} else {
+			slot.setAttribute("bgcolor","#FFFFFF");
+		}
+		var cbVal = getCryptoboxData(cb);
+		if(cbVal == 6710886 || ((~cbVal) & 0xFFFFFF) == 6710886){
+			document.getElementById("cb" + cb + "L").innerHTML = "Frog";
+		} else if(cbVal == 6908265 || ((~cbVal) & 0xFFFFFF) == 6908265){
+			document.getElementById("cb" + cb + "L").innerHTML = "Snake";
+		} else if(cbVal == 10065510 || ((~cbVal) & 0xFFFFFF) == 10065510){
+			document.getElementById("cb" + cb + "L").innerHTML = "Bird";
+		}
+		else{
+			document.getElementById("cb" + cb + "L").innerHTML = "";
+		}
+		var obj={};
+		obj["cryptobox"+cb] = cbVal;
+		scoreUpdate(obj);
+	}
+	
+	function radioRelic(rel, value){
+		if(rel == 1){
+			relic1 = value;
+			scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
+		} else if(rel == 2){
+			relic2 = value;
+			if(value == "0")document.getElementById('relic2Upright').checked = false;
+			scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
+		}
+	}
+	
+	function toggleCheck(src){
+		console.log(src);
 	}
 	function scoreUpdate(obj){
 		//DO NOT send updates here.
@@ -83,7 +208,7 @@
     	});
 	}
 </script>
-<p class="${alliance}Alliance banner">Autonomous Review</p>
+<p class="${alliance}Alliance banner">Final Review</p>
 <table>
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 1)checked#end/>1</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 2)checked#end/>2</label></div></td></tr>
@@ -102,9 +227,80 @@
 <div class="circle" id="j_2,1" onclick="jewelToggle(2,1)"></div></td><td><div class="circle" id="j_2,2" onclick="jewelToggle(2,2)"></div></html>
 </td></tr></table></td>
 </tr>
-<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 1)checked#end/>1</label><label style="width:33%"><input type="radio"name="parked" #if($parkedAuto == 2)checked#end/>2</label></div></td></tr>
+<tr><td> <!-- Begin CB1 -->
+	<table border=1 cellpadding=0 cellspacing=1 id="cb1">
+		<tr>
+			<td onclick="toggle(1,0,0)" id="cb_1,0,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,0,1)" id="cb_1,0,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,0,2)" id="cb_1,0,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td onclick="toggle(1,1,0)" id="cb_1,1,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,1,1)" id="cb_1,1,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,1,2)" id="cb_1,1,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td onclick="toggle(1,2,0)" id="cb_1,2,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,2,1)" id="cb_1,2,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,2,2)" id="cb_1,2,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td onclick="toggle(1,3,0)" id="cb_1,3,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,3,1)" id="cb_1,3,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(1,3,2)" id="cb_1,3,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+	</table>
+	<div id="cb1L"></div>
+</td> <!-- End CB1 -->
+<td> <!-- Begin CB2 -->
+<table border=1 cellpadding=0 cellspacing=1 id="cb2">
+		<tr>
+			<td onclick="toggle(2,0,0)" id="cb_2,0,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,0,1)" id="cb_2,0,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,0,2)" id="cb_2,0,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td onclick="toggle(2,1,0)" id="cb_2,1,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,1,1)" id="cb_2,1,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,1,2)" id="cb_2,1,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td onclick="toggle(2,2,0)" id="cb_2,2,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,2,1)" id="cb_2,2,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,2,2)" id="cb_2,2,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td onclick="toggle(2,3,0)" id="cb_2,3,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,3,1)" id="cb_2,3,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td onclick="toggle(2,3,2)" id="cb_2,3,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+	</table>
+	<div id="cb2L"></div>
+</td> <!-- End CB2 -->
+</tr>
+<tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap"><div style="width:125%">
+	<label ><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end />0</label>
+	<label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label>
+	<label ><input type="radio" name="relic1" value="2" #if($relic1Zone == 2)checked#end/>2</label>
+	<label ><input type="radio" name="relic1" value="3" #if($relic1Zone == 3)checked#end/>3</label>
+	<br style="display:block;margin:1px 0"/><label>
+	<input type="checkbox" id="relic1Upright" #if($relic1Standing == true)checked#end/>Upright?</label></div></td></tr>
+<tr><td class="left"><label>Relic 2 Zone:</label></td><td class="right nowrap"><div style="width:125%">
+	<label ><input type="radio" name="relic2" value="0" #if($relic2Zone == 0)checked#end/>0</label>
+	<label ><input type="radio" name="relic2" value="1" #if($relic2Zone == 1)checked#end/>1</label>
+	<label ><input type="radio" name="relic2" value="2" #if($relic2Zone == 2)checked#end/>2</label>
+	<label ><input type="radio" name="relic2" value="3" #if($relic2Zone == 3)checked#end/>3</label>
+	<br style="display:block;margin:1px 0"/><label>
+	<input type="checkbox" id="relic2Upright" #if($relic2Standing == true)checked#end/>Upright?</label></div></td></tr>
+	
+<tr><td class="left"><label>Robots Balanced:</label></td><td class="right nowrap"><div style="width:150%">
+	<label style="width:33%"><input type="radio" name="balanced" value="0" #if($balanced == 0)checked#end/>0</label>
+	<label style="width:33%"><input type="radio" name="balanced" value="1" #if($balanced == 1)checked#end/>1</label>
+	<label style="width:33%"><input type="radio" name="balanced" value="2" #if($balanced == 2)checked#end/>2</label>
+	</div></td></tr>
+<tr><td class="left"><label>Robots Parked (Auto):</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 1)checked#end/>1</label><label style="width:33%"><input type="radio"name="parked" #if($parkedAuto == 2)checked#end/>2</label></div></td></tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
-<input type="submit" class="bad notification" value="Submit Auto" onclick="submit()">
+<input type="submit" class="bad notification" value="Submit Final Score" onclick="submit()">
 #end

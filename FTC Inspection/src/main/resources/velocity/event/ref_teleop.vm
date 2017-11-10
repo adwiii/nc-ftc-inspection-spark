@@ -235,6 +235,7 @@
 	</table>
 	<div id="cb2L"></div>
 </td> <!-- End CB2 -->
+</tr>
 <tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap"><div style="width:125%">
 	<label ><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end />0</label>
 	<label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label>
