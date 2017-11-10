@@ -99,6 +99,8 @@ public class Server {
 		get(Path.Web.BOTH_SCORE, EventPages.handleGetFullScore);
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
 		
+		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);

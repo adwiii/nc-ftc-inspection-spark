@@ -7,6 +7,7 @@ import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
+import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.MatchStatus;
 import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.spark.util.Path;
@@ -709,6 +710,20 @@ public class EventPages {
 				}
 			}
 			return "OK";
+		};
+		
+		public static Route serveResultsPage = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			List<MatchResult> results = EventDAO.getMatchResults(event);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("matches", results);
+			map.put("event", event); //TODO get event name from DB
+			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
 }

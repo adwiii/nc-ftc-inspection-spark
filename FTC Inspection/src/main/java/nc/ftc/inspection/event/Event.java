@@ -1,11 +1,16 @@
 package nc.ftc.inspection.event;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchStatus;
 
 public class Event {
+	//TODO keep list of match result objects here.
+	List<Integer> rankings = new ArrayList<Integer>(); 
 	EventData data;
 	Match currentMatch;
 	Match previousMatch;	
@@ -43,6 +48,10 @@ public class Event {
 			System.out.println("Loaded match #"+currentMatch.getNumber());
 		}
 		
+	}
+	
+	public EventData getData() {
+		return data;
 	}
 	
 	
