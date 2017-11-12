@@ -120,6 +120,9 @@ public class Match {
 		list.add(json("balancePoints", balancePoints));
 		list.add(json("teleopPoints", teleopPoints));
 		
+		list.add(json("cryptobox1", a.scores.get("cryptobox1")));
+		list.add(json("cryptobox2", a.scores.get("cryptobox2")));
+		
 		return list;
 	}
 	

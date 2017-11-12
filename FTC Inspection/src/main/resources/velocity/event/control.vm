@@ -275,8 +275,7 @@
 	                    console.log(xhr);
 	                    console.log(ajaxOptions);
 	                    console.log(thrownError);
-  			}});
-  		
+  			}});  		
   		
   	}
   	function fillMatchInfo(data){
@@ -744,6 +743,13 @@ function start(){
     });
 }
 
+function showPreview(){
+	var postObj = {};
+	$.post("../time/preview/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
 function commit(){
 	var postObj = {};
 	//TODO send DQs and cards. Server should already have all scores. 
@@ -835,7 +841,7 @@ function openTab(event, tabName){
 			</div>
 		</div>
 		<div id="matchControl">
-			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Match Preview</button>
+			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Refresh AD</button>
 			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
 			<button class="matchControlButton" id="showBtn"   onclick="showRandom()" state = "off" disabled>Set Display</button>
 			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>

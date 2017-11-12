@@ -16,6 +16,20 @@ public class GlobalDAO {
 	private static final String MASTER_TEAM_LIST_SQL = "SELECT * FROM teamInfo";
 	private static final String NEW_TEAM_SQL = "INSERT INTO teamInfo VALUES (?, ?)";
 	private static final String EDIT_TEAM_SQL = "UPDATE teamInfo SET name = ? WHERE number = ?"; 
+	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
+	
+	public static String getTeamName(int team) {
+		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = global.prepareStatement(GET_TEAM_NAME_SQL);
+			ps.setInt(1,  team);
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next())return "";
+			return rs.getString(1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public static List<Team> getMasterTeamList(){
 		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){

@@ -43,12 +43,16 @@ public class Path {
         public static final String COMMIT_SCORES = "/event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
+        public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
         public static final String START_MATCH = "event/:event/time/start/";
         public static final String GET_MATCH = "event/:event/match/";
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
+        
+        public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
+        
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
 		public static final String ALL = "*";
@@ -99,6 +103,7 @@ public class Path {
         public static final String REF_POST_SUBMIT = "/velocity/event/ref_postSubmit.vm";
         public static final String CONTROL = "/velocity/event/control.vm";
 		public static final String MATCH_RESULT = "/velocity/event/results.vm";
+		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
         
     }
 

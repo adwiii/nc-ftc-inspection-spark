@@ -100,6 +100,9 @@ public class Server {
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
 		
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		get(Path.Web.AUDIENCE_DISPLAY, EventPages.serveAudienceDisplay);
+		
+		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -118,6 +121,8 @@ public class Server {
 		post(Path.Web.COMMIT_SCORES, EventPages.handleScoreCommit);
 		post(Path.Web.SCORE, EventPages.handleScoreFullUpate);
 		post(Path.Web.LOAD_MATCH, EventPages.handleLoadMatch);
+		
+		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);

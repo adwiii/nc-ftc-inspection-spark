@@ -128,6 +128,11 @@
 		obj.relic2Zone = $('input[name=relic2]:checked').val();
 		obj.relic2Standing = document.getElementById('relic2Upright').checked;
 		obj.balanced = $('input[name=balanced]:checked').val();
+		
+		obj.glyphs = parseInt(document.getElementById('glyphs').textContent);
+		obj.rows = parseInt(document.getElementById('rows').textContent);
+		obj.columns = parseInt(document.getElementById('columns').textContent);
+		obj.ciphers = parseInt(document.getElementById('ciphers').textContent);
 		return obj;
 	}
 	function initCryptobox(cb, val){
@@ -210,7 +215,7 @@
 </script>
 <p class="${alliance}Alliance banner">Final Review</p>
 <table>
-<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
+<tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 1)checked#end/>1</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 2)checked#end/>2</label></div></td></tr>
 <tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels)jewel_count#end</td></tr>
 <tr>
@@ -299,6 +304,13 @@
 	<label style="width:33%"><input type="radio" name="balanced" value="2" #if($balanced == 2)checked#end/>2</label>
 	</div></td></tr>
 <tr><td class="left"><label>Robots Parked (Auto):</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 1)checked#end/>1</label><label style="width:33%"><input type="radio"name="parked" #if($parkedAuto == 2)checked#end/>2</label></div></td></tr>
+
+<!-- TELEOP STUFF HERE-->
+<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($glyphs)glyphs#end</td></tr>
+<tr><td class="left"><label>Rows:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($rows)rows#end</td></tr>
+<tr><td class="left"><label>Columns:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($columns)columns#end</td></tr>
+<tr><td class="left"><label>Ciphers:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($ciphers)ciphers#end</td></tr>
+
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>

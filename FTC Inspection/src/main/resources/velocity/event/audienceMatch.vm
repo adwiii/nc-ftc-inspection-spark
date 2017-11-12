@@ -1,0 +1,379 @@
+#macro(teamBanner $alliance $pos)
+	<div class="teamBanner" style="background:$alliance;" id="${alliance}_${pos}">
+		<div class="teamGapTiny"></div>
+		<div class="teamNumber">57959</div>
+		<div class="teamName">Back To The Drawing Board</div>
+		<div class="teamRank">99</div>
+		<div class="teamRecord">0-0-0</div>
+	</div>
+#end
+
+#macro(allianceInfo $alliance)
+	<div class="bottomSide" style="background:${alliance};">
+		<div class="allianceBanner">
+			<u>$alliance Alliance</u>
+		</div>
+		<div class="bannerGap" ></div>
+		#teamBanner($alliance, 1)
+		<div class="bannerGap"></div>
+		#teamBanner($alliance, 2)
+	</div>
+#end
+
+#macro(cb $alliance $ind)
+<div class="cbdiv" style="float:#if($ind == 2) right #else left#end">
+	<table border=1 cellpadding=0 cellspacing=0 style="table-layout: fixed; width: 12vw;height: 16vw;" id="${alliance}_cb$ind">
+		<tr>
+			<td id="${alliance}_${ind},0,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},0,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},0,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td id="${alliance}_${ind},1,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},1,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},1,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td id="${alliance}_${ind},2,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},2,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},2,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td id="${alliance}_${ind},3,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},3,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td id="${alliance}_${ind},3,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+	</table>
+	</div>
+#end
+
+#macro (breakdown $alliance)
+	<div class="scoreBreakdown">
+		<fieldset class="breakdown">
+			<legend>Score Breakdown</legend>
+			<table style="font-size:16pt; ">
+				<tr><th>Auto</th><th id="${alliance}AutoScore">0</th></tr>					
+				<tr><td>Jewel Points</td><td  class="bdtd" id="${alliance}JewelPoints">0</td></tr>
+				<tr><td >Glyph Points</td><td class="bdtd" id="${alliance}AutoGlyphPoints">0</td></tr>
+				<tr><td >Key Bonus</td><td class="bdtd" id="${alliance}KeyPoints">0</td></tr>
+				<tr><td >Parking Points</td><td class="bdtd" id="${alliance}ParkingPoints">0</td></tr>
+				<tr><th>Teleop</th><th id="${alliance}TeleopScore">0</th></tr>
+				<tr><td >Glyph Points</td><td class="bdtd" id="${alliance}GlyphPoints">0</td></tr>
+				<tr><td >Row Bonus</td><td class="bdtd" id="${alliance}RowPoints">0</td></tr>
+				<tr><td >Column Bonus</td><td class="bdtd" id="${alliance}ColumnPoints" >0</td></tr>
+				<tr><td >Cipher Bonus</td><td class="bdtd" id="${alliance}CipherPoints">0</td></tr>
+				<tr><td >Relic Points</td><td class="bdtd" id="${alliance}RelicPoints">0</td></tr>
+				<tr><td >Balance Points</td><td class="bdtd" id="${alliance}BalancePoints">0</td></tr>
+				<tr><th>Foul</th><th id="${alliance}FoulScore">0</th></tr>
+			</table>
+		</fieldset>				
+	</div>
+#end
+
+#macro (scoreDetails $alliance)
+	#breakdown($alliance)
+	<fieldset class="cbs">
+		<legend>Cryptoboxes</legend>
+		#cb($alliance 1)
+		#cb($alliance 2)
+	</fieldset>
+#end
+<html>
+<body onresize="resizeGUI()">
+<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
+  	<script>
+  	
+  	var lastBreakdown = 0;
+  	var lastFullScore = 0;
+  	
+  	
+  	$().ready(function(){
+  	
+  	getCurrentMatchData();
+  	getScoreUpdate(false);
+  	waitForPreview();
+  	/*
+  		getScheduleStatus();
+  		getScoreControlUpdate(false);
+  		getCurrentMatchData();
+  		document.getElementById("scoreTabBtn").click();
+  		*/
+  		resizeGUI();
+  	});
+  	
+  	function updateScoreBreakdown(obj){
+  		obj.Red = obj.red;
+  		obj.Blue = obj.blue;
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "Blue" : "Red"
+	  		document.getElementById(a + "AutoScore").innerHTML = obj[a].autoPoints;
+	  		document.getElementById(a + "JewelPoints").innerHTML = obj[a].jewelPoints;
+	  		document.getElementById(a + "AutoGlyphPoints").innerHTML = obj[a].glyphAutoPoints;
+	  		document.getElementById(a + "KeyPoints").innerHTML = obj[a].keyPoints;
+	  		document.getElementById(a + "ParkingPoints").innerHTML = obj[a].parkingPoints;
+	  		document.getElementById(a + "TeleopScore").innerHTML = obj[a].teleopPoints;
+	  		document.getElementById(a + "GlyphPoints").innerHTML = obj[a].glyphPoints;
+	  		document.getElementById(a + "RowPoints").innerHTML = obj[a].rowPoints;
+	  		document.getElementById(a + "ColumnPoints").innerHTML = obj[a].columnPoints;
+	  		document.getElementById(a + "CipherPoints").innerHTML = obj[a].cipherPoints;
+	  		document.getElementById(a + "RelicPoints").innerHTML = obj[a].relicPoints;
+	  		document.getElementById(a + "BalancePoints").innerHTML = obj[a].balancePoints;
+	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
+	  		setCryptobox(a, 1, obj[a].cryptobox1);
+	  		setCryptobox(a, 2, obj[a].cryptobox2);
+	  		
+  		}
+  		document.getElementById("redScore").innerHTML = parseInt(obj.Red.teleopPoints) + parseInt(obj.Red.autoPoints) + parseInt(obj.Red.foulPoints);
+  		document.getElementById("blueScore").innerHTML = parseInt(obj.Blue.teleopPoints) + parseInt(obj.Blue.autoPoints) + parseInt(obj.Blue.foulPoints);
+  	}
+  	
+  	function waitForPreview(){
+  		
+  		$.get("../time/preview/").done(function(data){
+  			location.reload(true);
+  		}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+        window.setTimeout(waitForPreview(), 1000) ;
+    	});
+  	}
+  	
+  	function setCryptobox(alliance, cb, val){
+		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				var cell = document.getElementById(alliance+"_"+cb+","+r+","+c);
+				var enc = (val >> ((6 * r) + (2*c))) & 3;
+				cell.setAttribute("bgcolor", enc == 0 ? "#FFFFFF" : (enc == 1 ? "#565C05" : "#D6D6CB"));
+			}
+		}
+	
+	}	
+  	
+  	function getScoreUpdate(block){
+  		var data = {};
+  		$.ajax({
+  			url: "../scorebreakdown/",
+  			type: "GET",
+  			dataType: 'json',
+  			data: {
+  				block:block,
+  				last:lastBreakdown
+  			},
+  			success: function(data){
+  			
+  				lastBreakdown = data.ts;
+  				updateScoreBreakdown(data);
+  				window.setTimeout(getScoreUpdate(true), 1000);
+  			},
+  			error: function(){
+  				window.setTimeout(getScoreUpdate(true), 1000);
+  			}});
+  	}
+  	function fillMatchInfo(data){
+  	
+  		var slot = document.getElementById("Red_1").children;
+  		slot[1].innerHTML = data.red1;
+  		slot[2].innerHTML = data.red1Name;
+  		slot = document.getElementById("Red_2").children;
+  		slot[1].innerHTML = data.red2;
+  		slot[2].innerHTML = data.red2Name;
+  		slot = document.getElementById("Blue_1").children;
+  		slot[1].innerHTML = data.blue1;
+  		slot[2].innerHTML = data.blue1Name;
+  		slot = document.getElementById("Blue_2").children;
+  		slot[1].innerHTML = data.blue2;
+  		slot[2].innerHTML = data.blue2Name;
+  		document.getElementById("matchNumber").innerHTML = "Qualification "+data.number;
+  		
+  	}
+  	function getCurrentMatchData(){
+  		$.ajax({
+  			url: "../match/",
+  			type: "GET",
+  			dataType: 'json',
+  			success: function(data){
+  				fillMatchInfo(data);
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){
+  				
+	                    console.log(xhr);
+	                    console.log(ajaxOptions);
+	                    console.log(thrownError);
+  			}});
+  	}
+  	
+  	</script>
+<style>
+	body { margin:0; }
+	.breakdown{
+		width:200;
+	}
+	.bdtd{padding:0 20px 0 20px;}
+
+	.scoreBreakdown{
+		float:left;
+		font-size:24px;
+	}
+	.cbs{
+		font-size:24px;
+	}
+	#top{
+		width:100%;
+		height:70%;
+	}
+	#topLeft{
+		width:50%;
+		height:100%;		
+		float:left;
+		background:blue;
+	}
+	#topRight{
+		width:50%;
+		height:100%;
+		float:left;		
+		background:red;
+	}
+	#bottom{
+		width:100%;
+		height:30%;
+		background:blue;
+		border-top: 1px solid black
+	}
+	#center{
+		width:20%;
+		height:100%;
+		background:white;
+		float:left;
+	}
+	.bottomSide{
+		width:40%;
+		height:100%;
+		float:left;
+	}
+	.allianceBanner{
+		width:100%;
+		height:20%;
+		font-size:32pt; 
+		font-family: "Arial";		
+		color:white;
+		text-shadow: -1px 0 black, 1px 0 black, 0 -1px black, 0 1px black;
+		text-align:center;
+	}
+	.bannerGap{
+		width:100%;
+		height:10%;
+	}
+	.teamBanner{
+		width:100%;
+		height:20%;
+	}
+	.teamGap{
+		width:5%;
+		height:100%;
+		float:left;
+	}
+	.teamGapTiny{
+		width:1%;
+		height:100%;
+		float:left;
+	}
+	.teamNumber{
+		width:15%;
+		height:100%;
+		float:left;
+		font-size:20pt; 
+		font-family: "Arial";		
+		color:white;
+		text-shadow: -1px 0 black, 1px 0 black, 0 -1px black, 0 1px black;
+	}
+	.teamName{
+		width:57%;
+		height:100%;
+		float:left;
+		
+		font-size:20pt; 
+		font-family: "Arial";		
+		color:white;
+		text-shadow: -1px 0 black, 1px 0 black, 0 -1px black, 0 1px black;
+	}
+	.teamRank{
+		width:8%;
+		height:100%;
+		float:left;
+		
+		font-size:20pt; 
+		font-family: "Arial";		
+		color:white;
+		text-shadow: -1px 0 black, 1px 0 black, 0 -1px black, 0 1px black;
+	}
+	.teamRecord{
+		width:15%;
+		height:100%;
+		float:left;
+		font-size:20pt; 
+		font-family: "Arial";		
+		color:white;
+		text-shadow: -1px 0 black, 1px 0 black, 0 -1px black, 0 1px black;
+	}
+	#matchNumber{
+		width:100%;
+		height:15%;
+		font-size:20pt;
+		text-align:center;
+		border-bottom: 1px solid black;
+	}
+	.score{
+		width:50%;
+		box-sizing: border-box;
+		float:left;
+		height:70%;
+		font-size:48pt;
+		text-align:center;
+		border: 1px solid black;
+	}
+	</style>
+	<script>
+	function resizeGUI(){
+	console.log("Hello");
+		//resize all the text.
+		var scores = document.getElementsByClassName("score");
+		for(var i = 0; i < scores.length; i++){
+			var score = scores[i];
+			
+			console.log(score);
+			var newHeight = getComputedStyle(score).height;
+			score.style.lineHeight = newHeight;
+		}
+	}
+	
+	</script>
+
+<div id="top">
+<div id="topLeft">
+	#scoreDetails("Blue")
+</div>
+<div id="topRight">
+	#scoreDetails("Red")
+</div>
+</div>
+<div id="bottom">
+	#allianceInfo("Blue")
+	<div id="center">
+		<div id="matchNumber">Qualification 1</div>
+		<div class="score" id="blueScore">0</div>
+		<div class="score" id="redScore">0</div>
+	</div>
+	#allianceInfo("Red")
+</div>
+<script>
+
+
+
+
+
+
+</script>
+		
+	</body>
+</html>

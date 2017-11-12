@@ -2,6 +2,8 @@ package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.dao.GlobalDAO;
+import nc.ftc.inspection.event.ADState;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
@@ -679,12 +681,17 @@ public class EventPages {
 				return "{}";
 			}
 			Match m = e.getCurrentMatch();
+			//TODO fix this an dmake it not suck!
 			String res = "{";
 			res += "\"number\":" + m.getNumber()+",";
 			res += "\"red1\":"+m.getRed().getTeam1()+",";
 			res += "\"red2\":"+m.getRed().getTeam2()+",";
 			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
-			res += "\"blue2\":"+m.getBlue().getTeam2();
+			res += "\"blue2\":"+m.getBlue().getTeam2() +",";
+			res += "\"red1Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam1())+"\",";
+			res += "\"red2Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam2())+"\",";
+			res += "\"blue1Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam1())+"\",";
+			res += "\"blue2Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam2())+"\"";
 			res += "}";
 			return res;
 		};
@@ -725,5 +732,23 @@ public class EventPages {
 			map.put("event", event); //TODO get event name from DB
 			return render(request, map, Path.Template.MATCH_RESULT);
 		};
+		
+		public static Route serveAudienceDisplay = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.AUDIENCE_DISPLAY);
+		};
+		
+		public static Route handleWaitForPreview = (Request request, Response response) ->{
+			synchronized(ADState.PREVIEW) {
+				ADState.PREVIEW.wait();
+			}
+			return "OK";
+		};
+		public static Route handleShowPreview = (Request request, Response response) ->{
+			synchronized(ADState.PREVIEW) {
+				ADState.PREVIEW.notifyAll();
+			}
+			return "OK";
+		};
+		
 		
 }
