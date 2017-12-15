@@ -58,8 +58,8 @@ public class FormRow {
 		this.type = type;
 		this.items = new Item[columnCount];
 		this.row = row;
-		this.description = d;
-		this.rule = rule.replaceAll("<", "&lt;");
+		this.description = d == null ? null : d.replaceAll("<", "&lt;");
+		this.rule = rule == null ? null : rule.replaceAll("<", "&lt;");
 		
 	}
 	public void addHeaderItem(int index, String label, int team){

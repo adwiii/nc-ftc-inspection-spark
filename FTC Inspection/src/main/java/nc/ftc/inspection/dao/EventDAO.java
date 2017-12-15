@@ -339,6 +339,7 @@ public class EventDAO {
 	public static boolean createSchedule(String event, List<Match> matches){
 		try(Connection local = getLocalDB(event)){
 			for(Match m : matches){
+				System.out.println(m.getNumber());
 				PreparedStatement ps = local.prepareStatement(CREATE_SCHEDULE_SQL);
 				ps.setInt(1, m.getNumber());
 				Alliance red = m.getRed();
@@ -370,6 +371,7 @@ public class EventDAO {
 				ps.executeUpdate();
 			}			
 		} catch(Exception e){
+			e.printStackTrace();
 			return false;
 		}
 		return true;

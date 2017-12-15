@@ -197,6 +197,8 @@ public class EventPages {
 				scan.nextInt();
 				scan.nextInt();
 				int match = scan.nextInt();
+				scan.nextInt();
+				scan.next();
 				int red1 = scan.nextInt();
 				int red2 = scan.nextInt();
 				scan.nextInt();
