@@ -26,15 +26,15 @@ function update(src){ //TODO move this to a separate js file.
 		#set ($x = $max / $f.items.size())		
 		#if($f.type == 1)	
 			<tr bgcolor=$headerColor>	
-					#foreach($c in $f.items)						
-							<th colspan=$x id=$c.id>$c.label</th>				
+					#foreach($c in $f.items)	
+							<th colspan=$x id=$c.id>$c.getLabel()</th>				
 					#end
 				<th>$f.description</th>
 				<th>$f.rule</th>
 			</tr>
 		#else
 			<tr height=30px>
-					#foreach($c in $f.items)						
+					#foreach($c in $f.items)					
 						<td colspan=$x id=$c.id class=$c.required align="center" onclick="update(this)" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
