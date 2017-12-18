@@ -13,7 +13,6 @@ public class FormRow {
 		}
 		
 		public String getId(){
-			System.out.println(":(");
 			return formID+"_"+team+"_"+index;
 		}
 	}
@@ -24,7 +23,6 @@ public class FormRow {
 			this.label = label;
 		}
 		public String getLabel(){
-			System.out.println("HEY");
 			return label;
 		}
 	}
@@ -66,7 +64,6 @@ public class FormRow {
 	}
 	public void addHeaderItem(int index, String label, int team){
 		items[pointer++] = new HeaderItem(index, team, label);
-		//System.out.println("HEY BITCH!");
 	}
 	public void addDataItem(int index, int req, boolean cb, int team){
 		items[pointer++] = new DataItem(index, team, req, cb);
@@ -84,7 +81,6 @@ public class FormRow {
 		return description;
 	}
 	public Item[] getItems(){
-	//	System.out.println("ITEMS:"+items[0].getId());
 		return items;
 	}
 	public void postProcess(){

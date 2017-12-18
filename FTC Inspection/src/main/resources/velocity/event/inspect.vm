@@ -30,7 +30,7 @@ function update(src){ //TODO move this to a separate js file.
 							<th colspan=$x id=$c.id>$c.getLabel()</th>				
 					#end
 				<th>$f.description</th>
-				<th>$f.rule</th>
+				<th>#if($f.rule)$f.rule#end</th>
 			</tr>
 		#else
 			<tr height=30px>
@@ -42,7 +42,7 @@ function update(src){ //TODO move this to a separate js file.
 						</td>
 					#end
 				<td>$f.description</td>
-				<td>$f.rule</td>
+				<td>#if($f.rule)$f.rule#end</td>
 			</tr>
 		#end
 	#end
