@@ -79,6 +79,7 @@ public class Server {
 		
 		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);
 		get(Path.Web.INSPECT, EventPages.serveInspectionPage);
+		get(Path.Web.INSPECT_HOME, EventPages.serveInspectionHome);
 		//TODO make change password/new user page
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);
@@ -125,7 +126,8 @@ public class Server {
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
-		
+		put(Path.Web.INSPECT_NOTE, EventPages.handleNote);
+		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);

@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,12 +29,9 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
-import org.omg.CORBA.PRIVATE_MEMBER;
 
-import java.awt.Point;
 import java.sql.Date;
 
-import spark.QueryParamsMap;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -102,6 +100,18 @@ public class EventPages {
 		return render(request, model, Path.Template.EDIT_FORM);
 	};
 	
+	
+	private static String renderTeamSelect(Request request, Response response, String eventCode, String formID) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("form", formID);
+		if(formID.equals("SC")||formID.equals("CI")) {
+			//render the boolean page (which is equivalent to the LRI page, without comments)
+			return render(request, map, Path.Template.BINARY_INSPECTION_PAGE);
+		}
+		
+		return render(request, map, Path.Template.INSPECTION_TEAM_SELECT);
+	}
+	
 	public static Route serveInspectionPage = (Request request, Response response) ->{
 		Map<String, Object> model = new HashMap<>();
 		String eventCode = request.params("event");
@@ -113,7 +123,8 @@ public class EventPages {
 			teams = team;
 		}
 		if(teams == null){
-			return "";
+			//render the team select page for the specified form
+			return renderTeamSelect(request, response, eventCode, formID);
 		}
 		String[] s = teams.split(",");
 		int[] teamList = new int[s.length];
@@ -125,11 +136,16 @@ public class EventPages {
 		for(FormRow fr : form){
 			max = Math.max(max, fr.getItems().length);
 		}
-		System.out.println(max);
+		String[] notes = EventDAO.getFormComments(eventCode, formID, teamList);
+		String[] sigs = EventDAO.getSigs(eventCode, formID, teamList);
+		
 		model.put("max", max);
 		model.put("form", form);
+		model.put("formID", formID);
 		model.put("teams", teamList);
-		model.put("headerColor", "#E6B222");
+		model.put("notes", notes);
+		model.put("sigs", sigs);
+		model.put("headerColor", "#F57E25");
 		return render(request, model, Path.Template.INSPECT);
 	};
 	
@@ -750,6 +766,38 @@ public class EventPages {
 				ADState.PREVIEW.notifyAll();
 			}
 			return "OK";
+		};
+		
+		public static Route serveInspectionHome = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			map.put("eventName", "[Event name here]");
+			return render(request, map, Path.Template.INSPECT_HOME);
+			
+		};
+
+		public static Route handleNote = (Request request, Response response) ->{
+			String event = request.params("event");
+			String form = request.params("form").toUpperCase();
+			String team = request.queryParams("team");
+			String note = request.queryParams("note");
+			if(EventDAO.setFormComment(event, form, Integer.parseInt(team), note)) {
+				return "OK";
+			}
+			response.status(400);
+			return "";
+		};
+
+		public static Route handleSig = (Request request, Response response) ->{
+			String event = request.params("event");
+			String form = request.params("form").toUpperCase();
+			int team = Integer.parseInt(request.queryParams("team"));
+			int ind = Integer.parseInt(request.queryParams("index"));
+			String sig = request.queryParams("sig");
+			if(EventDAO.updateSigs(event, form, team, ind, sig)) {
+				return "OK";
+			}
+			response.status(400);
+			return "";
 		};
 		
 		

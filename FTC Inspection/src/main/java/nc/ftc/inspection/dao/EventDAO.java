@@ -11,11 +11,13 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.event.Event;
@@ -36,26 +38,26 @@ public class EventDAO {
 											"CREATE TABLE local.formItems (formID VARCHAR(2), row INTEGER, itemIndex INTEGER, label VARCHAR, req TINYINT, PRIMARY KEY(itemIndex, formID), FOREIGN KEY(formID, row) references formRows(formID, row));",
 											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, itemIndex));" ,
 											"CREATE TABLE local.formComments(team INTEGER REFERENCES teams(number), formID VARCHAR(2), comment VARCHAR, PRIMARY KEY (team, formID));",
+											"CREATE TABLE local.formSigs(team INTEGER REFERENCES teams(number), formID VARCHAR(2), sigIndex INTEGER, sig VARCHAR, PRIMARY KEY (team, formID, sigIndex));",
 											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
 											"CREATE TABLE local.inspectionStatus (team INTEGER PRIMARY KEY REFERENCES teams(number), ci TINYINT, hw TINYINT, sw TINYINT, fd TINYINT, sc TINYINT);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
-											"INSERT INTO local.formItems SELECT * FROM formItems;",
+											"INSERT INTO local.formItems SELECT * FROM formItems;",											
 											
 											//TODO where to put cards - qualsData & qualsResults?  matches- red1Card, red2Card, blue1Card, blue2Card?
 											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S BOOLEAN, red2 INTEGER REFERENCES teams(number), red2S BOOLEAN, blue1 INTEGER REFERENCES teams(number), blue1S BOOLEAN, blue2 INTEGER REFERENCES teams(number), blue2S BOOLEAN);", //non-game specific info
 											"CREATE TABLE local.qualsData(match INTEGER REFERENCES quals(match), status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
 											"CREATE TABLE local.qualsResults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
 											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
-											
-											//sig table			
+													
 											//TODO create trigger for adding item to row
 											};
 	static final String SET_EVENT_STATUS_SQL = "UPDATE events SET STATUS = ? WHERE code = ?;";
 	static final String[] POPULATE_TEAMS_SQL = {
 											"INSERT INTO inspectionStatus (team) SELECT number FROM teams;",
 											"INSERT INTO formStatus SELECT number, form.formID, itemIndex, 0 FROM teams LEFT JOIN formRows form ON type = 2 LEFT JOIN formItems items ON items.formID = form.formID AND items.row = form.row;",
-											"INSERT INTO formComments (team, formID) SELECT number, formID FROM teams LEFT JOIN (SELECT DISTINCT formID from formRows);"
-											//sig table
+											"INSERT INTO formComments (team, formID) SELECT number, formID FROM teams LEFT JOIN (SELECT DISTINCT formID from formRows);",
+											"INSERT INTO formSigs (team, formID, sigIndex) SELECT number, formID, i from teams LEFT JOIN (SELECT DISTINCT formID from formRows) LEFT JOIN (SELECT 0 AS i UNION SELECT 1 AS i);"
 	};
 	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
 	static final String ADD_TEAM_LATE = "";
@@ -70,6 +72,10 @@ public class EventDAO {
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
+	static final String GET_COMMENT_SQL = "SELECT team,comment FROM formComments WHERE team IN (?) AND formID = ?";
+	static final String GET_SIG_SQL = "SELECT team,sigIndex,sig FROM formSigs WHERE team IN (?) AND formID = ?";
+	static final String SET_COMMENT_SQL = "UPDATE formComments SET comment = ? WHERE team = ? AND formID = ? ";
+	static final String SET_SIG_SQL = "UPDATE formSigs SET sig = ? WHERE team = ? AND formID = ? AND sigIndex = ? ";
 	
 	//TODO change to >= 2 when Inspection is stored in active events.
 	static final String GET_ACTIVE_EVENTS_SQL = "SELECT * FROM events WHERE status >= 3 AND status <= 5;";
@@ -557,6 +563,84 @@ public class EventDAO {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static final int INSPECTOR_SIG = 0;
+	public static final int TEAM_SIG = 1;
+	public static String[] getFormComments(String eventCode, String formID, int[] teamList) {
+		String[] result = new String[teamList.length];
+		
+		try (Connection local = getLocalDB(eventCode)){
+			PreparedStatement ps = local.prepareStatement(GET_COMMENT_SQL);
+			String j = "";
+			List<Integer> list = new ArrayList<>(teamList.length);
+			for(int i:teamList) {
+				list.add(i);
+			}
+			ps.setString(1,String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList())));
+			ps.setString(2, formID);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				result[list.indexOf(rs.getInt(1))] = rs.getString(2);
+			}
+			for(int i = 0; i < result.length; i++) {
+				result[i] = result[i] == null ? "" : result[i];
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}	
+	public static boolean setFormComment(String event, String form, int team, String comment) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SET_COMMENT_SQL);
+			ps.setInt(2, team);
+			ps.setString(3,  form);
+			ps.setString(1,  comment);
+			System.out.println(team+","+form+","+comment);
+			System.out.println(ps.executeUpdate());
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	public static boolean updateSigs(String event, String form, int team, int sigIndex, String sig) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SET_SIG_SQL);
+			ps.setInt(2, team);
+			ps.setString(3,  form);
+			ps.setInt(4,  sigIndex);
+			ps.setString(1, sig);
+			System.out.println(team+","+form+","+sigIndex+","+sig);
+			ps.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	public static String[] getSigs(String eventCode, String formID, int[] teamList) {
+		String[] result = new String[teamList.length * 2];
+		try (Connection local = getLocalDB(eventCode)){
+			PreparedStatement ps = local.prepareStatement(GET_SIG_SQL);
+			List<Integer> list = new ArrayList<>(teamList.length);
+			for(int i:teamList) {
+				list.add(i);
+			}
+			ps.setString(1,String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList())));
+			ps.setString(2, formID);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				result[list.indexOf(rs.getInt(1)) * 2 + rs.getInt(2)] = rs.getString(3);
+			}
+			for(int i = 0; i < result.length; i++) {
+				result[i] = result[i] == null ? "" : result[i];
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 }

@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+This is the $form inspection page for $eventName.
+<br>
+Here the inspector will set each team to Pass,Fail,or Empty.
+#end

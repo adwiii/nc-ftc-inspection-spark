@@ -18,9 +18,13 @@ public class Path {
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
         public static final String EDIT_FORM = "/event/:event/edit/";
+        public static final String INSPECT_HOME = "/event/:event/inspect/";
 		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
-		public static final String INSPECT_SELECT = "/event/:event/select/:form"; //page to select teams to inspect
+		//public static final String INSPECT_SELECT = "/event/:event/select/:form"; //page to select teams to inspect
         public static final String INSPECT_ITEM = "/event/:event/inspect/:form/";
+        public static final String INSPECT_NOTE = "/event/:event/inspect/:form/note/";
+        public static final String INSPECT_SIG = "/event/:event/inspect/:form/sig/";
+        
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
@@ -91,6 +95,7 @@ public class Path {
         public static final String CREATE_EVENT = "/velocity/event/createEvent.vm";
         public static final String MANAGE_EVENT = "/velocity/event/manageEvent.vm";
         public static final String EDIT_FORM = "/velocity/event/editForm.vm";//just renders form for now
+        public static final String INSPECT_HOME = "/velocity/event/inspect_index.vm";
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
@@ -104,6 +109,8 @@ public class Path {
         public static final String CONTROL = "/velocity/event/control.vm";
 		public static final String MATCH_RESULT = "/velocity/event/results.vm";
 		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
+		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";
+		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
         
     }
 

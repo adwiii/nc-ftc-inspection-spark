@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+This is the $form inspection page for $eventName.
+<br>
+Here the inspector will select the team or teams to inspect.
+#end
