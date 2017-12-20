@@ -12,6 +12,7 @@ import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.MatchStatus;
 import nc.ftc.inspection.model.Team;
+import nc.ftc.inspection.model.Team.FormIndex;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
@@ -795,6 +796,18 @@ public class EventPages {
 			int ind = Integer.parseInt(request.queryParams("index"));
 			String sig = request.queryParams("sig");
 			if(EventDAO.updateSigs(event, form, team, ind, sig)) {
+				return "OK";
+			}
+			response.status(400);
+			return "";
+		};
+		
+		public static Route handleFormStatus = (Request request, Response response) ->{
+			String event = request.params("event");
+			String form = request.params("form").toLowerCase();
+			int team = Integer.parseInt(request.queryParams("team"));
+			int status = Integer.parseInt(request.queryParams("status"));
+			if(EventDAO.setTeamStatus(event, form, team, status)) {
 				return "OK";
 			}
 			response.status(400);

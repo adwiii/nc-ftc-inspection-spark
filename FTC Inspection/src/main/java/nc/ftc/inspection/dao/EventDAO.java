@@ -307,6 +307,10 @@ public class EventDAO {
 		return false;
 	}
 	
+	public static List<Team> getTeams(String event){
+		//TODO this
+		return null;
+	}
 	public static List<Team> getStatus(String event, String ... columns){
 		try(Connection local = getLocalDB(event)){
 			Statement stmt = local.createStatement();

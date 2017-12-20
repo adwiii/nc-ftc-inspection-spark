@@ -11,7 +11,9 @@ public class FormRow {
 			this.index = index;
 			this.team = team;
 		}
-		
+		public int getTeam() {
+			return team;
+		}
 		public String getId(){
 			return formID+"_"+team+"_"+index;
 		}

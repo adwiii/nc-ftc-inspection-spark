@@ -7,14 +7,14 @@ width:auto;
 </style>
 <script>
 function update(src){ //TODO move this to a separate js file.
-	var x = !eval(src.checked);
-	src.checked = x;
+	var x = !eval(src.getAttribute("checked"));
+	src.setAttribute("checked", x);
 	src.innerHTML = x ? "&#x2713" : "";
 	var sp = src.id.split("_");
 	var postObj = {form:sp[0], team:sp[1], index:sp[2], state:x};
 	src.bgColor = "#FFFF00";
 	$.post("./",postObj).done(function(data){
-		if(eval(data) == eval(src.checked)){
+		if(eval(data) == eval(src.getAttribute("checked"))){
 			//we good.
 			src.bgColor = "#FFFFFF";
 		} else{
@@ -65,6 +65,40 @@ function saveSig(src){
      });
 }
 
+function pass(team){
+	//check all required boxes checked
+	var required = document.getElementsByClassName("cb1_"+team);
+	for(var i = 0; i < required.length; i++){
+		if(!eval(required[i].getAttribute("checked"))){
+			console.log("NOPE:"+i);
+			return;
+		}
+		//check for pending requests (background not white)
+		//if some, reject and put message below pass button indicating the problem and what the 
+	}
+	//check if sig empty, if so, reject, check for pending sig/note PUT
+	//if ok to pass, save note and sigs
+	//send pass POST (nclude note and sigs?)
+}
+
+function fail(team){
+	var obj = {team:team, status:3};
+	//send fail
+	$.ajax({
+        url: "./status/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	field.bgColor = "#FFFFFF";   
+        },
+        error: function () {
+            //ERROR HANDLING
+            console.log("Error");
+            field.bgColor = "#FF0000";
+        }
+     });
+}
+
 
 </script>
 <head>
@@ -74,6 +108,11 @@ Appendix
  #if($formID == "SW")C - Field Inspection Checklist #end 
  #if($formID == "FD")C - Field Inspection Checklist #end
 </h2>
+<h3>
+#if($teams.size() <= 1)
+Team Number: $teams.get(0)
+#end
+</h3>
 </head>
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
 	#foreach($f in $form)
@@ -89,7 +128,7 @@ Appendix
 		#else
 			<tr height=30px>
 					#foreach($c in $f.items)					
-						<td colspan=$x id=$c.id class=$c.required align="center" onclick="update(this)" checked = $c.checked>
+						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" onclick="update(this)" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
 							#end
@@ -124,7 +163,14 @@ Appendix
 				<button team=$t person="tsr" onclick="saveSig(this)">Agree</button></td></tr>
 			
 		</table>
-		<br>
+		<br><br>
+		<div style="width:100%">
+		<div style=" text-align:center">
+			<button onclick="pass($t)">Pass</button>
+			 &nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;
+			<button>Fail</button>
+		</div>
+		</div>
 		</fieldset>
 		#set($i = $i + 1)
 		#set($j = $j + 1)
@@ -148,7 +194,7 @@ Appendix
 	<br><br>
 	<div style="width:100%">
 	<div style=" text-align:center">
-		<button>Pass</button>
+		<button onclick="pass($t)">Pass</button>
 		 &nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;
 		<button>Fail</button>
 	</div>
