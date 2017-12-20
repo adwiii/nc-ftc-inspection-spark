@@ -27,22 +27,45 @@ function update(src){ //TODO move this to a separate js file.
 }
 
 function saveNote(src){
-	var t = src.getAttribute("team"); 
-	var obj = {team:t, note:document.getElementById("note_"+t).value}
-	console.log(document.getElementById("note_"+t));
+	var t = src.getAttribute("team");
+	var ta =  document.getElementById("note_"+t);
+	var obj = {team:t, note:ta.value}
 	$.ajax({
         url: "./note/",
         type: "PUT",
         data: obj,
-        success: function (data) {            
+        success: function (data) {    
+        	ta.bgColor = "#FFFFFF";  
         },
         error: function () {
             //ERROR HANDLING
             console.log("Error");
-            src.bgColor = "#FF0000";
+            ta.bgColor = "#FF0000";
         }
      });
 }
+
+function saveSig(src){
+	var t = src.getAttribute("team");
+	var person = src.getAttribute("person");
+	var field = document.getElementById(person+"_"+t);
+	var obj = {team:t, index:person=='insp'?0:1, sig:field.value};
+	$.ajax({
+        url: "./sig/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	field.bgColor = "#FFFFFF";   
+        },
+        error: function () {
+            //ERROR HANDLING
+            console.log("Error");
+            field.bgColor = "#FF0000";
+        }
+     });
+}
+
+
 </script>
 <head>
 <h2>
@@ -87,16 +110,19 @@ Appendix
 		<legend>Team $t</legend>
 		<b>General Comments or Reasons for Failure:</b>
 		<br><textarea id="note_$t" rows=4 style="width:100%;">$notes.get($j)</textarea>
-		<button team=$t  onclick="saveNote(this)">Save</button>
+		<button team=$t onclick="saveNote(this)">Save</button>
 		<br><br><b>
 		I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
 		</b>
 		<table width="100%" cellspacing=20>
+		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
 			<tr>
-				<td><input id="" value="$sigs.get($i)" ></input><button>Agree</button></td>
+				<td><input id="insp_$t" value="$sigs.get($i)" ></input>
+				<button team=$t person="insp" onclick="saveSig(this)">Agree</button></td>
 				#set($i = $i+1)
-				<td><input id="" value="$sigs.get($i)"></input><button>Agree</button></td></tr>
-			<tr><td>Inspector</td><td>Team Student Representative</td></tr>
+				<td><input id="tsr_$t" value="$sigs.get($i)"></input>
+				<button team=$t person="tsr" onclick="saveSig(this)">Agree</button></td></tr>
+			
 		</table>
 		<br>
 		</fieldset>
@@ -104,16 +130,20 @@ Appendix
 		#set($j = $j + 1)
 	#end
 #else
+	#set($t = $teams.get(0))
 	<br><b>General Comments or Reason(s) for Failure:</b>
 	<br><textarea id="note_$teams.get(0)" rows=4 style="width:100%;">$notes.get(0)</textarea>
-	<button team=$teams.get(0) onclick="saveNote(this)">Save</button>
+	<button team=$t) onclick="saveNote(this)">Save</button>
 	<br><br><b>
 	I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
 	</b>
 	<table width="100%" cellspacing=20>
-		<tr><td><input id="" value="$sigs.get(0)"></input><button>Agree</button></td>
-			<td><input id="" value="$sigs.get(1)"></input><button>Agree</button></td></tr>
 		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
+		<tr><td><input id="insp_$t" value="$sigs.get(0)"></input>
+			<button team=$t person="insp" onclick="saveSig(this)">Agree</button></td>
+			<td><input id="tsr_$t" value="$sigs.get(1)"></input>
+			<button team=$t person="tsr"  onclick="saveSig(this)">Agree</button></td></tr>
+		
 	</table>
 	<br><br>
 	<div style="width:100%">

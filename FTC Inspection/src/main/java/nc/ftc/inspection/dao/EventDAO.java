@@ -72,8 +72,8 @@ public class EventDAO {
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
-	static final String GET_COMMENT_SQL = "SELECT team,comment FROM formComments WHERE team IN (?) AND formID = ?";
-	static final String GET_SIG_SQL = "SELECT team,sigIndex,sig FROM formSigs WHERE team IN (?) AND formID = ?";
+	static final String GET_COMMENT_SQL = "SELECT team,comment FROM formComments WHERE team IN (:in) AND formID = ?";
+	static final String GET_SIG_SQL = "SELECT team,sigIndex,sig FROM formSigs WHERE team IN (:in) AND formID = ?";
 	static final String SET_COMMENT_SQL = "UPDATE formComments SET comment = ? WHERE team = ? AND formID = ? ";
 	static final String SET_SIG_SQL = "UPDATE formSigs SET sig = ? WHERE team = ? AND formID = ? AND sigIndex = ? ";
 	
@@ -571,18 +571,20 @@ public class EventDAO {
 		String[] result = new String[teamList.length];
 		
 		try (Connection local = getLocalDB(eventCode)){
-			PreparedStatement ps = local.prepareStatement(GET_COMMENT_SQL);
-			String j = "";
+			String s  =String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList()));
+			System.out.println(s);
+			PreparedStatement ps = local.prepareStatement(GET_COMMENT_SQL.replace(":in", s));
 			List<Integer> list = new ArrayList<>(teamList.length);
 			for(int i:teamList) {
 				list.add(i);
 			}
-			ps.setString(1,String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList())));
-			ps.setString(2, formID);
+			ps.setString(1, formID);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
+				System.out.println("Result:"+rs.getInt(1)+":"+rs.getString(2));
 				result[list.indexOf(rs.getInt(1))] = rs.getString(2);
 			}
+			System.out.println("All done!");
 			for(int i = 0; i < result.length; i++) {
 				result[i] = result[i] == null ? "" : result[i];
 			}
@@ -623,13 +625,13 @@ public class EventDAO {
 	public static String[] getSigs(String eventCode, String formID, int[] teamList) {
 		String[] result = new String[teamList.length * 2];
 		try (Connection local = getLocalDB(eventCode)){
-			PreparedStatement ps = local.prepareStatement(GET_SIG_SQL);
+			String s = String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList()));
+			PreparedStatement ps = local.prepareStatement(GET_SIG_SQL.replace(":in", s));
 			List<Integer> list = new ArrayList<>(teamList.length);
 			for(int i:teamList) {
 				list.add(i);
 			}
-			ps.setString(1,String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList())));
-			ps.setString(2, formID);
+			ps.setString(1, formID);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				result[list.indexOf(rs.getInt(1)) * 2 + rs.getInt(2)] = rs.getString(3);

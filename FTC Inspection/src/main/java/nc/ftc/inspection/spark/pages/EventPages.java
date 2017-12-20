@@ -139,6 +139,7 @@ public class EventPages {
 		String[] notes = EventDAO.getFormComments(eventCode, formID, teamList);
 		String[] sigs = EventDAO.getSigs(eventCode, formID, teamList);
 		
+		System.out.println(Arrays.toString(notes));
 		model.put("max", max);
 		model.put("form", form);
 		model.put("formID", formID);
