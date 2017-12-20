@@ -18,6 +18,7 @@ import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
+import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
@@ -58,6 +59,7 @@ public class Server {
 //			System.out.println(fr);
 //		}
 		EventDAO.loadActiveEvents();
+		
 		
 		port(80);
 		staticFiles.location("/public");

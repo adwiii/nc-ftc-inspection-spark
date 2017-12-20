@@ -70,6 +70,7 @@ public class EventDAO {
 	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
 	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
+	static final String GET_TEAMS_SQL = "SELECT a.number, ti.name FROM teams a LEFT JOIN global.teamInfo ti ON ti.number = a.number ORDER BY a.number;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
 	static final String GET_COMMENT_SQL = "SELECT team,comment FROM formComments WHERE team IN (:in) AND formID = ?";
@@ -308,9 +309,23 @@ public class EventDAO {
 	}
 	
 	public static List<Team> getTeams(String event){
-		//TODO this
+		try(Connection local = getLocalDB(event)){
+			Statement stmt = local.createStatement();
+			stmt.execute(ATTACH_GLOBAL.replaceAll(":path", Server.DB_PATH));
+			stmt.execute(GET_TEAMS_SQL);
+			ResultSet rs = stmt.getResultSet();
+			List<Team> result = new ArrayList<Team>();
+			while(rs.next()){			
+				Team team = new Team(rs.getInt("number"), rs.getString("name"));
+				result.add(team);
+			}
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
+	
 	public static List<Team> getStatus(String event, String ... columns){
 		try(Connection local = getLocalDB(event)){
 			Statement stmt = local.createStatement();
