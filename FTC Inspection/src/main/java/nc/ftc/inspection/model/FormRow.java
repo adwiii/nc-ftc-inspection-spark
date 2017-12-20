@@ -47,20 +47,21 @@ public class FormRow {
 	Item[] items;
 	String description;
 	String rule;
+	int page;
 	public static final int REQUIRED = 1;
 	public static final int OPTIONAL = 2;
 	public static final int NA = 0;
 	public static final int HEADER = 1;
 	public static final int NON_HEADER = 2;
 	private int pointer = 0;
-	public FormRow(String form, int type, int row, int columnCount, String d, String rule){
+	public FormRow(String form, int type, int row, int columnCount, String d, String rule, int page){
 		this.formID = form;
 		this.type = type;
 		this.items = new Item[columnCount];
 		this.row = row;
 		this.description = d == null ? null : d.replaceAll("<", "&lt;");
 		this.rule = rule == null ? null : rule.replaceAll("<", "&lt;");
-		
+		this.page = page;
 	}
 	public void addHeaderItem(int index, String label, int team){
 		items[pointer++] = new HeaderItem(index, team, label);
@@ -82,6 +83,9 @@ public class FormRow {
 	}
 	public Item[] getItems(){
 		return items;
+	}
+	public int getPage() {
+		return page;
 	}
 	public void postProcess(){
 		//columnData.length / teams.length = number of columns per team

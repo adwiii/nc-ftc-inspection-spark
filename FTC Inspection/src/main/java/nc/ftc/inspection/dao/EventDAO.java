@@ -34,7 +34,7 @@ public class EventDAO {
 	static final String[] CREATE_EVENT_DB_SQL ={ 
 											"ATTACH DATABASE ':code.db' AS local;" , 
 											"CREATE TABLE local.teams(number INTEGER PRIMARY KEY);",
-											"CREATE TABLE local.formRows (formID VARCHAR(2), type INTEGER, row INTEGER, columnCount INTEGER, description VARCHAR, rule VARCHAR(128), PRIMARY KEY (formID, row));",
+											"CREATE TABLE local.formRows (formID VARCHAR(2), type INTEGER, row INTEGER, columnCount INTEGER, description VARCHAR, rule VARCHAR(128), page INTEGER, PRIMARY KEY (formID, row));",
 											"CREATE TABLE local.formItems (formID VARCHAR(2), row INTEGER, itemIndex INTEGER, label VARCHAR, req TINYINT, PRIMARY KEY(itemIndex, formID), FOREIGN KEY(formID, row) references formRows(formID, row));",
 											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, itemIndex));" ,
 											"CREATE TABLE local.formComments(team INTEGER REFERENCES teams(number), formID VARCHAR(2), comment VARCHAR, PRIMARY KEY (team, formID));",
@@ -221,7 +221,7 @@ public class EventDAO {
 			Map<Integer, FormRow> map= new HashMap<Integer, FormRow>();
 			
 			while(rs.next()){
-				FormRow f = new FormRow(rs.getString(1), rs.getInt(2), rs.getInt(3), rs.getInt(4) * (teams.length > 0 ? teams.length : 1), rs.getString(5), rs.getString(6));
+				FormRow f = new FormRow(rs.getString(1), rs.getInt(2), rs.getInt(3), rs.getInt(4) * (teams.length > 0 ? teams.length : 1), rs.getString(5), rs.getString(6), rs.getInt(7));
 				form.add(f);
 				map.put(f.getRow(), f);
 			}

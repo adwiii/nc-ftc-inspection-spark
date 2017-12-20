@@ -96,7 +96,7 @@ Appendix
 						</td>
 					#end
 				<td>$f.description</td>
-				<td>#if($f.rule)$f.rule#end</td>
+				<td>#if($f.rule)<a href="https://www.firstinspires.org/sites/default/files/uploads/resource_library/ftc/2017-2018/game-manual-part-1.pdf#page=$f.page" >$f.rule</a>#end</td>
 			</tr>
 		#end
 	#end	
