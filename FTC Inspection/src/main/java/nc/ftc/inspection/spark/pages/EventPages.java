@@ -79,8 +79,12 @@ public class EventPages {
 		Map<String, Object> model = new HashMap<>();
 		String eventCode = request.params("event");
 		//TODO handle an event that is not here
-		EventData event = EventDAO.getEvent(eventCode);
-		model.put("eventName", event.getName());
+		Event event = Server.activeEvents.get(eventCode);
+		if (event == null) {
+			model.put("eventName", "Unknown Event");
+		} else {
+			model.put("eventName", event.getData().getName());
+		}
 //		model.pu
 		return render(request, model, Path.Template.MANAGE_EVENT);
 	};
@@ -105,6 +109,12 @@ public class EventPages {
 	private static String renderTeamSelect(Request request, Response response, String eventCode, String formID) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("form", formID);
+		Event e = Server.activeEvents.get(eventCode);
+		String eventName = "Unknown Event";
+		if (e != null) {
+			eventName = e.getData().getName();
+		}
+		map.put("eventName", eventName);
 		if(formID.equals("SC")||formID.equals("CI")) {
 			//render the boolean page (which is equivalent to the LRI page, without comments)
 			return render(request, map, Path.Template.BINARY_INSPECTION_PAGE);
@@ -772,7 +782,13 @@ public class EventPages {
 		
 		public static Route serveInspectionHome = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<>();
-			map.put("eventName", "[Event name here]");
+			String event = request.params("event");
+			String eventName = "Unknown Event";
+			Event eventData = Server.activeEvents.get(event);
+			if (eventData != null) {
+				eventName = eventData.getData().getName();
+			}
+			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECT_HOME);
 			
 		};

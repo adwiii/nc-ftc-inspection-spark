@@ -29,11 +29,13 @@ import nc.ftc.inspection.spark.util.Path;
 public class Server {
 	public static final String DB_PATH;// = "src/main/resources/db/";
 	public static final String GLOBAL_DB;// = "jdbc:sqlite:"+DB_PATH+"global.db"; 
-	
+
 	//maps event code to Event object for in-RAM cache of data.
 	//currently only for live-scoring. May need to add inspection in the future.
-	public static Map<String, Event> activeEvents = new HashMap<>(); 
-	
+	public static Map<String, Event> activeEvents = new HashMap<>();
+	// If the user does not specify an event, the server will assume that this is the event they mean
+	// For the local server, this should be the event it is at, and for the remote server, there should be no default
+	public static String defaultEventCode = "test11";
 	static{ //TODO check if were in eclipse. If not, change DB path to lib folder?
 		DB_PATH = "src/main/resources/db/";
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 

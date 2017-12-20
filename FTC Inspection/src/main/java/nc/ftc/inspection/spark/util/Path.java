@@ -1,5 +1,6 @@
 package nc.ftc.inspection.spark.util;
 
+import nc.ftc.inspection.Server;
 
 public class Path {
 
@@ -70,7 +71,10 @@ public class Path {
         	return "";
         }
         public String getInspection() {
-        	return "";
+        	if (Server.defaultEventCode == null) {
+        		return "/event/inspect/";//TODO fix this	
+        	}
+        	return "/event/" + Server.defaultEventCode + "/inspect/";
         }
         public String getLogout() {
         	return LOGOUT;
