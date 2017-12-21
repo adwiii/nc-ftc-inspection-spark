@@ -13,7 +13,8 @@
 	#foreach ($r in $teams)
 		<tr id="row_"$r.number>
 		#foreach ($h in $headers)
-			<td id=${h}_$r.number>${h}_$r.number</td>
+			#set($s = $r.getStatus($h))
+			<td id=${h}_$r.number bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>&nbsp;</td>
 		#end
 		<td>$r.number</td>
 		<td>$r.name</td>

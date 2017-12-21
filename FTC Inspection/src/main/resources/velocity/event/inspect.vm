@@ -108,7 +108,7 @@ function pass(team){
 }
 
 function fail(team){
-	var obj = {team:team, status:1};
+	var obj = {team:team, status:2};
 	//send fail
 	$.ajax({
         url: "./status/",

@@ -172,6 +172,7 @@ public class EventPages {
 		int itemIndex = Integer.parseInt(request.queryParams("index"));
 		boolean status = Boolean.parseBoolean(request.queryParams("state"));
 		response.status(EventDAO.setFormStatus(event, form,team, itemIndex, status) ? 200 : 500);
+		EventDAO.setTeamStatus(event, form, team, 1);//IN PROGRESS TODO CONSTANT
 		return request.queryParams("state");
 		//Client perspective:
 		//If 200 & state matches, we good. If 200 & state wrong, timing issue, do nothing
@@ -180,10 +181,8 @@ public class EventPages {
 	
 	public static Route handleGetStatusGet = (Request request, Response response) -> {
 		String event = request.params("event");
-		System.out.println("hi");
-
 		//TODO get which columns are enabled.
-		String[] columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
+		String[] columns = new String[]{"ci", "sc", "hw", "sw", "fd"};
 		return EventDAO.getStatus(event, columns).stream().map(Team::toStatusString).collect(Collectors.toList());
 	};
 	
