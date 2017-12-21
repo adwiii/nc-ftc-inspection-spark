@@ -108,7 +108,7 @@ public class EventPages {
 	
 	private static String renderTeamSelect(Request request, Response response, String eventCode, String formID) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("form", formID);
+		map.put("form", formID.toLowerCase());
 		map.put("eventCode", eventCode);
 		Event e = Server.activeEvents.get(eventCode);
 		String eventName = "Unknown Event";

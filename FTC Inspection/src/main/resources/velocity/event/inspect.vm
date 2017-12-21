@@ -13,6 +13,7 @@ function update(src){ //TODO move this to a separate js file.
 	var sp = src.id.split("_");
 	var postObj = {form:sp[0], team:sp[1], index:sp[2], state:x};
 	src.bgColor = "#FFFF00";
+	document.getElementById("msg_"+sp[1]).innerHTML = "&nbsp;";
 	$.post("./",postObj).done(function(data){
 		if(eval(data) == eval(src.getAttribute("checked"))){
 			//we good.
@@ -68,33 +69,61 @@ function saveSig(src){
 function pass(team){
 	//check all required boxes checked
 	var required = document.getElementsByClassName("cb1_"+team);
+	var bad = 0;
 	for(var i = 0; i < required.length; i++){
 		if(!eval(required[i].getAttribute("checked"))){
-			console.log("NOPE:"+i);
-			return;
+			bad = bad + 1;
 		}
 		//check for pending requests (background not white)
 		//if some, reject and put message below pass button indicating the problem and what the 
 	}
+	if(bad > 0){
+		document.getElementById("msg_"+team).innerHTML = "<font color='red'>"+bad+" Items Unchecked!</font>";
+		return;
+	}
 	//check if sig empty, if so, reject, check for pending sig/note PUT
+	if(document.getElementById("insp_"+team).value == "" || document.getElementById("tsr_"+team).value == ""){
+		document.getElementById("msg_"+team).innerHTML = "<font color='red'>Missing signatures!</font>";
+		return;
+	}
 	//if ok to pass, save note and sigs
 	//send pass POST (nclude note and sigs?)
+	var obj = {team:team, status:3, inspSig:"", tsrSig:"", note:""};
+	$.ajax({
+        url: "./status/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	//if single team, redirect, else display successfully saved
+        	#if($teams.size() > 1)
+        		document.getElementById("msg_"+team).innerHTML = "Status Saved";
+        	#else
+        		window.location.href="./";
+        	#end
+        },
+        error: function () {
+            document.getElementById("msg_"+team).innerHTML = "<font color='red'>Error Saving Status</font>";
+        }
+     });
 }
 
 function fail(team){
-	var obj = {team:team, status:3};
+	var obj = {team:team, status:1};
 	//send fail
 	$.ajax({
         url: "./status/",
         type: "PUT",
         data: obj,
         success: function (data) {    
-        	field.bgColor = "#FFFFFF";   
+        	//if single team, redirect, else display successfully saved
+        	#if($teams.size() > 1)
+        		document.getElementById("msg_"+team).innerHTML = "Status Saved";
+        	#else
+        		window.location.href="./";
+        	#end
         },
         error: function () {
-            //ERROR HANDLING
-            console.log("Error");
-            field.bgColor = "#FF0000";
+            document.getElementById("msg_"+team).innerHTML = "<font color='red'>Error Saving Status</font>";
         }
      });
 }
@@ -168,13 +197,17 @@ Team Number: $teams.get(0)
 		<div style=" text-align:center">
 			<button onclick="pass($t)">Pass</button>
 			 &nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;
-			<button>Fail</button>
+			<button onclick="fail($t)">Fail</button>
 		</div>
 		</div>
+		<br>
+		<div id="msg_$t" style="width:100%; text-align:center;">&nbsp;</div>
 		</fieldset>
 		#set($i = $i + 1)
 		#set($j = $j + 1)
 	#end
+	<br>
+	<button onclick="window.location.href='./';">Back</button>
 #else
 	#set($t = $teams.get(0))
 	<br><b>General Comments or Reason(s) for Failure:</b>
@@ -196,9 +229,11 @@ Team Number: $teams.get(0)
 	<div style=" text-align:center">
 		<button onclick="pass($t)">Pass</button>
 		 &nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;
-		<button>Fail</button>
+		<button onclick="fail($t)">Fail</button>
 	</div>
 	</div>
+	<br>
+	<div id="msg_$t" style="width:100%; text-align:center;">&nbsp;</div>
 #end
 
 #end
