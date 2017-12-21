@@ -85,6 +85,7 @@ public class Server {
 		get(Path.Web.INSPECT, EventPages.serveInspectionPage);
 		get(Path.Web.INSPECT_HOME, EventPages.serveInspectionHome);
 		get(Path.Web.INSPECT_TEAM_HOME, EventPages.serveTeamInspectionHome);
+		get(Path.Web.INSPECT_TEAM_FORM, EventPages.serveInspectionPageReadOnly);
 		//TODO make change password/new user page
 		//TODO encrypt passwords on POST
 		get(Path.Web.ERROR_403, DefaultPages.error403);

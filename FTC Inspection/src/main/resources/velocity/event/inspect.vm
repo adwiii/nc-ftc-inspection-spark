@@ -6,6 +6,8 @@ width:auto;
 }
 </style>
 <script>
+
+#if(!$readOnly)
 function update(src){ //TODO move this to a separate js file.
 	var x = !eval(src.getAttribute("checked"));
 	src.setAttribute("checked", x);
@@ -127,7 +129,7 @@ function fail(team){
         }
      });
 }
-
+#end
 
 </script>
 <head>
@@ -213,20 +215,26 @@ Team Number: $teams.get(0)
 #else
 	#set($t = $teams.get(0))
 	<br><b>General Comments or Reason(s) for Failure:</b>
-	<br><textarea id="note_$teams.get(0)" rows=4 style="width:100%;">$notes.get(0)</textarea>
-	<button team=$t) onclick="saveNote(this)">Save</button>
+	<br><textarea id="note_$teams.get(0)" rows=4 style="width:100%;"  #if($readOnly)disabled#end>$notes.get(0)</textarea>
+	#if(!$readOnly)
+	<button team=$t onclick="saveNote(this)">Save</button>
+	#end
 	<br><br><b>
 	I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
 	</b>
 	<table width="100%" cellspacing=20>
 		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
-		<tr><td><input id="insp_$t" value="$sigs.get(0)"></input>
-			<button team=$t person="insp" onclick="saveSig(this)">Agree</button></td>
-			<td><input id="tsr_$t" value="$sigs.get(1)"></input>
+		<tr><td><input id="insp_$t" value="$sigs.get(0)" #if($readOnly)disabled#end></input>
+			#if(!$readOnly)
+			<button team=$t person="insp" onclick="saveSig(this)" >Agree</button></td>
+			#end
+			<td><input id="tsr_$t" value="$sigs.get(1)"  #if($readOnly)disabled#end></input>
+			#if(!$readOnly)
 			<button team=$t person="tsr"  onclick="saveSig(this)">Agree</button></td></tr>
-		
+			#end
 	</table>
 	<br><br>
+	#if(!$readOnly)
 	<div style="width:100%">
 	<div style=" text-align:center">
 		<button onclick="pass($t)">Pass</button>
@@ -234,8 +242,17 @@ Team Number: $teams.get(0)
 		<button onclick="fail($t)">Fail</button>
 	</div>
 	</div>
+	#end
+	
+	#if($readOnly)
+	<div style="width:100%;text-align:center;">
+	<button onclick="window.location.href='../';">Back</button>
+	</div>
+	#else
 	<br>
 	<div id="msg_$t" style="width:100%; text-align:center;">&nbsp;</div>
+	#end
+	
 #end
 
 #end

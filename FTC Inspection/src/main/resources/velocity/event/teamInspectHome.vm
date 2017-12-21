@@ -1,3 +1,41 @@
+#macro (status $status)
+	#if($status == 3)
+		<font color='green'>COMPLETE</font>
+	#elseif($status == 0)
+		<font color='red'>NOT STARTED</font>
+	#else
+		<font color='red'>INCOMPLETE</font>
+	#end
+#end
+#macro (info $status $form $note $id)
+	#if($status == 3)All Required Items Passed!
+    #elseif($status == 0)Please see an inspector as soon as possible!<br>&nbsp;
+ 	#else
+ 		$form.size() Items Remaining:
+ 		<br>&nbsp;
+ 		<table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
+		<tr bgcolor=$headerColor>	
+			<th>Rule Description</th>
+			<th>Rule #</th>
+		</tr>
+		#foreach($f in $form)
+			<tr height=30px>						
+				<td>$f.description</td>
+				<td>#if($f.rule)<a href="https://www.firstinspires.org/sites/default/files/uploads/resource_library/ftc/2017-2018/game-manual-part-1.pdf#page=$f.page" >$f.rule</a>#end</td>
+			</tr>
+		#end
+		</table>	
+ 	#end
+ 	#if($status != 0)
+ 		<br>&nbsp;
+ 		<br><b>General Comments or Reason(s) for Failure:</b>
+ 		<br><textarea rows=4 style="width:100%;">$note</textarea>
+ 		<br>
+ 	#end
+ 	<br>
+ 	<a href="./$id">View Full Form</a>
+ 	<br>&nbsp;
+#end
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <style>
@@ -22,34 +60,37 @@
     padding: 0 18px;
     display: none;
     background-color: white;
+    text-align:center;
+}
+
+.lab{
+float:left;
+width:40%;
 }
 </style>
-
-
 
 
 <head>
 <h1>Team $team.number Inspection Status</h1>
 </head>
 
-<button class="accordion">Check In</button>
+<button class="accordion"><div class="lab">Check In </div> #status($ci)</button>
 <div class="panel">
+	#if($ci == 3)All Required Actions Completed!
+	#else Please visit the check-in table as soon as possible!
+	#end
 </div>
-<button class="accordion">Hardware</button>
+<button class="accordion"><div class="lab">Hardware</div> #status($hw)</button>
 <div class="panel">
-  All Required Items Passed!
-  Inspector Comments:
+  #info($hw $hwForm $hwNote "hw")
 </div>
-<button class="accordion">Software</button>
+<button class="accordion"><div class="lab">Software  </div>#status($sw)</button>
 <div class="panel">
-  18/24 Required Items Passed (75%)
-  Failed Items:
-  Inspector Comments:
+  #info($sw $swForm $swNote "sw")
 </div>
-<button class="accordion">Field</button>
+<button class="accordion"><div class="lab">Field </div> #status($fd)</button>
 <div class="panel">
-  Please visit an Inspector as soon as possible!
-  Inspector Comments:
+  #info($fd $fdForm $fdNote "fd")
 </div>
 
 <script>

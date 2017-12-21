@@ -127,7 +127,7 @@ public class EventPages {
 		return render(request, map, Path.Template.INSPECTION_TEAM_SELECT);
 	}
 	
-	public static Route serveInspectionPage = (Request request, Response response) ->{
+	private static String inspectionPage(Request request, Response response, boolean readOnly) {
 		Map<String, Object> model = new HashMap<>();
 		String eventCode = request.params("event");
 		String formID = request.params("form").toUpperCase();
@@ -136,6 +136,10 @@ public class EventPages {
 		//if both provided, use the "teams" param.
 		if(teams == null && team != null){
 			teams = team;
+		}
+		//check for team read-only page
+		if(teams == null) {
+			teams = request.params("team");
 		}
 		if(teams == null){
 			//render the team select page for the specified form
@@ -155,6 +159,7 @@ public class EventPages {
 		String[] sigs = EventDAO.getSigs(eventCode, formID, teamList);
 		
 		System.out.println(Arrays.toString(notes));
+		model.put("readOnly", readOnly);
 		model.put("max", max);
 		model.put("form", form);
 		model.put("formID", formID);
@@ -163,6 +168,13 @@ public class EventPages {
 		model.put("sigs", sigs);
 		model.put("headerColor", "#F57E25");
 		return render(request, model, Path.Template.INSPECT);
+	}
+	
+	public static Route serveInspectionPage = (Request request, Response response) ->{
+		return inspectionPage(request, response, false);
+	};
+	public static Route serveInspectionPageReadOnly = (Request request, Response response) ->{
+		return inspectionPage(request, response, true);
 	};
 	
 	public static Route handleInspectionItemPost = (Request request, Response response) ->{
@@ -836,23 +848,34 @@ public class EventPages {
 		public static Route serveTeamInspectionHome = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<>();
 			String event = request.params("event");
+			//TODO time this method and see how long it takes. If its taking too long, make one DAO call that returns all this data 
+			//and only creates one SQL transaction instead of 9
 			int teamNo = Integer.parseInt(request.params("team"));
 			Team team = EventDAO.getTeamStatus(event, teamNo);
 			int hwStatus = team.getStatus(Team.FormIndex.HW.index);
 			int swStatus = team.getStatus(Team.FormIndex.SW.index);
 			int fdStatus = team.getStatus(Team.FormIndex.FD.index);
 			//only load forms if empty
-			List<FormRow> hwForm = hwStatus == 1 || hwStatus == 2 ? EventDAO.getForm(event, "HW", teamNo) : null;
-			List<FormRow> swForm = swStatus == 1 || swStatus == 2 ? EventDAO.getForm(event, "SW", teamNo) : null;
-			List<FormRow> fdForm = fdStatus == 1 || fdStatus == 2 ? EventDAO.getForm(event, "FD", teamNo) : null;
+			List<FormRow> hwForm = hwStatus == 1 || hwStatus == 2 ? EventDAO.getFailedItems(event, "HW", teamNo) : new ArrayList<>();
+			List<FormRow> swForm = swStatus == 1 || swStatus == 2 ? EventDAO.getFailedItems(event, "SW", teamNo) : new ArrayList<>();
+			List<FormRow> fdForm = fdStatus == 1 || fdStatus == 2 ? EventDAO.getFailedItems(event, "FD", teamNo) : new ArrayList<>();
+			String hwNote = EventDAO.getFormComments(event, "HW", teamNo)[0];
+			String swNote = EventDAO.getFormComments(event, "SW", teamNo)[0];
+			String fdNote = EventDAO.getFormComments(event, "FD", teamNo)[0];
+			
 			map.put("team", team);
 			map.put("ci", team.getStatus(Team.FormIndex.CI.index));
 			map.put("hw", hwStatus);
 			map.put("hwForm", hwForm);
+			map.put("hwNote", hwNote);
 			map.put("sw", swStatus);
 			map.put("swForm", swForm);
+			map.put("swNote", swNote);
 			map.put("fd", fdStatus);
 			map.put("fdForm", fdForm);
+			map.put("fdNote", fdNote);
+
+			map.put("headerColor", "#E6B222");
 			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
 		};
 		

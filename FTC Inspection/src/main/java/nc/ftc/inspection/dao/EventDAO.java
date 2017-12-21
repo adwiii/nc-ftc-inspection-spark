@@ -12,6 +12,7 @@ import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,8 @@ public class EventDAO {
 	static final String GET_FORM_ITEMS = "SELECT items.row, items.itemIndex, items.label, items.req :teamColumns FROM formItems items";
 	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
 	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
-	static final String GET_FAILED_ROWS_SQL = "SELECT * FROM formRows WHERE ";
+	//This query should probably be optimized at some point, it has 2 nested selects
+	static final String GET_FAILED_ROWS_SQL = "SELECT fr.row, fr.description, fr.rule, fr.page FROM formRows fr INNER JOIN (SELECT row, fi.formID from formItems fi INNER JOIN (select cbIndex, formID from formStatus where formID=? AND team=? AND status=0) j ON fi.itemIndex = j.cbIndex AND fi.formID = j.formID WHERE fi.req=1) j2 ON fr.row = j2.row AND fr.formID = j2.formID ORDER BY fr.row;";
 	
 	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
 	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
@@ -213,67 +215,22 @@ public class EventDAO {
 	}
 	
 	public static List<FormRow> getFailedItems(String eventCode, String formCode, int team){
-		/*
+		
 		try(Connection local = getLocalDB(eventCode)){
 			PreparedStatement ps = local.prepareStatement(GET_FAILED_ROWS_SQL);
 			ps.setString(1, formCode);
+			ps.setInt(2,  team);
 			ResultSet rs = ps.executeQuery();
 			//Rows returned ordered by row, so list will be in order
-			List<FormRow> form = new ArrayList<FormRow>();
-			Map<Integer, FormRow> map= new HashMap<Integer, FormRow>();
-			
+			List<FormRow> form = new ArrayList<FormRow>();			
 			while(rs.next()){
-				FormRow f = new FormRow(rs.getString(1), rs.getInt(2), rs.getInt(3), rs.getInt(4) * (teams.length > 0 ? teams.length : 1), rs.getString(5), rs.getString(6), rs.getInt(7));
+				FormRow f = new FormRow(formCode, FormRow.NON_HEADER, 0, rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
 				form.add(f);
-				map.put(f.getRow(), f);
-			}
-			String teamColumns = "";
-			String teamJoins = "";
-			char c = 'a';
-			for(int i = 0; i < teams.length; i++, c++){
-				teamColumns += ", "+c+".status";//+teams[i];
-				teamJoins += TEAM_JOINS.replaceAll(":alias", c+"");
-			}
-			//row, index, label, req, [#.status, #.status, ...]
-			ps = local.prepareStatement(GET_FORM_ITEMS.replaceAll(":teamColumns", teamColumns) + teamJoins + FORM_ITEMS_WHERE );
-			int i = 0;
-			for(; i < teams.length; i++){
-				ps.setInt(i + 1, teams[i]);
-			}
-			ps.setString(i + 1, formCode);
-			rs = ps.executeQuery();
-			while(rs.next()){
-				int row = rs.getInt(1);
-				FormRow fr = map.get(row);
-				switch(fr.getType()){
-				case FormRow.HEADER:
-					if(teams.length == 0){
-						fr.addHeaderItem(rs.getInt(2), rs.getString(3), -1);
-					} else{
-						for(int team : teams){
-							fr.addHeaderItem(rs.getInt(2), rs.getString(3) + (teams.length > 1 ? "<br/>("+team+")" : ""), team);
-						}
-					}
-					break;
-				case FormRow.NON_HEADER:
-					int itemId = rs.getInt(2);
-					if(teams.length == 0){
-						fr.addDataItem(itemId, rs.getInt(4), false, -1);
-					} else{
-						for(int ti = 0; ti < teams.length; ti++){
-							fr.addDataItem(itemId, rs.getInt(4), rs.getBoolean(5 + ti), teams[ti]);
-						}
-					}
-					break;
-				}				
-			}
-			for(FormRow row : form){
-				row.postProcess();
-			}
+			}		
 			return form;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 		return null;
 	}
 	
@@ -674,7 +631,7 @@ public class EventDAO {
 	
 	public static final int INSPECTOR_SIG = 0;
 	public static final int TEAM_SIG = 1;
-	public static String[] getFormComments(String eventCode, String formID, int[] teamList) {
+	public static String[] getFormComments(String eventCode, String formID, int... teamList) {
 		String[] result = new String[teamList.length];
 		
 		try (Connection local = getLocalDB(eventCode)){

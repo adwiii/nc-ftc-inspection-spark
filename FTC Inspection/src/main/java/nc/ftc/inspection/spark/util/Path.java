@@ -27,6 +27,7 @@ public class Path {
         public static final String INSPECT_SIG = "/event/:event/inspect/:form/sig/";
         public static final String INSPECT_STATUS = "/event/:event/inspect/:form/status/";
         public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
+        public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
         
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
