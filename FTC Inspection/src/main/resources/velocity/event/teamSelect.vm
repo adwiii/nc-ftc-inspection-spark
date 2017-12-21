@@ -3,4 +3,22 @@
 This is the $form inspection page for $eventName.
 <br>
 Here the inspector will select the team or teams to inspect.
+<script>
+function inspect() {
+	var param = "?teams="
+	$("input:checkbox[name=teamSelect]:checked").each(function(){
+	    param += $(this).val() + ","
+	});
+	window.location.href = "/event/$eventCode/inspect/$form/" + param.slice(0, -1);
+	
+}
+</script>
+<table style="text-align:center;padding:5px">
+<tr><th>Team</th><th>Name</th><th>Status</th><th>Inspect</th><th>Select</th></tr>
+#foreach($t in $teams)
+<tr><td>$t.number</td><td>$t.name</td><td></td><td><a href = '/event/$eventCode/inspect/$form/?team=$t.number'>Inspect</a></td><td><input type="checkbox" name="teamSelect" value="$t.number"/></td></tr>
+
+#end
+</table>
+<button onclick="inspect()">Inspect Selected Teams</button>
 #end

@@ -109,12 +109,16 @@ public class EventPages {
 	private static String renderTeamSelect(Request request, Response response, String eventCode, String formID) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("form", formID);
+		map.put("eventCode", eventCode);
 		Event e = Server.activeEvents.get(eventCode);
 		String eventName = "Unknown Event";
 		if (e != null) {
 			eventName = e.getData().getName();
+		} else {
+			map.put("teams", EventDAO.getTeams(eventCode));
 		}
 		map.put("eventName", eventName);
+		
 		if(formID.equals("SC")||formID.equals("CI")) {
 			//render the boolean page (which is equivalent to the LRI page, without comments)
 			return render(request, map, Path.Template.BINARY_INSPECTION_PAGE);
