@@ -68,19 +68,43 @@ function saveSig(src){
      });
 }
 
+function highlightMissingFor(team){
+	var required = document.getElementsByClassName("cb1_"+team);
+	for(var i = 0; i < required.length; i++){
+		if(!eval(required[i].getAttribute("checked"))){
+			required[i].bgColor = 'cyan';
+		}
+	}
+}
+function highlightMissing(){
+	[#foreach($t in $teams)$t,#end].forEach(function(t){
+		var required = document.getElementsByClassName("cb1_"+t);
+		for(var i = 0; i < required.length; i++){
+			if(!eval(required[i].getAttribute("checked"))){
+				required[i].bgColor = 'cyan';
+			}
+		}
+	});
+}
+
+
 function pass(team){
 	//check all required boxes checked
 	var required = document.getElementsByClassName("cb1_"+team);
 	var bad = 0;
+	var firstID = "";
 	for(var i = 0; i < required.length; i++){
 		if(!eval(required[i].getAttribute("checked"))){
 			bad = bad + 1;
+			if(firstID == ""){
+				firstID = required[i].id;
+			}
 		}
 		//check for pending requests (background not white)
 		//if some, reject and put message below pass button indicating the problem and what the 
 	}
 	if(bad > 0){
-		document.getElementById("msg_"+team).innerHTML = "<font color='red'>"+bad+" Items Unchecked!</font>";
+		document.getElementById("msg_"+team).innerHTML = "<font color='red'>"+bad+" Items Unchecked! <a href=#"+firstID+" onclick=onclick=highlightMissingFor("+team+")>Show</a></font>";
 		return;
 	}
 	//check if sig empty, if so, reject, check for pending sig/note PUT
@@ -133,16 +157,25 @@ function fail(team){
 
 </script>
 <head>
-<h2>
+<h2><b>
 Appendix
  #if($formID == "HW")B - Robot Inspection Checklist #end
  #if($formID == "SW")C - Field Inspection Checklist #end 
  #if($formID == "FD")C - Field Inspection Checklist #end
-</h2>
+</b></h2>
 <h3>
+
+<div style="width:100%;">
+<div style="width:50%;float:left;">
 #if($teams.size() <= 1)
-Team Number: $teams.get(0)
+<b>Team Number: $teams.get(0)</b>
+#else &nbsp;
 #end
+</div>
+<div style="width:50%;text-align:right;float:left">
+<button onclick="highlightMissing()">Highlight Missing</button>
+</div>
+
 </h3>
 </head>
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
