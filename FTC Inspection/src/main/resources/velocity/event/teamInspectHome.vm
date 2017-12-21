@@ -1,0 +1,76 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<style>
+.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+
+.active, .accordion:hover {
+    background-color: #ccc; 
+}
+
+.panel {
+    padding: 0 18px;
+    display: none;
+    background-color: white;
+}
+</style>
+
+
+
+
+<head>
+<h1>Team $team.number Inspection Status</h1>
+</head>
+
+<button class="accordion">Check In</button>
+<div class="panel">
+</div>
+<button class="accordion">Hardware</button>
+<div class="panel">
+  All Required Items Passed!
+  Inspector Comments:
+</div>
+<button class="accordion">Software</button>
+<div class="panel">
+  18/24 Required Items Passed (75%)
+  Failed Items:
+  Inspector Comments:
+</div>
+<button class="accordion">Field</button>
+<div class="panel">
+  Please visit an Inspector as soon as possible!
+  Inspector Comments:
+</div>
+
+<script>
+//code taken basically verbatim from https://www.w3schools.com/howto/howto_js_accordion.asp
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+    acc[i].addEventListener("click", function() {
+        /* Toggle between adding and removing the "active" class,
+        to highlight the button that controls the panel */
+        this.classList.toggle("active");
+
+        /* Toggle between hiding and showing the active panel */
+        var panel = this.nextElementSibling;
+        if (panel.style.display === "block") {
+            panel.style.display = "none";
+        } else {
+            panel.style.display = "block";
+        }
+    });
+}
+</script>
+#end

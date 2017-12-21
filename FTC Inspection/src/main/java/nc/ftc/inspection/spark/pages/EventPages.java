@@ -832,6 +832,29 @@ public class EventPages {
 			response.status(400);
 			return "";
 		};
+
+		public static Route serveTeamInspectionHome = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			String event = request.params("event");
+			int teamNo = Integer.parseInt(request.params("team"));
+			Team team = EventDAO.getTeamStatus(event, teamNo);
+			int hwStatus = team.getStatus(Team.FormIndex.HW.index);
+			int swStatus = team.getStatus(Team.FormIndex.SW.index);
+			int fdStatus = team.getStatus(Team.FormIndex.FD.index);
+			//only load forms if empty
+			List<FormRow> hwForm = hwStatus == 1 || hwStatus == 2 ? EventDAO.getForm(event, "HW", teamNo) : null;
+			List<FormRow> swForm = swStatus == 1 || swStatus == 2 ? EventDAO.getForm(event, "SW", teamNo) : null;
+			List<FormRow> fdForm = fdStatus == 1 || fdStatus == 2 ? EventDAO.getForm(event, "FD", teamNo) : null;
+			map.put("team", team);
+			map.put("ci", team.getStatus(Team.FormIndex.CI.index));
+			map.put("hw", hwStatus);
+			map.put("hwForm", hwForm);
+			map.put("sw", swStatus);
+			map.put("swForm", swForm);
+			map.put("fd", fdStatus);
+			map.put("fdForm", fdForm);
+			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
+		};
 		
 		
 }

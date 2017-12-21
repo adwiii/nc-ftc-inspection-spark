@@ -160,6 +160,8 @@ Team Number: $teams.get(0)
 						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" onclick="update(this)" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
+							#elseif(${c.required}==0)
+								NA
 							#end
 						</td>
 					#end

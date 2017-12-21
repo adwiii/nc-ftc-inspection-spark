@@ -67,9 +67,12 @@ public class EventDAO {
 	static final String GET_FORM_ITEMS = "SELECT items.row, items.itemIndex, items.label, items.req :teamColumns FROM formItems items";
 	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
 	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
+	static final String GET_FAILED_ROWS_SQL = "";
+	
 	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
 	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
+	static final String GET_TEAMSTATUS_SQL = "SELECT * FROM inspectionStatus WHERE team=?;";
 	static final String GET_TEAMS_SQL = "SELECT a.number, ti.name FROM teams a LEFT JOIN global.teamInfo ti ON ti.number = a.number ORDER BY a.number;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
@@ -209,7 +212,69 @@ public class EventDAO {
 		return false;
 	}
 	
-	
+	public static List<FormRow> getFailedItems(String eventCode, String formCode, int team){
+		try(Connection local = getLocalDB(eventCode)){
+			PreparedStatement ps = local.prepareStatement(GET_FAILED_ROWS_SQL);
+			ps.setString(1, formCode);
+			ResultSet rs = ps.executeQuery();
+			//Rows returned ordered by row, so list will be in order
+			List<FormRow> form = new ArrayList<FormRow>();
+			Map<Integer, FormRow> map= new HashMap<Integer, FormRow>();
+			
+			while(rs.next()){
+				FormRow f = new FormRow(rs.getString(1), rs.getInt(2), rs.getInt(3), rs.getInt(4) * (teams.length > 0 ? teams.length : 1), rs.getString(5), rs.getString(6), rs.getInt(7));
+				form.add(f);
+				map.put(f.getRow(), f);
+			}
+			String teamColumns = "";
+			String teamJoins = "";
+			char c = 'a';
+			for(int i = 0; i < teams.length; i++, c++){
+				teamColumns += ", "+c+".status";//+teams[i];
+				teamJoins += TEAM_JOINS.replaceAll(":alias", c+"");
+			}
+			//row, index, label, req, [#.status, #.status, ...]
+			ps = local.prepareStatement(GET_FORM_ITEMS.replaceAll(":teamColumns", teamColumns) + teamJoins + FORM_ITEMS_WHERE );
+			int i = 0;
+			for(; i < teams.length; i++){
+				ps.setInt(i + 1, teams[i]);
+			}
+			ps.setString(i + 1, formCode);
+			rs = ps.executeQuery();
+			while(rs.next()){
+				int row = rs.getInt(1);
+				FormRow fr = map.get(row);
+				switch(fr.getType()){
+				case FormRow.HEADER:
+					if(teams.length == 0){
+						fr.addHeaderItem(rs.getInt(2), rs.getString(3), -1);
+					} else{
+						for(int team : teams){
+							fr.addHeaderItem(rs.getInt(2), rs.getString(3) + (teams.length > 1 ? "<br/>("+team+")" : ""), team);
+						}
+					}
+					break;
+				case FormRow.NON_HEADER:
+					int itemId = rs.getInt(2);
+					if(teams.length == 0){
+						fr.addDataItem(itemId, rs.getInt(4), false, -1);
+					} else{
+						for(int ti = 0; ti < teams.length; ti++){
+							fr.addDataItem(itemId, rs.getInt(4), rs.getBoolean(5 + ti), teams[ti]);
+						}
+					}
+					break;
+				}				
+			}
+			for(FormRow row : form){
+				row.postProcess();
+			}
+			return form;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	
 	public static List<FormRow> getForm(String eventCode, String formCode, int ... teams){
@@ -276,6 +341,8 @@ public class EventDAO {
 		return null;
 	}
 	
+	
+	
 	public static boolean setFormStatus(String event, String form, int team, int itemIndex, boolean status){
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(SET_FORM_STATUS_SQL);
@@ -321,6 +388,26 @@ public class EventDAO {
 			}
 			return result;
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static Team getTeamStatus(String event, int teamNo) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_TEAMSTATUS_SQL);
+			ps.setInt(1, teamNo);
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next()) {
+				return null;
+			}
+			Team team = new Team(rs.getInt("team"), "NO NAME");
+			for(String c : new String[]{"hw", "sw", "fd", "sc", "ci"}){
+				team.setStatus(c, rs.getByte(c));
+			}
+			return team;
+			
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		return null;
