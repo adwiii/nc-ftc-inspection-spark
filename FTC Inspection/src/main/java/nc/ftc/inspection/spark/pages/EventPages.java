@@ -115,7 +115,7 @@ public class EventPages {
 		if (e != null) {
 			eventName = e.getData().getName();
 		} else {
-			map.put("teams", EventDAO.getTeams(eventCode));
+			map.put("teams", EventDAO.getStatus(eventCode, formID));
 		}
 		map.put("eventName", eventName);
 		
