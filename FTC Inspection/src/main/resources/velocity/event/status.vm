@@ -2,7 +2,7 @@
 #@mainLayout()
 <h1 align=center>$event</h1>
 <body>
-<table id="statusTable" align=center>
+<table id="statusTable" align=center border=3>
 	<tr class="header">
 		#foreach ($h in $headers)
 			<th>$h</th>
@@ -16,8 +16,8 @@
 			#set($s = $r.getStatus($h))
 			<td id=${h}_$r.number bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>&nbsp;</td>
 		#end
-		<td>$r.number</td>
-		<td>$r.name</td>
+		<td style="text-align:center;" >$r.number</td>
+		<td >$r.name</td>
 		</tr>
 	#end
 </table>
