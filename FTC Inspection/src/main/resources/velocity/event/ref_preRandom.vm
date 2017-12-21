@@ -1,0 +1,34 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<script>
+
+var isActive = true;
+
+$().ready(function () {
+    pollServer();
+});
+function pollServer()
+{
+    if (isActive)
+    {
+            $.ajax({
+                url: "../../random/",
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    //TODO handle rerandomize?
+                    document.getElementById("d1").innerHTML = "Field Configuration: " + data.rand +"<br>Now scoring auto.";
+                    console.log(data.rand);
+                    isActive = false;
+                    location.reload(true);
+                },
+                error: function () {
+                    //ERROR HANDLING
+                    console.log("Error");
+                    window.setTimeout(pollServer, 5000);
+                }});
+    }
+}
+</script>
+<div id="d1">Waiting for randomization</div>
+#end

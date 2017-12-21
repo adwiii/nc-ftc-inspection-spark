@@ -1,0 +1,39 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<head>
+<style>
+@media print
+{
+  table { page-break-after:auto }
+  tr    { page-break-inside:avoid; page-break-after:auto }
+  td    { page-break-inside:avoid; page-break-after:auto }
+  thead { display:table-header-group }
+  tfoot { display:table-footer-group }
+}
+</style>
+<title>Match List</title>
+</head>
+<center><h2>$event <br> Match List</h2></center>
+<center><h2>Qualification Matches</h2></center>
+<div align=CENTER><table border=1 cellpadding=0 cellspacing=1 width=100%>
+<tr align=CENTER><TH BGCOLOR="#CCCCCC">Number</TH><TH BGCOLOR="#CCCCCC">Red 1</TH><TH BGCOLOR="#CCCCCC">Red 2</TH><TH BGCOLOR="#CCCCCC">Blue 1</TH><TH BGCOLOR="#CCCCCC">Blue 2</TR></tr>
+	#foreach ($m in $matches)
+		#if($m.number % 2 == 1)
+			#set ($c = "#FFFFFF")
+		#else
+			#set ($c = "#CCCCCC")
+		#end
+		<tr align=CENTER>
+			<td BGCOLOR=$c>$m.number</td>
+			<td BGCOLOR=$c>$m.red.team1#if($m.red.is1Surrogate())*#end</td>
+			<td BGCOLOR=$c>$m.red.team2#if($m.red.is2Surrogate())*#end</td>
+			<td BGCOLOR=$c>$m.blue.team1#if($m.blue.is1Surrogate())*#end</td>
+			<td BGCOLOR=$c>$m.blue.team2#if($m.blue.is2Surrogate())*#end</td>
+			</tr>
+	#end
+</table></DIV>
+<HR>
+<P align=left><STRONG>Note:</STRONG> * Indicates a surrogate match.  Those matches do NOT count in the rankings</P>
+<CENTER><SMALL>MatchMaker Scheduling Software &copy; 2007 Idle Loop Software Design. LLC</SMALL></CENTER>
+<CENTER><SMALL>FTC Scoring Software &copy; 2017-2018 <i>FIRST&reg;</i></CENTER></SMALL>
+#end

@@ -1,0 +1,883 @@
+#macro (scoreField $alliance $key $label) 
+	<div id="${alliance}_${key}_score" class="scoreControl">
+		<label class="scoreLabel">$label</label>
+		<input type="text" class="scoreField" value="0" disabled></input>
+		<div>
+			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9650;</button>
+			<br/>
+			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9660;</button>
+		</div>
+	</div> 
+#end
+
+#macro (relic $alliance $id)
+<div class="relicControl">
+<label>&nbsp;&nbsp;&nbsp;Relic 1</label>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone3" onclick="relicZone('$alliance',$id,3)" disabled>3</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone2" onclick="relicZone('$alliance',$id,2)" disabled>2</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone1" onclick="relicZone('$alliance',$id,1)" disabled>1</button>
+	<label>Standing?</label>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Standing" onclick="toggleStanding('$alliance', $id)" disabled>&nbsp;&nbsp;</button>
+</div>
+#end
+
+#macro (breakdown $alliance)
+	<div class="scoreBreakdown">
+		<fieldset class="breakdown">
+			<legend>Score Breakdown</legend>
+			<table >
+				<tr><th>Auto</th><th id="${alliance}AutoScore">0</th></tr>					
+				<tr><td>Jewel Points</td><td id="${alliance}JewelPoints">0</td></tr>
+				<tr><td>Glyph Points</td><td id="${alliance}AutoGlyphPoints">0</td></tr>
+				<tr><td>Key Bonus</td><td id="${alliance}KeyPoints">0</td></tr>
+				<tr><td>Parking Points</td><td id="${alliance}ParkingPoints">0</td></tr>
+				<tr><th>Teleop</th><th id="${alliance}TeleopScore">0</th></tr>
+				<tr><td>Glyph Points</td><td id="${alliance}GlyphPoints">0</td></tr>
+				<tr><td>Row Bonus</td><td id="${alliance}RowPoints">0</td></tr>
+				<tr><td>Column Bonus</td><td id="${alliance}ColumnPoints">0</td></tr>
+				<tr><td>Cipher Bonus</td><td id="${alliance}CipherPoints">0</td></tr>
+				<tr><td>Relic Points</td><td id="${alliance}RelicPoints">0</td></tr>
+				<tr><td>Balance Points</td><td id="${alliance}BalancePoints">0</td></tr>
+				<tr><th>Foul</th><th id="${alliance}FoulScore">0</th></tr>
+			</table>
+			#scoreField($alliance "major" "Major<br>Penalties")
+		    #scoreField($alliance "minor" "Minor Penalties")
+			#scoreField($alliance "adjust" "Adjust")
+		</fieldset>				
+	</div>
+#end
+
+#macro (scores $alliance)
+	#breakdown($alliance)
+	<div id="${alliance}AutoScores" >
+		<fieldset class="breakdown">
+			<legend>Auto Scores</legend>						
+			#scoreField($alliance "autoGlyphs" "Glyphs")
+			#scoreField($alliance "jewels" "Jewels")
+			#scoreField($alliance "cryptoboxKeys" "Keys")
+			#scoreField($alliance "parkedAuto" "Parked")
+		</fieldset>
+	</div>
+	<!--
+	<div id="${alliance}FieldState" >
+		<fieldset class="breakdown">
+			<legend>Field State</legend>
+		</fieldset>
+	</div>
+	<br>
+	-->
+	<div id="${alliance}TeleopScores" style="float:left;">
+		<fieldset class="breakdown">
+			<legend>Teleop Scores</legend>						
+			#scoreField($alliance "glyphs" "Glyphs")
+			#scoreField($alliance "rows" "Rows")
+			#scoreField($alliance "columns" "Columns")						
+			#scoreField($alliance "ciphers" "Ciphers")
+			#scoreField($alliance "balanced" "Balanced")
+		</fieldset>
+	</div>
+	<div id="${alliance}RelicScores" style="float:left;">
+		<fieldset class="relicSet">
+			<legend>Relic Scores</legend>
+			#relic($alliance "1")
+			#relic($alliance "2")
+		</fieldset>
+	</div>
+#end
+
+<html>
+<body>
+<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
+  	<script>
+  	
+  	var lastBreakdown = 0;
+  	var lastFullScore = 0;
+  	
+  	function updateScoreBreakdown(obj){
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "blue" : "red"
+	  		document.getElementById(a + "AutoScore").innerHTML = obj[a].autoPoints;
+	  		document.getElementById(a + "JewelPoints").innerHTML = obj[a].jewelPoints;
+	  		document.getElementById(a + "AutoGlyphPoints").innerHTML = obj[a].glyphAutoPoints;
+	  		document.getElementById(a + "KeyPoints").innerHTML = obj[a].keyPoints;
+	  		document.getElementById(a + "ParkingPoints").innerHTML = obj[a].parkingPoints;
+	  		document.getElementById(a + "TeleopScore").innerHTML = obj[a].teleopPoints;
+	  		document.getElementById(a + "GlyphPoints").innerHTML = obj[a].glyphPoints;
+	  		document.getElementById(a + "RowPoints").innerHTML = obj[a].rowPoints;
+	  		document.getElementById(a + "ColumnPoints").innerHTML = obj[a].columnPoints;
+	  		document.getElementById(a + "CipherPoints").innerHTML = obj[a].cipherPoints;
+	  		document.getElementById(a + "RelicPoints").innerHTML = obj[a].relicPoints;
+	  		document.getElementById(a + "BalancePoints").innerHTML = obj[a].balancePoints;
+	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
+  		}
+  	}
+  	//TODO: editing score should NOT notify listeners. make quiet endpoint that doesnt
+  	function up(alliance, key){
+  		
+  	}
+  	function down(alliance, key){
+  	}
+  	
+  	//really, this should run from randomization to pre-commit (after ref review done)
+  	//also, server should hold response until change.
+  	//should track timestamp of last update, sends get with that info, server knows last update, block if no update since then
+  	function getScoreUpdate(block){
+  		var data = {};
+  		$.ajax({
+  			url: "../scorebreakdown/",
+  			type: "GET",
+  			dataType: 'json',
+  			data: {
+  				block:block,
+  				last:lastBreakdown
+  			},
+  			success: function(data){
+  			
+  				lastBreakdown = data.ts;
+  				updateScoreBreakdown(data);
+  				window.setTimeout(getScoreUpdate(true), 1000);
+  			},
+  			error: function(){
+  				window.setTimeout(getScoreUpdate(true), 1000);
+  			}});
+  	}
+  	
+  	//really, this should run after randomization -> pre-commit (after ref review done)
+  	//also, server should hold response util change
+  	//MUST stop during pre-commit editing!
+  	function getScoreControlUpdate(block){
+  		$.ajax({
+  			url: "../score/",
+  			type: "GET",
+  			dataType: 'json',
+  			data: {
+  				block:block,
+  				last:lastFullScore
+  			},
+  			success: function(data){
+  				updateScoreControl(data);
+  				lastFullScore = data.ts;
+  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  			},
+  			error: function(){
+  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  			}});
+  	}
+  	
+  	function updateScoreControl(data){
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "blue" : "red"
+  			for(var key in data[a]){
+  				var elem = document.getElementById(a+"_"+key+"_score");
+  				if(elem){
+  					try{
+  						elem.getElementsByTagName("input")[0].value=data[a][key];
+  					}catch(err){}
+  				}
+  			}
+  			//do the odd ones: relics
+  			if(eval(data[a]["relic1Standing"])!=(document.getElementById(a+"Relic1Standing").getAttribute("state") == "on")){
+				toggleStanding(a,1);
+			}  
+			if(eval(data[a]["relic2Standing"])!=(document.getElementById(a+"Relic2Standing").getAttribute("state") == "on")){
+				toggleStanding(a,2);
+			}  
+			//if(data[a].relic1Zone == 0){	
+				clearZones(a, 1);		
+			//}
+			if(data[a].relic1Zone > 0){
+				document.getElementById(a+"Relic1Zone"+data[a].relic1Zone).setAttribute("state", "on");
+			}
+			//if(data[a].relic2Zone == 0){	
+				clearZones(a, 2);		
+			//}
+			if(data[a].relic2Zone > 0){
+				document.getElementById(a+"Relic2Zone"+data[a].relic2Zone).setAttribute("state", "on");
+			}
+  			
+  			//TODO cryptoboxes and jewels
+  		}
+  	}
+  	
+  	function updateScheduleTab(schedule){
+  		var sched = document.getElementById("ScheduleTab");
+  		for(var i = 0; i < schedule.length; i++){
+  			var m = i + 1;
+  			console.log(schedule[i]);
+  			var match = schedule[i];
+  			var entry = document.getElementById("match"+m);
+  			if(entry == null){
+  				entry = document.createElement("div");
+  				entry.id = "match"+m;
+  				entry.className = "scheduleEntry";
+  				entry.setAttribute("onclick", "loadMatch(this)");
+  				sched.appendChild(entry);
+  			} else{
+  				while (entry.firstChild) {
+				  entry.removeChild(entry.firstChild);
+				}
+  			}
+			var cell = document.createElement("div");
+			cell.className= "scheduleMatch";
+			cell.id = "match"+m+"match";
+			cell.innerHTML = match.match;
+			entry.appendChild(cell);
+			
+			cell = document.createElement("div");
+			cell.className = "scheduleStatus";
+			cell.id = "match"+m+"status";
+			cell.innerHTML = match.status;
+			entry.appendChild(cell);
+			
+			cell = document.createElement("div");
+			cell.className = "scheduleTeam";
+			cell.id = "match"+m+"redScore";
+			cell.innerHTML = match.redScore;
+			entry.appendChild(cell);
+			
+			for(var n = 1; n < 3; n++){ 
+				cell = document.createElement("div");
+				cell.className = "scheduleTeam";
+  				cell.id = "match"+m+"red"+m;
+  				cell.innerHTML = match["red"+n];
+  				entry.appendChild(cell);  				
+			}
+			for(var n = 1; n < 3; n++){ 
+				cell = document.createElement("div");
+				cell.className = "scheduleTeam";
+  				cell.id = "match"+m+"blue"+m;
+  				cell.innerHTML = match["blue"+n];
+  				entry.appendChild(cell);  				
+			}
+			
+			cell = document.createElement("div");
+			cell.className = "scheduleTeam";
+			cell.id = "match"+m+"blueScore";
+			cell.innerHTML = match.blueScore;
+			entry.appendChild(cell);
+  			
+  		}
+  	}
+  	
+  	function loadMatch(src){
+  		//send load match request
+  		//get match reload match info from server 
+  		$.ajax({
+  			url: "../match/load/"+src.id.substring(5)+'/',
+  			type: "POST",
+  			success: function(data){
+  				getCurrentMatchData();
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){
+  				
+	                    console.log(xhr);
+	                    console.log(ajaxOptions);
+	                    console.log(thrownError);
+  			}});  		
+  		
+  	}
+  	function fillMatchInfo(data){
+  	
+  	//TODO clear the cards and DQ box
+  		var slot = document.getElementById("red1Slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.red1;
+  		
+  		slot = document.getElementById("red2Slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.red2;
+  		
+  		
+  		slot = document.getElementById("blue1Slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.blue1;
+  		
+  		slot = document.getElementById("blue2Slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.blue2;
+  		
+  		
+  	}
+  	
+  	//Get the teams, 
+  	function getCurrentMatchData(){
+  		$.ajax({
+  			url: "../match/",
+  			type: "GET",
+  			dataType: 'json',
+  			success: function(data){
+  				fillMatchInfo(data);
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){
+  				
+	                    console.log(xhr);
+	                    console.log(ajaxOptions);
+	                    console.log(thrownError);
+  			}});
+  	}
+  	
+  	function getScheduleStatus(){
+  		$.ajax({
+  			url: "../schedule/status/",
+  			type: "GET",
+  			dataType: 'json',
+  			success: function(data){
+  				updateScheduleTab(data);
+  			},
+  			error: function(){
+  			}});
+  	}
+  	
+  	function clearZones(alliance, relic){
+  		for(var i = 1; i < 4; i++){
+		 var x = document.getElementById(alliance+"Relic"+relic+"Zone"+i);
+		 x.setAttribute("state","off");
+		}	
+  	}
+  	function relicZone(alliance, relic, zone){
+		var r = document.getElementById(alliance+"Relic"+relic+"Zone"+zone);
+		var next = r.getAttribute("state") == "on" ? "off" : "on";
+		clearZones(alliance, relic);
+		if(zone > 0){		
+			r.setAttribute("state", next);
+		}
+	}
+		
+	function toggleStanding(alliance, relic){
+		var r = document.getElementById(alliance+"Relic"+relic+"Standing");
+		var next = r.getAttribute("state") == "on" ? "off" : "on";
+		r.setAttribute("state", next );
+		r.innerHTML = next == "on" ? "&#10004;" : "&nbsp;&nbsp;";
+		
+	}
+  	
+  	$().ready(function(){
+  		getScheduleStatus();
+  		getScoreUpdate(false);
+  		getScoreControlUpdate(false);
+  		getCurrentMatchData();
+  		document.getElementById("scoreTabBtn").click();
+  	});
+  	
+  	</script>
+<style>
+	body { margin:0; }
+	#top{
+		width:100%;
+		height:20%;
+		background:magenta;
+	}
+	#menuBar{
+		width:100%;
+		height:5%;
+		background:yellow;
+	}
+	#matchControl{
+		width:100%;
+		height: 10%;
+		background:orange;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	#tabBar{
+		width:100%;
+		height:5%;
+		background:green;
+		display: flex;
+		align-items: center;
+		justify-content: left;
+	}
+	.tabContent{
+		width:100%;
+		height:60%;
+		display: none;
+		overflow:auto;
+	}
+	#leftScores{
+		width:50%;
+		height:100%;
+		background:red;
+		float:left;
+	}
+	#rightScores{
+		width:50%;
+		height:100%;
+		background:blue;
+		float:left;
+	}
+	.teamSlotHeader{
+		width:100%;
+		height:10%;
+		background:purple;
+	}
+	.teamSlot{
+		width:100%;
+		height:30%;
+		background:red;
+		display: flex;
+		align-items: center;
+	}
+	#leftTeams{
+		width:40%;
+		height:100%;
+		background:pink;
+		float:left;
+	}
+	#rightTeams{
+		width:40%;
+		height:100%;
+		background:cyan;
+		float:left;
+	}
+	#centerTop{
+		width:20%;
+		height:100%;
+		background:white;
+		float:left;
+	}
+	.matchControlButton{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 10px;
+		cursor: pointer;
+	}
+	.matchControlButton:hover {
+		background-color: #3e8e41;
+	}
+	.matchControlButton:disabled{
+		background-color: #d3d3d3;
+	}
+	.matchControlButton[state="back"]{
+		background-color: yellow;
+	}
+	.matchControlButton[state="warn"]{
+		background-color: red;
+	}
+	.tabButton{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 2px 6px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 10px;
+		cursor: pointer;
+	}
+	
+	.tabButton:hover {
+		background-color: #3e8e41;
+	}
+	.dqBox{
+		margin: 10px 10px;
+	}
+	.teamNumber{
+		width:70px;
+	}
+	.teamCard{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: black;
+		padding: 1px 1px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 1px 10px;
+		cursor: pointer;
+		border-radius: 3px;
+	}
+	.teamCard[value="yellow"]{
+		background-color: yellow;
+	}
+	.teamCard[value="red"]{
+		background-color:red;
+	}
+	.scoreBreakdown{
+		float:left;
+		
+	}
+	
+	
+	.scheduleEntry{
+		height: 20px;
+		background:blue;
+	}
+	.scheduleEntry:hover{
+		cursor:pointer;
+		background:#4040FF
+	}
+	.scheduleDescription{
+		width: 200px;
+		height : 100%;
+		float:left;
+	}
+	.scheduleStatus{
+		text-align:center;
+		width: 150px;
+		height : 100%;
+		float:left;
+	}
+	.scheduleMatch{
+		width: 60px;
+		height : 100%;
+		float:left;
+		text-align:center;
+	}
+	.scheduleTeam{
+		width:75px;
+		height : 100%;
+		float:left;
+		text-align:center;
+	}
+	
+	.scoreField{
+		float:left;
+		width:41;
+		height:41;
+		font-size:24px;
+	}
+	.scoreLabel{
+		float:left;
+		width: 70;
+	}
+	.scoreControl{
+		
+	}
+	.breakdown{
+		width:150;
+	}
+	.relicSet{
+		width:147;
+	}
+	.relicControl{
+		float:left;
+		
+	}
+	.relicZone{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		font-size: 16px;
+		margin: 1px 10px;
+		cursor: pointer;
+		display: block;
+	}
+	.relicZone:diabled{
+		background-color: #4CAF50;
+	}
+	.relicZone[state="on"]{
+		background-color: #0e5e11;
+	}
+	.relicZone[state="off"]{
+		background-color: #5CBF60; 
+	}
+	</style>
+
+<script>
+
+function toggleCard(src){
+	if(src.value == "green"){
+		src.value = "yellow";
+	} else if(src.value== "yellow"){
+		src.value = "red";
+	} else{
+		src.value = "green";
+	}
+}
+
+function randomize(){
+	var postObj = {};
+	$.post("../randomize/",postObj).done(function(data){
+		console.log(data);
+		//TODO listen for randomization by head ref
+		//after button click, HR has option to rerandomize until match starts
+		//once match starts, HR has info and stuff. And can enter cards.
+		
+		
+		var rand = document.getElementById("randomBtn");
+		rand.setAttribute("state", "warn");
+		rand.innerHTML = "Re-Randomize";
+		var showRand = document.getElementById("showBtn");
+		showRand.disabled = false;
+		showRand.setAttribute("state", "ready");
+		var startBtn = document.getElementById("startBtn");
+		startBtn.disabled = false;
+		startBtn.setAttribute("state","ready");
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+
+function showRandom(){
+}
+
+function setControlState(state){
+	var arrows = document.getElementsByClassName("arrow");
+	for(var i =0 ; i < arrows.length; i++){
+		arrows[i].disabled = state;
+	}
+	var relics = document.getElementsByClassName("relicZone");
+	for(var i =0; i < relics.length; i++){
+		relics[i].disabled = state;
+	}
+	var fields = document.getElementsByClassName("scoreField");
+	for(var i =0; i < fields.length; i++){
+		fields[i].disabled = state;
+	}
+}
+
+//this is where we long poll for refs to finish review
+//after refs done, then can edit scores.... not helpful if no refs or problem
+//... should scores unlock now?
+//have another button for finish review that shuts out referees?
+function waitForRefReview(){
+	var obj = {};
+	$.get("../match/status/reviewcomplete/",obj).done(function(data){
+		var commitBn = document.getElementById("commitBtn");
+		commitBtn.setAttribute("state", "ready");
+		commitBtn.disabled = false;
+		setControlState(false);
+	}).fail(function(xhr, textStatus, error){
+		//window.setTimeout(waitForRefReview, 1000);
+		//check if error is match reset, then dont care
+	});
+}
+
+function endTeleop(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","off");
+	startBtn.innerHTML = "Start Auto";
+	startBtn.disabled = true;
+	startBtn.setAttribute("onclick", "start()");
+	
+	var commitBn = document.getElementById("commitBtn");
+	commitBtn.setAttribute("state", "back");
+	commitBtn.disabled = false;
+	waitForRefReview();
+	
+}
+
+function abortTeleop(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","ready");
+	startBtn.innerHTML = "Start Teleop";
+	startBtn.setAttribute("onclick", "startTeleop()");
+}
+
+function startTeleop(){
+	var postObj = {};
+	$.post("../time/start/",postObj).done(function(data){
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","warn");
+		startBtn.innerHTML = "Stop Teleop";	
+		startBtn.setAttribute("onclick", "abortTeleop()");
+		
+		endTeleop();
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+	
+}
+
+function endAuto(){
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","ready");
+	startBtn.innerHTML = "Start Teleop";
+	startBtn.setAttribute("onclick", "startTeleop()");
+}
+
+function abortAuto(){ //reactivate match preview, rerandomize, and show random
+	var preview = document.getElementById("previewBtn");
+	preview.setAttribute("state", "back");
+	preview.disabled = true;
+	var rand = document.getElementById("randomBtn");
+	rand.setAttribute("state", "warn");
+	rand.disabled = true;
+	var showRand = document.getElementById("showBtn");
+	showRand.disabled = true;
+	showRand.setAttribute("state", "back");
+	
+	var startBtn = document.getElementById("startBtn");
+	startBtn.setAttribute("state","ready");
+	startBtn.innerHTML = "Start Auto";
+	startBtn.setAttribute("onclick", "start()");
+}
+
+function start(){
+	var postObj = {};
+	$.post("../time/start/",postObj).done(function(data){
+		console.log(data);
+		//TODO listen for randomization by scorekeeper
+		//after button click, HR has option to rerandomize until match starts
+		//once match starts, HR has info and stuff. And can enter cards.
+		var preview = document.getElementById("previewBtn");
+		preview.setAttribute("state", "off");
+		preview.disabled = true;
+		var rand = document.getElementById("randomBtn");
+		rand.setAttribute("state", "off");
+		rand.disabled = true;
+		var showRand = document.getElementById("showBtn");
+		showRand.disabled = true;
+		showRand.setAttribute("state", "off");
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","warn");
+		startBtn.innerHTML = "Stop Auto";
+		startBtn.setAttribute("onclick", "abortAuto()");
+		endAuto();
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function showPreview(){
+	var postObj = {};
+	$.post("../time/preview/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function commit(){
+	var postObj = {};
+	//TODO send DQs and cards. Server should already have all scores. 
+	//TODO after commit, update schedule tab
+	$.post("../scorecommit/",postObj).done(function(data){
+		console.log(data);
+		
+		var postBtn = document.getElementById("postBtn");
+		postBtn.setAttribute("state","ready");
+		postBtn.disabled = false;
+		var commitBn = document.getElementById("commitBtn");
+		commitBtn.setAttribute("state", "off");
+		commitBtn.disabled = true;
+		
+		setControlState(true);
+		
+		getScheduleStatus();
+  		getCurrentMatchData();
+		
+		
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function post(){ //posts results to AD
+	var postBtn = document.getElementById("postBtn");
+	postBtn.setAttribute("state","off");
+	postBtn.diabled = true;
+	
+	var preview = document.getElementById("previewBtn");
+	preview.setAttribute("state", "ready");
+	preview.disabled = false;
+	var rand = document.getElementById("randomBtn");
+	rand.setAttribute("state", "ready");
+	rand.innerHTML = "Randomize";
+	rand.disabled = false;
+	
+}
+
+function openTab(event, tabName){
+	tabcontent = document.getElementsByClassName("tabContent");
+	for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    document.getElementById(tabName).style.display = "block";
+}
+
+</script>
+		<div id="menuBar"></div>
+		<div id="top">
+			<div id="leftTeams">
+				<div class="teamSlotHeader" style="text-align:right">DQ</div>
+				<div class="teamSlot" id="red1Slot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+				<div class="teamSlot" id="red2Slot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+				<div class="teamSlot" id="red3Slot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+			</div>
+			<div id="centerTop"></div>
+			<div id="rightTeams">
+				<div class="teamSlotHeader">DQ</div>
+				<div class="teamSlot" id="blue1Slot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+				<div class="teamSlot" id="blue2Slot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+				<div class="teamSlot" id="blue3Slot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+			</div>
+		</div>
+		<div id="matchControl">
+			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Refresh AD</button>
+			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
+			<button class="matchControlButton" id="showBtn"   onclick="showRandom()" state = "off" disabled>Set Display</button>
+			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>
+			<button class="matchControlButton" id="commitBtn" onclick="commit()"     state = "off" disabled>Commit Scores</button>
+			<button class="matchControlButton" id="postBtn"   onclick="post()"       state = "off" disabled>Post Results</button>
+			
+		</div>
+		<!-- TODO https://www.w3schools.com/howto/howto_js_tabs.asp -->
+		<div id="tabBar">
+			<button class="tabButton" onclick="openTab(event, 'ScheduleTab')">Schedule</button>
+			<button class="tabButton" onclick="openTab(event, 'ScoreTab')" id="scoreTabBtn">Scores</button>
+			<button class="tabButton" onclick="openTab(event, 'SettingsTab')">Settings</button>
+		</div>
+		<div class="tabContent" id="ScoreTab">
+			<div id="leftScores">
+				#scores("red")
+			</div>
+			<div id="rightScores">
+				#scores("blue")
+				
+			</div>
+		</div>
+		<div class="tabContent" id="ScheduleTab">
+			<div class="scheduleEntry">
+				<div class="scheduleMatch">Match</div>
+				<div class="scheduleStatus">Status</div>
+				<div class="scheduleTeam">Red Score</div>
+				<div class="scheduleTeam">Red 1</div>
+				<div class="scheduleTeam">Red 2</div>
+				<div class="scheduleTeam">Blue 1</div>
+				<div class="scheduleTeam">Blue 2</div>
+				<div class="scheduleTeam">Blue Score</div>				
+			</div>
+			
+		</div>
+		<div class="tabContent" id="SettingsTab">
+		</div>
+	</body>
+</html>

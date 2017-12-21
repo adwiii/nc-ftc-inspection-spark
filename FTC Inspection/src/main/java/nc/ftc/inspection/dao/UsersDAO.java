@@ -28,7 +28,10 @@ public class UsersDAO {
 	 */
 	public static User authenticate(String username, String pw){
 		User user = getUser(username);
+		if(user == null) return null;
 		String hashedPassword = BCrypt.hashpw(pw, user.getSalt());
+		
+		//FIXME should this use BCrypt.checkpw()?
 		if (hashedPassword.equals(user.getHashedPw())) {
 			return user;
 		}

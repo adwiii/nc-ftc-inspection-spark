@@ -31,7 +31,32 @@ header {
     border-bottom: 5px solid #ff7761;
     box-shadow: 0 1px 0 0 rgba(0,0,0,.6);
 }
-
+ .circle {
+      width: 10vw;
+      height: 10vw;
+      -webkit-border-radius: 5vw;
+      -moz-border-radius: 5vw;
+      border-radius: 5vw;
+	  border: 1px solid #000;
+      margin:auto;
+      text-align:center;
+      vertical-align:bottom;
+    }
+    
+table #cb1, #cb2 {
+	table-layout: fixed;
+	width: 36vw;
+	height: 50vw;
+	margin-left: auto;
+	margin-right: auto;
+}
+div #cb1L, #cb2L {
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+	min-height: 1.25em;
+  	line-height: 1.25;
+}
 nav {
     padding: 15px;
     margin: 0 auto;
@@ -40,8 +65,9 @@ nav {
 }
 
 nav #menu {
-    margin-top: 20px;
-    float: right;
+    position:absolute;
+    right: 0;
+    bottom: 10
 }
 
 a {
@@ -227,7 +253,7 @@ nav a {
     width: 100%
 }
 
-#loginForm input {
+input {
     border: 1px solid #ddd;
     padding: 8px 12px;
     width: 100%;
@@ -235,11 +261,51 @@ nav a {
     margin: 2px 0 20px 0;
 }
 
-#loginForm input[type="submit"] {
+input[type="submit"] {
     color: white;
     background: #274555;
     border: 0;
     cursor: pointer;
+}
+.counterButton {
+    color: white;
+    background: #274555;
+    border: 0;
+    cursor: pointer;
+}
+td {
+	padding: 5px;
+}
+table {
+    table-layout: auto;
+    border-collapse: collapse;
+    width: 100%;
+}
+table .absorbing-column {
+    width: 100%;
+}
+.redAlliance {
+	background: #EE1D23;
+}
+.blueAlliance {
+	background: #0166B3; 
+}
+.banner {
+	color: white;
+	padding: 10px;
+	width: 100%;
+	border: 1px solid #ddd;
+	text-align: center;
+}
+.nowrap {
+	white-space:nowrap;
+	display: inline-block;
+}
+.left {
+	text-align:right;
+}
+.right {
+	text-align:left;
 }
 
 .notification {

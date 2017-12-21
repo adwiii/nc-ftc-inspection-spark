@@ -1,0 +1,111 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<script>
+// Red  - #EE1D23
+// Blue - #0166B3
+	var parked = $parkedAuto; 
+	var keys = $cryptoboxKeys;
+	var red  = '#EE1D23';
+	var blue = '#0166B3'; 
+	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
+	$( document ).ready(function() {
+		if (rand < 4) {
+			document.getElementById("j_1,1").style.backgroundColor = ($jewelSet1 & 0b10) ? red : 'white';
+			document.getElementById("j_1,2").style.backgroundColor = ($jewelSet1 & 0b01) ? blue : 'white';
+			document.getElementById("j_2,1").style.backgroundColor = ($jewelSet2 & 0b10) ? red : 'white';
+			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? blue : 'white';
+			document.getElementById("j_1,1").style.borderColor = ($jewelSet1 & 0b10) ? 'black' : red;
+			document.getElementById("j_1,2").style.borderColor = ($jewelSet1 & 0b01) ? 'black' : blue;
+			document.getElementById("j_2,1").style.borderColor = ($jewelSet2 & 0b10) ? 'black' : red;
+			document.getElementById("j_2,2").style.borderColor = ($jewelSet2 & 0b01) ? 'black' : blue;
+		} else {
+			document.getElementById("j_1,1").style.backgroundColor = ($jewelSet1 & 0b10) ? blue : 'white';
+			document.getElementById("j_1,2").style.backgroundColor = ($jewelSet1 & 0b01) ? red : 'white';
+			document.getElementById("j_2,1").style.backgroundColor = ($jewelSet2 & 0b10) ? blue : 'white';
+			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? red : 'white';
+			document.getElementById("j_1,1").style.borderColor = ($jewelSet1 & 0b10) ? 'black' : blue;
+			document.getElementById("j_1,2").style.borderColor = ($jewelSet1 & 0b01) ? 'black' : red;
+			document.getElementById("j_2,1").style.borderColor = ($jewelSet2 & 0b10) ? 'black' : blue;
+			document.getElementById("j_2,2").style.borderColor = ($jewelSet2 & 0b01) ? 'black' : red;
+		}
+		var keyloc = '';
+		switch (rand % 3) {
+		case 0: keyloc = 'Right';
+			break;
+		case 1: keyloc = 'Left';
+			break;
+		case 2: keyloc = 'Center'
+			break;
+		}
+		document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
+	});
+	function jewelToggle(set, id){
+		var j = document.getElementById("j_"+set+","+id);
+		if(j.style.backgroundColor != 'white'){
+			j.style.backgroundColor = 'white';
+			j.style.borderColor = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
+		} else{
+			//get original color and set it back to that
+			j.style.backgroundColor = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
+			j.style.borderColor = "#000";
+		}
+	}
+	function addJewelScore(set, obj){
+		var j1 = document.getElementById("j_"+set+",1");
+		var j2 = document.getElementById("j_"+set+",2");
+		var val = j1.style.backgroundColor == 'white' ? 0 : 2; //set MSB
+		val += j2.style.backgroundColor == 'white' ? 0 : 1; //set LSB
+		//var obj = {};
+		obj["jewelSet"+set] = val;
+	}
+	
+	function getScoreObject(){
+		obj = {};
+		//TODO make these parse calls inside the macro?
+		obj.autoGlyphs = parseInt(document.getElementById('autoGlyphs').textContent);
+		obj.major = parseInt(document.getElementById('major').textContent);
+		obj.minor = parseInt(document.getElementById('minor').textContent);
+		obj.cryptoboxKeys = keys;
+		obj.parkedAuto = parked;
+		obj.jewels = parseInt(document.getElementById('jewels').textContent);
+		addJewelScore(1, obj);
+		addJewelScore(2, obj);
+		return obj;
+	}
+	function scoreUpdate(obj){
+		//DO NOT send updates here.
+	}
+	function submit(){
+		//TODO send a POST to the submit. Iff successful, reload the page
+		$.post("../../score/$alliance/submit/",getScoreObject()).done(function(data){
+			location.reload(true);
+		}).fail(function (xhr, textStatus, errorThrown) {
+       		console.log("Error");
+    	});
+	}
+</script>
+<p class="${alliance}Alliance banner">Autonomous Review</p>
+<table>
+<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
+<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 1)checked#end/>1</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 2)checked#end/>2</label></div></td></tr>
+<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels)jewels#end</td></tr>
+<tr>
+<td class ="left">Jewel Set 1:</td>
+<td>
+<table cellspacing = 5vw id="jewelset1" frame="box" rules="none"><tr><td>
+<div class="circle" id="j_1,1" onclick="jewelToggle(1,1)"></div></td><td><div class="circle" id="j_1,2" onclick="jewelToggle(1,2)"></div></html>
+</td></tr></table>
+</td>
+<tr>
+<td class="left">Jewel Set 2:</td>
+<td>
+<table cellspacing = 5vw id="jewelset2" frame="box" rules="none"><tr><td>
+<div class="circle" id="j_2,1" onclick="jewelToggle(2,1)"></div></td><td><div class="circle" id="j_2,2" onclick="jewelToggle(2,2)"></div></html>
+</td></tr></table></td>
+</tr>
+<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="parked" #if($parkedAuto == 1)checked#end/>1</label><label style="width:33%"><input type="radio"name="parked" #if($parkedAuto == 2)checked#end/>2</label></div></td></tr>
+<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
+<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
+</table>
+<input type="submit" class="bad notification" value="Submit Auto" onclick="submit()">
+#end
