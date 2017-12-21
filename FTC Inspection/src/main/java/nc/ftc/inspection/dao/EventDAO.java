@@ -67,7 +67,7 @@ public class EventDAO {
 	static final String GET_FORM_ITEMS = "SELECT items.row, items.itemIndex, items.label, items.req :teamColumns FROM formItems items";
 	static final String TEAM_JOINS = " LEFT JOIN formStatus :alias ON :alias.cbIndex = items.itemIndex AND :alias.team = ? AND items.formID = :alias.formID";
 	static final String FORM_ITEMS_WHERE = " WHERE items.formID = ? ORDER BY items.row, items.itemIndex";
-	static final String GET_FAILED_ROWS_SQL = "";
+	static final String GET_FAILED_ROWS_SQL = "SELECT * FROM formRows WHERE ";
 	
 	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
 	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
@@ -213,6 +213,7 @@ public class EventDAO {
 	}
 	
 	public static List<FormRow> getFailedItems(String eventCode, String formCode, int team){
+		/*
 		try(Connection local = getLocalDB(eventCode)){
 			PreparedStatement ps = local.prepareStatement(GET_FAILED_ROWS_SQL);
 			ps.setString(1, formCode);
@@ -272,7 +273,7 @@ public class EventDAO {
 			return form;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		return null;
 	}
 	
