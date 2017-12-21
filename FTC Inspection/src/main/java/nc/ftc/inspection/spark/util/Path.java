@@ -26,6 +26,7 @@ public class Path {
         public static final String INSPECT_NOTE = "/event/:event/inspect/:form/note/";
         public static final String INSPECT_SIG = "/event/:event/inspect/:form/sig/";
         public static final String INSPECT_STATUS = "/event/:event/inspect/:form/status/";
+        public static final String INSPECT_OVERRIDE = "/event/:event/inspect/:form/override/";
         public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
         
@@ -118,6 +119,7 @@ public class Path {
 		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
 		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";
 		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
+		public static final String INSPECTION_OVERRIDE_PAGE = "/velocity/event/inspectOverride.vm";
 		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
         
     }

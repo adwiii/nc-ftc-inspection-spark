@@ -878,6 +878,24 @@ public class EventPages {
 			map.put("headerColor", "#E6B222");
 			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
 		};
+
+		public static Route serveInspectionOverride = (Request request, Response response) ->{
+			System.out.println("OVER");;
+			String eventCode = request.params("event");
+			String form = request.params("form");
+			Map<String, Object> map = new HashMap<>();
+			map.put("form", form.toLowerCase());
+			map.put("eventCode", eventCode);
+			Event e = Server.activeEvents.get(eventCode);
+			String eventName = "Unknown Event";
+			if (e != null) {
+				eventName = e.getData().getName();
+			} else {
+				map.put("teams", EventDAO.getStatus(eventCode, form));
+			}
+			map.put("eventName", eventName);
+			return render(request, map, Path.Template.INSPECTION_OVERRIDE_PAGE);
+		};
 		
 		
 }
