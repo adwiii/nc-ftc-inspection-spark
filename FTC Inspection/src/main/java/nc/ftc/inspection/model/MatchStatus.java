@@ -5,7 +5,7 @@ public enum MatchStatus {
 	public MatchStatus next(){
 		switch(this){
 		case PRE_RANDOM: return AUTO;
-		case AUTO:return AUTO_REVIEW;
+		case AUTO://return AUTO_REVIEW; //REMOVED SINCE 2017 
 		case AUTO_REVIEW:return TELEOP;
 		case TELEOP:return REVIEW;
 		case REVIEW:return PRE_COMMIT;

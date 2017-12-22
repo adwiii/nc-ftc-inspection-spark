@@ -109,7 +109,7 @@
 		//TODO ensure any previous PUTS are now invalid. (on success)
 		obj = getScoreObject();
 		$.ajax({
-                url: "../../score/$alliance/",
+                url: "../../score/$alliance/auto/",
                 type: "POST",
                 data: obj,
                 success: function (data) {
@@ -119,7 +119,7 @@
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     if(xhr.status == 409){
-                    	//Not in review phase yet.
+                    	//Auto not complete.
                     	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until completion of autonomous!";
                     } else{
                     	//Oh no. actual problem :(
@@ -161,6 +161,6 @@
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
-<input type="submit" value="Review" onclick="submit()">
+<input type="submit" value="Submit Auto" onclick="submit()">
 <div id="errmsg" align="center" color="red"></div>
 #end

@@ -48,6 +48,7 @@ public class Path {
         //need to be separate b/c both PUT and POST used on updating
         public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
+        public static final String SCORE_AUTO = "/event/:event/score/:alliance/auto/"; 
         public static final String BOTH_SCORE = "/event/:event/score/";
         public static final String COMMIT_SCORES = "/event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";

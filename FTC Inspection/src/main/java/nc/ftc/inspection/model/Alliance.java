@@ -15,6 +15,7 @@ public class Alliance {
 	//Keep scores in hash map - easy to change each year, easy to isolate for PUT requests.
 	Map<String, Object> scores;
 	transient boolean scoreSubmitted = false;
+	transient boolean autoSubmitted = false;
 	transient boolean inReview = false;
 	transient int randomization = 0;//set by match & stored in match.
 	//how they are stored in the db in the matchScores tables
@@ -141,6 +142,12 @@ public class Alliance {
 		return scoreSubmitted;
 	}
 	
+	public void setAutoSubmitted(boolean sub){
+		this.autoSubmitted = sub;
+	}
+	public boolean autoSubmitted(){
+		return autoSubmitted;
+	}
 	public void setInReview(boolean ir) {
 		this.inReview = ir;
 	}

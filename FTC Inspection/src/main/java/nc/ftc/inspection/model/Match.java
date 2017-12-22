@@ -51,7 +51,6 @@ public class Match {
 			red.initializeScores();
 			blue.initializeScores();
 		}
-		//TODO auto->auto review: calculate jewels from other alliance
 	}
 	public MatchStatus getStatus(){
 		return status;
@@ -59,12 +58,18 @@ public class Match {
 	public Alliance getAlliance(String a){
 		return a.equals("red") ? red : (a.equals("blue") ? blue : null);
 	}
+	public boolean autoSubmitted(){
+		return red.autoSubmitted() && blue.autoSubmitted();
+	}
+	
 	public boolean scoreSubmitted(){
 		return red.scoreSubmitted() && blue.scoreSubmitted();
 	}
 	public void clearSubmitted(){
 		red.setSubmitted(false);
 		blue.setSubmitted(false);
+		red.setAutoSubmitted(false);
+		blue.setAutoSubmitted(false);
 	}
 	public boolean isInReview() {
 		return red.isInReview() && blue.isInReview();

@@ -342,18 +342,27 @@ public class EventPages {
 				template = Path.Template.REF_AUTO;
 //				model.put(arg0, arg1)
 				break;
-			case AUTO_REVIEW: //if already submitted, load teleop. (Only matters for first ref to submit)
+			case AUTO_REVIEW:
+				//THIS PHASE NO LONGER EXISTS
+				//if already submitted, load teleop. (Only matters for first ref to submit)
 				//Alliance a = e.getCurrentMatch().getAlliance(alliance);
 				//TODO use alliance.isInReview() to serve a waiting page that waits until both refs enter review phase.
 				a.setInReview(true);//in case refreshed.
-				template = a.scoreSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
+				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
-				template = Path.Template.REF_TELEOP;
+				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO;
 				break;
 			case REVIEW:
-				template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
-				a.setInReview(true);//in case refreshed.
+				if(!a.autoSubmitted()) {//better hurry up and do that auto
+					template = Path.Template.REF_AUTO;
+				} else if(a.isInReview()) {
+					template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
+				} else {
+					template = Path.Template.REF_TELEOP;
+				}
+				//template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
+				//a.setInReview(true);//in case refreshed.
 				break;
 			case PRE_COMMIT:
 				template = Path.Template.REF_POST_SUBMIT;
@@ -535,10 +544,11 @@ public class EventPages {
 			return s;
 		};
 		
-		//POST that is done by hitting "review" button. always saves the info, but returns
-		//error if not ready for review phase.
+		//POST that is done by hitting submit auto and submit teleop ("review") button. always saves the info, but returns
+		//error if not ready to change phase.
 		//could change this to long poll in the future.
-		public static Route handleScoreFullUpate = (Request request, Response response) -> {
+		//this is submitting teleop, and enter review phase
+		public static Route handleTeleopSubmit = (Request request, Response response) -> {
 			String res = updateScores(request, response);
 			if(res.equals("OK")) {
 				//If not in review phase, dont return 200. That way client knows not to load
@@ -546,6 +556,7 @@ public class EventPages {
 				String e = request.params("event");
 				
 				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
+				//this if should always be false
 				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
 					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
 				}
@@ -555,6 +566,11 @@ public class EventPages {
 					response.status(409);
 					return "Not ready to review.";
 				}	
+				if(!Server.activeEvents.get(e).getCurrentMatch().autoSubmitted()) {
+					//Both need to submit auto before 
+					response.status(410); //TODO choose a better status code
+					return "Cannot Review until both auto submitted";
+				}
 				Match match = Server.activeEvents.get(e).getCurrentMatch();
 				match.getAlliance(request.params("alliance")).setInReview(true);
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
@@ -567,10 +583,40 @@ public class EventPages {
 			
 		};
 		
+		//this is submitting auto
+		public static Route handleAutoSubmit = (Request request, Response response) ->{
+			try {
+				String res = updateScores(request, response);
+				String eventCode = request.params("event");
+				String alliance = request.params("alliance");
+				Event event = Server.activeEvents.get(eventCode);
+				Match match = event.getCurrentMatch();
+				if(match.getStatus() == null){
+					response.status(500);
+					return "Null Status";
+				}
+				MatchStatus status = match.getStatus();
+				if(status == MatchStatus.TELEOP || status == MatchStatus.REVIEW) {
+					if(match.getAlliance(alliance).autoSubmitted()) {
+						//UHHH They submitted twice
+						System.err.println("WE MIGHT HAVE A PROBLEM! "+alliance+" submitted auto twice!");
+					}
+					match.getAlliance(alliance).setAutoSubmitted(true);
+				} else {
+					response.status(409);
+					return "Invalid match status: "+status;
+				}				
+				return res;
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			response.status(500);
+			return "Error";
+		};
+		
+		//This is for the review page
 		public static Route handleScoreSubmit = (Request request, Response response) ->{
-			//TODO if not in REVIEW status, reject.
-			//TODO handle submit after teleop started for auto.
-			//so maybe dont reject?
+			//if not in REVIEW status, reject.
 			try{
 			String res = updateScores(request, response);
 			String eventCode = request.params("event");
@@ -581,17 +627,31 @@ public class EventPages {
 				return "Null Status";
 			}
 			if(!event.getCurrentMatch().getStatus().isReview()){
-				response.status(500);
-				return "Not in review phase!";
+				/*
+				//not review, but check if teleop and that alliance hasnt submitted yet
+				boolean ok = false;
+				if(event.getCurrentMatch().getStatus() == MatchStatus.TELEOP) {
+					if(!event.getCurrentMatch().getAlliance(alliance).autoSubmitted()) {
+						//allow this
+						//URGENT TODO MAKE SURE THIS FLAG GETS CLEARED AT START OF MATCH!
+						event.getCurrentMatch().getAlliance(alliance).setAutoSubmitted(true);
+						ok = true;
+					}
+				}
+				if(!ok) {*/
+					response.status(500);
+					return "Not in review phase!";
+				//}
 			}
 			if(res.equals("OK") ){ 
 				//if not both refs in review - dont allow
-				if(!event.getCurrentMatch().isInReview()) {
-					response.status(409);
-					return "Red & Blue must both be in review";
-				}
+//				if(!event.getCurrentMatch().isInReview()) {
+//					response.status(409);
+//					return "Red & Blue must both be in review";
+//				}
 				event.getCurrentMatch().getAlliance(alliance).setSubmitted(true);
 //				TODO commented this out recently, if stuff breaks maybe this
+				//TODO THIS RIHT HERE!!! decide whether submitted or inReview to show review page?
 				//event.getCurrentMatch().getAlliance(alliance).setInReview(false);
 				
 				//both alliances scores submitted -> go to teleop or pre-commit
@@ -599,19 +659,21 @@ public class EventPages {
 				if(event.getCurrentMatch().scoreSubmitted()){
 					event.getCurrentMatch().getRed().setInReview(false);
 					event.getCurrentMatch().getBlue().setInReview(false);
-					
+					/*
 					if(event.getCurrentMatch().getStatus() == MatchStatus.AUTO_REVIEW){
 
 						System.out.println("TELEOP TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.TELEOP);
 						event.getCurrentMatch().clearSubmitted();
 					} else if(event.getCurrentMatch().getStatus() == MatchStatus.REVIEW){
+					*/
+					
 						System.out.println("AUTO TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
 						synchronized (MatchStatus.PRE_COMMIT) {
 							MatchStatus.PRE_COMMIT.notifyAll();
 						}
-					}
+					//}
 				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			} else{
@@ -641,12 +703,13 @@ public class EventPages {
 				response.status(500);
 				return "Null Status";
 			}
-			if(match.getStatus() == MatchStatus.AUTO){
-				match.setStatus(MatchStatus.AUTO_REVIEW);
-			}
 			if(match.getStatus() == MatchStatus.TELEOP){
 				match.setStatus(MatchStatus.REVIEW);
 			}
+			else if(match.getStatus() == MatchStatus.AUTO){
+				match.setStatus(match.getStatus().next());
+			}
+			
 			return "OK";
 		};
 

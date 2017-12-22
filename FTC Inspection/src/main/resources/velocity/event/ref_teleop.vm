@@ -173,6 +173,9 @@
                     if(xhr.status == 409){
                     	//Not in review phase yet.
                     	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until completion of match!";
+                    } else if(xhr.status == 410){
+                    	//other ref slacking!
+                    	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until other ref has submitted auto!";
                     } else{
                     	//Oh no. actual problem :(
 	                    console.log(xhr);

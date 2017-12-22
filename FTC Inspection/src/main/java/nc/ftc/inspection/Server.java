@@ -126,7 +126,8 @@ public class Server {
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		post(Path.Web.SUBMIT_SCORE, EventPages.handleScoreSubmit);
 		post(Path.Web.COMMIT_SCORES, EventPages.handleScoreCommit);
-		post(Path.Web.SCORE, EventPages.handleScoreFullUpate);
+		post(Path.Web.SCORE, EventPages.handleTeleopSubmit);
+		post(Path.Web.SCORE_AUTO, EventPages.handleAutoSubmit);
 		post(Path.Web.LOAD_MATCH, EventPages.handleLoadMatch);
 		
 		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
