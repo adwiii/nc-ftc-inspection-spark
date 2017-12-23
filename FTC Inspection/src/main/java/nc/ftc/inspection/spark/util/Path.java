@@ -62,6 +62,7 @@ public class Path {
         public static final String MATCH_RESULTS = "event/:event/results/";
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
+        public static final String FIELD_DISPLAY  ="/event/:event/field/";
         
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
@@ -122,6 +123,7 @@ public class Path {
 		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
 		public static final String INSPECTION_OVERRIDE_PAGE = "/velocity/event/inspectOverride.vm";
 		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
+		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
         
     }
 

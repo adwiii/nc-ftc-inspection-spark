@@ -108,8 +108,10 @@ public class Server {
 		
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
 		get(Path.Web.AUDIENCE_DISPLAY, EventPages.serveAudienceDisplay);
+		get(Path.Web.FIELD_DISPLAY, EventPages.serveFieldDisplay);
 		
 		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
+		
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);

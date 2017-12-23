@@ -1,0 +1,114 @@
+
+<html>
+<body>
+	<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
+  	
+  	<audio preload="auto" id="charge">
+  	<source src="/audio/charge.wav" type="audio/wav">
+  	</audio>
+  	<audio preload="auto" id="endauto">
+  	<source src="/audio/endauto_with_warning.wav" type="audio/wav">
+  	</audio>
+  	<audio preload="auto" id="teleop321">
+  	<source src="/audio/3-2-1.wav" type="audio/wav">
+  	</audio>
+  	<audio preload="auto" id="firebell">
+  	<source src="/audio/firebell.wav" type="audio/wav">
+  	</audio>
+  	<audio preload="auto" id="factwhistle">
+  	<source src="/audio/factwhistle.wav" type="audio/wav">
+  	</audio>
+  	<audio preload="auto" id="endmatch">
+  	<source src="/audio/endmatch.wav" type="audio/wav">
+  	</audio>
+  	<audio preload="auto" id="fogblast">
+  	<source src="/audio/fogblast.wav" type="audio/wav">
+  	</audio>
+  	
+  	<div id="ms">
+  	0
+  	</div>	
+  <div id="timer">
+2:30
+</div>
+
+  	<script>
+  	var startSound = document.getElementById("charge");
+  	var endAutoSound = document.getElementById("endauto");
+  	var countSound = document.getElementById("teleop321");
+  	var teleopSound = document.getElementById("firebell");
+  	var endgameSound = document.getElementById("factwhistle");
+  	var buzzerSound = document.getElementById("endmatch");
+  	var foghornSound = document.getElementById("fogblast");
+  	var startTime = 0;
+  	var timerInstance;
+  	var endAutoFlag = false;
+  	var countFlag = false;
+  	var teleopFlag = false;
+  	var endgameFlag = false; 
+  	function start(){
+  		startTime = new Date().getTime();
+  		timerInstance = setInterval(tick, 50);
+  		startSound.play();
+  	}
+  	function display(sec){
+  	//THis is a ceiling becuase the value that needs to be floored is subtracted from a constant in the calling method
+  		sec = Math.ceil(sec);
+  		var d = document.getElementById("timer");
+  		var min = Math.floor(sec / 60);
+  		var s = sec % 60;
+  		d.innerHTML = min+":"+ (s < 10 ? "0" : "") + s;
+  	}
+  	function tick(){
+  		var cur = new Date().getTime();
+  		document.getElementById("ms").innerHTML = cur;
+  		var elapsed = cur - startTime;
+  		if (elapsed < 30000){
+  			//autonomous
+  			display(30 - (elapsed/1000));
+  		} else if(elapsed < 35000){
+  			//end of auto, sound buzzer on first time. start 5 second pickup time
+  			if(!endAutoFlag){
+  				endAutoSound.play();
+  				endAutoFlag = true;
+  			}
+  			display(5 - (elapsed-30000)/1000);
+  		} else if(elapsed < 38000){
+  			//sound 3,2,1...
+  			if(!countFlag){
+  				countFlag = true;
+  				countSound.play();
+  			}
+  			display(3 - (elapsed-35000)/1000);
+  		} else if(elapsed < 128000){
+  			//start teleop on first time, sound ding ding ding
+  			if(!teleopFlag){
+  				teleopFlag = true;
+  				teleopSound.play();
+  			}
+  			display(120 - (elapsed-38000)/1000);
+  		} else if(elapsed < 158000){
+  			//Start endgame, sound train whistle
+  			if(!endgameFlag){
+  				endgameFlag = true;
+  				endgameSound.play();
+  			}
+  			display(30 - (elapsed-128000)/1000);
+  		} else{
+  			//End of match, sound buzzer.
+  			//stop timer! (return)
+  			buzzerSound.play();
+  			display(0);
+  			window.clearInterval(timerInstance);
+  			return;
+  		}
+  		//trigger rerun in 50 ms
+  	}
+  	setTimeout(start, 1000);
+  	</script>
+  
+		
+	</body>
+</html>

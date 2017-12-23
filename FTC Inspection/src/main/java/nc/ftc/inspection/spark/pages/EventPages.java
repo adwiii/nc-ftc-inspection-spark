@@ -959,6 +959,12 @@ public class EventPages {
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECTION_OVERRIDE_PAGE);
 		};
+
+		public static Route serveFieldDisplay = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			
+			return render(request, map, Path.Template.FIELD_DISPLAY);
+		};
 		
 		
 }
