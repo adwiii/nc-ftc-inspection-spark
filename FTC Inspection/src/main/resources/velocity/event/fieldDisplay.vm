@@ -48,6 +48,34 @@
   	var countFlag = false;
   	var teleopFlag = false;
   	var endgameFlag = false; 
+  	
+  	$().ready(function () {
+    	getTimerCommand();
+	});
+	
+	function getTimerCommand()
+	{
+	    if (isActive)
+	    {
+	            $.ajax({
+	                url: "../../random/",
+	                type: "GET",
+	                dataType: 'json',
+	                success: function (data) {
+	                    //TODO handle rerandomize?
+	                    document.getElementById("d1").innerHTML = "Field Configuration: " + data.rand +"<br>Now scoring auto.";
+	                    console.log(data.rand);
+	                    isActive = false;
+	                    location.reload(true);
+	                },
+	                error: function () {
+	                    //ERROR HANDLING
+	                    console.log("Error");
+	                    window.setTimeout(pollServer, 5000);
+	                }});
+	    }
+	}
+	
   	function start(){
   		startTime = new Date().getTime();
   		timerInstance = setInterval(tick, 50);
@@ -106,7 +134,6 @@
   		}
   		//trigger rerun in 50 ms
   	}
-  	setTimeout(start, 1000);
   	</script>
   
 		

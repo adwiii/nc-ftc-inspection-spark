@@ -14,6 +14,14 @@ public class Event {
 	EventData data;
 	Match currentMatch;
 	Match previousMatch;	
+	
+	//Monitors for messaging and long polls
+	public Object waitForRefLock = new Object();
+	public Object waitForPreviewLock = new Object();
+	public Object waitForRandomLock = new Object();
+	
+	
+	
 	public Event(EventData ed){
 		this.data = ed;
 	}

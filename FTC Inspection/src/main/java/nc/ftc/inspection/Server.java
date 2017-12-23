@@ -111,6 +111,7 @@ public class Server {
 		get(Path.Web.FIELD_DISPLAY, EventPages.serveFieldDisplay);
 		
 		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
+		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
 		
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);

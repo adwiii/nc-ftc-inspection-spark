@@ -58,6 +58,7 @@ public class Path {
         public static final String GET_MATCH = "event/:event/match/";
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
+        public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
         

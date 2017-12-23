@@ -287,6 +287,9 @@ public class EventPages {
 				response.status(500);
 				return "Match already randomized!";
 			}
+			synchronized(e.waitForRandomLock) {
+				e.waitForRandomLock.notifyAll();
+			}
 			e.getCurrentMatch().setStatus(MatchStatus.AUTO);
 			return "{\"rand\":\"" + e.getCurrentMatch().randomize() +"\"}";
 		};
@@ -396,8 +399,8 @@ public class EventPages {
 			}
 			//Not yet randomized. Wait until it is.
 			//TODO some form of timeout? half an hour? - just put in .wait(ms) call
-			synchronized(MatchStatus.AUTO){
-				MatchStatus.AUTO.wait();
+			synchronized(event.waitForRandomLock){
+				event.waitForRandomLock.wait();
 			}
 			return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
 		};
@@ -670,8 +673,8 @@ public class EventPages {
 					
 						System.out.println("AUTO TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
-						synchronized (MatchStatus.PRE_COMMIT) {
-							MatchStatus.PRE_COMMIT.notifyAll();
+						synchronized (event.waitForRefLock) {
+							event.waitForRefLock.notifyAll();
 						}
 					//}
 				}
@@ -820,8 +823,8 @@ public class EventPages {
 			if(m.getStatus() == MatchStatus.PRE_COMMIT) {
 				return "OK";
 			} else {
-				synchronized(MatchStatus.PRE_COMMIT) {
-					MatchStatus.PRE_COMMIT.wait();
+				synchronized(e.waitForRefLock) {
+					e.waitForRefLock.wait();
 				}
 			}
 			return "OK";
@@ -846,14 +849,27 @@ public class EventPages {
 		};
 		
 		public static Route handleWaitForPreview = (Request request, Response response) ->{
-			synchronized(ADState.PREVIEW) {
-				ADState.PREVIEW.wait();
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			synchronized(e.waitForPreviewLock) {
+				e.waitForPreviewLock.wait();
 			}
 			return "OK";
 		};
 		public static Route handleShowPreview = (Request request, Response response) ->{
-			synchronized(ADState.PREVIEW) {
-				ADState.PREVIEW.notifyAll();
+			//TODO the waitForPreview can probably be moved to AD instance in Event.
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			synchronized(e.waitForPreviewLock) {
+				e.waitForPreviewLock.notifyAll();
 			}
 			return "OK";
 		};
@@ -964,6 +980,10 @@ public class EventPages {
 			Map<String, Object> map = new HashMap<>();
 			
 			return render(request, map, Path.Template.FIELD_DISPLAY);
+		};
+
+		public static Route handleGetTimerCommands = (Request request, Response response) ->{
+			return null;
 		};
 		
 		
