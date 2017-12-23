@@ -5,6 +5,7 @@ import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.event.ADState;
 import nc.ftc.inspection.event.Event;
+import nc.ftc.inspection.event.TimerCommand;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
@@ -706,12 +707,19 @@ public class EventPages {
 				response.status(500);
 				return "Null Status";
 			}
+			
+			//TODO this is gonna have to change with the timer, which means 
+			//the timer's event firing CANNOT call this, otherwise the timer will loop itself!
 			if(match.getStatus() == MatchStatus.TELEOP){
 				match.setStatus(MatchStatus.REVIEW);
 			}
 			else if(match.getStatus() == MatchStatus.AUTO){
 				match.setStatus(match.getStatus().next());
 			}
+			synchronized(event.getFieldDisplay().timerCommandLock) {
+				event.getFieldDisplay().issueCommand(TimerCommand.START);
+			}
+			
 			
 			return "OK";
 		};
@@ -983,7 +991,17 @@ public class EventPages {
 		};
 
 		public static Route handleGetTimerCommands = (Request request, Response response) ->{
-			return null;
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			//TODO add block=false param to retrieve last command.
+			synchronized(e.getFieldDisplay().timerCommandLock) {
+				e.getFieldDisplay().timerCommandLock.wait();
+			}
+			return e.getFieldDisplay().getLastCommand();
 		};
 		
 		
