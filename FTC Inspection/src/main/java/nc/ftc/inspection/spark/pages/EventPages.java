@@ -707,22 +707,72 @@ public class EventPages {
 				response.status(500);
 				return "Null Status";
 			}
-			
-			//TODO this is gonna have to change with the timer, which means 
-			//the timer's event firing CANNOT call this, otherwise the timer will loop itself!
-			if(match.getStatus() == MatchStatus.TELEOP){
-				match.setStatus(MatchStatus.REVIEW);
+			if(match.getStatus() != MatchStatus.AUTO) {
+				response.status(409);
+				return "Match not ready for auto!";
 			}
-			else if(match.getStatus() == MatchStatus.AUTO){
-				match.setStatus(match.getStatus().next());
-			}
-			synchronized(event.getFieldDisplay().timerCommandLock) {
-				event.getFieldDisplay().issueCommand(TimerCommand.START);
-			}
-			
-			
+			event.getTimer().start();
 			return "OK";
 		};
+		
+		public static Route handlePauseMatch = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(event.getTimer().paused()) {
+				response.status(200);
+				return "Match already paused";
+			}
+			if(match.getStatus() == MatchStatus.AUTO || match.getStatus() == MatchStatus.TELEOP) {
+				event.getTimer().pause();
+				return "OK";
+			}
+			response.status(409);
+			return "Match not running!";
+		};
+		public static Route handleResumeMatch = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(!event.getTimer().paused()) {
+				response.status(409);
+				return "Match not paused";
+			}
+			if(match.getStatus() == MatchStatus.AUTO || match.getStatus() == MatchStatus.TELEOP) {
+				event.getTimer().resume();
+				return "OK";
+			}
+			response.status(409);
+			return "Match not running!";
+		};
+		public static Route handleResetMatch = (Request request, Response response) ->{
+			return null;
+		};
+		
 
 		public static Route handleScoreCommit = (Request request, Response response) ->{
 			String event = request.params("event");
@@ -998,10 +1048,7 @@ public class EventPages {
 				return "Event not active";
 			}
 			//TODO add block=false param to retrieve last command.
-			synchronized(e.getFieldDisplay().timerCommandLock) {
-				e.getFieldDisplay().timerCommandLock.wait();
-			}
-			return e.getFieldDisplay().getLastCommand();
+			return e.getTimer().blockForNextCommand();
 		};
 		
 		

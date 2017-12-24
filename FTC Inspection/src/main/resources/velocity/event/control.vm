@@ -691,7 +691,7 @@ function startTeleop(){
     });
 	
 }
-
+/*
 function endAuto(){
 	var startBtn = document.getElementById("startBtn");
 	startBtn.setAttribute("state","ready");
@@ -715,8 +715,10 @@ function abortAuto(){ //reactivate match preview, rerandomize, and show random
 	startBtn.innerHTML = "Start Auto";
 	startBtn.setAttribute("onclick", "start()");
 }
+*/
 
 function start(){
+	//TODO use params to set custom match times
 	var postObj = {};
 	$.post("../time/start/",postObj).done(function(data){
 		console.log(data);
@@ -733,10 +735,41 @@ function start(){
 		showRand.disabled = true;
 		showRand.setAttribute("state", "off");
 		var startBtn = document.getElementById("startBtn");
-		startBtn.setAttribute("state","warn");
-		startBtn.innerHTML = "Stop Auto";
-		startBtn.setAttribute("onclick", "abortAuto()");
-		endAuto();
+		startBtn.setAttribute("state","back");
+		startBtn.innerHTML = "Pause Match";
+		startBtn.setAttribute("onclick", "pause()");
+		//TODO local timer control here
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function pause(){
+	var postObj = {};
+	$.post("../time/pause/",postObj).done(function(data){
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","ready");
+		startBtn.innerHTML = "Resume Match";
+		startBtn.setAttribute("onclick", "resume()");
+		
+		//TODO Make abort an option now
+		
+		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function resume(){
+	var postObj = {};
+	$.post("../time/resume/",postObj).done(function(data){
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","back");
+		startBtn.innerHTML = "Pause Match";
+		startBtn.setAttribute("onclick", "pause()");
+		
+		//TODO hide abort option		
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
@@ -841,7 +874,7 @@ function openTab(event, tabName){
 			</div>
 		</div>
 		<div id="matchControl">
-			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Refresh AD</button>
+			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Match Preview</button>
 			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
 			<button class="matchControlButton" id="showBtn"   onclick="showRandom()" state = "off" disabled>Set Display</button>
 			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>

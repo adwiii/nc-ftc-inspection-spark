@@ -1,6 +1,5 @@
-
 <html>
-<body>
+<body style="background-image:url('/img/BackgroundHD.png')">
 	<script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
@@ -26,13 +25,13 @@
   	<audio preload="auto" id="fogblast">
   	<source src="/audio/fogblast.wav" type="audio/wav">
   	</audio>
+  	<div style="position: absolute;top: 225px;left:600px;background-color:black;">
+  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
+  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+  	<img id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+  	</div>
   	
-  	<div id="ms">
-  	0
-  	</div>	
-  <div id="timer">
-2:30
-</div>
 
   	<script>
   	var startSound = document.getElementById("charge");
@@ -43,11 +42,18 @@
   	var buzzerSound = document.getElementById("endmatch");
   	var foghornSound = document.getElementById("fogblast");
   	var startTime = 0;
+  	var pauseStart = 0;
+  	var paused = false;
   	var timerInstance;
   	var endAutoFlag = false;
   	var countFlag = false;
   	var teleopFlag = false;
   	var endgameFlag = false; 
+  	
+  	var minDigit = document.getElementById("minDigit");
+  	var colon = document.getElementById("colon");
+  	var tensDigit = document.getElementById("tensDigit");
+  	var onesDigit = document.getElementById("onesDigit");
   	
   	$().ready(function () {
     	getTimerCommand();
@@ -55,6 +61,8 @@
 	
 	function getTimerCommand()
 	{
+	//TODO maybe adjust this so it sends last command, and if different, it returns immediately with last command
+	//essentially make it a block if different
         $.ajax({
             url: "../time/command/",
             type: "GET",
@@ -62,7 +70,11 @@
             	console.log(data);
             	if(data == 'START'){
             		start();
-            	}
+            	} else if(data == 'PAUSE'){
+            		pause();
+            	} else if(data == 'RESUME'){
+            		resume();
+            	} 
             	getTimerCommand();
             },
             error: function () {
@@ -76,62 +88,106 @@
   		startTime = new Date().getTime();
   		timerInstance = setInterval(tick, 50);
   		startSound.play();
+  		paused = false;
   	}
-  	function display(sec){
+  	function pause(){
+  		pauseStart = new Date().getTime();
+  		window.clearInterval(timerInstance);
+  		paused = true;  		
+  	}
+  	function resume(){
+  		startTime += new Date().getTime() - pauseStart;
+  		timerInstance = setInterval(tick, 50);
+  		paused = false;
+  	}
+  	
+  	
+  	function display(sec, color){
   	//THis is a ceiling becuase the value that needs to be floored is subtracted from a constant in the calling method
   		sec = Math.ceil(sec);
   		var d = document.getElementById("timer");
   		var min = Math.floor(sec / 60);
   		var s = sec % 60;
-  		d.innerHTML = min+":"+ (s < 10 ? "0" : "") + s;
+  		minDigit.src = "/digits/"+color+min+".png"
+  		tensDigit.src= "/digits/"+color+Math.floor(s/10)+".png";
+  		onesDigit.src = "/digits/"+color+s%10+".png";
+  		colon.src = "/digits/"+color+"colon.png";
+  		//d.innerHTML = min+":"+ (s < 10 ? "0" : "") + s;
   	}
   	function tick(){
   		var cur = new Date().getTime();
-  		document.getElementById("ms").innerHTML = cur;
+  		//document.getElementById("ms").innerHTML = cur;
   		var elapsed = cur - startTime;
   		if (elapsed < 30000){
   			//autonomous
-  			display(30 - (elapsed/1000));
+  			display(150 - (elapsed/1000), "W");
   		} else if(elapsed < 35000){
   			//end of auto, sound buzzer on first time. start 5 second pickup time
   			if(!endAutoFlag){
   				endAutoSound.play();
   				endAutoFlag = true;
   			}
-  			display(5 - (elapsed-30000)/1000);
+  			display(5 - (elapsed-30000)/1000, "Y");
   		} else if(elapsed < 38000){
   			//sound 3,2,1...
   			if(!countFlag){
   				countFlag = true;
   				countSound.play();
   			}
-  			display(3 - (elapsed-35000)/1000);
+  			display(3 - (elapsed-35000)/1000, "R");
   		} else if(elapsed < 128000){
   			//start teleop on first time, sound ding ding ding
   			if(!teleopFlag){
   				teleopFlag = true;
   				teleopSound.play();
   			}
-  			display(120 - (elapsed-38000)/1000);
+  			display(120 - (elapsed-38000)/1000, "W");
   		} else if(elapsed < 158000){
   			//Start endgame, sound train whistle
   			if(!endgameFlag){
   				endgameFlag = true;
   				endgameSound.play();
   			}
-  			display(30 - (elapsed-128000)/1000);
+  			display(30 - (elapsed-128000)/1000, "W");
   		} else{
   			//End of match, sound buzzer.
   			//stop timer! (return)
   			buzzerSound.play();
-  			display(0);
+  			display(0, "W");
   			window.clearInterval(timerInstance);
   			return;
   		}
   		//trigger rerun in 50 ms
   	}
+  	display(150, "W");
   	</script>
   
 		
 	</body>
+<div id="preload" style="display:none;">
+   <img src="/digits/Wdigitoff.png" width="1" height="1" alt="Image 01" />
+   <img src="/digits/Wcolon.png" width="1" height="1" alt="Image 02" />
+   <img src="/digits/Rcolon.png" width="1" height="1" alt="Image 02" />
+   <img src="/digits/Ycolon.png" width="1" height="1" alt="Image 02" />
+   <img src="/digits/W0.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W1.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W2.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W3.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W4.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W5.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W6.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W7.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W8.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/W9.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/Y0.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/Y1.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/Y2.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/Y3.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/Y4.png" width="1" height="1" alt="Image 03" />
+   <img src="/digits/Y5.png" width="1" height="1" alt="Image 03" />   
+   <img src="/digits/R0.png" width="1" height="1" alt="Image 03" />   
+   <img src="/digits/R1.png" width="1" height="1" alt="Image 03" />   
+   <img src="/digits/R2.png" width="1" height="1" alt="Image 03" />   
+   <img src="/digits/R3.png" width="1" height="1" alt="Image 03" />   
+</div>
 </html>

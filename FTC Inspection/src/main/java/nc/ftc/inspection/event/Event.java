@@ -20,7 +20,7 @@ public class Event {
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
 	
-	FieldDisplay fieldDisplay = new FieldDisplay();
+	Timer timer = new Timer(this);
 	
 	
 	
@@ -64,8 +64,8 @@ public class Event {
 		return data;
 	}
 	
-	public FieldDisplay getFieldDisplay() {
-		return fieldDisplay;
+	public Timer getTimer() {
+		return timer;
 	}
 	
 	

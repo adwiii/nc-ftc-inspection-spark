@@ -55,6 +55,8 @@ public class Path {
         public static final String MATCH_CONTROL = "/event/:event/control/";
         public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
         public static final String START_MATCH = "event/:event/time/start/";
+        public static final String PAUSE_MATCH = "event/:event/time/pause/";
+        public static final String RESUME_MATCH = "event/:event/time/resume/";
         public static final String GET_MATCH = "event/:event/match/";
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
