@@ -1,5 +1,83 @@
 <html>
-<body style="background-image:url('/img/BackgroundHD.png')">
+	<style>
+	#scoreBar{
+		position:absolute;
+		height:180px;
+		width: 1920px;
+		left:0px;
+		top:900px;
+	}
+	.score{
+		position:absolute;
+		height:180px;
+		width: 260px;
+		top: 900px;		
+		font-size: 160px;
+		text-align:center;
+		color:white;
+	}
+	#scoreBlue{
+		background-color:blue;
+		left: 700px;
+		float:left;
+	}
+	#scoreRed{
+		background-color:red;
+		right: 700px;
+		float:right;
+	}
+	.grid{
+		position:relative;
+		height:180px;
+		width: 300px;
+		top:-7px;
+	}
+	#gridBlue{
+		float:left;
+	}
+	#gridRed{
+		float:right;
+	}
+	.parking{
+		position:relative;
+		height:180px;
+		width: 100px;
+		top:4px;	
+	}
+	#parkingBlue{	
+		float:left;	
+	}
+	#parkingRed{
+		float:right;
+	}
+	.balance{
+		position:relative;
+		height:180px;
+		width: 170px;
+		top:10px;
+	}
+	#balanceBlue{
+		float:left;
+	}
+	#balanceRed{
+		float: right;
+	}
+	.ball{
+		position:relative;
+		height:180px;
+		width: 100px;
+		top:5px;
+		left:0px;
+	}
+	#ballBlue{
+		float:left;
+	}
+	#ballRed{
+		float:right;
+	}
+	</style>
+
+<body style="background-image:url('/img/BackgroundHD.png');overflow:hidden;">
 	<script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
@@ -31,7 +109,54 @@
   	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
   	<img id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
   	</div>
-  	
+  	<div id="scoreBar">
+  		<div id="gridBlue" class="grid">
+  			<img id="gridBlue1" src="/img/grid_blank50.png" alt="Cryptobox1">
+  			<img id="gridBlue1" src="/img/grid_blank50.png" alt="Cryptobox2">
+  		</div>
+  		<div id="parkingBlue" class="parking">
+  			<img id="parkingBlueImg" src="/img/parking_black40.png" alt="Parking">
+  			<br>
+  			<img id="parkingBlueImg" src="/img/parking_black40.png" alt="Parking">
+  		</div>
+  		<div id="ballBlue" class="ball">
+  			<img id="ballBlue1" src="/img/ball-split25.png" alt="Balance Stone">
+  			<br>
+  			<img id="ballBlue1" src="/img/ball-split25.png" alt="Balance Stone">
+  		</div>
+  		<div id="balanceBlue" class="balance">
+  			<img id="balanceBlue1" src="/img/tt_black14.png" alt="Balance Stone">
+  			<br>
+  			<img id="balanceBlue2" src="/img/tt_black14.png" alt="Balance Stone">
+  		</div>
+  		
+  		
+  		<div id="gridRed" class="grid">
+  			<img id="gridRed1" src="/img/grid_blank50.png" alt="Cryptobox1">
+  			<img id="gridRed1" src="/img/grid_blank50.png" alt="Cryptobox2">
+  		</div>
+  		<div id="parkingRed" class="parking">
+  			<img id="parkingRed1" src="/img/parking_black40.png" alt="Parking">
+  			<br>
+  			<img id="parkingRed2" src="/img/parking_black40.png" alt="Parking">
+  		</div>
+  		<div id="ballRed" class="ball">
+  			<img id="ballRed1" src="/img/ball-split25.png" alt="Balance Stone">
+  			<br>
+  			<img id="ballRed2" src="/img/ball-split25.png" alt="Balance Stone">
+  		</div>
+  		<div id="balanceRed" class="balance">
+  			<img id="balanceRed1" src="/img/tt_black14.png" alt="Balance Stone">
+  			<br>
+  			<img id="balanceRed2" src="/img/tt_black14.png" alt="Balance Stone">
+  		</div>
+  		
+  		
+  		
+  		
+  	</div>
+  	<div id="scoreBlue" class="score">0</div>
+  	<div id="scoreRed" class="score">0</div>
 
   	<script>
   	var startSound = document.getElementById("charge");
@@ -188,6 +313,10 @@
    <img src="/digits/R0.png" width="1" height="1" alt="Image 03" />   
    <img src="/digits/R1.png" width="1" height="1" alt="Image 03" />   
    <img src="/digits/R2.png" width="1" height="1" alt="Image 03" />   
-   <img src="/digits/R3.png" width="1" height="1" alt="Image 03" />   
+   <img src="/digits/R3.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/grid_blank50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/parking_black40.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/tt_black14.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/ball-split25.png" width="1" height="1" alt="Image 03" />   
 </div>
 </html>

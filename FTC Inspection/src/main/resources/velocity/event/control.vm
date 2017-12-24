@@ -454,6 +454,7 @@
 	}
 	.matchControlButton[state="back"]{
 		background-color: yellow;
+		color:black;
 	}
 	.matchControlButton[state="warn"]{
 		background-color: red;
