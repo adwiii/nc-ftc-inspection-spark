@@ -1,5 +1,75 @@
+#macro (grid $alliance $size $index)
+	<div id="grid${alliance}" class="grid">
+  		<img id="background${alliance}${index}" class="gridBackground" src="/img/empty-grid-${alliance}50.png" alt="Cryptobox1"> 		
+  		<img id="gridOverlay${alliance}${index}" class="gridOverlay" src="/img/grid_blank50.png" alt="grid">
+  		<img id="gridCipher_${alliance}_${index}" src="/img/bird-grid-blue50.png" visible="false" class="gridCipher" alt="cipher">	
+  		<img id="${alliance}_${index}_0_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:5; top:8;">
+  		<img id="${alliance}_${index}_0_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		style="position:absolute;left:45; top:8;">
+  		<img id="${alliance}_${index}_0_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:85; top:8;">
+  		<img id="${alliance}_${index}_1_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:5; top:46;">
+  		<img id="${alliance}_${index}_1_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		style="position:absolute;left:45; top:46;">
+  		<img id="${alliance}_${index}_1_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:85; top:46;">
+  		<img id="${alliance}_${index}_2_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:5; top:86;">
+  		<img id="${alliance}_${index}_2_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		style="position:absolute;left:45; top:86;">
+  		<img id="${alliance}_${index}_2_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:85; top:86;">
+  		<img id="${alliance}_${index}_3_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:5; top:124;">
+  		<img id="${alliance}_${index}_3_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		style="position:absolute;left:45; top:124;">
+  		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		style="position:absolute;left:85; top:124;">
+  	</div>
+#end
+#macro (parking $alliance $size)
+	<div id="parking$alliance" class="parking">
+  			<img id="parking${alliance}1" src="/img/parking_black${size}.png" alt="Parking">
+  			<br>
+  			<img id="parking${alliance}2" src="/img/parking_black${size}.png" alt="Parking">
+  		</div>
+#end
+#macro (ball $alliance $size)
+	<div id="ball$alliance" class="ball">
+  			<img id="jewel${alliance}1" src="/img/ball-split${size}.png" alt="Balance Stone">
+  			<br>
+  			<img id="jewel${alliance}2" src="/img/ball-split${size}.png" alt="Balance Stone">
+  		</div>
+#end
+#macro (balance $alliance $size)
+	<div id="balance$alliance" class="balance">
+  			<img id="balance${alliance}1" src="/img/tt_black${size}.png" alt="Balance Stone">
+  			<br>
+  			<img id="balance${alliance}2" src="/img/tt_black${size}.png" alt="Balance Stone">
+  		</div>
+ #end
 <html>
 	<style>
+	#timer{
+		position: absolute;
+		top: 225px;
+		left:600px;
+		background-color:black;
+	}
+	#timer[visible="false"]{
+	display:none;
+	}
+	#random{
+		position: absolute;
+		top: 180px;
+		left:762px;
+		background-color:white;
+	}
+	#random[visible="false"]{
+	display:none;
+	}
 	#scoreBar{
 		position:absolute;
 		height:180px;
@@ -29,10 +99,29 @@
 	.grid{
 		position:relative;
 		height:180px;
-		width: 300px;
-		top:-7px;
+		width: 140px;
+		top:7px;
+		left:10;
 	}
-	#gridBlue{
+	.gridOverlay{
+		position:absolute;
+		top:-14;
+		left:-9;
+		z-index:2;
+	}
+	.gridCipher{
+		position:absolute;
+		top:0;
+		left:-1;
+		z-index:3;
+	}
+	.gridCipher[visible="false"]{
+		display:none;
+	}
+	.cell[visible="false"]{
+		display:none;
+	}
+	#gridblue{
 		float:left;
 	}
 	#gridRed{
@@ -103,58 +192,31 @@
   	<audio preload="auto" id="fogblast">
   	<source src="/audio/fogblast.wav" type="audio/wav">
   	</audio>
-  	<div style="position: absolute;top: 225px;left:600px;background-color:black;">
-  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
-  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
-  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
-  	<img id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+  	<div id="timer">
+	  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+	  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
+	  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+	  	<img id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >  	
+  	</div>
+  	<div id="random" visible="false">
+  		<img id="randomImg" src="/img/random1_75.png" alt="Randomization" >
   	</div>
   	<div id="scoreBar">
-  		<div id="gridBlue" class="grid">
-  			<img id="gridBlue1" src="/img/grid_blank50.png" alt="Cryptobox1">
-  			<img id="gridBlue1" src="/img/grid_blank50.png" alt="Cryptobox2">
-  		</div>
-  		<div id="parkingBlue" class="parking">
-  			<img id="parkingBlueImg" src="/img/parking_black40.png" alt="Parking">
-  			<br>
-  			<img id="parkingBlueImg" src="/img/parking_black40.png" alt="Parking">
-  		</div>
-  		<div id="ballBlue" class="ball">
-  			<img id="ballBlue1" src="/img/ball-split25.png" alt="Balance Stone">
-  			<br>
-  			<img id="ballBlue1" src="/img/ball-split25.png" alt="Balance Stone">
-  		</div>
-  		<div id="balanceBlue" class="balance">
-  			<img id="balanceBlue1" src="/img/tt_black14.png" alt="Balance Stone">
-  			<br>
-  			<img id="balanceBlue2" src="/img/tt_black14.png" alt="Balance Stone">
-  		</div>
+  		#grid("blue" "50" "1")
+  		#grid("blue" "50" "2")
+  		#ball("blue" "25")
+  		#parking("blue" "20")
+  		#balance("blue" "14")
+  		  		
+  		#grid("red" "50" "2")
+  		#grid("red" "50" "1")
+  		#ball("red" "25") 	
+  		#parking("red" "20")
+  		#balance("red" "14") 
   		
-  		
-  		<div id="gridRed" class="grid">
-  			<img id="gridRed1" src="/img/grid_blank50.png" alt="Cryptobox1">
-  			<img id="gridRed1" src="/img/grid_blank50.png" alt="Cryptobox2">
-  		</div>
-  		<div id="parkingRed" class="parking">
-  			<img id="parkingRed1" src="/img/parking_black40.png" alt="Parking">
-  			<br>
-  			<img id="parkingRed2" src="/img/parking_black40.png" alt="Parking">
-  		</div>
-  		<div id="ballRed" class="ball">
-  			<img id="ballRed1" src="/img/ball-split25.png" alt="Balance Stone">
-  			<br>
-  			<img id="ballRed2" src="/img/ball-split25.png" alt="Balance Stone">
-  		</div>
-  		<div id="balanceRed" class="balance">
-  			<img id="balanceRed1" src="/img/tt_black14.png" alt="Balance Stone">
-  			<br>
-  			<img id="balanceRed2" src="/img/tt_black14.png" alt="Balance Stone">
-  		</div>
-  		
-  		
-  		
-  		
+  			
   	</div>
+  	
   	<div id="scoreBlue" class="score">0</div>
   	<div id="scoreRed" class="score">0</div>
 
@@ -174,14 +236,24 @@
   	var countFlag = false;
   	var teleopFlag = false;
   	var endgameFlag = false; 
+  	var rand;
   	
   	var minDigit = document.getElementById("minDigit");
   	var colon = document.getElementById("colon");
   	var tensDigit = document.getElementById("tensDigit");
   	var onesDigit = document.getElementById("onesDigit");
+  	var blueParking1 = document.getElementById("parkingblue1");
+  	var blueParking2 = document.getElementById("parkingblue2");
+  	var redParking1 = document.getElementById("parkingred1");
+  	var redParking2 = document.getElementById("parkingred2");
+  	var blueJewel1 = document.getElementById("jewelblue1");
+  	var blueJewel2 = document.getElementById("jewelblue2");
+  	var redJewel1 = document.getElementById("jewelred1");
+  	var redJewel2 = document.getElementById("jewelred2");
   	
   	$().ready(function () {
     	getTimerCommand();
+    	getDisplayCommand();
 	});
 	
 	function getTimerCommand()
@@ -214,6 +286,11 @@
   		timerInstance = setInterval(tick, 50);
   		startSound.play();
   		paused = false;
+  		getScoreUpdate(false);
+  		var tmr = document.getElementById("timer");
+  		if(tmr.getAttribute("visible") == "false"){
+  			showMatch();
+  		}
   	}
   	function pause(){
   		pauseStart = new Date().getTime();
@@ -285,11 +362,164 @@
   		//trigger rerun in 50 ms
   	}
   	display(150, "W");
+  	
+  	//TODO wait for load match timer command
+  	
+  	function getDisplayCommand()
+	{
+	//TODO maybe adjust this so it sends last command, and if different, it returns immediately with last command
+	//essentially make it a block if different
+        $.ajax({
+            url: "../display/command/",
+            type: "GET",
+            success: function (data) {
+            	console.log(data);
+            	if(data == 'SHOW_RANDOM'){
+            		resetScores();
+            		showRandom();
+            	} else if(data == 'SHOW_MATCH'){
+            		showMatch();
+            	}
+            	getDisplayCommand();
+            },
+            error: function () {
+            	//TODO this should turn into get Last command, since we mught have missed some
+                window.setTimeout(getDisplayCommand, 5000);
+            }
+         });
+
+	}
+	
+	function resetScores(){
+		//TODO reset all the images and scores to pre-match values
+	}
+	
+	
+	function showRandom(){
+		//get random
+		 $.ajax({
+                url: "../random/",
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    rand=data.rand;
+                    document.getElementById("timer").setAttribute("visible","false");
+                    var r = document.getElementById("random");
+                    r.setAttribute("visible", "true");
+                    //TODO sizes?
+                    r.children[0].src = "/img/random"+rand+"_75.png"
+                    initJewels(rand)
+                },
+                error: function () {
+                    //ERROR HANDLING
+                    console.log("Error");
+                    window.setTimeout(showRandom, 5000);
+                }});
+	}
+	function initJewels(r){
+		var src = r < 4 ? "/img/ball-split-flip25.png": "/img/ball-split25.png";
+		blueJewel1.src = src;
+		blueJewel2.src = src;
+		redJewel1.src = src;
+		redJewel2.src = src;
+	} 
+	
+	function showMatch(){
+		document.getElementById("timer").setAttribute("visible","true");
+		document.getElementById("random").setAttribute("visible","false");
+	}
+	
+	
+	var lastBreakdown = 0;
+	function getScoreUpdate(block){
+  		var data = {};
+  		$.ajax({
+  			url: "../scorebreakdown/",
+  			type: "GET",
+  			dataType: 'json',
+  			data: {
+  				block:block,
+  				last:lastBreakdown
+  			},
+  			success: function(data){  			
+  				lastBreakdown = data.ts;
+  				updateScores(data);
+  				window.setTimeout(getScoreUpdate(true), 1000);
+  			},
+  			error: function(){
+  				window.setTimeout(getScoreUpdate(true), 1000);
+  			}});
+  	}
+  	function getJewelImage(val, flip){
+  		//empty
+  		if(val == 0) return "/img/ball-split_black25.png";
+  		//full
+  		if(val == 3) return "/img/ball-split" + (flip ? "-flip" : "") + "25.png";
+  		//left missing
+  		if(val == 1) return "/img/ball-split" + (flip ? "-flip_blue" : "_red") + "25.png";
+  		//right missing
+  		if(val == 2) return "/img/ball-split" + (flip ? "-flip_red" : "_blue") + "25.png";
+  	}
+  	
+  	function setCryptobox(alliance, index, val){
+  		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				var cell = document.getElementById(alliance+"_"+index+"_"+r+"_"+c);
+				var enc = (val >> ((6 * r) + (2*c))) & 3;
+				cell.setAttribute("visible", enc == 0 ? "false" : "true");
+				cell.src = enc == 1 ? "/img/brown-square50.png" : "/img/grey-square50.png";
+			}
+		} 
+		var ciph = ""; 	
+		if(val == 6710886 || ((~val) & 0xFFFFFF) == 6710886){
+			ciph = "froggy";
+		} else if(val == 6908265 || ((~val) & 0xFFFFFF) == 6908265){
+			ciph = "snake";
+		} else if(val == 10065510 || ((~val) & 0xFFFFFF) == 10065510){
+			ciph = "bird";
+		}
+		var cipher = document.getElementById("gridCipher_"+alliance+"_"+index);
+		cipher.setAttribute("visible", ciph == "" ? "false" : "true");
+		if(ciph != ""){
+			cipher.src = "/img/"+ciph+"-grid-"+alliance+"50.png"
+		}
+  	}
+  	
+  	function updateScores(obj){
+  		var flip = rand < 4;  	
+  	
+  		blueParking1.src = obj.blue.parkingPoints > 0 ? "/img/parking_blue20.png" : "/img/parking_black20.png" ;
+  		blueParking2.src = obj.blue.parkingPoints == 20 ? "/img/parking_blue20.png" : "/img/parking_black20.png" ;
+  		redParking1.src = obj.red.parkingPoints > 0 ? "/img/parking_red20.png" : "/img/parking_black20.png" ;
+  		redParking2.src = obj.red.parkingPoints == 20 ? "/img/parking_red20.png" : "/img/parking_black20.png" ;
+  		
+  		blueJewel1.src = getJewelImage(obj.blue.jewelSet1, flip);
+  		blueJewel2.src = getJewelImage(obj.blue.jewelSet2, flip);
+  		redJewel1.src = getJewelImage(obj.red.jewelSet1, flip);
+  		redJewel2.src = getJewelImage(obj.red.jewelSet2, flip);
+  		
+  		setCryptobox('blue', 1, obj.blue.cryptobox1);
+  		setCryptobox('blue', 2, obj.blue.cryptobox2);
+  		setCryptobox('red', 1, obj.red.cryptobox1);
+  		setCryptobox('red', 2, obj.red.cryptobox2);
+  		
+  		
+  		document.getElementById("scoreRed").innerHTML = parseInt(obj.red.teleopPoints) + parseInt(obj.red.autoPoints) + parseInt(obj.red.foulPoints);
+  		document.getElementById("scoreBlue").innerHTML = parseInt(obj.blue.teleopPoints) + parseInt(obj.blue.autoPoints) + parseInt(obj.blue.foulPoints);
+  	}
+  	
+  	
   	</script>
   
 		
 	</body>
 <div id="preload" style="display:none;">
+<img src="/img/random1_75.png" width="1" height="1" alt="Image 03" />
+<img src="/img/random2_75.png" width="1" height="1" alt="Image 03" />  
+<img src="/img/random3_75.png" width="1" height="1" alt="Image 03" />  
+<img src="/img/random4_75.png" width="1" height="1" alt="Image 03" />  
+<img src="/img/random5_75.png" width="1" height="1" alt="Image 03" />  
+<img src="/img/random6_75.png" width="1" height="1" alt="Image 03" />     
    <img src="/digits/Wdigitoff.png" width="1" height="1" alt="Image 01" />
    <img src="/digits/Wcolon.png" width="1" height="1" alt="Image 02" />
    <img src="/digits/Rcolon.png" width="1" height="1" alt="Image 02" />
@@ -314,9 +544,26 @@
    <img src="/digits/R1.png" width="1" height="1" alt="Image 03" />   
    <img src="/digits/R2.png" width="1" height="1" alt="Image 03" />   
    <img src="/digits/R3.png" width="1" height="1" alt="Image 03" /> 
-   <img src="/img/grid_blank50.png" width="1" height="1" alt="Image 03" /> 
-   <img src="/img/parking_black40.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/grid-blank_blue50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/grid-blank_red50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/parking_black20.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/parking_blue20.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/parking_red20.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/tt_black14.png" width="1" height="1" alt="Image 03" /> 
-   <img src="/img/ball-split25.png" width="1" height="1" alt="Image 03" />   
+   <img src="/img/ball-split25.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/ball-split_red25.png" width="1" height="1" alt="Image 03" />  
+   <img src="/img/ball-split_blue25.png" width="1" height="1" alt="Image 03" />  
+   <img src="/img/ball-split_black25.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/ball-split-flip25.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/ball-split-flip_red25.png" width="1" height="1" alt="Image 03" />  
+   <img src="/img/ball-split-flip_blue25.png" width="1" height="1" alt="Image 03" />    
+   <img src="/img/brown-square50.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/grey-square50.png" width="1" height="1" alt="Image 03" />    
+   <img src="/img/bird-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/bird-grid-bred50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/froggy-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/froggy-grid-red50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/snake-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/snake-grid-red50.png" width="1" height="1" alt="Image 03" /> 
 </div>
 </html>

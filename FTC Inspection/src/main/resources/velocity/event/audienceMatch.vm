@@ -122,8 +122,7 @@
 	  		document.getElementById(a + "BalancePoints").innerHTML = obj[a].balancePoints;
 	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
 	  		setCryptobox(a, 1, obj[a].cryptobox1);
-	  		setCryptobox(a, 2, obj[a].cryptobox2);
-	  		
+	  		setCryptobox(a, 2, obj[a].cryptobox2);	  		
   		}
   		document.getElementById("redScore").innerHTML = parseInt(obj.Red.teleopPoints) + parseInt(obj.Red.autoPoints) + parseInt(obj.Red.foulPoints);
   		document.getElementById("blueScore").innerHTML = parseInt(obj.Blue.teleopPoints) + parseInt(obj.Blue.autoPoints) + parseInt(obj.Blue.foulPoints);

@@ -507,7 +507,9 @@ public class EventDAO {
 			if(affected != 1){
 				return false;
 			}
-			
+			//TODO FIX THIS!!!! the calculate scores method is not ok!
+			//THE ONLY CORRECT ONE IS IN FULLBREAKDOWN!
+			//(if theres a way to edit scores, testing the fix could be done by using that and not changing anything)
 			ps = local.prepareStatement(COMMIT_MATCH_RESULTS);
 			ps.setInt(1, match.getRed().calculateScore());
 			ps.setInt(2,  match.getBlue().calculateScore());

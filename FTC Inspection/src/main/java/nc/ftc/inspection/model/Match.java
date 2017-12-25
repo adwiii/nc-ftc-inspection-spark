@@ -125,7 +125,8 @@ public class Match {
 		
 		list.add(json("cryptobox1", a.scores.get("cryptobox1")));
 		list.add(json("cryptobox2", a.scores.get("cryptobox2")));
-		
+		list.add(json("jewelSet1", a.scores.get("jewelSet1")));
+		list.add(json("jewelSet2", a.scores.get("jewelSet2")));
 		return list;
 	}
 	
@@ -141,6 +142,10 @@ public class Match {
 	
 	public String getFullScores() {
 		return "{\"red\":{"+String.join(",", red.getScores())+"},\"blue\":{"+String.join(",",blue.getScores())+"}, \"ts\":"+lastChange+"}";
+	}
+	
+	public String getFieldDisplayScores() {
+		return "";
 	}
 	
 	public long getLastUpdate() {

@@ -621,7 +621,11 @@ function randomize(){
 }
 
 
-function showRandom(){
+function setDisplay(){
+var postObj = {};
+	$.post("../display/match/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
 }
 
 function setControlState(state){
@@ -651,12 +655,24 @@ function waitForRefReview(){
 		commitBtn.disabled = false;
 		setControlState(false);
 	}).fail(function(xhr, textStatus, error){
+		//TODO
 		//window.setTimeout(waitForRefReview, 1000);
 		//check if error is match reset, then dont care
 	});
 }
 
-function endTeleop(){
+function waitForMatchEnd(){
+var obj = {};
+	$.get("../match/status/end/",obj).done(function(data){
+		endMatch();		
+	}).fail(function(xhr, textStatus, error){
+		//TODO
+		//window.setTimeout(waitForMatchEnd, 1000);
+		//check if error is match reset, then dont care
+	});
+}
+
+function endMatch(){
 	var startBtn = document.getElementById("startBtn");
 	startBtn.setAttribute("state","off");
 	startBtn.innerHTML = "Start Auto";
@@ -669,7 +685,7 @@ function endTeleop(){
 	waitForRefReview();
 	
 }
-
+/*
 function abortTeleop(){
 	var startBtn = document.getElementById("startBtn");
 	startBtn.setAttribute("state","ready");
@@ -692,31 +708,8 @@ function startTeleop(){
     });
 	
 }
-/*
-function endAuto(){
-	var startBtn = document.getElementById("startBtn");
-	startBtn.setAttribute("state","ready");
-	startBtn.innerHTML = "Start Teleop";
-	startBtn.setAttribute("onclick", "startTeleop()");
-}
-
-function abortAuto(){ //reactivate match preview, rerandomize, and show random
-	var preview = document.getElementById("previewBtn");
-	preview.setAttribute("state", "back");
-	preview.disabled = true;
-	var rand = document.getElementById("randomBtn");
-	rand.setAttribute("state", "warn");
-	rand.disabled = true;
-	var showRand = document.getElementById("showBtn");
-	showRand.disabled = true;
-	showRand.setAttribute("state", "back");
-	
-	var startBtn = document.getElementById("startBtn");
-	startBtn.setAttribute("state","ready");
-	startBtn.innerHTML = "Start Auto";
-	startBtn.setAttribute("onclick", "start()");
-}
 */
+
 
 function start(){
 	//TODO use params to set custom match times
@@ -739,6 +732,7 @@ function start(){
 		startBtn.setAttribute("state","back");
 		startBtn.innerHTML = "Pause Match";
 		startBtn.setAttribute("onclick", "pause()");
+		waitForMatchEnd();
 		//TODO local timer control here
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
@@ -779,7 +773,8 @@ function resume(){
 
 function showPreview(){
 	var postObj = {};
-	$.post("../time/preview/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+	//TODO change to /display.preview?
+	$.post("../display/preview/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
 }
@@ -877,7 +872,7 @@ function openTab(event, tabName){
 		<div id="matchControl">
 			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Match Preview</button>
 			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
-			<button class="matchControlButton" id="showBtn"   onclick="showRandom()" state = "off" disabled>Set Display</button>
+			<button class="matchControlButton" id="showBtn"   onclick="setDisplay()" state = "off" disabled>Set Display</button>
 			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>
 			<button class="matchControlButton" id="commitBtn" onclick="commit()"     state = "off" disabled>Commit Scores</button>
 			<button class="matchControlButton" id="postBtn"   onclick="post()"       state = "off" disabled>Post Results</button>

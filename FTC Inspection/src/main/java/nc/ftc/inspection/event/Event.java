@@ -20,7 +20,9 @@ public class Event {
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
 	
+	
 	Timer timer = new Timer(this);
+	Display display = new Display();
 	
 	
 	
@@ -66,6 +68,10 @@ public class Event {
 	
 	public Timer getTimer() {
 		return timer;
+	}
+	
+	public Display getDisplay() {
+		return display;
 	}
 	
 	

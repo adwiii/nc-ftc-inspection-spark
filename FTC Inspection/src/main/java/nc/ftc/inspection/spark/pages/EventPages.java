@@ -4,6 +4,7 @@ import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.event.ADState;
+import nc.ftc.inspection.event.DisplayCommand;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.event.TimerCommand;
 import nc.ftc.inspection.model.Alliance;
@@ -288,11 +289,13 @@ public class EventPages {
 				response.status(500);
 				return "Match already randomized!";
 			}
+			int r = e.getCurrentMatch().randomize();
 			synchronized(e.waitForRandomLock) {
 				e.waitForRandomLock.notifyAll();
 			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_RANDOM);
 			e.getCurrentMatch().setStatus(MatchStatus.AUTO);
-			return "{\"rand\":\"" + e.getCurrentMatch().randomize() +"\"}";
+			return "{\"rand\":\"" + r +"\"}";
 		};
 		
 		public static Route handleReRandomizePost = (Request request, Response response) ->{
@@ -539,9 +542,10 @@ public class EventPages {
 			if(s.equals("OK")) {
 				String e = request.params("event");
 				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
-				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
+			//	if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
+				//jewels are now recalculated through the entire match. The Review submit does NOT calculate.
 					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
-				}
+			//	}
 				Server.activeEvents.get(e).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			}
@@ -770,6 +774,8 @@ public class EventPages {
 			return "Match not running!";
 		};
 		public static Route handleResetMatch = (Request request, Response response) ->{
+			//TODO make sure waitForEnd handles this properly (return error)
+			//Same with waitForRefs
 			return null;
 		};
 		
@@ -884,6 +890,31 @@ public class EventPages {
 				synchronized(e.waitForRefLock) {
 					e.waitForRefLock.wait();
 				}
+			}
+			return "OK";
+		};
+		
+		public static Route handleWaitForEnd = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			
+			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.REVIEW) {
+				return "OK";
+			} else {
+				synchronized(e.getTimer().waitForEndLock) {
+					e.getTimer().waitForEndLock.wait();
+				}
+				//TODO if reset, return error (Match status == AUTO? or pre-randomize?)
 			}
 			return "OK";
 		};
@@ -1036,10 +1067,13 @@ public class EventPages {
 
 		public static Route serveFieldDisplay = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<>();
-			
+			//TODO if match in progress, call appropriate functions in velocity,
+			//and pass proper stuff
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 
+		//TODO request could send what it thinks the last command was, 
+		//and this blocks if matches, and returns immediately if wrong.
 		public static Route handleGetTimerCommands = (Request request, Response response) ->{
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
@@ -1049,6 +1083,37 @@ public class EventPages {
 			}
 			//TODO add block=false param to retrieve last command.
 			return e.getTimer().blockForNextCommand();
+		};
+		public static Route handleGetDisplayCommands = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			//TODO add block=false param to retrieve last command.
+			return e.getDisplay().blockForNextCommand();
+		};
+		
+		public static Route handleShowPreviewCommand = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_PREVIEW);
+			return "OK";
+		};
+		public static Route handleShowMatch = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_MATCH);
+			return "OK";
 		};
 		
 		

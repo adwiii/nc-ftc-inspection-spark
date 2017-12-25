@@ -54,13 +54,17 @@ public class Path {
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
         public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
+        public static final String SHOW_PREVIEW = "/event/:event/display/preview/";
+        public static final String SHOW_MATCH = "/event/:event/display/match/";
         public static final String START_MATCH = "event/:event/time/start/";
         public static final String PAUSE_MATCH = "event/:event/time/pause/";
         public static final String RESUME_MATCH = "event/:event/time/resume/";
         public static final String GET_MATCH = "event/:event/match/";
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
+        public static final String WAIT_FOR_MATCH_END = "event/:event/match/status/end/";
         public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
+        public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
         

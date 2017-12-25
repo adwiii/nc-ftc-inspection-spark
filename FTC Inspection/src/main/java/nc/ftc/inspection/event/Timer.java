@@ -4,6 +4,7 @@ import nc.ftc.inspection.model.MatchStatus;
 
 public class Timer {
 	public Object timerCommandLock = new Object();
+	public Object waitForEndLock = new Object();
 	//When the timer first loads, it should check for the last command. Maybe.
 	TimerCommand lastCommand = TimerCommand.LOAD_MATCH;
 	
@@ -49,6 +50,9 @@ public class Timer {
 						if(elapsed() > 158000) {
 							//end of match
 							event.getCurrentMatch().setStatus(MatchStatus.REVIEW);
+							synchronized(waitForEndLock) {
+								waitForEndLock.notifyAll();
+							}
 							break;
 						}
 						if(paused) {
@@ -114,6 +118,10 @@ public class Timer {
 			eventDispatch.notify();
 		}
 	}
+	public void reset() {
+		//need to notify eait for end, waiting method's responsibility to check if it was reset and hadle it
+	}
+	
 	public long elapsed() {
 		return paused ? pauseStart - start : System.currentTimeMillis() - start;
 	}
