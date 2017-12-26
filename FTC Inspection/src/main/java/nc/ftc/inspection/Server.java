@@ -140,12 +140,14 @@ public class Server {
 		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
 		post(Path.Web.SHOW_PREVIEW, EventPages.handleShowPreviewCommand);
 		post(Path.Web.SHOW_MATCH, EventPages.handleShowMatch);
+		post(Path.Web.LOCKOUT_REFS, EventPages.handleLockoutRefs);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
 		put(Path.Web.INSPECT_NOTE, EventPages.handleNote);
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
+		put(Path.Web.EDIT_SCORE, EventPages.handleControlScoreEdit);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);

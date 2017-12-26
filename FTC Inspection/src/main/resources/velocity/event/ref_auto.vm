@@ -82,7 +82,8 @@
                     //we good
                     console.log("we good");
                 },
-                error: function () {
+                error: function (xhr, ajaxOptions, thrownError) {
+                	if(xhr.responseText == "LOCKOUT")window.location.reload(true);
                     //ERROR HANDLING
                     console.log("Error");
                 }});
@@ -118,6 +119,7 @@
 					location.reload(true);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
+                	if(xhr.responseText == "LOCKOUT")window.location.reload(true);
                     if(xhr.status == 409){
                     	//Auto not complete.
                     	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until completion of autonomous!";

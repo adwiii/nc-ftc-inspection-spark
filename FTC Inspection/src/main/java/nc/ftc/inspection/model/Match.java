@@ -12,6 +12,7 @@ public class Match {
 	transient int randomization = 0; 
 	long lastChange = 0;
 	Object scoreLock = new Object();
+	public boolean refLockout = false;
 	public Match(int num, Alliance red, Alliance blue){
 		this.red = red;
 		this.blue = blue;
@@ -122,6 +123,9 @@ public class Match {
 		list.add(json("relicPoints", relicPoints));
 		list.add(json("balancePoints", balancePoints));
 		list.add(json("teleopPoints", teleopPoints));
+		
+		list.add(json("adjust", Integer.parseInt(a.scores.get("adjust").toString())));
+		
 		
 		list.add(json("cryptobox1", a.scores.get("cryptobox1")));
 		list.add(json("cryptobox2", a.scores.get("cryptobox2")));

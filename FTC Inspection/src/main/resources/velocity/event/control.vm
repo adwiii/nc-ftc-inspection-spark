@@ -5,7 +5,7 @@
 		<div>
 			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9650;</button>
 			<br/>
-			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9660;</button>
+			<button class="arrow" onclick="down('$alliance','$key')" disabled>&#9660;</button>
 		</div>
 	</div> 
 #end
@@ -94,6 +94,7 @@
   	
   	var lastBreakdown = 0;
   	var lastFullScore = 0;
+  	var acceptScores = true;
   	
   	function updateScoreBreakdown(obj){
   		for(var i = 0; i < 2; i++){
@@ -113,11 +114,38 @@
 	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
   		}
   	}
-  	//TODO: editing score should NOT notify listeners. make quiet endpoint that doesnt
+  	
+  	function updateScore(alliance, key, value){
+  		var obj={};
+  		obj[key] = value;
+  		$.ajax({
+                url: "../score/edit/"+alliance+"/",
+                type: "PUT",
+                dataType: 'json',
+                data: obj,
+                success: function (data) {                    
+  					updateScoreBreakdown(data);
+                },
+                error: function () {
+                    console.log("Error");
+                }});
+  	}
+  	
+  	//TODO: editing score should send data to server, and the response should contain score update for relevant alliance or both
+  	//Should NOT notify Displays of score update.
   	function up(alliance, key){
-  		
+  		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
+  		var val = parseInt(txt.value);
+  		val += 1;
+  		txt.value = val;
+  		updateScore(alliance, key, val);
   	}
   	function down(alliance, key){
+  		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
+  		var val = parseInt(txt.value);
+  		val -= val == 0 ? 0 : 1;
+  		txt.value = val;
+  		updateScore(alliance, key, val);
   	}
   	
   	//really, this should run from randomization to pre-commit (after ref review done)
@@ -134,13 +162,14 @@
   				last:lastBreakdown
   			},
   			success: function(data){
-  			
-  				lastBreakdown = data.ts;
-  				updateScoreBreakdown(data);
-  				window.setTimeout(getScoreUpdate(true), 1000);
+  				if(acceptScores){
+	  				lastBreakdown = data.ts;
+	  				updateScoreBreakdown(data);
+	  				window.setTimeout(getScoreUpdate(true), 1000);
+	  			}
   			},
   			error: function(){
-  				window.setTimeout(getScoreUpdate(true), 1000);
+  				if(acceptScores)window.setTimeout(getScoreUpdate(true), 1000);
   			}});
   	}
   	
@@ -157,12 +186,14 @@
   				last:lastFullScore
   			},
   			success: function(data){
-  				updateScoreControl(data);
-  				lastFullScore = data.ts;
-  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  				if(acceptScores){
+	  				updateScoreControl(data);
+	  				lastFullScore = data.ts;
+	  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  				}
   			},
   			error: function(){
-  				window.setTimeout(getScoreControlUpdate(true), 1000);
+  				if(acceptScores)window.setTimeout(getScoreControlUpdate(true), 1000);
   			}});
   	}
   	
@@ -339,6 +370,7 @@
 		if(zone > 0){		
 			r.setAttribute("state", next);
 		}
+		updateScore(alliance, "relic"+relic+"Zone", next == "off" ? 0 : zone); 
 	}
 		
 	function toggleStanding(alliance, relic){
@@ -346,13 +378,11 @@
 		var next = r.getAttribute("state") == "on" ? "off" : "on";
 		r.setAttribute("state", next );
 		r.innerHTML = next == "on" ? "&#10004;" : "&nbsp;&nbsp;";
-		
+		updateScore(alliance, "relic"+relic+"Standing", next == "on" ? "true" : "false");
 	}
   	
   	$().ready(function(){
   		getScheduleStatus();
-  		getScoreUpdate(false);
-  		getScoreControlUpdate(false);
   		getCurrentMatchData();
   		document.getElementById("scoreTabBtn").click();
   	});
@@ -650,9 +680,11 @@ function setControlState(state){
 function waitForRefReview(){
 	var obj = {};
 	$.get("../match/status/reviewcomplete/",obj).done(function(data){
-		var commitBn = document.getElementById("commitBtn");
+		var commitBtn = document.getElementById("commitBtn");
+		commitBtn.innerHTML = "Commit Scores";
 		commitBtn.setAttribute("state", "ready");
 		commitBtn.disabled = false;
+		commitBtn.setAttribute("onclick","commit()");
 		setControlState(false);
 	}).fail(function(xhr, textStatus, error){
 		//TODO
@@ -685,30 +717,6 @@ function endMatch(){
 	waitForRefReview();
 	
 }
-/*
-function abortTeleop(){
-	var startBtn = document.getElementById("startBtn");
-	startBtn.setAttribute("state","ready");
-	startBtn.innerHTML = "Start Teleop";
-	startBtn.setAttribute("onclick", "startTeleop()");
-}
-
-function startTeleop(){
-	var postObj = {};
-	$.post("../time/start/",postObj).done(function(data){
-		var startBtn = document.getElementById("startBtn");
-		startBtn.setAttribute("state","warn");
-		startBtn.innerHTML = "Stop Teleop";	
-		startBtn.setAttribute("onclick", "abortTeleop()");
-		
-		endTeleop();
-		
-	}).fail( function(xhr, textStatus, errorThrown) {
-        console.log(textStatus);
-    });
-	
-}
-*/
 
 
 function start(){
@@ -733,6 +741,9 @@ function start(){
 		startBtn.innerHTML = "Pause Match";
 		startBtn.setAttribute("onclick", "pause()");
 		waitForMatchEnd();
+		acceptScores = true;
+  		getScoreUpdate(false);
+  		getScoreControlUpdate(false);
 		//TODO local timer control here
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
@@ -779,6 +790,17 @@ function showPreview(){
     });
 }
 
+function lockout(){
+//Lockout refs and allow editing on control page.
+//sends command to server. server should notify all waitinf for ref review, which will 
+//adjust commit buttomn here.
+//Sets match status to PRE_COMMIT (shoudl reject everything else from refs?) 
+var postObj = {};
+$.post("../control/lockout/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
 function commit(){
 	var postObj = {};
 	//TODO send DQs and cards. Server should already have all scores. 
@@ -792,7 +814,6 @@ function commit(){
 		var commitBn = document.getElementById("commitBtn");
 		commitBtn.setAttribute("state", "off");
 		commitBtn.disabled = true;
-		
 		setControlState(true);
 		
 		getScheduleStatus();
@@ -874,7 +895,7 @@ function openTab(event, tabName){
 			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
 			<button class="matchControlButton" id="showBtn"   onclick="setDisplay()" state = "off" disabled>Set Display</button>
 			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>
-			<button class="matchControlButton" id="commitBtn" onclick="commit()"     state = "off" disabled>Commit Scores</button>
+			<button class="matchControlButton" id="commitBtn" onclick="lockout()"     state = "off" disabled>Edit Now</button>
 			<button class="matchControlButton" id="postBtn"   onclick="post()"       state = "off" disabled>Post Results</button>
 			
 		</div>

@@ -209,6 +209,7 @@
 		$.post("../../score/$alliance/submit/",getScoreObject()).done(function(data){
 			location.reload(true);
 		}).fail(function (xhr, textStatus, errorThrown) {
+			if(xhr.responseText == "LOCKOUT")window.location.reload(true);
        		console.log("Error");
     	});
 	}

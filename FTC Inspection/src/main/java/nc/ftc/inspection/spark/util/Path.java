@@ -49,10 +49,12 @@ public class Path {
         public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
         public static final String SCORE_AUTO = "/event/:event/score/:alliance/auto/"; 
+        public static final String EDIT_SCORE = "/event/:event/score/edit/:alliance/"; // control page edit
         public static final String BOTH_SCORE = "/event/:event/score/";
         public static final String COMMIT_SCORES = "/event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
+        public static final String LOCKOUT_REFS = "/event/:event/control/lockout/";
         public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
         public static final String SHOW_PREVIEW = "/event/:event/display/preview/";
         public static final String SHOW_MATCH = "/event/:event/display/match/";

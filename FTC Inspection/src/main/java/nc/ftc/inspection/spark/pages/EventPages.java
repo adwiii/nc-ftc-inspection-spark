@@ -523,6 +523,7 @@ public class EventPages {
 			}
 			if(!match.getStatus().canAcceptScores()){
 				response.status(500);
+				if(match.refLockout)return "LOCKOUT";
 				return "Match not ready for scores.";
 			}
 			Set<String> params = request.queryParams();
@@ -558,10 +559,11 @@ public class EventPages {
 		//this is submitting teleop, and enter review phase
 		public static Route handleTeleopSubmit = (Request request, Response response) -> {
 			String res = updateScores(request, response);
+			String e = request.params("event");
 			if(res.equals("OK")) {
 				//If not in review phase, dont return 200. That way client knows not to load
 				//review page yet.
-				String e = request.params("event");
+				
 				
 				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
 				//this if should always be false
@@ -572,6 +574,7 @@ public class EventPages {
 				if(!status.isReview()) {
 					Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 					response.status(409);
+					if(Server.activeEvents.get(e).getCurrentMatch().refLockout)return "LOCKOUT";
 					return "Not ready to review.";
 				}	
 				if(!Server.activeEvents.get(e).getCurrentMatch().autoSubmitted()) {
@@ -586,10 +589,11 @@ public class EventPages {
 //					match.calculateEndAuto();
 //				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
-			}
+			} 
 			return res;
 			
 		};
+		
 		
 		//this is submitting auto
 		public static Route handleAutoSubmit = (Request request, Response response) ->{
@@ -612,6 +616,7 @@ public class EventPages {
 					match.getAlliance(alliance).setAutoSubmitted(true);
 				} else {
 					response.status(409);
+					if(match.refLockout)return "LOCKOUT";
 					return "Invalid match status: "+status;
 				}				
 				return res;
@@ -647,7 +652,9 @@ public class EventPages {
 					}
 				}
 				if(!ok) {*/
+				
 					response.status(500);
+					if(event.getCurrentMatch().refLockout)return "LOCKOUT";
 					return "Not in review phase!";
 				//}
 			}
@@ -686,6 +693,7 @@ public class EventPages {
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			} else{
 				response.status(500);
+				if(event.getCurrentMatch().refLockout)return "LOCKOUT";
 				return res;
 			}
 			return "OK";
@@ -779,8 +787,65 @@ public class EventPages {
 			return null;
 		};
 		
+		public static Route handleLockoutRefs = (Request request, Response response) ->{
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				response.status(400);
+				return "No active match";
+			}
+			if(e.getCurrentMatch().getStatus() != MatchStatus.REVIEW) {
+				response.status(409);
+				return "Not in review.";
+			}
+			e.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
+			e.getCurrentMatch().refLockout = true;
+			synchronized(e.waitForRefLock) {
+				e.waitForRefLock.notifyAll();
+			}
+			return "OK";
+		};
+		
 
+		public static Route handleControlScoreEdit = (Request request, Response response) ->{
+			//Updates the score, then sends back the breakdown. DOES NOT NOTIFY LISTENERS!
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				response.status(400);
+				return "No active match";
+			}
+			String alliance = request.params("alliance");
+			if(e.getCurrentMatch().getStatus() == MatchStatus.PRE_COMMIT) {
+				//TODO extra security here!
+				
+					Set<String> params = request.queryParams();
+					for(String key : params){
+						if(alliance.equals("red")){
+							match.getRed().updateScore(key, request.queryParams(key));
+						} else if(alliance.equals("blue")){
+							match.getBlue().updateScore(key, request.queryParams(key));
+						}
+					}
+					return e.getCurrentMatch().getScoreBreakdown();
+				//}
+			}
+			response.status(409);
+			return "Not in review phase!";
+		};
+		
+		
+		
 		public static Route handleScoreCommit = (Request request, Response response) ->{
+			//TODO add score data to the commit body!!!!
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null){

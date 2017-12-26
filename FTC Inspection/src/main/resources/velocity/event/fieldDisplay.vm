@@ -286,6 +286,10 @@
   		timerInstance = setInterval(tick, 50);
   		startSound.play();
   		paused = false;
+  		endAutoFlag = false;
+ 	 	countFlag = false;
+  		teleopFlag = false;
+  	    endgameFlag = false;
   		getScoreUpdate(false);
   		var tmr = document.getElementById("timer");
   		if(tmr.getAttribute("visible") == "false"){
@@ -560,7 +564,7 @@
    <img src="/img/brown-square50.png" width="1" height="1" alt="Image 03" />
    <img src="/img/grey-square50.png" width="1" height="1" alt="Image 03" />    
    <img src="/img/bird-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
-   <img src="/img/bird-grid-bred50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/bird-grid-red50.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/froggy-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/froggy-grid-red50.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/snake-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
