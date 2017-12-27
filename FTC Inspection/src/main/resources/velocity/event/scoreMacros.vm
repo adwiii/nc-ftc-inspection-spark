@@ -1,0 +1,86 @@
+#macro (scoreField $alliance $key $label) 
+	<div id="${alliance}_${key}_score" class="scoreControl">
+		<label class="scoreLabel">$label</label>
+		<input type="text" class="scoreField" value="0" disabled></input>
+		<div>
+			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9650;</button>
+			<br/>
+			<button class="arrow" onclick="down('$alliance','$key')" disabled>&#9660;</button>
+		</div>
+	</div> 
+#end
+
+#macro (relic $alliance $id)
+<div class="relicControl">
+<label>&nbsp;&nbsp;&nbsp;Relic 1</label>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone3" onclick="relicZone('$alliance',$id,3)" disabled>3</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone2" onclick="relicZone('$alliance',$id,2)" disabled>2</button>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone1" onclick="relicZone('$alliance',$id,1)" disabled>1</button>
+	<label>Standing?</label>
+	<button class="relicZone" state="off" id="${alliance}Relic${id}Standing" onclick="toggleStanding('$alliance', $id)" disabled>&nbsp;&nbsp;</button>
+</div>
+#end
+
+#macro (breakdown $alliance)
+	<div class="scoreBreakdown">
+		<fieldset class="breakdown">
+			<legend>Score Breakdown</legend>
+			<table >
+				<tr><th>Auto</th><th id="${alliance}AutoScore">0</th></tr>					
+				<tr><td>Jewel Points</td><td id="${alliance}JewelPoints">0</td></tr>
+				<tr><td>Glyph Points</td><td id="${alliance}AutoGlyphPoints">0</td></tr>
+				<tr><td>Key Bonus</td><td id="${alliance}KeyPoints">0</td></tr>
+				<tr><td>Parking Points</td><td id="${alliance}ParkingPoints">0</td></tr>
+				<tr><th>Teleop</th><th id="${alliance}TeleopScore">0</th></tr>
+				<tr><td>Glyph Points</td><td id="${alliance}GlyphPoints">0</td></tr>
+				<tr><td>Row Bonus</td><td id="${alliance}RowPoints">0</td></tr>
+				<tr><td>Column Bonus</td><td id="${alliance}ColumnPoints">0</td></tr>
+				<tr><td>Cipher Bonus</td><td id="${alliance}CipherPoints">0</td></tr>
+				<tr><td>Relic Points</td><td id="${alliance}RelicPoints">0</td></tr>
+				<tr><td>Balance Points</td><td id="${alliance}BalancePoints">0</td></tr>
+				<tr><th>Foul</th><th id="${alliance}FoulScore">0</th></tr>
+			</table>
+			#scoreField($alliance "major" "Major<br>Penalties")
+		    #scoreField($alliance "minor" "Minor Penalties")
+			#scoreField($alliance "adjust" "Adjust")
+		</fieldset>				
+	</div>
+#end
+
+#macro (scores $alliance)
+	#breakdown($alliance)
+	<div id="${alliance}AutoScores" >
+		<fieldset class="breakdown">
+			<legend>Auto Scores</legend>						
+			#scoreField($alliance "autoGlyphs" "Glyphs")
+			#scoreField($alliance "jewels" "Jewels")
+			#scoreField($alliance "cryptoboxKeys" "Keys")
+			#scoreField($alliance "parkedAuto" "Parked")
+		</fieldset>
+	</div>
+	<!--
+	<div id="${alliance}FieldState" >
+		<fieldset class="breakdown">
+			<legend>Field State</legend>
+		</fieldset>
+	</div>
+	<br>
+	-->
+	<div id="${alliance}TeleopScores" style="float:left;">
+		<fieldset class="breakdown">
+			<legend>Teleop Scores</legend>						
+			#scoreField($alliance "glyphs" "Glyphs")
+			#scoreField($alliance "rows" "Rows")
+			#scoreField($alliance "columns" "Columns")						
+			#scoreField($alliance "ciphers" "Ciphers")
+			#scoreField($alliance "balanced" "Balanced")
+		</fieldset>
+	</div>
+	<div id="${alliance}RelicScores" style="float:left;">
+		<fieldset class="relicSet">
+			<legend>Relic Scores</legend>
+			#relic($alliance "1")
+			#relic($alliance "2")
+		</fieldset>
+	</div>
+#end

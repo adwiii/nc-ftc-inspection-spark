@@ -114,6 +114,7 @@ public class Server {
 		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
 		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
 		get(Path.Web.GET_DISPLAY_COMMANDS, EventPages.handleGetDisplayCommands);
+		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditScorePage);
 		
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
@@ -124,6 +125,7 @@ public class Server {
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
 		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
 		post(Path.Web.NEW_TEAM, GlobalPages.handleNewTeamPost);
+		post(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditedScore);
 		
 		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
 		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
@@ -148,11 +150,39 @@ public class Server {
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		put(Path.Web.EDIT_SCORE, EventPages.handleControlScoreEdit);
+		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleCommitEditedScore);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		
 		after("*", Filters.addGzipHeader);
+		
+		/* TODO might want to record a snapshot of thread and ram count every 30 se or so
+		 * and keep like 20 minutes of data
+		 * have a page that shows the graph, the names of all the current threads & maybe their state?
+		 * need to do some timing on responses - those random ~8s times on updateScore is concerning.
+		Thread t = new Thread() {
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(60000);
+					}catch(Exception e) {
+						
+					}
+					int threads = Thread.activeCount();
+					Runtime r = Runtime.getRuntime();
+					long free = r.freeMemory();
+					long total = r.totalMemory();
+					long ram = total - free;
+					double perc = 100.0 * ((double)ram) / ((double)total);
+					System.out.println(threads +" threads");
+					System.out.println("RAM: "+(ram / 1024 / 1024) + "/" + (total/1024/1024)+ " MB ("+perc+"%)");
+					System.out.println("****************");
+				}
+			}
+		};
+		t.start();
+		*/
 	}
 }
 

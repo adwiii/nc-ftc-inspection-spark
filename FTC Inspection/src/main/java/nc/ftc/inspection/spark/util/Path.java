@@ -68,6 +68,9 @@ public class Path {
         public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
         public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
         
+        //get gets the page, PUT returns new score breakdown, and POST commits.
+        public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
+        
         public static final String MATCH_RESULTS = "event/:event/results/";
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
@@ -133,6 +136,7 @@ public class Path {
 		public static final String INSPECTION_OVERRIDE_PAGE = "/velocity/event/inspectOverride.vm";
 		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
 		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
+		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";
         
     }
 

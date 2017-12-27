@@ -21,6 +21,15 @@ public class Alliance {
 	//how they are stored in the db in the matchScores tables
 	public static transient final int RED = 0;
 	public static transient final int BLUE = 1;
+	
+	private int YELLOW_CARD = 1;
+	private int RED_CARD = 2;
+	
+	private int card1 = 0;
+	private int card2 = 0;
+	private boolean dq1 = false;
+	private boolean dq2 = false;
+	
 	static Map<String, Number> scoreMap = new HashMap<>();
 	static{
 		//TODO put all the possible fields in an array/db, make this support multiple years.
@@ -244,6 +253,15 @@ public class Alliance {
 		scores.put("rows", rows);
 		scores.put("columns", columns);
 		scores.put("ciphers", ciphers);
+	}
+	
+	public void setCard(int index, int card) {
+		if(index == 1)this.card1 = card;
+		if(index == 2)this.card2 = card;
+	}
+	public void setDQ(int index, boolean dq) {
+		if(index == 1)this.dq1 = dq;
+		if(index == 2)this.dq2 = dq;
 	}
 	
 }

@@ -684,10 +684,13 @@ public class EventPages {
 					*/
 					
 						System.out.println("AUTO TIME!");
+						//notify score listeners before ref-done listeners.
+						Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
 						synchronized (event.waitForRefLock) {
 							event.waitForRefLock.notifyAll();
 						}
+						return "OK";
 					//}
 				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
@@ -848,6 +851,7 @@ public class EventPages {
 			//TODO add score data to the commit body!!!!
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
+			
 			if(e == null){
 				response.status(500);
 				return "Event not active.";
@@ -863,6 +867,31 @@ public class EventPages {
 			if(e.getCurrentMatch().getStatus() != MatchStatus.PRE_COMMIT){
 				response.status(500);
 				return "Not ready to commit scores.";
+			}
+			
+			Set<String> params = request.queryParams();
+			/*Format:
+			 * <alliance>_score_<scoreKey> : call updateScore
+			 * <alliance>_card_<index>
+			 * <alliance>_dq_<index>
+			 * 
+			 */
+			
+			Match match = e.getCurrentMatch();
+			for(String key : params){
+				String[] data = key.split("_");
+				Alliance alliance  = match.getAlliance(data[0]);
+				switch(data[1]) {
+					case "score":
+						alliance.updateScore(data[2], request.queryParams(key));				
+						break;
+					case "card":
+						alliance.setCard(Integer.parseInt(data[2]), Integer.parseInt(request.queryParams(key)));
+						break;
+					case "dq":
+						alliance.setDQ(Integer.parseInt(data[2]), Boolean .parseBoolean(request.queryParams(key)));
+						break;
+				}
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				e.loadNextMatch();
@@ -956,7 +985,8 @@ public class EventPages {
 					e.waitForRefLock.wait();
 				}
 			}
-			return "OK";
+			//Return scores so control page can be guarenteed most recent values.			
+			return e.getCurrentMatch().getFullScores();
 		};
 		
 		public static Route handleWaitForEnd = (Request request, Response response) ->{
@@ -1179,6 +1209,18 @@ public class EventPages {
 			}
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_MATCH);
 			return "OK";
+		};
+		
+		public static Route handleGetEditScorePage = (Request request, Response response) ->{
+			HashMap<String, Object> map = new HashMap<>();
+			
+			return render(request, map, Path.Template.EDIT_MATCH_SCORE);
+		};
+		public static Route handleGetEditedScore = (Request request, Response response) ->{
+			return null;
+		};
+		public static Route handleCommitEditedScore = (Request request, Response response) ->{
+			return null;
 		};
 		
 		

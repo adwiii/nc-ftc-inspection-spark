@@ -1,89 +1,5 @@
-#macro (scoreField $alliance $key $label) 
-	<div id="${alliance}_${key}_score" class="scoreControl">
-		<label class="scoreLabel">$label</label>
-		<input type="text" class="scoreField" value="0" disabled></input>
-		<div>
-			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9650;</button>
-			<br/>
-			<button class="arrow" onclick="down('$alliance','$key')" disabled>&#9660;</button>
-		</div>
-	</div> 
-#end
 
-#macro (relic $alliance $id)
-<div class="relicControl">
-<label>&nbsp;&nbsp;&nbsp;Relic 1</label>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone3" onclick="relicZone('$alliance',$id,3)" disabled>3</button>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone2" onclick="relicZone('$alliance',$id,2)" disabled>2</button>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Zone1" onclick="relicZone('$alliance',$id,1)" disabled>1</button>
-	<label>Standing?</label>
-	<button class="relicZone" state="off" id="${alliance}Relic${id}Standing" onclick="toggleStanding('$alliance', $id)" disabled>&nbsp;&nbsp;</button>
-</div>
-#end
-
-#macro (breakdown $alliance)
-	<div class="scoreBreakdown">
-		<fieldset class="breakdown">
-			<legend>Score Breakdown</legend>
-			<table >
-				<tr><th>Auto</th><th id="${alliance}AutoScore">0</th></tr>					
-				<tr><td>Jewel Points</td><td id="${alliance}JewelPoints">0</td></tr>
-				<tr><td>Glyph Points</td><td id="${alliance}AutoGlyphPoints">0</td></tr>
-				<tr><td>Key Bonus</td><td id="${alliance}KeyPoints">0</td></tr>
-				<tr><td>Parking Points</td><td id="${alliance}ParkingPoints">0</td></tr>
-				<tr><th>Teleop</th><th id="${alliance}TeleopScore">0</th></tr>
-				<tr><td>Glyph Points</td><td id="${alliance}GlyphPoints">0</td></tr>
-				<tr><td>Row Bonus</td><td id="${alliance}RowPoints">0</td></tr>
-				<tr><td>Column Bonus</td><td id="${alliance}ColumnPoints">0</td></tr>
-				<tr><td>Cipher Bonus</td><td id="${alliance}CipherPoints">0</td></tr>
-				<tr><td>Relic Points</td><td id="${alliance}RelicPoints">0</td></tr>
-				<tr><td>Balance Points</td><td id="${alliance}BalancePoints">0</td></tr>
-				<tr><th>Foul</th><th id="${alliance}FoulScore">0</th></tr>
-			</table>
-			#scoreField($alliance "major" "Major<br>Penalties")
-		    #scoreField($alliance "minor" "Minor Penalties")
-			#scoreField($alliance "adjust" "Adjust")
-		</fieldset>				
-	</div>
-#end
-
-#macro (scores $alliance)
-	#breakdown($alliance)
-	<div id="${alliance}AutoScores" >
-		<fieldset class="breakdown">
-			<legend>Auto Scores</legend>						
-			#scoreField($alliance "autoGlyphs" "Glyphs")
-			#scoreField($alliance "jewels" "Jewels")
-			#scoreField($alliance "cryptoboxKeys" "Keys")
-			#scoreField($alliance "parkedAuto" "Parked")
-		</fieldset>
-	</div>
-	<!--
-	<div id="${alliance}FieldState" >
-		<fieldset class="breakdown">
-			<legend>Field State</legend>
-		</fieldset>
-	</div>
-	<br>
-	-->
-	<div id="${alliance}TeleopScores" style="float:left;">
-		<fieldset class="breakdown">
-			<legend>Teleop Scores</legend>						
-			#scoreField($alliance "glyphs" "Glyphs")
-			#scoreField($alliance "rows" "Rows")
-			#scoreField($alliance "columns" "Columns")						
-			#scoreField($alliance "ciphers" "Ciphers")
-			#scoreField($alliance "balanced" "Balanced")
-		</fieldset>
-	</div>
-	<div id="${alliance}RelicScores" style="float:left;">
-		<fieldset class="relicSet">
-			<legend>Relic Scores</legend>
-			#relic($alliance "1")
-			#relic($alliance "2")
-		</fieldset>
-	</div>
-#end
+#parse("/velocity/event/scoreMacros.vm")
 
 <html>
 <body>
@@ -312,17 +228,17 @@
   	function fillMatchInfo(data){
   	
   	//TODO clear the cards and DQ box
-  		var slot = document.getElementById("red1Slot");
+  		var slot = document.getElementById("red_1_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.red1;
   		
-  		slot = document.getElementById("red2Slot");
+  		slot = document.getElementById("red_2_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.red2;
   		
   		
-  		slot = document.getElementById("blue1Slot");
+  		slot = document.getElementById("blue_1_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.blue1;
   		
-  		slot = document.getElementById("blue2Slot");
+  		slot = document.getElementById("blue_2_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.blue2;
   		
   		
@@ -679,18 +595,36 @@ function setControlState(state){
 //have another button for finish review that shuts out referees?
 function waitForRefReview(){
 	var obj = {};
+	/*
 	$.get("../match/status/reviewcomplete/",obj).done(function(data){
-		var commitBtn = document.getElementById("commitBtn");
-		commitBtn.innerHTML = "Commit Scores";
-		commitBtn.setAttribute("state", "ready");
-		commitBtn.disabled = false;
-		commitBtn.setAttribute("onclick","commit()");
-		setControlState(false);
+		
 	}).fail(function(xhr, textStatus, error){
-		//TODO
-		//window.setTimeout(waitForRefReview, 1000);
-		//check if error is match reset, then dont care
+		
 	});
+	*/
+	//TODO make ref review send back the current full scores, and set the controls to that before enabling them
+	//TODO do that in the eventPages class
+	var obj = {};
+  		$.ajax({
+  			url: "../match/status/reviewcomplete/",
+  			type: "GET",
+  			dataType: 'json',
+  			data: obj,
+  			success: function(data){
+  				var commitBtn = document.getElementById("commitBtn");
+				commitBtn.innerHTML = "Commit Scores";
+				commitBtn.setAttribute("state", "ready");
+				commitBtn.disabled = false;
+				commitBtn.setAttribute("onclick","commit()");
+				acceptScores = false;
+				updateScoreControl(data);
+				setControlState(false);
+  			},
+  			error: function(){
+  				//TODO
+				//window.setTimeout(waitForRefReview, 1000);
+				//check if error is match reset, then dont care
+  			}});
 }
 
 function waitForMatchEnd(){
@@ -801,8 +735,45 @@ $.post("../control/lockout/",postObj).done(function(data){}).fail( function(xhr,
     });
 }
 
+function getRelicZone(a, i){
+	if(document.getElementById(a+"Relic"+i+"Zone3").getAttribute("state") == "on")return 3;
+	if(document.getElementById(a+"Relic"+i+"Zone2").getAttribute("state") == "on")return 2;
+	if(document.getElementById(a+"Relic"+i+"Zone1").getAttribute("state") == "on")return 1;
+	return 0;
+}
+
+function getCommitObject(){
+	var obj = {
+		red_score_relic1Zone:     getRelicZone("red", 1),
+		red_score_relic1Standing: document.getElementById("redRelic1Standing").getAttribute("state") == "on",
+		red_score_relic2Zone:     getRelicZone("red", 2),
+		red_score_relic2Standing: document.getElementById("redRelic2Standing").getAttribute("state") == "on",
+		blue_score_relic1Zone:     getRelicZone("blue", 1),
+		blue_score_relic1Standing: document.getElementById("blueRelic1Standing").getAttribute("state") == "on",
+		blue_score_relic2Zone:     getRelicZone("blue", 2),
+		blue_score_relic2Standing: document.getElementById("blueRelic2Standing").getAttribute("state") == "on",			
+	};
+	
+	var scores = document.getElementsByClassName("scoreControl");
+	for( var i = 0; i < scores.length; i++){
+		var x = scores[i];
+		var sp = x.id.split("_");
+		obj[sp[0]+"_score_"+sp[1]] = x.children[1].value;
+	}
+	
+	var slots = document.getElementsByClassName("teamSlot");
+	for( var i = 0; i < slots.length; i++){
+		var x = slots[i]; 
+		var sp = x.id.split("_");
+		obj[sp[0]+"_dq_"+sp[1]] = x.children[0].checked;
+		var c = x.children[1].value;
+		obj[sp[0]+"_card_"+sp[1]] = c == "yellow" ? 1 : (c == "red" ? 2 : 0);
+	}
+	return obj;
+}
+
 function commit(){
-	var postObj = {};
+	var postObj = getCommitObject();
 	//TODO send DQs and cards. Server should already have all scores. 
 	//TODO after commit, update schedule tab
 	$.post("../scorecommit/",postObj).done(function(data){
@@ -854,17 +825,17 @@ function openTab(event, tabName){
 		<div id="top">
 			<div id="leftTeams">
 				<div class="teamSlotHeader" style="text-align:right">DQ</div>
-				<div class="teamSlot" id="red1Slot" style="justify-content: flex-end;">
+				<div class="teamSlot" id="red_1_slot" style="justify-content: flex-end;">
 					<button class="teamCard" onclick="toggleCard(this)">Card</button>
 					<input type="text" class="teamNumber"/>
 					<input type="checkbox" class="dqBox"/>
 				</div>
-				<div class="teamSlot" id="red2Slot" style="justify-content: flex-end;">
+				<div class="teamSlot" id="red_2_slot" style="justify-content: flex-end;">
 					<button class="teamCard" onclick="toggleCard(this)">Card</button>
 					<input type="text" class="teamNumber"/>
 					<input type="checkbox" class="dqBox"/>
 				</div>
-				<div class="teamSlot" id="red3Slot" style="justify-content: flex-end;">
+				<div class="teamSlot" id="red_3_slot" style="justify-content: flex-end;">
 					<button class="teamCard" onclick="toggleCard(this)">Card</button>
 					<input type="text" class="teamNumber"/>
 					<input type="checkbox" class="dqBox"/>
@@ -873,17 +844,17 @@ function openTab(event, tabName){
 			<div id="centerTop"></div>
 			<div id="rightTeams">
 				<div class="teamSlotHeader">DQ</div>
-				<div class="teamSlot" id="blue1Slot">
+				<div class="teamSlot" id="blue_1_slot">
 					<input type="checkbox" class="dqBox"/>
 					<input type="text" class="teamNumber"/>
 					<button class="teamCard" onclick="toggleCard(this)">Card</button>
 				</div>
-				<div class="teamSlot" id="blue2Slot">
+				<div class="teamSlot" id="blue_2_slot">
 					<input type="checkbox" class="dqBox"/>
 					<input type="text" class="teamNumber"/>
 					<button class="teamCard" onclick="toggleCard(this)">Card</button>
 				</div>
-				<div class="teamSlot" id="blue3Slot">
+				<div class="teamSlot" id="blue_3_slot">
 					<input type="checkbox" class="dqBox"/>
 					<input type="text" class="teamNumber"/>
 					<button class="teamCard" onclick="toggleCard(this)">Card</button>
