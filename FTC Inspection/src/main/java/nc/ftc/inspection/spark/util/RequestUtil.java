@@ -1,5 +1,7 @@
 package nc.ftc.inspection.spark.util;
 
+import nc.ftc.inspection.dao.UsersDAO;
+import nc.ftc.inspection.model.User;
 import spark.*;
 
 public class RequestUtil {
@@ -28,8 +30,8 @@ public class RequestUtil {
         return request.session().attribute("locale");
     }
 
-    public static String getSessionCurrentUser(Request request) {
-        return request.session().attribute("currentUser");
+    public static User getSessionCurrentUser(Request request) {
+        return UsersDAO.getUser(request.session().attribute("currentUser"));
     }
 
     public static boolean removeSessionAttrLoggedOut(Request request) {

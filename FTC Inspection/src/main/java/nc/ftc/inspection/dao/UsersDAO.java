@@ -111,7 +111,7 @@ public class UsersDAO {
 
 	
 	public static User getUser(String username) {
-		if (username.isEmpty()) {
+		if (username == null || username.isEmpty()) {
 			return null;
 		}
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){

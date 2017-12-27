@@ -1,5 +1,9 @@
 package nc.ftc.inspection.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class User {
 	
 	public static int SYSADMIN = 1<<31;
@@ -8,6 +12,17 @@ public class User {
 	public static int VOLUNTEER = 1<<2;
 	public static int TEAM = 1<<1;
 	public static int GENERAL = 1<<0;
+	
+	public static HashMap<Integer, String> nameMap = new HashMap<>();
+	
+	static {
+		nameMap.put(SYSADMIN, "System Admin");
+		nameMap.put(ADMIN, "Admin");
+		nameMap.put(KEY_VOLUNTEER, "Key Volunteer");
+		nameMap.put(VOLUNTEER, "Volunteer");
+		nameMap.put(TEAM, "Team Member");
+		nameMap.put(GENERAL, "General User");
+	}
 	
 	public static int NONE = 0; //this is for if you are not logged in
 	
@@ -66,7 +81,16 @@ public class User {
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
-
+	
+	public List<String> getPermissions() {
+		List<String> list = new ArrayList<String>();
+		for (int i = 0; i < 32; i++) {
+			if (this.is(1<<i) && nameMap.containsKey(1<<i)) {
+				list.add(nameMap.get(1<<i));
+			}
+		}
+		return list;
+	}
 	/**
 	 * This checks to see if this users type is at least the type given.
 	 * @param type The type to check against
