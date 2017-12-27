@@ -1,15 +1,23 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+<style>
+td {
+width:auto;
+}
+</style>
 <script>
+
+#if(!$readOnly)
 function update(src){ //TODO move this to a separate js file.
-	var x = !eval(src.checked);
-	src.checked = x;
+	var x = !eval(src.getAttribute("checked"));
+	src.setAttribute("checked", x);
 	src.innerHTML = x ? "&#x2713" : "";
 	var sp = src.id.split("_");
 	var postObj = {form:sp[0], team:sp[1], index:sp[2], state:x};
 	src.bgColor = "#FFFF00";
+	document.getElementById("msg_"+sp[1]).innerHTML = "&nbsp;";
 	$.post("./",postObj).done(function(data){
-		if(eval(data) == eval(src.checked)){
+		if(eval(data) == eval(src.getAttribute("checked"))){
 			//we good.
 			src.bgColor = "#FFFFFF";
 		} else{
@@ -20,31 +28,264 @@ function update(src){ //TODO move this to a separate js file.
         src.bgColor = "#FF0000";
     });
 }
+
+function saveNote(src){
+	var t = src.getAttribute("team");
+	var ta =  document.getElementById("note_"+t);
+	var obj = {team:t, note:ta.value}
+	$.ajax({
+        url: "./note/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	ta.bgColor = "#FFFFFF";  
+        },
+        error: function () {
+            //ERROR HANDLING
+            console.log("Error");
+            ta.bgColor = "#FF0000";
+        }
+     });
+}
+
+function saveSig(src){
+	var t = src.getAttribute("team");
+	var person = src.getAttribute("person");
+	var field = document.getElementById(person+"_"+t);
+	var obj = {team:t, index:person=='insp'?0:1, sig:field.value};
+	$.ajax({
+        url: "./sig/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	field.bgColor = "#FFFFFF";   
+        },
+        error: function () {
+            //ERROR HANDLING
+            console.log("Error");
+            field.bgColor = "#FF0000";
+        }
+     });
+}
+
+function highlightMissingFor(team){
+	var required = document.getElementsByClassName("cb1_"+team);
+	for(var i = 0; i < required.length; i++){
+		if(!eval(required[i].getAttribute("checked"))){
+			required[i].bgColor = 'cyan';
+		}
+	}
+}
+function highlightMissing(){
+	[#foreach($t in $teams)$t,#end].forEach(function(t){
+		var required = document.getElementsByClassName("cb1_"+t);
+		for(var i = 0; i < required.length; i++){
+			if(!eval(required[i].getAttribute("checked"))){
+				required[i].bgColor = 'cyan';
+			}
+		}
+	});
+}
+
+
+function pass(team){
+	//check all required boxes checked
+	var required = document.getElementsByClassName("cb1_"+team);
+	var bad = 0;
+	var firstID = "";
+	for(var i = 0; i < required.length; i++){
+		if(!eval(required[i].getAttribute("checked"))){
+			bad = bad + 1;
+			if(firstID == ""){
+				firstID = required[i].id;
+			}
+		}
+		//check for pending requests (background not white)
+		//if some, reject and put message below pass button indicating the problem and what the 
+	}
+	if(bad > 0){
+		document.getElementById("msg_"+team).innerHTML = "<font color='red'>"+bad+" Items Unchecked! <a href=#"+firstID+" onclick=onclick=highlightMissingFor("+team+")>Show</a></font>";
+		return;
+	}
+	//check if sig empty, if so, reject, check for pending sig/note PUT
+	if(document.getElementById("insp_"+team).value == "" || document.getElementById("tsr_"+team).value == ""){
+		document.getElementById("msg_"+team).innerHTML = "<font color='red'>Missing signatures!</font>";
+		return;
+	}
+	//if ok to pass, save note and sigs
+	//send pass POST (nclude note and sigs?)
+	var obj = {team:team, status:3, inspSig:"", tsrSig:"", note:""};
+	$.ajax({
+        url: "./status/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	//if single team, redirect, else display successfully saved
+        	#if($teams.size() > 1)
+        		document.getElementById("msg_"+team).innerHTML = "Status Saved";
+        	#else
+        		window.location.href="./";
+        	#end
+        },
+        error: function () {
+            document.getElementById("msg_"+team).innerHTML = "<font color='red'>Error Saving Status</font>";
+        }
+     });
+}
+
+function fail(team){
+	var obj = {team:team, status:2};
+	//send fail
+	$.ajax({
+        url: "./status/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	//if single team, redirect, else display successfully saved
+        	#if($teams.size() > 1)
+        		document.getElementById("msg_"+team).innerHTML = "Status Saved";
+        	#else
+        		window.location.href="./";
+        	#end
+        },
+        error: function () {
+            document.getElementById("msg_"+team).innerHTML = "<font color='red'>Error Saving Status</font>";
+        }
+     });
+}
+#end
+
 </script>
+<head>
+<h2><b>
+Appendix
+ #if($formID == "HW")B - Robot Inspection Checklist #end
+ #if($formID == "SW")C - Field Inspection Checklist #end 
+ #if($formID == "FD")C - Field Inspection Checklist #end
+</b></h2>
+<h3>
+
+<div style="width:100%;">
+<div style="width:50%;float:left;">
+#if($teams.size() <= 1)
+<b>Team Number: $teams.get(0)</b>
+#else &nbsp;
+#end
+</div>
+<div style="width:50%;text-align:right;float:left">
+<button onclick="highlightMissing()">Highlight Missing</button>
+</div>
+
+</h3>
+</head>
 <table border=1 cellpadding=0 cellspacing=0 style="border-collapse:collapse;">
 	#foreach($f in $form)
 		#set ($x = $max / $f.items.size())		
 		#if($f.type == 1)	
 			<tr bgcolor=$headerColor>	
-					#foreach($c in $f.items)						
-							<th colspan=$x id=$c.id>$c.label</th>				
+					#foreach($c in $f.items)	
+							<th colspan=$x id=$c.id>$c.getLabel()</th>				
 					#end
 				<th>$f.description</th>
-				<th>$f.rule</th>
+				<th>#if($f.rule)$f.rule#end</th>
 			</tr>
 		#else
 			<tr height=30px>
-					#foreach($c in $f.items)						
-						<td colspan=$x id=$c.id class=$c.required align="center" onclick="update(this)" checked = $c.checked>
+					#foreach($c in $f.items)					
+						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" onclick="update(this)" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
+							#elseif(${c.required}==0)
+								NA
 							#end
 						</td>
 					#end
 				<td>$f.description</td>
-				<td>$f.rule</td>
+				<td>#if($f.rule)<a href="https://www.firstinspires.org/sites/default/files/uploads/resource_library/ftc/2017-2018/game-manual-part-1.pdf#page=$f.page" >$f.rule</a>#end</td>
 			</tr>
 		#end
-	#end
+	#end	
 </table>
+#if($teams.size() > 1)
+	#set($i = 0)
+	#set($j = 0)
+	#foreach($t in $teams)
+		<br>
+		<fieldset>
+		<legend>Team $t</legend>
+		<b>General Comments or Reasons for Failure:</b>
+		<br><textarea id="note_$t" rows=4 style="width:100%;">$notes.get($j)</textarea>
+		<button team=$t onclick="saveNote(this)">Save</button>
+		<br><br><b>
+		I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
+		</b>
+		<table width="100%" cellspacing=20>
+		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
+			<tr>
+				<td><input id="insp_$t" value="$sigs.get($i)" ></input>
+				<button team=$t person="insp" onclick="saveSig(this)">Agree</button></td>
+				#set($i = $i+1)
+				<td><input id="tsr_$t" value="$sigs.get($i)"></input>
+				<button team=$t person="tsr" onclick="saveSig(this)">Agree</button></td></tr>
+			
+		</table>
+		<br><br>
+		<div style="width:100%">
+		<div style=" text-align:center">
+			<button onclick="pass($t)">Pass</button>
+			 &nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;
+			<button onclick="fail($t)">Fail</button>
+		</div>
+		</div>
+		<br>
+		<div id="msg_$t" style="width:100%; text-align:center;">&nbsp;</div>
+		</fieldset>
+		#set($i = $i + 1)
+		#set($j = $j + 1)
+	#end
+	<br>
+	<button onclick="window.location.href='./';">Back</button>
+#else
+	#set($t = $teams.get(0))
+	<br><b>General Comments or Reason(s) for Failure:</b>
+	<br><textarea id="note_$teams.get(0)" rows=4 style="width:100%;"  #if($readOnly)disabled#end>$notes.get(0)</textarea>
+	#if(!$readOnly)
+	<button team=$t onclick="saveNote(this)">Save</button>
+	#end
+	<br><br><b>
+	I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
+	</b>
+	<table width="100%" cellspacing=20>
+		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
+		<tr><td><input id="insp_$t" value="$sigs.get(0)" #if($readOnly)disabled#end></input>
+			#if(!$readOnly)
+			<button team=$t person="insp" onclick="saveSig(this)" >Agree</button></td>
+			#end
+			<td><input id="tsr_$t" value="$sigs.get(1)"  #if($readOnly)disabled#end></input>
+			#if(!$readOnly)
+			<button team=$t person="tsr"  onclick="saveSig(this)">Agree</button></td></tr>
+			#end
+	</table>
+	<br><br>
+	#if(!$readOnly)
+	<div style="width:100%">
+	<div style=" text-align:center">
+		<button onclick="pass($t)">Pass</button>
+		 &nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;
+		<button onclick="fail($t)">Fail</button>
+	</div>
+	</div>
+	#end
+	
+	#if($readOnly)
+	<div style="width:100%;text-align:center;">
+	<button onclick="window.location.href='../';">Back</button>
+	</div>
+	#else
+	<br>
+	<div id="msg_$t" style="width:100%; text-align:center;">&nbsp;</div>
+	#end
+	
+#end
+
 #end

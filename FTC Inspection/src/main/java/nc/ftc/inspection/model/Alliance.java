@@ -15,6 +15,9 @@ public class Alliance {
 	//Keep scores in hash map - easy to change each year, easy to isolate for PUT requests.
 	Map<String, Object> scores;
 	transient boolean scoreSubmitted = false;
+	transient boolean autoSubmitted = false;
+	transient boolean inReview = false;
+	transient int randomization = 0;//set by match & stored in match.
 	//how they are stored in the db in the matchScores tables
 	public static transient final int RED = 0;
 	public static transient final int BLUE = 1;
@@ -74,6 +77,7 @@ public class Alliance {
 		scores.put("relic2Zone", 0);
 		scores.put("relic2Standing", false);
 		scores.put("balanced", 0);
+		scores.put("adjust", 0); //for double red cards
 		//Field-status 
 		scores.put("cryptobox1", 0);
 		scores.put("cryptobox2", 0);
@@ -110,6 +114,8 @@ public class Alliance {
 		return list;
 	}
 	
+	
+	
 	public int calculateScore(){
 		int score = 0;
 		for(Entry<String, Number> entry : scoreMap.entrySet()){
@@ -126,14 +132,118 @@ public class Alliance {
 	}
 	
 	public int getPenaltyPoints(){
-		return 10 * ((Number)scores.get("minor")).intValue() + 40 * ((Number)scores.get("major")).intValue();
+		return 10 * Integer.parseInt(scores.get("minor").toString())+ 40 * Integer.parseInt(scores.get("major").toString());
 	}
 	
 	public void setSubmitted(boolean sub){
-		System.out.println("Submitted");
 		this.scoreSubmitted = sub;
 	}
 	public boolean scoreSubmitted(){
 		return scoreSubmitted;
 	}
+	
+	public void setAutoSubmitted(boolean sub){
+		this.autoSubmitted = sub;
+	}
+	public boolean autoSubmitted(){
+		return autoSubmitted;
+	}
+	public void setInReview(boolean ir) {
+		this.inReview = ir;
+	}
+	public boolean isInReview() {
+		return inReview;
+	}
+	
+	//1,2,3 is red left, 4, 5, 6, is blue left
+	public int getRedJewels() {
+		int count = 0;
+		if(randomization < 4) {
+			//left
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b10)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b10)count++;
+		} else {
+			//right
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b01)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b01)count++;
+		}
+		return count;
+	}
+	public int getBlueJewels() {
+		int count = 0;
+		if(randomization > 3) {
+			//left
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b10)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b10)count++;
+		} else {
+			//right
+			if(Integer.parseInt(scores.get("jewelSet1").toString()) == 0b01)count++;
+			if(Integer.parseInt(scores.get("jewelSet2").toString()) == 0b01)count++;
+		}
+		return count;
+	}
+	public int zonePoints(int zone) {
+		if(zone == 1)return 10;
+		if(zone == 2)return 20;
+		if(zone == 3)return 40;
+		return 0;
+	}
+	public int getRelicPoints() {
+		int points = zonePoints(Integer.parseInt(scores.get("relic1Zone").toString()));
+		points += zonePoints(Integer.parseInt(scores.get("relic2Zone").toString()));
+		points += Boolean.parseBoolean(scores.get("relic1Standing").toString()) ? 15 : 0;
+		points += Boolean.parseBoolean(scores.get("relic2Standing").toString()) ? 15 : 0;
+		return points;
+	}
+	/**
+	 * DO NOT CALL FROM REVIEW PAGE
+	 */
+	public void calculateGlyphs() {
+		//calculate number of glyphs, number of rows, number of columns, number of ciphers.
+		int ciphers = 0;
+		int rows = 0;
+		int columns = 0;
+		int glyphs = 0;
+		for(int i = 1 ; i < 3; i++) {
+			int cb = Integer.parseInt(scores.get("cryptobox"+i).toString());
+			int cbInv = ((~cb) & 0xFFFFFF);
+			if(cb == 6710886 || cbInv == 6710886 || cb == 6908265 || cbInv == 6908265 || cb == 10065510 || cbInv == 10065510) {
+				ciphers++;
+			}
+			
+			for(int r = 0; r < 4; r++) {
+				int t = (cb >> (r * 6)) & 0x3F; //t is the value for the row.
+				int thisRow = 0;
+				while(t > 0) {
+					thisRow++;
+					t = t & (t-1);
+				}
+				glyphs += thisRow;
+				if(thisRow == 3) {
+					rows++;
+				}
+			}
+			
+			final int COLUMN_MASK = 0b11000011000011000011;
+			for(int c = 0; c < 3; c++) {
+				int t = cb & (COLUMN_MASK << (2*c));
+				int thisColumn = 0;
+				while(t > 0) {
+					thisColumn++;
+					t = t & (t-1);
+				}
+				glyphs += thisColumn;
+				if(thisColumn == 4) {
+					columns++;
+				}
+			}			
+		}
+		 // each glyph counted twice.
+		glyphs /= 2;
+		scores.put("glyphs", glyphs);
+		scores.put("rows", rows);
+		scores.put("columns", columns);
+		scores.put("ciphers", ciphers);
+	}
+	
 }

@@ -1,0 +1,49 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+
+<script>
+function update(src){
+	//send status update with src.value;
+	var val = src.value;
+	var team = src.id.split("_")[1];
+	console.log(team+":"+val);
+	var td = document.getElementById("td_"+team);
+	td.bgColor = val == 3 ? '#0F0' : (val == 2 ? '#F00' : '#FFF');
+	var obj = {team:team, status:val};
+	//send fail
+	$.ajax({
+        url: "./status/",
+        type: "PUT",
+        data: obj,
+        success: function (data) {    
+        	
+        },
+        error: function () {
+         //   document.getElementById("msg_"+team).innerHTML = "<font color='red'>Error Saving Status</font>";
+        	console.log("ERROR");
+        }
+     });
+}
+</script>
+
+
+
+This is the $form inspection page for $eventName.
+<br>
+Here the inspector will set each team to Pass,Fail,or Empty.
+<table style="text-align:center;padding:5px">
+<tr><th>Team</th><th>Name</th><th>Status</th></tr>
+#foreach($t in $teams)
+#set($s = $t.getStatus($form))
+<tr><td>$t.number</td><td>$t.name</td>
+<td id="td_$t.number" bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>
+<select id="sel_$t.number" onchange="update(this)">
+<option value='0' #if($s == 0)selected#end></option>
+<option value='2' #if($s == 2)selected#end>FAILED</option>
+<option value='3' #if($s == 3)selected#end>PASSED</option>
+</select>
+</td></tr>
+
+#end
+</table>
+#end

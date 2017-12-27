@@ -1,0 +1,27 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+This is the $form inspection page for $eventName.
+<br>
+Select a team to inspect, or inspect multiple teams by checking the "select" column and then clicking the button at the bottom of the page.
+<script>
+function inspect() {
+	var param = "?teams="
+	$("input:checkbox[name=teamSelect]:checked").each(function(){
+	    param += $(this).val() + ","
+	});
+	window.location.href = "/event/$eventCode/inspect/$form/" + param.slice(0, -1);
+	
+}
+</script>
+<table style="text-align:center;padding:5px">
+<tr><th>Team</th><th>Name</th><th>Status</th><th>Inspect</th><th>Select</th></tr>
+#foreach($t in $teams)
+#set($s = $t.getStatus($form))
+<tr><td>$t.number</td><td>$t.name</td><td bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>
+#if($s == 1) In Progress #elseif($s == 2) FAILED #elseif($s == 3) PASSED #else Uninspected#end
+</td><td><a href = '/event/$eventCode/inspect/$form/?team=$t.number'>Inspect</a></td><td><input type="checkbox" name="teamSelect" value="$t.number"/></td></tr>
+
+#end
+</table>
+<button onclick="inspect()">Inspect Selected Teams</button>
+#end

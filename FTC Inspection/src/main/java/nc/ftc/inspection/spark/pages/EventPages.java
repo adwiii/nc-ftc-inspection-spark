@@ -2,13 +2,19 @@ package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.dao.GlobalDAO;
+import nc.ftc.inspection.event.ADState;
+import nc.ftc.inspection.event.DisplayCommand;
 import nc.ftc.inspection.event.Event;
+import nc.ftc.inspection.event.TimerCommand;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
+import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.MatchStatus;
 import nc.ftc.inspection.model.Team;
+import nc.ftc.inspection.model.Team.FormIndex;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
@@ -17,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,12 +32,9 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
-import org.omg.CORBA.PRIVATE_MEMBER;
 
-import java.awt.Point;
 import java.sql.Date;
 
-import spark.QueryParamsMap;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -77,8 +81,12 @@ public class EventPages {
 		Map<String, Object> model = new HashMap<>();
 		String eventCode = request.params("event");
 		//TODO handle an event that is not here
-		EventData event = EventDAO.getEvent(eventCode);
-		model.put("eventName", event.getName());
+		Event event = Server.activeEvents.get(eventCode);
+		if (event == null) {
+			model.put("eventName", "Unknown Event");
+		} else {
+			model.put("eventName", event.getData().getName());
+		}
 //		model.pu
 		return render(request, model, Path.Template.MANAGE_EVENT);
 	};
@@ -99,7 +107,29 @@ public class EventPages {
 		return render(request, model, Path.Template.EDIT_FORM);
 	};
 	
-	public static Route serveInspectionPage = (Request request, Response response) ->{
+	
+	private static String renderTeamSelect(Request request, Response response, String eventCode, String formID) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("form", formID.toLowerCase());
+		map.put("eventCode", eventCode);
+		Event e = Server.activeEvents.get(eventCode);
+		String eventName = "Unknown Event";
+		if (e != null) {
+			eventName = e.getData().getName();
+		} else {
+			map.put("teams", EventDAO.getStatus(eventCode, formID));
+		}
+		map.put("eventName", eventName);
+		
+		if(formID.equals("SC")||formID.equals("CI")) {
+			//render the boolean page (which is equivalent to the LRI page, without comments)
+			return render(request, map, Path.Template.BINARY_INSPECTION_PAGE);
+		}
+		
+		return render(request, map, Path.Template.INSPECTION_TEAM_SELECT);
+	}
+	
+	private static String inspectionPage(Request request, Response response, boolean readOnly) {
 		Map<String, Object> model = new HashMap<>();
 		String eventCode = request.params("event");
 		String formID = request.params("form").toUpperCase();
@@ -109,8 +139,13 @@ public class EventPages {
 		if(teams == null && team != null){
 			teams = team;
 		}
+		//check for team read-only page
+		if(teams == null) {
+			teams = request.params("team");
+		}
 		if(teams == null){
-			return "";
+			//render the team select page for the specified form
+			return renderTeamSelect(request, response, eventCode, formID);
 		}
 		String[] s = teams.split(",");
 		int[] teamList = new int[s.length];
@@ -122,12 +157,26 @@ public class EventPages {
 		for(FormRow fr : form){
 			max = Math.max(max, fr.getItems().length);
 		}
-		System.out.println(max);
+		String[] notes = EventDAO.getFormComments(eventCode, formID, teamList);
+		String[] sigs = EventDAO.getSigs(eventCode, formID, teamList);
+		
+		System.out.println(Arrays.toString(notes));
+		model.put("readOnly", readOnly);
 		model.put("max", max);
 		model.put("form", form);
+		model.put("formID", formID);
 		model.put("teams", teamList);
-		model.put("headerColor", "#E6B222");
+		model.put("notes", notes);
+		model.put("sigs", sigs);
+		model.put("headerColor", "#F57E25");
 		return render(request, model, Path.Template.INSPECT);
+	}
+	
+	public static Route serveInspectionPage = (Request request, Response response) ->{
+		return inspectionPage(request, response, false);
+	};
+	public static Route serveInspectionPageReadOnly = (Request request, Response response) ->{
+		return inspectionPage(request, response, true);
 	};
 	
 	public static Route handleInspectionItemPost = (Request request, Response response) ->{
@@ -137,6 +186,7 @@ public class EventPages {
 		int itemIndex = Integer.parseInt(request.queryParams("index"));
 		boolean status = Boolean.parseBoolean(request.queryParams("state"));
 		response.status(EventDAO.setFormStatus(event, form,team, itemIndex, status) ? 200 : 500);
+		EventDAO.setTeamStatus(event, form, team, 1);//IN PROGRESS TODO CONSTANT
 		return request.queryParams("state");
 		//Client perspective:
 		//If 200 & state matches, we good. If 200 & state wrong, timing issue, do nothing
@@ -145,10 +195,8 @@ public class EventPages {
 	
 	public static Route handleGetStatusGet = (Request request, Response response) -> {
 		String event = request.params("event");
-		System.out.println("hi");
-
 		//TODO get which columns are enabled.
-		String[] columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
+		String[] columns = new String[]{"ci", "sc", "hw", "sw", "fd"};
 		return EventDAO.getStatus(event, columns).stream().map(Team::toStatusString).collect(Collectors.toList());
 	};
 	
@@ -194,6 +242,8 @@ public class EventPages {
 				scan.nextInt();
 				scan.nextInt();
 				int match = scan.nextInt();
+				scan.nextInt();
+				scan.next();
 				int red1 = scan.nextInt();
 				int red2 = scan.nextInt();
 				scan.nextInt();
@@ -239,8 +289,13 @@ public class EventPages {
 				response.status(500);
 				return "Match already randomized!";
 			}
+			int r = e.getCurrentMatch().randomize();
+			synchronized(e.waitForRandomLock) {
+				e.waitForRandomLock.notifyAll();
+			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_RANDOM);
 			e.getCurrentMatch().setStatus(MatchStatus.AUTO);
-			return "{\"rand\":\"" + e.getCurrentMatch().randomize() +"\"}";
+			return "{\"rand\":\"" + r +"\"}";
 		};
 		
 		public static Route handleReRandomizePost = (Request request, Response response) ->{
@@ -264,6 +319,7 @@ public class EventPages {
 		};
 		
 		public static Route serveRef = (Request request, Response response) ->{
+			
 			Map<String, Object> model = new HashMap<>();
 			String template = "";
 			String alliance = request.params("alliance");
@@ -293,15 +349,27 @@ public class EventPages {
 				template = Path.Template.REF_AUTO;
 //				model.put(arg0, arg1)
 				break;
-			case AUTO_REVIEW: //if already submitted, load teleop. (Only matters for first ref to submit)
+			case AUTO_REVIEW:
+				//THIS PHASE NO LONGER EXISTS
+				//if already submitted, load teleop. (Only matters for first ref to submit)
 				//Alliance a = e.getCurrentMatch().getAlliance(alliance);
-				template = a.scoreSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
+				//TODO use alliance.isInReview() to serve a waiting page that waits until both refs enter review phase.
+				a.setInReview(true);//in case refreshed.
+				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
-				template = Path.Template.REF_TELEOP;
+				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO;
 				break;
 			case REVIEW:
-				template = Path.Template.REF_REVIEW;
+				if(!a.autoSubmitted()) {//better hurry up and do that auto
+					template = Path.Template.REF_AUTO;
+				} else if(a.isInReview()) {
+					template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
+				} else {
+					template = Path.Template.REF_TELEOP;
+				}
+				//template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
+				//a.setInReview(true);//in case refreshed.
 				break;
 			case PRE_COMMIT:
 				template = Path.Template.REF_POST_SUBMIT;
@@ -314,6 +382,7 @@ public class EventPages {
 			
 			}
 			return render(request, model, template);
+			//return "";
 		};
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{
@@ -334,15 +403,13 @@ public class EventPages {
 			}
 			//Not yet randomized. Wait until it is.
 			//TODO some form of timeout? half an hour? - just put in .wait(ms) call
-			synchronized(MatchStatus.AUTO){
-				MatchStatus.AUTO.wait();
+			synchronized(event.waitForRandomLock){
+				event.waitForRandomLock.wait();
 			}
 			return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
 		};
 		
-		public static Route handleGetCurrentMatch = (Request request, Response response) ->{
-			return null;
-		};
+		
 		
 		public static Route handleGetScore = (Request request, Response response) -> {
 			String eventCode = request.params("event");
@@ -369,9 +436,77 @@ public class EventPages {
 			return "";
 		};
 		
+		
+		public static Route handleGetFullScore = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			try{
+				if(event == null){
+					response.status(500);
+					return "Event not active.";
+				}
+				Match match = event.getCurrentMatch();
+				if(match == null){
+					response.status(500);
+					return "No match loaded.";
+				}
+				
+				String block = request.queryParams("block");
+				if(block != null && Boolean.parseBoolean(block)) {
+					long last = 0;
+					String lastParam = request.queryParams("last");
+					if(lastParam != null) {
+						Match m =event.getCurrentMatch();
+						last = Long.parseLong(lastParam);
+						if(m.getLastUpdate() <= last) {
+							synchronized(m.getUpdateLock()) {
+								m.getUpdateLock().wait(10000);
+							}
+						}
+					}
+				}
+				
+				return event.getCurrentMatch().getFullScores();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			return "";			
+		};
+		
+		public static Route handleGetScoreBreakdown = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(500);
+				return "No match loaded";
+			}
+			String block = request.queryParams("block");
+			if(block != null && Boolean.parseBoolean(block)) {
+				long last = 0;
+				String lastParam = request.queryParams("last");
+				if(lastParam != null) {
+					last = Long.parseLong(lastParam);
+					Match m = e.getCurrentMatch();
+					if(m.getLastUpdate() <= last) {
+						synchronized(m.getUpdateLock()) {
+							m.getUpdateLock().wait(10000);
+						}
+					}
+				}
+			}
+			return e.getCurrentMatch().getScoreBreakdown();
+		};
+		
+		
+		
 		private static String updateScores(Request request, Response response){
 			String eventCode = request.params("event");
 			String alliance = request.params("alliance");
+			
 			Event event = Server.activeEvents.get(eventCode);
 			if(event == null){
 				response.status(500);
@@ -388,6 +523,7 @@ public class EventPages {
 			}
 			if(!match.getStatus().canAcceptScores()){
 				response.status(500);
+				if(match.refLockout)return "LOCKOUT";
 				return "Match not ready for scores.";
 			}
 			Set<String> params = request.queryParams();
@@ -403,29 +539,97 @@ public class EventPages {
 		}
 		
 		public static Route handleScoreUpdate = (Request request, Response response) -> {
-			return updateScores(request, response);
+			String s = updateScores(request, response);
+			if(s.equals("OK")) {
+				String e = request.params("event");
+				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
+			//	if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
+				//jewels are now recalculated through the entire match. The Review submit does NOT calculate.
+					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
+			//	}
+				Server.activeEvents.get(e).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
+			}
+			return s;
 		};
 		
-		//POST that is done by hitting "review" button. always saves the info, but returns
-		//error if not ready for review phase.
+		//POST that is done by hitting submit auto and submit teleop ("review") button. always saves the info, but returns
+		//error if not ready to change phase.
 		//could change this to long poll in the future.
-		public static Route handleScoreFullUpate = (Request request, Response response) -> {
+		//this is submitting teleop, and enter review phase
+		public static Route handleTeleopSubmit = (Request request, Response response) -> {
 			String res = updateScores(request, response);
+			String e = request.params("event");
 			if(res.equals("OK")) {
 				//If not in review phase, dont return 200. That way client knows not to load
 				//review page yet.
-				String e = request.params("event");
-				if(!Server.activeEvents.get(e).getCurrentMatch().getStatus().isReview()) {
+				
+				
+				MatchStatus status = Server.activeEvents.get(e).getCurrentMatch().getStatus();
+				//this if should always be false
+				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
+					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
+				}
+				System.out.println(status);
+				if(!status.isReview()) {
+					Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 					response.status(409);
+					if(Server.activeEvents.get(e).getCurrentMatch().refLockout)return "LOCKOUT";
 					return "Not ready to review.";
-				}				
-			}
+				}	
+				if(!Server.activeEvents.get(e).getCurrentMatch().autoSubmitted()) {
+					//Both need to submit auto before 
+					response.status(410); //TODO choose a better status code
+					return "Cannot Review until both auto submitted";
+				}
+				Match match = Server.activeEvents.get(e).getCurrentMatch();
+				match.getAlliance(request.params("alliance")).setInReview(true);
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+//				if(status == MatchStatus.AUTO) {
+//					match.calculateEndAuto();
+//				}
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
+			} 
 			return res;
 			
 		};
 		
+		
+		//this is submitting auto
+		public static Route handleAutoSubmit = (Request request, Response response) ->{
+			try {
+				String res = updateScores(request, response);
+				String eventCode = request.params("event");
+				String alliance = request.params("alliance");
+				Event event = Server.activeEvents.get(eventCode);
+				Match match = event.getCurrentMatch();
+				if(match.getStatus() == null){
+					response.status(500);
+					return "Null Status";
+				}
+				MatchStatus status = match.getStatus();
+				if(status == MatchStatus.TELEOP || status == MatchStatus.REVIEW) {
+					if(match.getAlliance(alliance).autoSubmitted()) {
+						//UHHH They submitted twice
+						System.err.println("WE MIGHT HAVE A PROBLEM! "+alliance+" submitted auto twice!");
+					}
+					match.getAlliance(alliance).setAutoSubmitted(true);
+				} else {
+					response.status(409);
+					if(match.refLockout)return "LOCKOUT";
+					return "Invalid match status: "+status;
+				}				
+				return res;
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			response.status(500);
+			return "Error";
+		};
+		
+		//This is for the review page
 		public static Route handleScoreSubmit = (Request request, Response response) ->{
-			//TODO if not in REVIEW status, reject.
+			//if not in REVIEW status, reject.
 			try{
 			String res = updateScores(request, response);
 			String eventCode = request.params("event");
@@ -436,26 +640,60 @@ public class EventPages {
 				return "Null Status";
 			}
 			if(!event.getCurrentMatch().getStatus().isReview()){
-				response.status(500);
-				return "Not in review phase!";
+				/*
+				//not review, but check if teleop and that alliance hasnt submitted yet
+				boolean ok = false;
+				if(event.getCurrentMatch().getStatus() == MatchStatus.TELEOP) {
+					if(!event.getCurrentMatch().getAlliance(alliance).autoSubmitted()) {
+						//allow this
+						//URGENT TODO MAKE SURE THIS FLAG GETS CLEARED AT START OF MATCH!
+						event.getCurrentMatch().getAlliance(alliance).setAutoSubmitted(true);
+						ok = true;
+					}
+				}
+				if(!ok) {*/
+				
+					response.status(500);
+					if(event.getCurrentMatch().refLockout)return "LOCKOUT";
+					return "Not in review phase!";
+				//}
 			}
 			if(res.equals("OK") ){ 
+				//if not both refs in review - dont allow
+//				if(!event.getCurrentMatch().isInReview()) {
+//					response.status(409);
+//					return "Red & Blue must both be in review";
+//				}
 				event.getCurrentMatch().getAlliance(alliance).setSubmitted(true);
+//				TODO commented this out recently, if stuff breaks maybe this
+				//TODO THIS RIHT HERE!!! decide whether submitted or inReview to show review page?
+				//event.getCurrentMatch().getAlliance(alliance).setInReview(false);
+				
 				//both alliances scores submitted -> go to teleop or pre-commit
-				//Front end needs to say submitted until post-commit.
+				//Front end needs to say submitted until post-commit (after teleop).
 				if(event.getCurrentMatch().scoreSubmitted()){
+					event.getCurrentMatch().getRed().setInReview(false);
+					event.getCurrentMatch().getBlue().setInReview(false);
+					/*
 					if(event.getCurrentMatch().getStatus() == MatchStatus.AUTO_REVIEW){
 
 						System.out.println("TELEOP TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.TELEOP);
 						event.getCurrentMatch().clearSubmitted();
 					} else if(event.getCurrentMatch().getStatus() == MatchStatus.REVIEW){
+					*/
+					
 						System.out.println("AUTO TIME!");
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
-					}
+						synchronized (event.waitForRefLock) {
+							event.waitForRefLock.notifyAll();
+						}
+					//}
 				}
+				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 			} else{
 				response.status(500);
+				if(event.getCurrentMatch().refLockout)return "LOCKOUT";
 				return res;
 			}
 			return "OK";
@@ -481,16 +719,133 @@ public class EventPages {
 				response.status(500);
 				return "Null Status";
 			}
-			if(match.getStatus() == MatchStatus.AUTO){
-				match.setStatus(MatchStatus.AUTO_REVIEW);
+			if(match.getStatus() != MatchStatus.AUTO) {
+				response.status(409);
+				return "Match not ready for auto!";
 			}
-			if(match.getStatus() == MatchStatus.TELEOP){
-				match.setStatus(MatchStatus.REVIEW);
+			event.getTimer().start();
+			return "OK";
+		};
+		
+		public static Route handlePauseMatch = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(event.getTimer().paused()) {
+				response.status(200);
+				return "Match already paused";
+			}
+			if(match.getStatus() == MatchStatus.AUTO || match.getStatus() == MatchStatus.TELEOP) {
+				event.getTimer().pause();
+				return "OK";
+			}
+			response.status(409);
+			return "Match not running!";
+		};
+		public static Route handleResumeMatch = (Request request, Response response) ->{
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(!event.getTimer().paused()) {
+				response.status(409);
+				return "Match not paused";
+			}
+			if(match.getStatus() == MatchStatus.AUTO || match.getStatus() == MatchStatus.TELEOP) {
+				event.getTimer().resume();
+				return "OK";
+			}
+			response.status(409);
+			return "Match not running!";
+		};
+		public static Route handleResetMatch = (Request request, Response response) ->{
+			//TODO make sure waitForEnd handles this properly (return error)
+			//Same with waitForRefs
+			return null;
+		};
+		
+		public static Route handleLockoutRefs = (Request request, Response response) ->{
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				response.status(400);
+				return "No active match";
+			}
+			if(e.getCurrentMatch().getStatus() != MatchStatus.REVIEW) {
+				response.status(409);
+				return "Not in review.";
+			}
+			e.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
+			e.getCurrentMatch().refLockout = true;
+			synchronized(e.waitForRefLock) {
+				e.waitForRefLock.notifyAll();
 			}
 			return "OK";
 		};
+		
 
+		public static Route handleControlScoreEdit = (Request request, Response response) ->{
+			//Updates the score, then sends back the breakdown. DOES NOT NOTIFY LISTENERS!
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				response.status(400);
+				return "No active match";
+			}
+			String alliance = request.params("alliance");
+			if(e.getCurrentMatch().getStatus() == MatchStatus.PRE_COMMIT) {
+				//TODO extra security here!
+				
+					Set<String> params = request.queryParams();
+					for(String key : params){
+						if(alliance.equals("red")){
+							match.getRed().updateScore(key, request.queryParams(key));
+						} else if(alliance.equals("blue")){
+							match.getBlue().updateScore(key, request.queryParams(key));
+						}
+					}
+					return e.getCurrentMatch().getScoreBreakdown();
+				//}
+			}
+			response.status(409);
+			return "Not in review phase!";
+		};
+		
+		
+		
 		public static Route handleScoreCommit = (Request request, Response response) ->{
+			//TODO add score data to the commit body!!!!
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null){
@@ -512,9 +867,319 @@ public class EventPages {
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				e.loadNextMatch();
 			}
-			return null;
+			return "OK";
 		};
 		public static Route serveMatchControlPage = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.CONTROL);
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			return render(request, map, Path.Template.CONTROL);
 		};
+		
+		
+		
+		public static Route handleGetScheduleStatus = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(500);
+				return "No match loaded";
+			}
+			return EventDAO.getScheduleStatusJSON(event);
+		};
+		
+		public static Route handleLoadMatch = (Request request, Response response) ->{
+			String event  = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			int match = 0;
+			try {
+				match = Integer.parseInt(request.params("match"));
+			} catch(Exception e1) {
+				return "Invalid match";
+			}
+			e.loadMatch(match);
+			e.getCurrentMatch().updateNotify();
+			return "";
+		};
+		
+		public static Route handleGetCurrentMatch = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			Match m = e.getCurrentMatch();
+			//TODO fix this an dmake it not suck!
+			String res = "{";
+			res += "\"number\":" + m.getNumber()+",";
+			res += "\"red1\":"+m.getRed().getTeam1()+",";
+			res += "\"red2\":"+m.getRed().getTeam2()+",";
+			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
+			res += "\"blue2\":"+m.getBlue().getTeam2() +",";
+			res += "\"red1Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam1())+"\",";
+			res += "\"red2Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam2())+"\",";
+			res += "\"blue1Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam1())+"\",";
+			res += "\"blue2Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam2())+"\"";
+			res += "}";
+			return res;
+		};
+		
+		public static Route handleWaitForRefs = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.PRE_COMMIT) {
+				return "OK";
+			} else {
+				synchronized(e.waitForRefLock) {
+					e.waitForRefLock.wait();
+				}
+			}
+			return "OK";
+		};
+		
+		public static Route handleWaitForEnd = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			
+			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.REVIEW) {
+				return "OK";
+			} else {
+				synchronized(e.getTimer().waitForEndLock) {
+					e.getTimer().waitForEndLock.wait();
+				}
+				//TODO if reset, return error (Match status == AUTO? or pre-randomize?)
+			}
+			return "OK";
+		};
+		
+		public static Route serveResultsPage = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			List<MatchResult> results = EventDAO.getMatchResults(event);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("matches", results);
+			map.put("event", event); //TODO get event name from DB
+			return render(request, map, Path.Template.MATCH_RESULT);
+		};
+		
+		public static Route serveAudienceDisplay = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.AUDIENCE_DISPLAY);
+		};
+		
+		public static Route handleWaitForPreview = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			synchronized(e.waitForPreviewLock) {
+				e.waitForPreviewLock.wait();
+			}
+			return "OK";
+		};
+		public static Route handleShowPreview = (Request request, Response response) ->{
+			//TODO the waitForPreview can probably be moved to AD instance in Event.
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			synchronized(e.waitForPreviewLock) {
+				e.waitForPreviewLock.notifyAll();
+			}
+			return "OK";
+		};
+		
+		public static Route serveInspectionHome = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			String event = request.params("event");
+			String eventName = "Unknown Event";
+			Event eventData = Server.activeEvents.get(event);
+			if (eventData != null) {
+				eventName = eventData.getData().getName();
+			}
+			map.put("eventName", eventName);
+			return render(request, map, Path.Template.INSPECT_HOME);
+			
+		};
+
+		public static Route handleNote = (Request request, Response response) ->{
+			String event = request.params("event");
+			String form = request.params("form").toUpperCase();
+			String team = request.queryParams("team");
+			String note = request.queryParams("note");
+			if(EventDAO.setFormComment(event, form, Integer.parseInt(team), note)) {
+				return "OK";
+			}
+			response.status(400);
+			return "";
+		};
+
+		public static Route handleSig = (Request request, Response response) ->{
+			String event = request.params("event");
+			String form = request.params("form").toUpperCase();
+			int team = Integer.parseInt(request.queryParams("team"));
+			int ind = Integer.parseInt(request.queryParams("index"));
+			String sig = request.queryParams("sig");
+			if(EventDAO.updateSigs(event, form, team, ind, sig)) {
+				return "OK";
+			}
+			response.status(400);
+			return "";
+		};
+		
+		public static Route handleFormStatus = (Request request, Response response) ->{
+			String event = request.params("event");
+			String form = request.params("form").toLowerCase();
+			int team = Integer.parseInt(request.queryParams("team"));
+			int status = Integer.parseInt(request.queryParams("status"));
+			if(EventDAO.setTeamStatus(event, form, team, status)) {
+				return "OK";
+			}
+			response.status(400);
+			return "";
+		};
+
+		public static Route serveTeamInspectionHome = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			String event = request.params("event");
+			//TODO time this method and see how long it takes. If its taking too long, make one DAO call that returns all this data 
+			//and only creates one SQL transaction instead of 9
+			int teamNo = Integer.parseInt(request.params("team"));
+			Team team = EventDAO.getTeamStatus(event, teamNo);
+			int hwStatus = team.getStatus(Team.FormIndex.HW.index);
+			int swStatus = team.getStatus(Team.FormIndex.SW.index);
+			int fdStatus = team.getStatus(Team.FormIndex.FD.index);
+			//only load forms if empty
+			List<FormRow> hwForm = hwStatus == 1 || hwStatus == 2 ? EventDAO.getFailedItems(event, "HW", teamNo) : new ArrayList<>();
+			List<FormRow> swForm = swStatus == 1 || swStatus == 2 ? EventDAO.getFailedItems(event, "SW", teamNo) : new ArrayList<>();
+			List<FormRow> fdForm = fdStatus == 1 || fdStatus == 2 ? EventDAO.getFailedItems(event, "FD", teamNo) : new ArrayList<>();
+			String hwNote = EventDAO.getFormComments(event, "HW", teamNo)[0];
+			String swNote = EventDAO.getFormComments(event, "SW", teamNo)[0];
+			String fdNote = EventDAO.getFormComments(event, "FD", teamNo)[0];
+			
+			map.put("team", team);
+			map.put("ci", team.getStatus(Team.FormIndex.CI.index));
+			map.put("hw", hwStatus);
+			map.put("hwForm", hwForm);
+			map.put("hwNote", hwNote);
+			map.put("sw", swStatus);
+			map.put("swForm", swForm);
+			map.put("swNote", swNote);
+			map.put("fd", fdStatus);
+			map.put("fdForm", fdForm);
+			map.put("fdNote", fdNote);
+
+			map.put("headerColor", "#E6B222");
+			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
+		};
+
+		public static Route serveInspectionOverride = (Request request, Response response) ->{
+			System.out.println("OVER");;
+			String eventCode = request.params("event");
+			String form = request.params("form");
+			Map<String, Object> map = new HashMap<>();
+			map.put("form", form.toLowerCase());
+			map.put("eventCode", eventCode);
+			Event e = Server.activeEvents.get(eventCode);
+			String eventName = "Unknown Event";
+			if (e != null) {
+				eventName = e.getData().getName();
+			} else {
+				map.put("teams", EventDAO.getStatus(eventCode, form));
+			}
+			map.put("eventName", eventName);
+			return render(request, map, Path.Template.INSPECTION_OVERRIDE_PAGE);
+		};
+
+		public static Route serveFieldDisplay = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			//TODO if match in progress, call appropriate functions in velocity,
+			//and pass proper stuff
+			return render(request, map, Path.Template.FIELD_DISPLAY);
+		};
+
+		//TODO request could send what it thinks the last command was, 
+		//and this blocks if matches, and returns immediately if wrong.
+		public static Route handleGetTimerCommands = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			//TODO add block=false param to retrieve last command.
+			return e.getTimer().blockForNextCommand();
+		};
+		public static Route handleGetDisplayCommands = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			//TODO add block=false param to retrieve last command.
+			return e.getDisplay().blockForNextCommand();
+		};
+		
+		public static Route handleShowPreviewCommand = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_PREVIEW);
+			return "OK";
+		};
+		public static Route handleShowMatch = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_MATCH);
+			return "OK";
+		};
+		
+		
 }

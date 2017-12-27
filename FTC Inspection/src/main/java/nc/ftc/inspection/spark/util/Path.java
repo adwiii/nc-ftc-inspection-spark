@@ -1,5 +1,6 @@
 package nc.ftc.inspection.spark.util;
 
+import nc.ftc.inspection.Server;
 
 public class Path {
 
@@ -18,9 +19,17 @@ public class Path {
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
         public static final String EDIT_FORM = "/event/:event/edit/";
+        public static final String INSPECT_HOME = "/event/:event/inspect/";
 		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
-		public static final String INSPECT_SELECT = "/event/:event/select/:form"; //page to select teams to inspect
+		//public static final String INSPECT_SELECT = "/event/:event/select/:form"; //page to select teams to inspect
         public static final String INSPECT_ITEM = "/event/:event/inspect/:form/";
+        public static final String INSPECT_NOTE = "/event/:event/inspect/:form/note/";
+        public static final String INSPECT_SIG = "/event/:event/inspect/:form/sig/";
+        public static final String INSPECT_STATUS = "/event/:event/inspect/:form/status/";
+        public static final String INSPECT_OVERRIDE = "/event/:event/inspect/:form/override/";
+        public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
+        public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
+        
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
@@ -28,6 +37,7 @@ public class Path {
         public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
         public static final String UPLOAD_SCHEDULE = "/event/:event/scheduleUpload/";
         public static final String SCHEDULE = "/event/:event/schedule/";
+        public static final String SCHEDULE_STATUS = "/event/:event/schedule/status/";
         //TODO have a subdir for scoring/match stuff under /event?
         public static final String RANDOMIZE = "/event/:event/randomize/";
         public static final String RERANDOMIZE = "/event/:event/rerandomize/";
@@ -36,13 +46,35 @@ public class Path {
         public static final String GET_RANDOM = "/event/:event/random/";
         //Updating vs submitting. updating is during the match. submit is after
         //need to be separate b/c both PUT and POST used on updating
+        public static final String SCORE_BREAKDOWN = "/event/:event/scorebreakdown/";
         public static final String SCORE = "/event/:event/score/:alliance/"; 
+        public static final String SCORE_AUTO = "/event/:event/score/:alliance/auto/"; 
+        public static final String EDIT_SCORE = "/event/:event/score/edit/:alliance/"; // control page edit
+        public static final String BOTH_SCORE = "/event/:event/score/";
+        public static final String COMMIT_SCORES = "/event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
         public static final String MATCH_CONTROL = "/event/:event/control/";
+        public static final String LOCKOUT_REFS = "/event/:event/control/lockout/";
+        public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
+        public static final String SHOW_PREVIEW = "/event/:event/display/preview/";
+        public static final String SHOW_MATCH = "/event/:event/display/match/";
         public static final String START_MATCH = "event/:event/time/start/";
+        public static final String PAUSE_MATCH = "event/:event/time/pause/";
+        public static final String RESUME_MATCH = "event/:event/time/resume/";
+        public static final String GET_MATCH = "event/:event/match/";
+        public static final String LOAD_MATCH = "event/:event/match/load/:match/";
+        public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
+        public static final String WAIT_FOR_MATCH_END = "event/:event/match/status/end/";
+        public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
+        public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
+        
+        public static final String MATCH_RESULTS = "event/:event/results/";
+        
+        public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
+        public static final String FIELD_DISPLAY  ="/event/:event/field/";
+        
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
-        public static final String COMMIT_SCORES = "event/:event/score/commit/";
 		public static final String ALL = "*";
         
 		
@@ -53,7 +85,10 @@ public class Path {
         	return "";
         }
         public String getInspection() {
-        	return "";
+        	if (Server.defaultEventCode == null) {
+        		return "/event/inspect/";//TODO fix this	
+        	}
+        	return "/event/" + Server.defaultEventCode + "/inspect/";
         }
         public String getLogout() {
         	return LOGOUT;
@@ -79,6 +114,7 @@ public class Path {
         public static final String CREATE_EVENT = "/velocity/event/createEvent.vm";
         public static final String MANAGE_EVENT = "/velocity/event/manageEvent.vm";
         public static final String EDIT_FORM = "/velocity/event/editForm.vm";//just renders form for now
+        public static final String INSPECT_HOME = "/velocity/event/inspect_index.vm";
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
@@ -90,6 +126,13 @@ public class Path {
         public static final String REF_REVIEW = "/velocity/event/ref_review.vm";
         public static final String REF_POST_SUBMIT = "/velocity/event/ref_postSubmit.vm";
         public static final String CONTROL = "/velocity/event/control.vm";
+		public static final String MATCH_RESULT = "/velocity/event/results.vm";
+		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
+		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";
+		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
+		public static final String INSPECTION_OVERRIDE_PAGE = "/velocity/event/inspectOverride.vm";
+		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
+		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
         
     }
 

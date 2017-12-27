@@ -22,6 +22,8 @@
 			} else {
 				j.disabled = false;
 			}
+			scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
+			
 		});
 		j = document.getElementById('relic2Upright');
 		if ($('input[name=relic2]:checked').val() == 0){
@@ -38,8 +40,36 @@
 			} else {
 				j.disabled = false;
 			}
+			scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
 		});
+		$('input[name=balanced]').change(function(){
+			scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
+		});
+		$('input[id=relic1Upright]').change(function(){
+			scoreUpdate({relic1Standing:document.getElementById('relic1Upright').checked});
+		});
+		$('input[id=relic2Upright]').change(function(){
+			scoreUpdate({relic2Standing:document.getElementById('relic2Upright').checked});
+		});
+		
+		//init cryptobox
+		initCryptobox(1, $cryptobox1);
+		initCryptobox(2, $cryptobox2);
+		
 	});
+	
+	function initCryptobox(cb, val){
+		//console.log(val.toString(2));
+		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				var cell = document.getElementById("cb_"+cb+","+r+","+c);
+				var enc = (val >> ((6 * r) + (2*c))) & 3;
+				cell.setAttribute("bgcolor", enc == 0 ? "#FFFFFF" : (enc == 1 ? "#565C05" : "#D6D6CB"));
+			}
+		}
+	
+	}	
+	
 	function getCell(bg){
 		if(bg == "#FFFFFF")return 0;
 		if(bg == "#565C05")return 1;
@@ -49,7 +79,7 @@
 		var data = 0;
 		for(var r = 0; r < 4; r++){
 			for(var c = 0; c < 3; c++){
-				data += getCell(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor")) << (r * 6) + (2 * c);
+				data += getCell(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor")) << ((r * 6) + (2 * c));
 			}
 		}
 		return data;
@@ -76,7 +106,85 @@
 		else{
 			document.getElementById("cb" + cb + "L").innerHTML = "";
 		}
-		console.log(cb+":"+cb.toString(2));
+		var obj={};
+		obj["cryptobox"+cb] = cbVal;
+		scoreUpdate(obj);
+	}
+	
+	function radioRelic(rel, value){
+		if(rel == 1){
+			relic1 = value;
+			scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
+		} else if(rel == 2){
+			relic2 = value;
+			if(value == "0")document.getElementById('relic2Upright').checked = false;
+			scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
+		}
+	}
+	
+	function toggleCheck(src){
+		console.log(src);
+	}
+	
+	function scoreUpdate(obj){
+    	
+    	$.ajax({
+                url: "../../score/$alliance/",
+                type: "PUT",
+                data: obj,
+                success: function (data) {
+                    //we good
+                    console.log("we good");
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                	if(xhr.responseText == "LOCKOUT")window.location.reload(true);
+                    //ERROR HANDLING
+                    console.log("Error");
+                }});
+	}
+	
+	function getScoreObject(){
+		obj = {};
+		obj.major = parseInt(document.getElementById('major').textContent);
+		obj.minor = parseInt(document.getElementById('minor').textContent);
+		obj.cryptobox1 = getCryptoboxData(1);
+		obj.cryptobox2 = getCryptoboxData(2);
+		obj.relic1Zone = $('input[name=relic1]:checked').val();
+		obj.relic1Standing = document.getElementById('relic1Upright').checked;
+		obj.relic2Zone = $('input[name=relic2]:checked').val();
+		obj.relic2Standing = document.getElementById('relic2Upright').checked;
+		obj.balanced = $('input[name=balanced]:checked').val();
+		return obj;
+	}
+	
+	function submit(){
+		//Send a POST with all data (do a score update with everything)
+		//iff sucessful, reload the page. 
+		//Must be done after teleop ends, otherwise loads same page
+		obj = getScoreObject();
+		$.ajax({
+                url: "../../score/$alliance/",
+                type: "POST",
+                data: obj,
+                success: function (data) {
+                    //we good                   
+					location.reload(true);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                	if(xhr.responseText == "LOCKOUT")window.location.reload(true);
+                    if(xhr.status == 409){
+                    	//Not in review phase yet.
+                    	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until completion of match!";
+                    } else if(xhr.status == 410){
+                    	//other ref slacking!
+                    	document.getElementById("errmsg").innerHTML = "Scores saved. Cannot review until other ref has submitted auto!";
+                    } else{
+                    	//Oh no. actual problem :(
+	                    console.log(xhr);
+	                    console.log(ajaxOptions);
+	                    console.log(thrownError);
+	                }
+                }});
 	}
 
 </script>
@@ -132,11 +240,30 @@
 	</table>
 	<div id="cb2L"></div>
 </td> <!-- End CB2 -->
-<tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap"><div style="width:125%"><label ><input type="radio" name="relic1" checked value="0" />0</label><label ><input type="radio" name="relic1" value="1" />1</label><label ><input type="radio" name="relic1" value="2" />2</label><label ><input type="radio"name="relic1" value="3" />3</label><br style="display:block;margin:1px 0"/><label><input type="checkbox" id="relic1Upright"/>Upright?</label></div></td></tr>
-<tr><td class="left"><label>Relic 2 Zone:</label></td><td class="right nowrap"><div style="width:125%"><label ><input type="radio" name="relic2" checked value="0" />0</label><label ><input type="radio" name="relic2" value="1" />1</label><label ><input type="radio" name="relic2" value="2" />2</label><label ><input type="radio"name="relic2" value="3" />3</label><br style="display:block;margin:1px 0"/><label><input type="checkbox" id="relic2Upright"/>Upright?</label></div></td></tr>
-<tr><td class="left"><label>Robots Balanced:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="balanced" checked />0</label><label style="width:33%"><input type="radio" name="parked"/>1</label><label style="width:33%"><input type="radio"name="parked" />2</label></div></td></tr>
-<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()minor_penalties#end</td></tr>
-<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID()major_penalties#end</td></tr>
+</tr>
+<tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap"><div style="width:125%">
+	<label ><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end />0</label>
+	<label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label>
+	<label ><input type="radio" name="relic1" value="2" #if($relic1Zone == 2)checked#end/>2</label>
+	<label ><input type="radio" name="relic1" value="3" #if($relic1Zone == 3)checked#end/>3</label>
+	<br style="display:block;margin:1px 0"/><label>
+	<input type="checkbox" id="relic1Upright" #if($relic1Standing == true)checked#end/>Upright?</label></div></td></tr>
+<tr><td class="left"><label>Relic 2 Zone:</label></td><td class="right nowrap"><div style="width:125%">
+	<label ><input type="radio" name="relic2" value="0" #if($relic2Zone == 0)checked#end/>0</label>
+	<label ><input type="radio" name="relic2" value="1" #if($relic2Zone == 1)checked#end/>1</label>
+	<label ><input type="radio" name="relic2" value="2" #if($relic2Zone == 2)checked#end/>2</label>
+	<label ><input type="radio" name="relic2" value="3" #if($relic2Zone == 3)checked#end/>3</label>
+	<br style="display:block;margin:1px 0"/><label>
+	<input type="checkbox" id="relic2Upright" #if($relic2Standing == true)checked#end/>Upright?</label></div></td></tr>
+	
+<tr><td class="left"><label>Robots Balanced:</label></td><td class="right nowrap"><div style="width:150%">
+	<label style="width:33%"><input type="radio" name="balanced" value="0" #if($balanced == 0)checked#end/>0</label>
+	<label style="width:33%"><input type="radio" name="balanced" value="1" #if($balanced == 1)checked#end/>1</label>
+	<label style="width:33%"><input type="radio" name="balanced" value="2" #if($balanced == 2)checked#end/>2</label>
+	</div></td></tr>
+<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
+<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
-<input type="submit" value="Review">
+<input type="submit" value="Review" onclick="submit()">
+<div id="errmsg" align="center" color="red"></div>
 #end

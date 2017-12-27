@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+This is the inspection home page for $eventName.
+<br>
+It will have links and usefull info on it!
+#end
