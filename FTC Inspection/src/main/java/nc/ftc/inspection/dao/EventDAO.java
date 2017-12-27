@@ -50,7 +50,7 @@ public class EventDAO {
 											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S BOOLEAN, red2 INTEGER REFERENCES teams(number), red2S BOOLEAN, blue1 INTEGER REFERENCES teams(number), blue1S BOOLEAN, blue2 INTEGER REFERENCES teams(number), blue2S BOOLEAN);", //non-game specific info
 											"CREATE TABLE local.qualsData(match INTEGER REFERENCES quals(match), status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
 											"CREATE TABLE local.qualsResults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
-											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
+											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, adjust INTEGER, card1 INTEGER, card2 INTEGER, dq1 BOOLEAN, dq2 BOOLEAN, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
 													
 											//TODO create trigger for adding item to row
 											};
@@ -96,7 +96,7 @@ public class EventDAO {
 	
 	static final String COMMIT_MATCH_DATA = "UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;";
 	static final String COMMIT_MATCH_RESULTS = "UPDATE qualsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;";
-	static final String COMMIT_MATCH_SCORES = "UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=? WHERE match=? AND alliance=?";
+	static final String COMMIT_MATCH_SCORES = "UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?";
 	
 	static final String GET_SCHEDULE_STATUS_QUALS = "SELECT q.match, red1, red2, blue1, blue2, status, redScore, blueScore FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
@@ -564,8 +564,15 @@ public class EventDAO {
 		setParam(ps, 15, a, "minor", Types.INTEGER);
 		setParam(ps, 16, a, "cryptobox1", Types.INTEGER);
 		setParam(ps, 17, a, "cryptobox2", Types.INTEGER);
-		ps.setInt(18, match);
-		ps.setInt(19,  aI);		
+		setParam(ps, 18, a, "jewelSet1", Types.INTEGER);
+		setParam(ps, 19, a, "jewelSet2", Types.INTEGER);
+		setParam(ps, 20, a, "adjust", Types.INTEGER);
+		setParam(ps, 21, a, "card1", Types.INTEGER);
+		setParam(ps, 22, a, "card2", Types.INTEGER);
+		setParam(ps, 23, a, "dq1", Types.INTEGER);
+		setParam(ps, 24, a, "dq2", Types.INTEGER);
+		ps.setInt(25, match);
+		ps.setInt(26,  aI);		
 		return ps.executeUpdate();
 	}
 	
@@ -650,9 +657,8 @@ public class EventDAO {
 				a.initializeScores();
 				Set<String> keys = a.getScoreFields();
 				//TODO URGENT FIX THIS
-				keys.remove("adjust");
-				keys.remove("jewelSet1");
-				keys.remove("jewelSet2");
+				keys.remove("card3");
+				keys.remove("dq3");
 				for(String key : keys) {
 					a.updateScore(key, rs.getObject(key));
 				}

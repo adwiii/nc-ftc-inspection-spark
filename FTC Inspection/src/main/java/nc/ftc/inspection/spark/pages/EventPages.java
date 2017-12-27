@@ -881,15 +881,19 @@ public class EventPages {
 			for(String key : params){
 				String[] data = key.split("_");
 				Alliance alliance  = match.getAlliance(data[0]);
+				
 				switch(data[1]) {
+				//NOTE:MIRROR ANY CHANGES IN EDIT COMMIT
 					case "score":
 						alliance.updateScore(data[2], request.queryParams(key));				
 						break;
 					case "card":
-						alliance.setCard(Integer.parseInt(data[2]), Integer.parseInt(request.queryParams(key)));
+						//alliance.setCard(Integer.parseInt(data[2]), Integer.parseInt(request.queryParams(key)));
+						alliance.updateScore("card"+ data[2], request.queryParams(key));
 						break;
 					case "dq":
-						alliance.setDQ(Integer.parseInt(data[2]), Boolean .parseBoolean(request.queryParams(key)));
+						//alliance.setDQ(Integer.parseInt(data[2]), Boolean .parseBoolean(request.queryParams(key)));
+						alliance.updateScore("dq"+ data[2], request.queryParams(key));
 						break;
 				}
 			}
@@ -913,10 +917,10 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			if(e.getCurrentMatch() == null){
+			/*if(e.getCurrentMatch() == null){
 				response.status(500);
 				return "No match loaded";
-			}
+			}*/
 			return EventDAO.getScheduleStatusJSON(event);
 		};
 		
@@ -1250,10 +1254,12 @@ public class EventPages {
 						alliance.updateScore(data[2], request.queryParams(key));				
 						break;
 					case "card":
-						alliance.setCard(Integer.parseInt(data[2]), Integer.parseInt(request.queryParams(key)));
+						//alliance.setCard(Integer.parseInt(data[2]), Integer.parseInt(request.queryParams(key)));
+						alliance.updateScore("card"+ data[2], request.queryParams(key));
 						break;
 					case "dq":
-						alliance.setDQ(Integer.parseInt(data[2]), Boolean .parseBoolean(request.queryParams(key)));
+						//alliance.setDQ(Integer.parseInt(data[2]), Boolean .parseBoolean(request.queryParams(key)));
+						alliance.updateScore("dq"+ data[2], request.queryParams(key));
 						break;
 				}
 			}

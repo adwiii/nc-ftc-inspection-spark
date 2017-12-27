@@ -22,13 +22,10 @@ public class Alliance {
 	public static transient final int RED = 0;
 	public static transient final int BLUE = 1;
 	
-	private int YELLOW_CARD = 1;
-	private int RED_CARD = 2;
+	public static transient final int NO_CARD = 0;
+	public static transient final int YELLOW_CARD = 1;
+	public static transient final int RED_CARD = 2;
 	
-	private int card1 = 0;
-	private int card2 = 0;
-	private boolean dq1 = false;
-	private boolean dq2 = false;
 	
 
 	int lastCalculatedScoreNoPenalties = 0;
@@ -95,6 +92,15 @@ public class Alliance {
 		scores.put("cryptobox2", 0);
 		scores.put("jewelSet1", 0b11);
 		scores.put("jewelSet2", 0b11);
+		
+		//cards/dq
+		scores.put("card1", NO_CARD);
+		scores.put("card2", NO_CARD);
+		scores.put("card3", NO_CARD);//TODO figure this out.
+		scores.put("dq1", false);
+		scores.put("dq2", false);
+		scores.put("dq3", false);//TODO same here
+		
 	}
 	
 	public void updateScore(String field, Object value){
@@ -264,15 +270,7 @@ public class Alliance {
 		scores.put("columns", columns);
 		scores.put("ciphers", ciphers);
 	}
-	
-	public void setCard(int index, int card) {
-		if(index == 1)this.card1 = card;
-		if(index == 2)this.card2 = card;
-	}
-	public void setDQ(int index, boolean dq) {
-		if(index == 1)this.dq1 = dq;
-		if(index == 2)this.dq2 = dq;
-	}
+
 	public int getLastScore() {
 		return lastCalculatedScoreNoPenalties;
 	}

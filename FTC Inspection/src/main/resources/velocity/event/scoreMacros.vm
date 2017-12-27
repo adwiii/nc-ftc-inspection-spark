@@ -366,6 +366,16 @@
 			}
   			
   			//TODO cryptoboxes and jewels
+  			
+  			var slot = document.getElementById(a+"_1_slot");
+  			slot.getElementsByClassName("dqBox")[0].checked = eval(data[a].dq1);
+  			var c = data[a].card1;
+  			slot.getElementsByClassName("teamCard")[0].value =  c == 2 ? "red" : (c == 1 ? "yellow" : "green");
+  			
+  			slot = document.getElementById(a+"_2_slot");
+  			slot.getElementsByClassName("dqBox")[0].checked = eval(data[a].dq2);
+  			var c = data[a].card2;
+  			slot.getElementsByClassName("teamCard")[0].value =  c == 2 ? "red" : (c == 1 ? "yellow" : "green");
   		}
   	}
   	
@@ -433,8 +443,8 @@
 		for( var i = 0; i < slots.length; i++){
 			var x = slots[i]; 
 			var sp = x.id.split("_");
-			obj[sp[0]+"_dq_"+sp[1]] = x.children[0].checked;
-			var c = x.children[1].value;
+			obj[sp[0]+"_dq_"+sp[1]] = x.getElementsByClassName("dqBox")[0].checked
+			var c = x.getElementsByClassName("teamCard")[0].value;
 			obj[sp[0]+"_card_"+sp[1]] = c == "yellow" ? 1 : (c == "red" ? 2 : 0);
 		}
 		return obj;
