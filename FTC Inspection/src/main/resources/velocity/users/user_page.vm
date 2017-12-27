@@ -1,7 +1,12 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <h2>Hello $currentUser</h2>
-
+<h3>You currently have the following roles</h3>
+<ul>
+#foreach( $role in $roles )
+    <li>$role</li>
+#end
+</ul>
 <form id="loginForm" method="post" action="$WebPath.getLogout()">
 <input type="submit" class="bad notification" value="Logout" >
 </form>

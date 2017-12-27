@@ -2,6 +2,7 @@ package nc.ftc.inspection.spark.util;
 
 import org.apache.velocity.app.*;
 
+import nc.ftc.inspection.model.User;
 import spark.*;
 import spark.template.velocity.*;
 import java.util.*;
@@ -14,7 +15,14 @@ public class ViewUtil {
     // The request is needed to check the user session for language settings
     // and to see if the user is logged in
     public static String render(Request req, Map<String, Object> model, String templatePath) {
-        model.put("currentUser", getSessionCurrentUser(req));
+    	User user = getSessionCurrentUser(req);
+    	if (user != null) {
+    		model.put("currentUser", user.getUsername());
+        	model.put("roles", user.getPermissions());
+    	} else {
+    		model.put("currentUser", null);
+    		model.put("roles", new ArrayList<String>());
+    	}
         model.put("currentPath", req.pathInfo());
         model.put("request", req);
         System.out.println(req.userAgent().toLowerCase().contains("mobile") + ": " + req.userAgent());
