@@ -7,6 +7,8 @@ public class MatchResult {
 	int blueScore;
 	int redPenalty;
 	int bluePenalty;
+	int redTotal;
+	int blueTotal;
 	char winChar;
 	String winColor;
 	int number;
@@ -15,19 +17,27 @@ public class MatchResult {
 	String BLUE = "#44AAFF";
 	int status;
 	
+	//TODO Cards and DQ
+	
+	//Blue penalty is # of points resulting from BLUE penalties. They count toward RED!
+	
 	public MatchResult(int n, Alliance r, Alliance b, int rs, int bs, int status, int redP, int blueP) {
 		red = r;
 		blue = b;
 		number = n;
 		redScore = rs;
 		blueScore = bs;
-		if(redScore > blueScore) {
+		redPenalty = redP;
+		bluePenalty = blueP;
+		redTotal = redScore + bluePenalty;
+		blueTotal = blueScore + redPenalty;
+		if(redTotal > blueTotal) {
 			winColor = RED;
 			winChar = 'R';
 		}
-		else if(blueScore > redScore) {
+		else if(blueTotal > redTotal) {
 			winColor = BLUE;
-			winChar = 'R';
+			winChar = 'B';
 		} else {
 			winChar = 'T';
 			winColor = number % 2 == 1 ? "#FFFFFF" : "#CCCCCC";
@@ -49,6 +59,12 @@ public class MatchResult {
 	}
 	public int getBlueScore() {
 		return blueScore;
+	}
+	public int getRedTotal() {
+		return redTotal;
+	}
+	public int getBlueTotal() {
+		return blueTotal;
 	}
 	public char getWinChar() {
 		return winChar;

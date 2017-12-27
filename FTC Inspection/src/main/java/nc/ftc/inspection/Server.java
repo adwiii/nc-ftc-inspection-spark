@@ -115,7 +115,8 @@ public class Server {
 		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
 		get(Path.Web.GET_DISPLAY_COMMANDS, EventPages.handleGetDisplayCommands);
 		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditScorePage);
-		
+		get(Path.Web.GET_MATCH_FULL, EventPages.handleGetFullResult);
+		get(Path.Web.GET_MATCH_INFO, EventPages.handleGetMatchInfo);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -125,7 +126,7 @@ public class Server {
 		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
 		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
 		post(Path.Web.NEW_TEAM, GlobalPages.handleNewTeamPost);
-		post(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditedScore);
+		post(Path.Web.EDIT_MATCH_SCORE, EventPages.handleCommitEditedScore);
 		
 		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
 		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
@@ -150,7 +151,7 @@ public class Server {
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		put(Path.Web.EDIT_SCORE, EventPages.handleControlScoreEdit);
-		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleCommitEditedScore);
+		put(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditedScore);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);

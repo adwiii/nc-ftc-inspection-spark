@@ -13,6 +13,7 @@ public class Match {
 	long lastChange = 0;
 	Object scoreLock = new Object();
 	public boolean refLockout = false;
+	
 	public Match(int num, Alliance red, Alliance blue){
 		this.red = red;
 		this.blue = blue;
@@ -116,6 +117,11 @@ public class Match {
 		int balancePoints = 20 * Integer.parseInt(a.scores.get("balanced").toString());
 		int teleopPoints = glyphPoints + rowPoints + columnPoints + cipherPoints + relicPoints + balancePoints; 
 		
+		int adjust = Integer.parseInt(a.scores.get("adjust").toString());
+		
+		//store this in ram (call this method to calculate score, that way this code is only written once)
+		a.lastCalculatedScoreNoPenalties = autoPoints + teleopPoints + adjust;
+		
 		list.add(json("glyphPoints", glyphPoints));
 		list.add(json("rowPoints", rowPoints));
 		list.add(json("columnPoints", columnPoints));
@@ -124,7 +130,7 @@ public class Match {
 		list.add(json("balancePoints", balancePoints));
 		list.add(json("teleopPoints", teleopPoints));
 		
-		list.add(json("adjust", Integer.parseInt(a.scores.get("adjust").toString())));
+		list.add(json("adjust", adjust));
 		
 		
 		list.add(json("cryptobox1", a.scores.get("cryptobox1")));
@@ -166,4 +172,6 @@ public class Match {
 			scoreLock.notifyAll();
 		}
 	}
+	
+	
 }

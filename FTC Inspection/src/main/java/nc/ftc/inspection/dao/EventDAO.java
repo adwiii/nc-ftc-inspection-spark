@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -99,6 +100,7 @@ public class EventDAO {
 	
 	static final String GET_SCHEDULE_STATUS_QUALS = "SELECT q.match, red1, red2, blue1, blue2, status, redScore, blueScore FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
+	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -511,10 +513,13 @@ public class EventDAO {
 			//THE ONLY CORRECT ONE IS IN FULLBREAKDOWN!
 			//(if theres a way to edit scores, testing the fix could be done by using that and not changing anything)
 			ps = local.prepareStatement(COMMIT_MATCH_RESULTS);
-			ps.setInt(1, match.getRed().calculateScore());
-			ps.setInt(2,  match.getBlue().calculateScore());
-			ps.setInt(3, match.getRed().getPenaltyPoints());
-			ps.setInt(4,  match.getBlue().getPenaltyPoints());
+			match.getScoreBreakdown();//Force score calc
+			Alliance blue = match.getBlue();
+			Alliance red = match.getRed();
+			ps.setInt(1, red.getLastScore() );
+			ps.setInt(2,  blue.getLastScore());
+			ps.setInt(3, red.getPenaltyPoints());
+			ps.setInt(4,  blue.getPenaltyPoints());
 			ps.setInt(5,  match.getNumber());
 			affected = ps.executeUpdate();
 			if(affected != 1){
@@ -551,9 +556,9 @@ public class EventDAO {
 		setParam(ps, 7, a, "columns", Types.INTEGER);
 		setParam(ps, 8, a, "ciphers", Types.INTEGER);
 		setParam(ps, 9, a, "relic1Zone", Types.INTEGER);
-		setParam(ps, 10, a, "relic1Standing", Types.INTEGER);
+		setParam(ps, 10, a, "relic1Standing", Types.BOOLEAN);
 		setParam(ps, 11, a, "relic2Zone", Types.INTEGER);
-		setParam(ps, 12, a, "relic2Standing", Types.INTEGER);
+		setParam(ps, 12, a, "relic2Standing", Types.BOOLEAN);
 		setParam(ps, 13, a, "balanced", Types.INTEGER);
 		setParam(ps, 14, a, "major", Types.INTEGER);
 		setParam(ps, 15, a, "minor", Types.INTEGER);
@@ -612,6 +617,8 @@ public class EventDAO {
 		}
 	}
 	
+	
+	
 	public static List<MatchResult> getMatchResults(String event){
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(GET_RESULTS_QUALS);
@@ -624,6 +631,33 @@ public class EventDAO {
 				result.add(mr);
 			}
 			return result;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Match getMatchResultFull(String event, int num) {	
+		try (Connection local = getLocalDB(event)){
+			Match match = getMatch(event, num);
+			PreparedStatement ps = local.prepareStatement(GET_MATCH_RESULTS_FULL_SQL);
+			ps.setInt(1, num);
+			ResultSet rs = ps.executeQuery();
+			 
+			while(rs.next()) {
+				Alliance a = match.getAlliance(rs.getInt(2) == Alliance.RED ? "red" : "blue");
+				a.initializeScores();
+				Set<String> keys = a.getScoreFields();
+				//TODO URGENT FIX THIS
+				keys.remove("adjust");
+				keys.remove("jewelSet1");
+				keys.remove("jewelSet2");
+				for(String key : keys) {
+					a.updateScore(key, rs.getObject(key));
+				}
+			}
+			return match;
 		}
 		catch(Exception e) {
 			e.printStackTrace();

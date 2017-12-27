@@ -84,3 +84,393 @@
 		</fieldset>
 	</div>
 #end
+
+#macro(topBar)
+	<div id="top">
+			<div id="leftTeams">
+				<div class="teamSlotHeader" style="text-align:right">DQ</div>
+				<div class="teamSlot" id="red_1_slot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+				<div class="teamSlot" id="red_2_slot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+				<div class="teamSlot" id="red_3_slot" style="justify-content: flex-end;">
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<input type="text" class="teamNumber"/>
+					<input type="checkbox" class="dqBox"/>
+				</div>
+			</div>
+			<div id="centerTop">
+				<div id="centerHeader" style="width:100%;height:10%;"></div>
+				<div id="centerBox1" style="width:100%;height:30%;"></div>
+				<div id="redScore" class="score">0</div>
+				<div id="blueScore" class="score">0</div>
+				<div id="centerBox2" style="width:100%;height:30%;"></div>
+			</div>
+			<div id="rightTeams">
+				<div class="teamSlotHeader">DQ</div>
+				<div class="teamSlot" id="blue_1_slot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+				<div class="teamSlot" id="blue_2_slot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+				<div class="teamSlot" id="blue_3_slot">
+					<input type="checkbox" class="dqBox"/>
+					<input type="text" class="teamNumber"/>
+					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+				</div>
+			</div>
+		</div>
+#end
+
+#macro (scoreStyle)
+#top{
+		width:100%;
+		height:20%;
+		background:magenta;
+	}
+	.teamSlotHeader{
+		width:100%;
+		height:10%;
+		background:red;
+	}
+	.teamSlot{
+		width:100%;
+		height:30%;
+		background:red;
+		display: flex;
+		align-items: center;
+	}
+	#leftTeams{
+		width:40%;
+		height:100%;
+		background:pink;
+		float:left;
+	}
+	#rightTeams{
+		width:40%;
+		height:100%;
+		background:cyan;
+		float:left;
+	}
+	#centerTop{
+		width:20%;
+		height:100%;
+		background:white;
+		float:left;
+	}
+	.dqBox{
+		margin: 10px 10px;
+	}
+	.teamNumber{
+		width:70px;
+	}
+	.teamCard{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: black;
+		padding: 1px 1px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 1px 10px;
+		cursor: pointer;
+		border-radius: 3px;
+	}
+	.teamCard[value="yellow"]{
+		background-color: yellow;
+	}
+	.teamCard[value="red"]{
+		background-color:red;
+	}
+	.tabContent{
+		width:100%;
+		height:70%;
+		overflow:auto;
+	}
+	#matchControl{
+		width:100%;
+		height: 10%;
+		background:orange;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.score{
+		width:50%;
+		height:30%;
+		color:black;
+		font-size:36px;
+		float:left;
+		text-align:center;
+	}
+	
+	.matchControlButton{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 10px;
+		cursor: pointer;
+	}
+	.matchControlButton:hover {
+		background-color: #3e8e41;
+	}
+	.matchControlButton:disabled{
+		background-color: #d3d3d3;
+	}
+   #leftScores{
+		width:50%;
+		height:100%;
+		background:red;
+		float:left;
+	}
+	#rightScores{
+		width:50%;
+		height:100%;
+		background:blue;
+		float:left;
+	}
+	
+	.scoreField{
+		float:left;
+		width:41;
+		height:41;
+		font-size:24px;
+	}
+	.scoreLabel{
+		float:left;
+		width: 70;
+	}
+	.scoreControl{
+		
+	}
+	
+	.scoreBreakdown{
+		float:left;
+		
+	}
+	.breakdown{
+		width:150;
+	}
+	.relicSet{
+		width:147;
+	}
+	.relicControl{
+		float:left;
+		
+	}
+	.relicZone{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		font-size: 16px;
+		margin: 1px 10px;
+		cursor: pointer;
+		display: block;
+	}
+	.relicZone:diabled{
+		background-color: #4CAF50;
+	}
+	.relicZone[state="on"]{
+		background-color: #0e5e11;
+	}
+	.relicZone[state="off"]{
+		background-color: #5CBF60; 
+	}
+#end
+
+#macro (scoreJS)
+	function updateScoreBreakdown(obj){
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "blue" : "red"
+	  		document.getElementById(a + "AutoScore").innerHTML = obj[a].autoPoints;
+	  		document.getElementById(a + "JewelPoints").innerHTML = obj[a].jewelPoints;
+	  		document.getElementById(a + "AutoGlyphPoints").innerHTML = obj[a].glyphAutoPoints;
+	  		document.getElementById(a + "KeyPoints").innerHTML = obj[a].keyPoints;
+	  		document.getElementById(a + "ParkingPoints").innerHTML = obj[a].parkingPoints;
+	  		document.getElementById(a + "TeleopScore").innerHTML = obj[a].teleopPoints;
+	  		document.getElementById(a + "GlyphPoints").innerHTML = obj[a].glyphPoints;
+	  		document.getElementById(a + "RowPoints").innerHTML = obj[a].rowPoints;
+	  		document.getElementById(a + "ColumnPoints").innerHTML = obj[a].columnPoints;
+	  		document.getElementById(a + "CipherPoints").innerHTML = obj[a].cipherPoints;
+	  		document.getElementById(a + "RelicPoints").innerHTML = obj[a].relicPoints;
+	  		document.getElementById(a + "BalancePoints").innerHTML = obj[a].balancePoints;
+	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
+	  		document.getElementById(a+"Score").innerHTML = parseInt(obj[a].autoPoints)+parseInt(obj[a].teleopPoints)+parseInt(obj[a].foulPoints)+parseInt(obj[a].adjust);
+  		}
+  	}
+  	
+  	function up(alliance, key){
+  		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
+  		var val = parseInt(txt.value);
+  		val += 1;
+  		txt.value = val;
+  		updateScore(alliance, key, val);
+  	}
+  	function down(alliance, key){
+  		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
+  		var val = parseInt(txt.value);
+  		val -= val == 0 ? 0 : 1;
+  		txt.value = val;
+  		updateScore(alliance, key, val);
+  	}
+  	
+  	function updateScoreControl(data){
+  		for(var i = 0; i < 2; i++){
+  			var a = i == 0 ? "blue" : "red"
+  			for(var key in data[a]){
+  				var elem = document.getElementById(a+"_"+key+"_score");
+  				if(elem){
+  					try{
+  						elem.getElementsByTagName("input")[0].value=data[a][key];
+  					}catch(err){}
+  				}
+  			}
+  			//do the odd ones: relics
+  			if(eval(data[a]["relic1Standing"])!=(document.getElementById(a+"Relic1Standing").getAttribute("state") == "on")){
+				toggleStanding(a,1);
+			}  
+			if(eval(data[a]["relic2Standing"])!=(document.getElementById(a+"Relic2Standing").getAttribute("state") == "on")){
+				toggleStanding(a,2);
+			}  
+			//if(data[a].relic1Zone == 0){	
+				clearZones(a, 1);		
+			//}
+			if(data[a].relic1Zone > 0){
+				document.getElementById(a+"Relic1Zone"+data[a].relic1Zone).setAttribute("state", "on");
+			}
+			//if(data[a].relic2Zone == 0){	
+				clearZones(a, 2);		
+			//}
+			if(data[a].relic2Zone > 0){
+				document.getElementById(a+"Relic2Zone"+data[a].relic2Zone).setAttribute("state", "on");
+			}
+  			
+  			//TODO cryptoboxes and jewels
+  		}
+  	}
+  	
+  	function clearZones(alliance, relic){
+  		for(var i = 1; i < 4; i++){
+		 var x = document.getElementById(alliance+"Relic"+relic+"Zone"+i);
+		 x.setAttribute("state","off");
+		}	
+  	}
+  	
+  	function relicZone(alliance, relic, zone){
+		var r = document.getElementById(alliance+"Relic"+relic+"Zone"+zone);
+		var next = r.getAttribute("state") == "on" ? "off" : "on";
+		clearZones(alliance, relic);
+		if(zone > 0){		
+			r.setAttribute("state", next);
+		}
+		updateScore(alliance, "relic"+relic+"Zone", next == "off" ? 0 : zone);
+	}
+		
+	function toggleStanding(alliance, relic){
+		var r = document.getElementById(alliance+"Relic"+relic+"Standing");
+		var next = r.getAttribute("state") == "on" ? "off" : "on";
+		r.setAttribute("state", next );
+		r.innerHTML = next == "on" ? "&#10004;" : "&nbsp;&nbsp;";
+		updateScore(alliance, "relic"+relic+"Standing", next == "on" ? "true" : "false");
+	}
+	
+	function toggleCard(src){
+		if(src.value == "green"){
+			src.value = "yellow";
+		} else if(src.value== "yellow"){
+			src.value = "red";
+		} else{
+			src.value = "green";
+		}
+	}
+	function getRelicZone(a, i){
+		if(document.getElementById(a+"Relic"+i+"Zone3").getAttribute("state") == "on")return 3;
+		if(document.getElementById(a+"Relic"+i+"Zone2").getAttribute("state") == "on")return 2;
+		if(document.getElementById(a+"Relic"+i+"Zone1").getAttribute("state") == "on")return 1;
+		return 0;
+	}
+
+	function getCommitObject(){
+		var obj = {
+			red_score_relic1Zone:     getRelicZone("red", 1),
+			red_score_relic1Standing: document.getElementById("redRelic1Standing").getAttribute("state") == "on",
+			red_score_relic2Zone:     getRelicZone("red", 2),
+			red_score_relic2Standing: document.getElementById("redRelic2Standing").getAttribute("state") == "on",
+			blue_score_relic1Zone:     getRelicZone("blue", 1),
+			blue_score_relic1Standing: document.getElementById("blueRelic1Standing").getAttribute("state") == "on",
+			blue_score_relic2Zone:     getRelicZone("blue", 2),
+			blue_score_relic2Standing: document.getElementById("blueRelic2Standing").getAttribute("state") == "on",			
+		};
+	
+		var scores = document.getElementsByClassName("scoreControl");
+		for( var i = 0; i < scores.length; i++){
+			var x = scores[i];
+			var sp = x.id.split("_");
+			obj[sp[0]+"_score_"+sp[1]] = x.children[1].value;
+		}
+		
+		var slots = document.getElementsByClassName("teamSlot");
+		for( var i = 0; i < slots.length; i++){
+			var x = slots[i]; 
+			var sp = x.id.split("_");
+			obj[sp[0]+"_dq_"+sp[1]] = x.children[0].checked;
+			var c = x.children[1].value;
+			obj[sp[0]+"_card_"+sp[1]] = c == "yellow" ? 1 : (c == "red" ? 2 : 0);
+		}
+		return obj;
+	}
+	
+	function setControlState(state){
+		var arrows = document.getElementsByClassName("arrow");
+		for(var i =0 ; i < arrows.length; i++){
+			arrows[i].disabled = state;
+		}
+		var relics = document.getElementsByClassName("relicZone");
+		for(var i =0; i < relics.length; i++){
+			relics[i].disabled = state;
+		}
+		var fields = document.getElementsByClassName("scoreField");
+		for(var i =0; i < fields.length; i++){
+			fields[i].disabled = state;
+		}
+	}
+	
+	function fillMatchInfo(data){
+  	
+  	//TODO clear the cards and DQ box
+  		var slot = document.getElementById("red_1_slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.red1;
+  		
+  		slot = document.getElementById("red_2_slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.red2;
+  		
+  		
+  		slot = document.getElementById("blue_1_slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.blue1;
+  		
+  		slot = document.getElementById("blue_2_slot");
+  		slot.getElementsByClassName("teamNumber")[0].value = data.blue2;
+  		
+  		
+  	}
+#end

@@ -70,6 +70,8 @@ public class Path {
         
         //get gets the page, PUT returns new score breakdown, and POST commits.
         public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
+        public static final String GET_MATCH_FULL = "/event/:event/match/:match/full/";
+        public static final String GET_MATCH_INFO = "/event/:event/match/:match/info/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
         

@@ -1211,17 +1211,98 @@ public class EventPages {
 			return "OK";
 		};
 		
+		public static Route handleGetFullResult = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			int m = Integer.parseInt(request.params("match"));
+			return EventDAO.getMatchResultFull(event, m).getFullScores();
+		};
+		
 		public static Route handleGetEditScorePage = (Request request, Response response) ->{
 			HashMap<String, Object> map = new HashMap<>();
-			
+			map.put("match", Integer.parseInt(request.params("match")));
 			return render(request, map, Path.Template.EDIT_MATCH_SCORE);
 		};
+		
+		private static Match createMatchObject(Request request, Response response, int m) {			
+			Set<String> params = request.queryParams();
+			/*Format:
+			 * <alliance>_score_<scoreKey> : call updateScore
+			 * <alliance>_card_<index>
+			 * <alliance>_dq_<index> 
+			 */
+			//team numbers shouldnt matter for this
+			Alliance red = new Alliance(0,0);
+			red.initializeScores();
+			Alliance blue = new Alliance(0,0);
+			blue.initializeScores();
+			Match match = new Match(m, red, blue);
+			
+			for(String key : params){
+				String[] data = key.split("_");
+				Alliance alliance  = match.getAlliance(data[0]);
+				switch(data[1]) {
+					case "score":
+						alliance.updateScore(data[2], request.queryParams(key));				
+						break;
+					case "card":
+						alliance.setCard(Integer.parseInt(data[2]), Integer.parseInt(request.queryParams(key)));
+						break;
+					case "dq":
+						alliance.setDQ(Integer.parseInt(data[2]), Boolean .parseBoolean(request.queryParams(key)));
+						break;
+				}
+			}
+			return match;
+		}
+		
 		public static Route handleGetEditedScore = (Request request, Response response) ->{
-			return null;
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);			
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			int m = Integer.parseInt(request.params("match"));
+			Match match = createMatchObject(request, response, m);
+			return match.getScoreBreakdown();
 		};
 		public static Route handleCommitEditedScore = (Request request, Response response) ->{
-			return null;
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);			
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			int m = Integer.parseInt(request.params("match"));
+			Match match = createMatchObject(request, response, m);
+			if(EventDAO.commitScores(event, match)){
+				return "OK";
+			}
+			response.status(500);
+			return "PROBLEM";
 		};
 		
-		
+		public static Route handleGetMatchInfo = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			int num = Integer.parseInt(request.params("match"));
+			Match m = EventDAO.getMatch(event, num);
+			String res = "{";
+			res += "\"number\":" + m.getNumber()+",";
+			res += "\"red1\":"+m.getRed().getTeam1()+",";
+			res += "\"red2\":"+m.getRed().getTeam2()+",";
+			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
+			res += "\"blue2\":"+m.getBlue().getTeam2();
+			res += "}";
+			return res;
+		};		
 }

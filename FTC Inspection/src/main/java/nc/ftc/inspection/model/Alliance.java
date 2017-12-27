@@ -30,6 +30,9 @@ public class Alliance {
 	private boolean dq1 = false;
 	private boolean dq2 = false;
 	
+
+	int lastCalculatedScoreNoPenalties = 0;
+	
 	static Map<String, Number> scoreMap = new HashMap<>();
 	static{
 		//TODO put all the possible fields in an array/db, make this support multiple years.
@@ -124,8 +127,13 @@ public class Alliance {
 	}
 	
 	
-	
+	/**
+	 * DEPRECATED, Call event.getScoreBreakdown, then read this instances lastCalculatedScoreNoPenalties field
+	 * @return -1
+	 */
+	@Deprecated 
 	public int calculateScore(){
+		/*
 		int score = 0;
 		for(Entry<String, Number> entry : scoreMap.entrySet()){
 			Object item = scores.get(entry.getKey());
@@ -138,6 +146,8 @@ public class Alliance {
 			}
 		}
 		return score;
+		*/
+		return -1;
 	}
 	
 	public int getPenaltyPoints(){
@@ -262,6 +272,9 @@ public class Alliance {
 	public void setDQ(int index, boolean dq) {
 		if(index == 1)this.dq1 = dq;
 		if(index == 2)this.dq2 = dq;
+	}
+	public int getLastScore() {
+		return lastCalculatedScoreNoPenalties;
 	}
 	
 }

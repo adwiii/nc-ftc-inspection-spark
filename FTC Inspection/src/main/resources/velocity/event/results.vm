@@ -31,7 +31,7 @@ Match Results</H2></CENTER>
 		<TD BGCOLOR=$c ROWSPAN=2>Q-$m.number</TD>
 		<TD BGCOLOR="$m.winColor" ROWSPAN=2>
 			#if($m.status == 1)
-				${m.redScore}-$m.blueScore $m.winChar
+				${m.getRedTotal()}-${m.getBlueTotal()} $m.winChar
 			#end
 		</TD>
 		<TD BGCOLOR=$c> $m.red.team1#if($m.red.is1Surrogate())*#end</TD>
