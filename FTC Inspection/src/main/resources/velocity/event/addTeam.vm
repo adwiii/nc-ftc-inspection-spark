@@ -1,0 +1,29 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+
+<script>
+	function addTeam(){
+		$.ajax({
+			url: "",
+  			type: "POST",
+  			data: {team:document.getElementById("team").value},
+  			success: function(data){
+  				document.getElementById("team").value = "";
+  				document.getElementById("msg").innerHTML = "Team added";
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){  				
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+                document.getElementById("msg").innerHTML = xhr.responseText;
+  			}});  	
+	}
+</script>
+
+<input type="text" id="team"></input>
+<button onclick="addTeam()">Add Team</button>
+<div id="msg"></div>
+
+
+
+#end

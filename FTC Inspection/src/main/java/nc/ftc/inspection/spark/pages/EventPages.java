@@ -233,6 +233,11 @@ public class EventPages {
 		     multipartConfigElement);
 			
 		 	String event = request.params("event");
+		 	EventData data = EventDAO.getEvent(event);
+		 	if(data.getStatus() != 3) {
+		 		response.status(409);
+		 		return "Not in quals phase!";
+		 	}
 			Part p = request.raw().getPart("file");
 			List<Match> matches = new ArrayList<>();
 			Scanner scan = new Scanner(p.getInputStream());
@@ -1324,4 +1329,70 @@ public class EventPages {
 			map.put("event", e.getData().getName());
 			return render(request, map, Path.Template.RANKINGS);
 		};
+		
+		public static Route serveManagePage = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			Map<String, Object> map = new HashMap<>();		
+			map.put("eventCode", code);
+			map.put("eventName", data.getName());
+			map.put("eventDate", data.getDate());
+			map.put("status", data.getStatus());
+			return render(request, map, Path.Template.MANAGE_EVENT);
+		};
+
+		public static Route handleSetStatus = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			int newStatus = Integer.parseInt(request.queryParams("status"));
+			System.out.println(newStatus);
+			if(newStatus != data.getStatus() + 1) {
+				response.status(400);
+				return "CANT SKIP PHASE!";
+			}
+			switch(newStatus) {
+			case 1:
+				EventDAO.createEventDatabase(code);
+				break;
+			case 2:
+				EventDAO.populateStatusTables(code);
+				break;
+			case 3:
+				Server.activeEvents.put(code, new Event(data));
+				System.out.println(code + " added to active events.");
+				break;
+			}
+
+			EventDAO.setEventStatus(code, newStatus);
+			return "OK";
+		};
+		
+		public static Route serveAddTeam = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.ADD_TEAM);
+		};
+		
+		public static Route handleAddTeam = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			if(data.getStatus() != 1) {
+				response.status(409);
+				return "Not in setup phase!";
+			}
+			try {
+			int team = Integer.parseInt(request.queryParams("team"));
+			if(EventDAO.addTeamToEvent(team, code)) {
+				return "OK"; 
+			}
+			response.status(400);
+			return "Team already in event";
+			}catch(Exception e) {
+				response.status(400);
+				return "Invalid team number";
+			}
+		};
+
+		public static Route serveUploadSchedulePage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.UPLOAD_SCHEDULE);
+		};
+
 }

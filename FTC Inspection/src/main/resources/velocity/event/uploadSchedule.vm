@@ -1,0 +1,11 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+
+Select the matches.txt file from the directory of the FIRST Official Scoring software, after generating match schedule.
+<form enctype="multipart/form-data" action="" method="post">
+    <input id="file" type="file" name="file"/>
+    <input type="submit" value="Upload Schedule"></input>
+</form>
+
+
+#end

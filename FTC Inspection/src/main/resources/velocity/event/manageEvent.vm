@@ -1,5 +1,24 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+
+<script>
+	function setStatus(s){
+		$.ajax({
+			url: "./status/",
+  			type: "POST",
+  			data: {status:s},
+  			success: function(data){
+  				window.location.reload(true);
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){  				
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+  			}});  	
+	}
+</script>
+
+
 <form id="loginForm" method="post">
 	<h2>Manage $eventCode: $eventName</h2>
 	<label>Event Code:</label>
@@ -8,17 +27,55 @@
 	<input type="text" value="$eventName" name="eventName">
 	<label>Event Date:</label>
 	<!-- the id="datepicker" lets jquery know that this needs to be all fancy-->
-	<input type="text" name="eventDate" id="datepicker" value="$eventDate">
-	<label>Event State:</label>
-	<select name="eventStage">
-  		<option value="future">Future</option>
-  		<option value="setup">Setup</option>
-  		<option value="inspection">Inspection</option>
-  		<option value="quals">Qualifications</option>
-  		<option value="elims">Eliminations</option>
-  		<option value="final">Completed</option>
-	</select>	
+	<input type="text" name="eventDate" id="datepicker" value="$eventDate">	
+	<input type="button" value="Update Event Info">
 	
-	<input type="submit" value="Update Event">
+
 </form>
+
+	<label>Event State:</label>
+	Status:
+	#if($status == 0)
+		Future
+		<br>
+		Next Step: Setting the event to "Setup" creates the event database and allows the entering of teams. If this server instance will be sending updates to a remote server, do NOT proceed. Got to <a href="">Server Config</a> to configure remotes.<br>
+		<button onclick="setStatus(1)">Setup Event</button>
+	#elseif($status == 1)
+		Setup
+		<br>
+		This Step:Use <a href="./addteam/">this form</a> to add/remove teams from the event<br>
+		<br>
+		Next Step:After the team list is complete, setting the event to "inspection" 
+		populates the necessary info for inspection to begin. Make sure ALL teams are entered.
+	After starting inspection, TEAMS CANNOT BE ADDED. They can be removed until matches start.
+		<br>
+		<button onclick="setStatus(2)">Start Inspection</button>
+	
+	#elseif($status == 2)
+		Inspection
+		<br>
+		This Step: Inspect teams!
+		<br>
+		Next Step: Make sure all non-competing teams are removed from the system. Use the FIRST official scoring software to generate matches.
+		 <button onclick="setStatus(3)">Start Qualification</button>
+	#elseif($status == 3)
+		Qualification
+		<br>
+		This Step: Upload Quals schedule <a href="./scheduleupload/">here.</a>
+		Then the event is ready!
+	#elseif($status == 4)
+		Elimination
+	#elseif($status == 5)
+		Complete
+	#end
+	<!--
+	<select name="eventStage">
+  		<option value="future" #if($status == 0)selected#end>Future</option>
+  		<option value="setup" #if($status == 1)selected#end>Setup</option>
+  		<option value="inspection" #if($status == 2)selected#end>Inspection</option>
+  		<option value="quals" #if($status == 3)selected#end>Qualifications</option>
+  		<option value="elims" #if($status == 4)selected#end>Eliminations</option>
+  		<option value="final" #if($status == 5)selected#end>Completed</option>
+	</select>	
+	-->
 #end

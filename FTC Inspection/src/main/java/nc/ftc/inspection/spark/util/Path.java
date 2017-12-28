@@ -18,6 +18,8 @@ public class Path {
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
+        public static final String ADD_TEAM = "/event/:event/manage/addteam/";
+        public static final String SET_STATUS = "/event/:event/manage/status/";
         public static final String EDIT_FORM = "/event/:event/edit/";
         public static final String INSPECT_HOME = "/event/:event/inspect/";
 		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
@@ -35,7 +37,7 @@ public class Path {
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
         public static final String EVENT_STATUS = "/event/:event/status/data/"; //Endpoint to get data
         public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
-        public static final String UPLOAD_SCHEDULE = "/event/:event/scheduleUpload/";
+        public static final String UPLOAD_SCHEDULE = "/event/:event/manage/scheduleupload/";
         public static final String SCHEDULE = "/event/:event/schedule/";
         public static final String SCHEDULE_STATUS = "/event/:event/schedule/status/";
         //TODO have a subdir for scoring/match stuff under /event?
@@ -141,6 +143,8 @@ public class Path {
 		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
 		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";
 		public static final String RANKINGS = "/velocity/event/rankings.vm";
+		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
+		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
         
     }
 

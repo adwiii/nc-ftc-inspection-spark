@@ -144,7 +144,9 @@ public class Event {
 					if(!dqBlue2 && !blue.is2Surrogate()) blue2.RP += RP;
 				} else {
 					//if both teams on losing alliance DQ'd, winning team gets their SCORE (inc penalties) as RP
-				}
+				
+				
+				}//TODO call this method after every commit and on recalc command
 				
 				//add matches to list of scores for non-DQ/surrogate teams
 				if(!dqRed1 && !red.is1Surrogate()) red1.scores.add(mr.getRedTotal());

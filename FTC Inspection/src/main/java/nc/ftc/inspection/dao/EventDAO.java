@@ -127,11 +127,11 @@ public class EventDAO {
 	
 	public static EventData getEvent(String code){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
+			PreparedStatement ps = conn.prepareStatement(GET_EVENT_SQL);
 			ps.setString(1, code);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.next())return null;
-			return new EventData(rs.getString(0), rs.getString(1), rs.getInt(3), rs.getDate(2));
+			return new EventData(rs.getString(1), rs.getString(2), rs.getInt(4), rs.getDate(3));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -173,6 +173,9 @@ public class EventDAO {
 			int affected = ps.executeUpdate();
 			return affected == 1;
 		}catch(Exception e){
+			if(e.getMessage().contains("PRIMARY KEY must be unique")) {
+				return false; //attempted to add a team already in event.
+			}
 			e.printStackTrace();
 			return false;
 		}

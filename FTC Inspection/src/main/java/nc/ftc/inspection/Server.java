@@ -50,7 +50,7 @@ public class Server {
 		
 //		System.out.println(EventDAO.getStatus("test2"));
 ////		EventDAO.cre
-//		EventDAO.createEventDatabase("test11");
+//		EventDAO.createEventDatabase("test12");
 //		EventDAO.addTeamToEvent(10, "test11");
 //		EventDAO.populateStatusTables("test11");
 //		
@@ -119,6 +119,10 @@ public class Server {
 		get(Path.Web.GET_MATCH_INFO, EventPages.handleGetMatchInfo);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		
+		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
+		get(Path.Web.ADD_TEAM, EventPages.serveAddTeam);
+		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);
+		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);
@@ -145,6 +149,9 @@ public class Server {
 		post(Path.Web.SHOW_PREVIEW, EventPages.handleShowPreviewCommand);
 		post(Path.Web.SHOW_MATCH, EventPages.handleShowMatch);
 		post(Path.Web.LOCKOUT_REFS, EventPages.handleLockoutRefs);
+		
+		post(Path.Web.SET_STATUS, EventPages.handleSetStatus);
+		post(Path.Web.ADD_TEAM, EventPages.handleAddTeam);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
