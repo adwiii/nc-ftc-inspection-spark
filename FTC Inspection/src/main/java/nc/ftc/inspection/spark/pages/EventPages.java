@@ -392,11 +392,11 @@ public class EventPages {
 			Event event = Server.activeEvents.get(eventCode);
 			if(event == null){
 				response.status(500);
-				return null;
+				return "";
 			}
 			if(event.getCurrentMatch() == null){
 				response.status(500);
-				return null;
+				return "";
 			}
 			if(event.getCurrentMatch().isRandomized()){
 				return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
@@ -1311,4 +1311,17 @@ public class EventPages {
 			res += "}";
 			return res;
 		};		
+		public static Route handleGetRankings = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			e.calculateRankings();
+			Map<String, Object> map = new HashMap<>();
+			map.put("rankings", e.getRankings());
+			map.put("event", e.getData().getName());
+			return render(request, map, Path.Template.RANKINGS);
+		};
 }

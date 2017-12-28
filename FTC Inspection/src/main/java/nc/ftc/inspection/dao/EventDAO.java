@@ -99,7 +99,8 @@ public class EventDAO {
 	static final String COMMIT_MATCH_SCORES = "UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?";
 	
 	static final String GET_SCHEDULE_STATUS_QUALS = "SELECT q.match, red1, red2, blue1, blue2, status, redScore, blueScore FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
-	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
+	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match ORDER BY q.match";
+	static final String GET_CARDS_DQS_SQL = "SELECT match, alliance, card1, card2, dq1, dq2 from qualsScores; ";
 	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
@@ -625,7 +626,6 @@ public class EventDAO {
 	}
 	
 	
-	
 	public static List<MatchResult> getMatchResults(String event){
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(GET_RESULTS_QUALS);
@@ -636,6 +636,38 @@ public class EventDAO {
 				Alliance blue = new Alliance(rs.getInt(6), rs.getBoolean(7), rs.getInt(8), rs.getBoolean(9));
 				MatchResult mr = new MatchResult(rs.getInt(1), red, blue, rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14));
 				result.add(mr);
+			}
+			return result;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	//same as above but with cards & dqs
+	public static List<MatchResult> getMatchResultsForRankings(String event){
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_RESULTS_QUALS);
+			ResultSet rs = ps.executeQuery();
+			List<MatchResult> result = new ArrayList<MatchResult>();
+			HashMap<Integer, MatchResult> map = new HashMap<>();
+			while(rs.next()) {
+				Alliance red = new Alliance(rs.getInt(2), rs.getBoolean(3), rs.getInt(4), rs.getBoolean(5));
+				Alliance blue = new Alliance(rs.getInt(6), rs.getBoolean(7), rs.getInt(8), rs.getBoolean(9));
+				MatchResult mr = new MatchResult(rs.getInt(1), red, blue, rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14));
+				map.put(mr.getNumber(), mr);
+				result.add(mr);
+			}
+			ps = local.prepareStatement(GET_CARDS_DQS_SQL);
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				MatchResult mr = map.get(rs.getInt(1));
+				Alliance a = rs.getInt(2) == Alliance.RED ? mr.getRed() : mr.getBlue();
+				a.initializeScores();
+				a.updateScore("card1", rs.getInt("card1"));
+				a.updateScore("card2", rs.getInt("card2"));
+				a.updateScore("dq1", rs.getBoolean("dq1"));
+				a.updateScore("dq2", rs.getBoolean("dq2"));
 			}
 			return result;
 		}

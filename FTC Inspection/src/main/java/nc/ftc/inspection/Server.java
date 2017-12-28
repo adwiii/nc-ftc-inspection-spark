@@ -117,6 +117,7 @@ public class Server {
 		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditScorePage);
 		get(Path.Web.GET_MATCH_FULL, EventPages.handleGetFullResult);
 		get(Path.Web.GET_MATCH_INFO, EventPages.handleGetMatchInfo);
+		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);

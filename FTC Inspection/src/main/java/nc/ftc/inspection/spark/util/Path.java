@@ -74,6 +74,7 @@ public class Path {
         public static final String GET_MATCH_INFO = "/event/:event/match/:match/info/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
+        public static final String RANKINGS = "/event/:event/rankings/";
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
         public static final String FIELD_DISPLAY  ="/event/:event/field/";
@@ -139,6 +140,7 @@ public class Path {
 		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
 		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
 		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";
+		public static final String RANKINGS = "/velocity/event/rankings.vm";
         
     }
 
