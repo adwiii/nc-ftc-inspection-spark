@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<body>
+This page will have the match/result list, and links to edit the scores for each one.
+</body>
+#end

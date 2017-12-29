@@ -903,7 +903,10 @@ public class EventPages {
 				}
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
+				//TODO save old rankings to get change
+				//TODO save MatchResult Object to e.display
 				e.loadNextMatch();
+				e.calculateRankings();
 			}
 			return "OK";
 		};
@@ -1061,6 +1064,8 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_PREVIEW);
+			//is this lock still used?
 			synchronized(e.waitForPreviewLock) {
 				e.waitForPreviewLock.notifyAll();
 			}
@@ -1171,8 +1176,15 @@ public class EventPages {
 
 		public static Route serveFieldDisplay = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<>();
-			//TODO if match in progress, call appropriate functions in velocity,
-			//and pass proper stuff
+			String adStr = request.queryParams("ad");
+			String is43Str = request.queryParams("43");
+			String fieldStr = request.queryParams("field");
+			String muteStr = request.queryParams("mute");
+			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
+			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
+			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
+			map.put("field", fieldStr == null ? null : Integer.parseInt(fieldStr));
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 
@@ -1292,6 +1304,7 @@ public class EventPages {
 			int m = Integer.parseInt(request.params("match"));
 			Match match = createMatchObject(request, response, m);
 			if(EventDAO.commitScores(event, match)){
+				e.calculateRankings();
 				return "OK";
 			}
 			response.status(500);
@@ -1323,7 +1336,7 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			e.calculateRankings();
+		//	e.calculateRankings(); TODO make another endpoint to force recalc
 			Map<String, Object> map = new HashMap<>();
 			map.put("rankings", e.getRankings());
 			map.put("event", e.getData().getName());
@@ -1395,4 +1408,21 @@ public class EventPages {
 			return render(request, new HashMap<String, Object>(), Path.Template.UPLOAD_SCHEDULE);
 		};
 
+		public static Route handleRecalcRankings  = (Request request, Response response) ->{
+			String code = request.params("event");
+			Event e = Server.activeEvents.get(code);
+			if(e == null) {
+				response.status(500);
+				return "Event not active!";
+			}
+			e.calculateRankings();
+			return "OK";
+		};
+		public static Route serveEventHomePage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.EVENT_HOME);
+		};
+
+		public static Route serveEditScoreHome= (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.EDIT_SCORE_HOME);
+		};
 }

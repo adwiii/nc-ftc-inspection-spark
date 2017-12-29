@@ -23,9 +23,7 @@
 </table>
 </body>
 <script>
-	function updatePage(){
-		//If detect structure change, reload entire page
-		//ex: add/remove column, team, change order of columns
-	}
+	
+	window.setTimeout(function(){window.location.reload(true);}, 15000);
 </script>
 #end

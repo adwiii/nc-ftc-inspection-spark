@@ -50,8 +50,27 @@
   			<img id="balance${alliance}2" src="/img/tt_black${size}.png" alt="Balance Stone">
   		</div>
  #end
+ 
+ #macro (previewBar $a $i)
+ <div style="position:relative;">
+ <img id="${a}Bar${i}" src="/img/alliance${a}190.png" alt="${a}${i}">
+ 	<div class="preview previewText previewNumber" id="${a}${i}_number"></div>
+ 	<div class="preview previewText previewName" id="${a}${i}_name"></div>
+ 	<div class="preview previewText previewRank" id="${a}${i}_name"></div>
+ </div>
+ #end
+ 
+ 
 <html>
 	<style>
+	#top{
+		position:absolute;
+		top:30px;
+		left:400;
+		width:1120;
+		font:60px  "Arial Black", Arial, Helvetica, sans-serif;
+		text-align:center;
+	}
 	#timer{
 		position: absolute;
 		top: 225px;
@@ -70,6 +89,40 @@
 	#random[visible="false"]{
 	display:none;
 	}
+	#preview{
+		position:absolute;
+		top:180px;
+		left:160px;
+	}
+	#preview[visible="false"]{
+	display:none;
+	}
+	
+	.preview{
+		z-index:3;
+	}
+	.previewText{
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		top:12;
+	}
+	.previewNumber{
+		position:absolute;
+		left:70;
+		width:250px;
+	}
+	.previewName{
+		position:absolute;
+		left:270;
+		width:1100px;
+	}
+	.previewRank{
+		position:absolute;
+		left:1470;
+		width:50px;
+		text-align:center
+	}
+	
+	
 	#scoreBar{
 		position:absolute;
 		height:180px;
@@ -192,7 +245,10 @@
   	<audio preload="auto" id="fogblast">
   	<source src="/audio/fogblast.wav" type="audio/wav">
   	</audio>
-  	<div id="timer">
+  	<div id="top">
+  		Match 1
+  	</div>
+  	<div id="timer" >
 	  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
@@ -201,7 +257,17 @@
   	<div id="random" visible="false">
   		<img id="randomImg" src="/img/random1_75.png" alt="Randomization" >
   	</div>
-  	<div id="scoreBar">
+  	<div id="preview" visible="false">
+  		#previewBar("red" "1")
+  		#previewBar("red" "2")
+  		#previewBar("red" "3")
+  		
+  		<br><br><br>
+  		#previewBar("blue" "1")
+  		#previewBar("blue" "2")
+  		#previewBar("blue" "3")
+  	</div>
+  	<div id="scoreBar" >
   		#grid("blue" "50" "1")
   		#grid("blue" "50" "2")
   		#ball("blue" "25")
@@ -384,6 +450,24 @@
             	} else if(data == 'SHOW_MATCH'){
             		showMatch();
             	}
+            	#if($ad)
+            		else if(data == 'SHOW_PREVIEW'){
+            			$.ajax({
+				  			url: "../match/",
+				  			type: "GET",
+				  			dataType: 'json',
+				  			success: function(data){
+				  				showPreview(data);
+				  			},
+				  			error:function(xhr, ajaxOptions, thrownError){
+					                    console.log(xhr);
+					                    console.log(ajaxOptions);
+					                    console.log(thrownError);
+				  			}});
+            		} else if(data == 'SHOW RESULT'){
+            			
+            		}
+            	#end
             	getDisplayCommand();
             },
             error: function () {
@@ -398,6 +482,33 @@
 		//TODO reset all the images and scores to pre-match values
 	}
 	
+	function showPreview(data){
+		document.getElementById("timer").setAttribute("visible","false");
+		document.getElementById("random").setAttribute("visible","false");
+	
+		document.getElementById("red1_number").innerHTML = data.red1;
+		document.getElementById("red1_name").innerHTML = data.red1Name;
+		document.getElementById("red2_number").innerHTML = data.red2;
+		document.getElementById("red2_name").innerHTML = data.red2Name;
+		if(typeof data.red3 !== 'undefined'){
+			document.getElementById("red3_number").innerHTML = data.red3;
+			document.getElementById("red3_name").innerHTML = data.red3Name;
+		}
+		document.getElementById("blue1_number").innerHTML = data.blue1;
+		document.getElementById("blue1_name").innerHTML = data.blue1Name;
+		document.getElementById("blue2_number").innerHTML = data.blue2;
+		document.getElementById("blue2_name").innerHTML = data.blue2Name;
+		if(typeof data.blue3 !== 'undefined'){
+			document.getElementById("blue3_number").innerHTML = data.blue3;
+			document.getElementById("blue3_name").innerHTML = data.blue3Name;
+		}
+		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
+	
+		document.getElementById("timer").setAttribute("visible","false");
+		document.getElementById("random").setAttribute("visible","false");
+		document.getElementById("preview").setAttribute("visible","true");
+	
+	}
 	
 	function showRandom(){
 		//get random
@@ -408,6 +519,7 @@
                 success: function (data) {
                     rand=data.rand;
                     document.getElementById("timer").setAttribute("visible","false");
+                   	document.getElementById("preview").setAttribute("visible","false");
                     var r = document.getElementById("random");
                     r.setAttribute("visible", "true");
                     //TODO sizes?
@@ -431,6 +543,7 @@
 	function showMatch(){
 		document.getElementById("timer").setAttribute("visible","true");
 		document.getElementById("random").setAttribute("visible","false");
+		document.getElementById("preview").setAttribute("visible","false");
 	}
 	
 	

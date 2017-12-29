@@ -20,6 +20,9 @@ public class Path {
         public static final String MANAGE_EVENT = "/event/:event/manage/";
         public static final String ADD_TEAM = "/event/:event/manage/addteam/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
+        public static final String EVENT_HOME = "/event/:event/home/";
+        
+        
         public static final String EDIT_FORM = "/event/:event/edit/";
         public static final String INSPECT_HOME = "/event/:event/inspect/";
 		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
@@ -52,6 +55,7 @@ public class Path {
         public static final String SCORE = "/event/:event/score/:alliance/"; 
         public static final String SCORE_AUTO = "/event/:event/score/:alliance/auto/"; 
         public static final String EDIT_SCORE = "/event/:event/score/edit/:alliance/"; // control page edit
+        public static final String EDIT_SCORE_HOME = "/event/:event/editmatch/"; 
         public static final String BOTH_SCORE = "/event/:event/score/";
         public static final String COMMIT_SCORES = "/event/:event/scorecommit/";
         public static final String SUBMIT_SCORE = "/event/:event/score/:alliance/submit/";
@@ -141,10 +145,12 @@ public class Path {
 		public static final String INSPECTION_OVERRIDE_PAGE = "/velocity/event/inspectOverride.vm";
 		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
 		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
+		public static final String EDIT_SCORE_HOME = "/velocity/event/editScoreHome.vm";
 		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";
 		public static final String RANKINGS = "/velocity/event/rankings.vm";
 		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
+		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         
     }
 

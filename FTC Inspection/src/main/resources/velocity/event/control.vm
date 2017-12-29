@@ -467,7 +467,6 @@ function resume(){
 
 function showPreview(){
 	var postObj = {};
-	//TODO change to /display.preview?
 	$.post("../display/preview/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });

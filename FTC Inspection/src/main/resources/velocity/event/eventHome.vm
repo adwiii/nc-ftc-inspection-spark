@@ -1,0 +1,84 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+NOTE: Eventually this will only show links you are authrized to see. If you don't know what something is, dont go there please!
+<h2>
+	Inspection Links
+</h2>
+<ul>
+	<li>
+		<a href="../inspect/ci">Team Check-in</a>
+	</li><li>
+		<a href="../inspect/hw">Hardware Inspection</a>
+	</li><li>
+		<a href="../inspect/sw">Software Inspection</a>
+	</li><li>
+		<a href="../inspect/fd">Field Inspection</a>
+	</li><li>
+		<a href="../status">Inspection Status</a>
+	</li>
+</ul>
+
+	
+<h2>
+	Live Scoring Links
+</h2>
+<ul>
+	<li>
+		<a href="../ref/blue">Blue Alliance Referee/Score Tracker</a>
+	</li><li>
+		<a href="../ref/red">Red Alliance Referee/Score Tracker</a>
+	</li><li>
+		<a href="/" ><s>View Scoresheets</s></a>
+	</li><li>
+		<a href="../schedule">Match Schedule</a>
+	</li><li>
+		<a href="../results">Match Results</a>
+	</li><li>
+		<a href="../rankings">Rankings</a>
+	</li>
+</ul>
+
+<h2>
+	Match Control & Display Pages
+</h2>
+<ul>
+	<li>
+		<a href="../control">Match Control Page</a>
+	</li><li>
+		<a href="../editmatch">Edit Match Scores</a>
+	</li><li>
+		<a href="../field/">Field Display 16:9</a>
+	</li><li>
+		<a href="../field/?43=true"><s>Field Display 4:3</s></a>
+	</li><li>
+		<a href="../field/?field=1"><s>Field Display 16:9 (Field 1 - Odd Matches Only)</s></a>
+	</li><li>
+		<a href="../field/?field=1&43=true"><s>Field Display 4:3 (Field 1 - Odd Matches Only)</s></a>
+	</li><li> 
+		<a href="../field/?field=2"><s>Field Display 16:9 (Field 2 - Even Matches Only)</s></a>
+	</li><li>
+		<a href="../field/?field=2&43=true"><s>Field Display 4:3 (Field 2 - Odd Matches Only</s></a>
+	</li><li>
+		<a href="../field/?ad=true&mute=true"><s>Audience Display 16:9</s></a>
+	</li><li>
+		<a href="../field/?ad=true&mute=true&43=true"><s>Audience Display 4:3</s></a>
+	</li><li>
+		<a href="../field/?ad=true"><s>Field Display As Audience Display 16:9</s></a>
+	</li><li>
+		<a href="../field/?ad=true&43=true"><s>Field Display As Audience Display 4:3</s></a>
+	</li><li>
+		<a href="../pit"><s>Pit Display</s></a>
+	</li>
+</ul>
+
+<h2>
+	Event Management Pages
+</h2>
+<ul>
+	<li>		
+		<a href="../manage">Manage Event</a>
+	</li>
+</ul>
+
+
+#end
