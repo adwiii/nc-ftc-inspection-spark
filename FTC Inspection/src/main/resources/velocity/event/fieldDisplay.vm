@@ -66,7 +66,7 @@
  		<div class="result resultText resultNumber" id=${a}${i}_resultNumber>
  			#if($i == "head")Team#else 77777#end
  		</div>
- 		<img src="" id="${a}${i}_card" alt="card"  class="result resultText resultCard" > 		
+ 		<img src="" id="${a}${i}_card" alt="card"  class="result resultText resultCard" visible="false"> 		
  		<div class="result resultText resultRank" id=${a}${i}_resultRank>
  			#if($i == "head")Rank#end
  		</div>
@@ -75,9 +75,9 @@
  
  #macro (resultField $lab $id)
  	<div style="position:relative; height:80;">
-		<div class=" blueField_${i}"><span class="resultScoreText">0</span></div>
+		<div class="blueField"><span class="resultScoreText" id="blueField_${id}">0</span></div>
 		<div class=" midField"><span class="resultMidText">$lab</span></div>
-		<div class=" redField_${i}"><span class="resultScoreText">0</span></div>
+		<div class="redField"><span class="resultScoreText" id="redField_${id}">0</span></div>
  	</div>
  #end
  
@@ -183,6 +183,8 @@
 		position:absolute; 
 		left:260;
 		top:19;
+	}
+	.resultCard[visible="false"]{
 		display:none;
 	}
 	.resultRank{
@@ -354,7 +356,7 @@
   	<div id="top">
   		Match 1
   	</div>
-  	<div id="timer" >
+  	<div id="timer" visible="false">
 	  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
@@ -373,7 +375,7 @@
   		#previewBar("blue" "2")
   		#previewBar("blue" "3")
   	</div>
-  	<div id="result"  visible="false"  >
+  	<div id="result"   >
   		<div id="blueResultBars" class="resultBars">
   			#resultBar("blue" "head")
   			#resultBar("blue" "1")
@@ -594,7 +596,7 @@
 				  			}});
             		} else if(data == 'SHOW_RESULT'){
             			$.ajax({
-				  			url: "../resultdata/",
+				  			url: "../display/resultdata/",
 				  			type: "GET",
 				  			dataType: 'json',
 				  			success: function(data){
@@ -664,6 +666,15 @@
 		return "";
 	}
 	function showResult(data){
+	
+	document.getElementById("scoreRed").setAttribute("visible","false");
+		document.getElementById("scoreBlue").setAttribute("visible","false");
+		document.getElementById("scoreBar").setAttribute("visible","false");
+		document.getElementById("timer").setAttribute("visible","false");
+		document.getElementById("random").setAttribute("visible","false");
+		document.getElementById("preview").setAttribute("visible","false");
+		document.getElementById("result").setAttribute("visible","true");
+	
 		document.getElementById("red1_resultNumber").innerHTML = data.red1;
 		document.getElementById("red2_resultNumber").innerHTML = data.red2;
 		if(typeof data.red3 !== 'undefined'){
@@ -676,38 +687,32 @@
 		}
 		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
 		
-		document.getElementById("red1_resultRank").innerHTML = data.red1Rank + getArrow(red1Dif);
-		document.getElementById("red2_resultRank").innerHTML = data.red2Rank + getArrow(red1Dif);
-		document.getElementById("blue1_resultRank").innerHTML = data.blue1Rank + getArrow(blue1Dif);
-		document.getElementById("blue2_resultRank").innerHTML = data.blue2Rank + getArrow(blue1Dif);
+		document.getElementById("red1_resultRank").innerHTML = data.red1Rank + getArrow(data.red1Dif);
+		document.getElementById("red2_resultRank").innerHTML = data.red2Rank + getArrow(data.red1Dif);
+		document.getElementById("blue1_resultRank").innerHTML = data.blue1Rank + getArrow(data.blue1Dif);
+		document.getElementById("blue2_resultRank").innerHTML = data.blue2Rank + getArrow(data.blue1Dif);
 	
 		
 		document.getElementById("red1_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
-		if(data.red1Card > 0) document.getElementById("red1_card").src= getCardImage(red1Card);
+		if(data.red1Card > 0) document.getElementById("red1_card").src= getCardImage(data.red1Card);
 		document.getElementById("red2_card").setAttribute("visible", data.red2Card == 0 ? "false" : "true");
-		if(data.red2Card > 0) document.getElementById("red2_card").src= getCardImage(red2Card);
+		if(data.red2Card > 0) document.getElementById("red2_card").src= getCardImage(data.red2Card);
 		document.getElementById("blue1_card").setAttribute("visible", data.blue1Card == 0 ? "false" : "true");
-		if(data.blue1Card > 0) document.getElementById("blue1_card").src= getCardImage(blue1Card);
+		if(data.blue1Card > 0) document.getElementById("blue1_card").src= getCardImage(data.blue1Card);
 		document.getElementById("blue2_card").setAttribute("visible", data.blue2Card == 0 ? "false" : "true");
-		if(data.blue2Card > 0) document.getElementById("blue2_card").src= getCardImage(blue2Card);
+		if(data.blue2Card > 0) document.getElementById("blue2_card").src= getCardImage(data.blue2Card);
 	
 		document.getElementById("redField_score").innerHTML = data.redScore;
-		document.getElementById("redField_penalty").innerHTML = data.redPenalty;
+		document.getElementById("redField_penalty").innerHTML = data.bluePenalty;
 		document.getElementById("redField_total").innerHTML = data.redTotal;
 		document.getElementById("blueField_score").innerHTML = data.blueScore;
-		document.getElementById("blueField_penalty").innerHTML = data.bluePenalty;
+		document.getElementById("blueField_penalty").innerHTML = data.redPenalty;
 		document.getElementById("blueField_total").innerHTML = data.blueTotal;
 		
 		document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
 		document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
 	
-		document.getElementById("scoreRed").setAttribute("visible","false");
-		document.getElementById("scoreBlue").setAttribute("visible","false");
-		document.getElementById("scoreBar").setAttribute("visible","false");
-		document.getElementById("timer").setAttribute("visible","false");
-		document.getElementById("random").setAttribute("visible","false");
-		document.getElementById("preview").setAttribute("visible","false");
-		document.getElementById("result").setAttribute("visible","true");
+		
 	}
 	
 	function showRandom(){
@@ -734,7 +739,7 @@
                 error: function () {
                     //ERROR HANDLING
                     console.log("Error");
-                    window.setTimeout(showRandom, 5000);
+                    //window.setTimeout(showRandom, 5000);
                 }});
 	}
 	function initJewels(r){
@@ -772,8 +777,10 @@
   				updateScores(data);
   				window.setTimeout(function(){getScoreUpdate(true);}, 1000);
   			},
-  			error: function(){
-  				window.setTimeout(function(){getScoreUpdate(true);}, 1000);
+  			error: function(xhr, ajaxOptions, thrownError){
+  				if(xhr.responseText != "No match loaded"){
+  					window.setTimeout(function(){getScoreUpdate(true);}, 1000);
+  				}
   			}});
   	}
   	function getJewelImage(val, flip){
