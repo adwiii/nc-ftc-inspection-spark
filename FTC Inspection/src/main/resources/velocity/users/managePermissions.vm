@@ -73,10 +73,15 @@ $(document).ready(function() {
     	}
     }
     function sendData(addPermission) {
+    	var sel = $('#selectedUsers option').toArray();
+    	var res = [];
+    	for(var i = 0; i < sel.length; i++){
+    		res.push(sel[i].value);
+    	}
     	$.ajax({
 			url: "",
   			type: "POST",
-  			data: {role:$('#possibleRoles option:selected')[0].value, changedUsers:$('#selectedUsers option'), add:addPermission},
+  			data: {role:$('#possibleRoles option:selected')[0].value, changedUsers:res, add:addPermission},
   			success: function(data){
   				document.getElementById("team").value = "";
   				document.getElementById("msg").innerHTML = "Team added";
