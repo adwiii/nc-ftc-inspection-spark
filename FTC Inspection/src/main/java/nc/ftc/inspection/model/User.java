@@ -23,7 +23,7 @@ public class User {
 		nameMap.put(SYSADMIN, "System Admin");
 		nameMap.put(ADMIN, "Admin");
 		nameMap.put(KEY_VOLUNTEER, "Key Volunteer");
-		nameMap.put(HEAD_REF, "Head Ref");
+		nameMap.put(HEAD_REF, "Head Referee");
 		nameMap.put(REF, "Referee");
 		nameMap.put(LI, "Lead Inspector");
 		nameMap.put(INSPECTOR, "Inspector");
@@ -90,7 +90,7 @@ public class User {
 		this.realName = realName;
 	}
 	
-	public List<String> getPermissions() {
+	public List<String> getPermissionsList() {
 		List<String> list = new ArrayList<String>();
 		for (int i = 0; i < 32; i++) {
 			if (this.is(1<<i) && nameMap.containsKey(1<<i)) {
@@ -107,6 +107,10 @@ public class User {
 	public boolean is(int type) {
 		//the check for this.type == type is to allow for 0 == 0 for general
 		return (this.type & type) != 0 || this.type == type;
+	}
+
+	public int getPermissions() {
+		return type;
 	}
 	
 

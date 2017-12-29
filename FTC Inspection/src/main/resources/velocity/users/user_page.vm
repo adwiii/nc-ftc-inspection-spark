@@ -3,7 +3,7 @@
 <h2>Hello $currentUser</h2>
 <h3>You currently have the following roles</h3>
 <ul>
-#foreach( $role in $roles )
+#foreach( $role in $rolesList )
     <li>$role</li>
 #end
 </ul>
