@@ -149,4 +149,11 @@ public class LoginPage {
 		response.redirect(Path.Web.LOGIN);
 		return null;
 	};
+	
+	public static Route serveEditPermissionsPage = (Request request, Response response) -> {
+		Map<String, Object> model = new HashMap<>();
+		
+		return render(request, model, Path.Template.EDIT_PERMISSIONS);
+	};
+	
 }

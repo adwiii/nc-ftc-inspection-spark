@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.model.User;
@@ -14,6 +16,7 @@ import org.mindrot.jbcrypt.*;
 public class UsersDAO {
 	
 	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
+	static final String GET_ALL_SQL = "SELECT username, hashedPassword, salt, type, realName, changed FROM users";
 	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?";
 	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,0)";
 	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
@@ -127,6 +130,21 @@ public class UsersDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static List<User> getAllUsers() {
+		ArrayList<User> users = new ArrayList<User>();
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(GET_ALL_SQL);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				users.add(new User(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getBoolean(6)));
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return users;
 	}
 	
 	/**

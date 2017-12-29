@@ -140,6 +140,9 @@ public class Server {
 		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
 
 		//ADMIN Pages
+		before(Path.Web.EDIT_PERMISSIONS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.EDIT_PERMISSIONS, LoginPage.serveEditPermissionsPage);
+		
 		before(Path.Web.MATCH_CONTROL, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);
 		

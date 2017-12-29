@@ -2,7 +2,9 @@ package nc.ftc.inspection.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class User {
 	
@@ -18,7 +20,7 @@ public class User {
 	public static int GENERAL = 1<<0;//we can change this to be something more useful
 	
 	public static HashMap<Integer, String> nameMap = new HashMap<>();
-	
+	public static HashMap<String, Integer> valMap = new HashMap<>();
 	static {
 		nameMap.put(SYSADMIN, "System Admin");
 		nameMap.put(ADMIN, "Admin");
@@ -30,6 +32,11 @@ public class User {
 		nameMap.put(VOLUNTEER, "Volunteer");
 		nameMap.put(TEAM, "Team Member");
 		nameMap.put(GENERAL, "General User");
+		Iterator<Entry<Integer, String>> it = nameMap.entrySet().iterator();
+		while(it.hasNext()) {
+			Entry<Integer, String> entry = it.next();
+			valMap.put(entry.getValue(), entry.getKey());
+		}
 	}
 	
 	public static int NONE = 0; //this is for if you are not logged in

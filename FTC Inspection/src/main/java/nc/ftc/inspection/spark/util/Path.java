@@ -21,7 +21,7 @@ public class Path {
         public static final String ADD_TEAM = "/event/:event/manage/addteam/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
         public static final String EVENT_HOME = "/event/:event/home/";
-        
+        public static final String EDIT_PERMISSIONS = "/users/manage/";
         
         public static final String EDIT_FORM = "/event/:event/edit/";
         public static final String INSPECT_HOME = "/event/:event/inspect/";
@@ -152,6 +152,7 @@ public class Path {
 		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
+		public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
         
     }
 
