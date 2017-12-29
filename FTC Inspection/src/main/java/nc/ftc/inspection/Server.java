@@ -118,12 +118,14 @@ public class Server {
 		get(Path.Web.GET_MATCH_FULL, EventPages.handleGetFullResult);
 		get(Path.Web.GET_MATCH_INFO, EventPages.handleGetMatchInfo);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
+		get(Path.Web.GET_POST_RESULTS_INFO, EventPages.handlePostResultData);
 		
 		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
 		get(Path.Web.ADD_TEAM, EventPages.serveAddTeam);
 		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);
 		get(Path.Web.EVENT_HOME, EventPages.serveEventHomePage);
 		get(Path.Web.EDIT_SCORE_HOME, EventPages.serveEditScoreHome);
+		
 		
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
@@ -155,6 +157,7 @@ public class Server {
 		post(Path.Web.SET_STATUS, EventPages.handleSetStatus);
 		post(Path.Web.ADD_TEAM, EventPages.handleAddTeam);
 		post(Path.Web.RANKINGS, EventPages.handleRecalcRankings);
+		post(Path.Web.SHOW_RESULTS, EventPages.handleShowResults);
 		
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);

@@ -4,6 +4,7 @@ import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.event.ADState;
+import nc.ftc.inspection.event.Display;
 import nc.ftc.inspection.event.DisplayCommand;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.event.TimerCommand;
@@ -903,10 +904,28 @@ public class EventPages {
 				}
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
+				
 				//TODO save old rankings to get change
 				//TODO save MatchResult Object to e.display
-				e.loadNextMatch();
+				Alliance red = match.getRed();
+				Alliance blue = match.getBlue();
+				Display d = e.getDisplay();
+				MatchResult mr = new MatchResult(match.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
+
+				d.lastResult = mr;
+				int red1 = e.getRank(red.getTeam1());
+				int red2 = e.getRank(red.getTeam2());
+				int blue1 = e.getRank(blue.getTeam1());
+				int blue2  = e.getRank(blue.getTeam2());;
+				
 				e.calculateRankings();
+				d.red1Dif = red1 - e.getRank(red.getTeam1());
+				d.red2Dif = red2 - e.getRank(red.getTeam2());
+				d.blue1Dif = blue1 - e.getRank(blue.getTeam1());
+				d.blue2Dif = blue2 -e.getRank(blue.getTeam2());;
+				
+				
+				e.loadNextMatch();
 			}
 			return "OK";
 		};
@@ -1069,6 +1088,18 @@ public class EventPages {
 			synchronized(e.waitForPreviewLock) {
 				e.waitForPreviewLock.notifyAll();
 			}
+			return "OK";
+		};
+		public static Route handleShowResults = (Request request, Response response) ->{
+			//TODO the waitForPreview can probably be moved to AD instance in Event.
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_RESULT);
+			
 			return "OK";
 		};
 		
@@ -1424,5 +1455,78 @@ public class EventPages {
 
 		public static Route serveEditScoreHome= (Request request, Response response) ->{
 			return render(request, new HashMap<String, Object>(), Path.Template.EDIT_SCORE_HOME);
+		};
+		
+		private static String json(String name, Object value) {
+			return "\"" + name + "\":\"" + value.toString() + "\"";
+		}
+		public static Route handlePostResultData =(Request request, Response response)->{
+			String code = request.params("event");
+			Event e = Server.activeEvents.get(code);
+			if(e == null) {
+				response.status(500);
+				return "Event not active!";
+			}
+			Display d = e.getDisplay();
+			MatchResult mr = d.lastResult;
+			Alliance red = mr.getRed();
+			Alliance blue = mr.getBlue();
+			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(code, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
+			List<String> list = new ArrayList<>(20);
+			
+			list.add(json("number", mr.getNumber()));
+			
+			list.add(json("red1Dif", d.red1Dif));
+			list.add(json("red2Dif", d.red2Dif));
+			list.add(json("blue1Dif", d.blue1Dif));
+			list.add(json("blue2Dif", d.blue2Dif));
+			//value of bluePenalty is added to redScore to get redTotal!
+			list.add(json("redScore", mr.getRedScore()));
+			list.add(json("blueScore", mr.getBlueScore()));
+			list.add(json("redPenalty", mr.getRedPenalty()));
+			list.add(json("bluePenalty", mr.getBluePenalty()));
+			list.add(json("redTotal", mr.getRedTotal()));
+			list.add(json("blueTotal", mr.getBlueTotal()));
+			list.add(json("winChar", mr.getWinChar()));
+			
+			list.add(json("red1", red.getTeam1()));
+			list.add(json("red2", red.getTeam2()));
+			list.add(json("blue1", blue.getTeam1()));
+			list.add(json("blue2", blue.getTeam2()));
+			
+			list.add(json("red1Rank", e.getRank(red.getTeam1())));
+			list.add(json("red2Rank", e.getRank(red.getTeam2())));
+			list.add(json("blue1Rank", e.getRank(blue.getTeam1())));
+			list.add(json("blue2Rank", e.getRank(blue.getTeam2())));
+			
+			int redCard1 = Integer.parseInt(red.getScore("card1").toString());
+			int redCard2 = Integer.parseInt(red.getScore("card2").toString());
+			int blueCard1 = Integer.parseInt(blue.getScore("card1").toString());
+			int blueCard2 = Integer.parseInt(blue.getScore("card2").toString());
+			
+			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
+			List<Integer> cardList = cardMap.get(red.getTeam1());			
+			Integer t = cardList.size() > 0 ? cardList.get(0) : null;
+			if(t!=null && t.intValue()<mr.getNumber() && redCard1==1)redCard1 = 3;
+			
+			cardList = cardMap.get(red.getTeam2()); 
+			t = cardList.size() > 0 ? cardList.get(0) : null;
+			if(t!=null && t.intValue()<mr.getNumber() && redCard2==1)redCard2 = 3;
+			
+			cardList = cardMap.get(blue.getTeam1());
+			t = cardList.size() > 0 ? cardList.get(0) : null;
+			if(t!=null && t.intValue()<mr.getNumber() && blueCard1==1)blueCard1 = 3;
+			
+			cardList = cardMap.get(blue.getTeam2());
+			t = cardList.size() > 0 ? cardList.get(0) : null;
+			if(t!=null && t.intValue()<mr.getNumber() && blueCard2==1)blueCard2 = 3;
+			
+			
+			list.add(json("red1Card", redCard1 ));
+			list.add(json("red2Card", redCard2 ));
+			list.add(json("blue1Card", blueCard1 ));
+			list.add(json("blue2Card", blueCard2 ));
+			
+			return "{"+String.join(",", list)+"}";
 		};
 }

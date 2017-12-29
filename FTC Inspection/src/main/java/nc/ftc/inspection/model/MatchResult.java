@@ -17,8 +17,8 @@ public class MatchResult {
 	String BLUE = "#44AAFF";
 	int status;
 	
-	//TODO Cards and DQ
 	
+	//Blue score included auto, teleop, and adjust
 	//Blue penalty is # of points resulting from BLUE penalties. They count toward RED!
 	
 	public MatchResult(int n, Alliance r, Alliance b, int rs, int bs, int status, int redP, int blueP) {
@@ -59,6 +59,12 @@ public class MatchResult {
 	}
 	public int getBlueScore() {
 		return blueScore;
+	}
+	public int getRedPenalty() {
+		return redPenalty;
+	}
+	public int getBluePenalty() {
+		return bluePenalty;
 	}
 	public int getRedTotal() {
 		return redTotal;

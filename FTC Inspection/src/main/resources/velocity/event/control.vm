@@ -522,8 +522,11 @@ function post(){ //posts results to AD
 	rand.innerHTML = "Randomize";
 	rand.disabled = false;
 	
-	//TODO send command
-	
+	//send command
+	var postObj = {};
+	$.post("../display/results/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
 }
 
 function openTab(event, tabName){

@@ -56,8 +56,29 @@
  <img id="${a}Bar${i}" src="/img/alliance${a}190.png" alt="${a}${i}">
  	<div class="preview previewText previewNumber" id="${a}${i}_number"></div>
  	<div class="preview previewText previewName" id="${a}${i}_name"></div>
- 	<div class="preview previewText previewRank" id="${a}${i}_name"></div>
+ 	<div class="preview previewText previewRank" id="${a}${i}_Rank"></div>
  </div>
+ #end
+ 
+ #macro (resultBar $a $i)
+ 	<div style="position:relative;">
+ 		<img id="${a}Bar${i}" src="/img/alliance${a}92.png" alt="${a}${i}">
+ 		<div class="result resultText resultNumber" id=${a}${i}_resultNumber>
+ 			#if($i == "head")Team#else 77777#end
+ 		</div>
+ 		<img src="" id="${a}${i}_card" alt="card"  class="result resultText resultCard" > 		
+ 		<div class="result resultText resultRank" id=${a}${i}_resultRank>
+ 			#if($i == "head")Rank#end
+ 		</div>
+ 	</div>
+ #end
+ 
+ #macro (resultField $lab $id)
+ 	<div style="position:relative; height:80;">
+		<div class=" blueField_${i}"><span class="resultScoreText">0</span></div>
+		<div class=" midField"><span class="resultMidText">$lab</span></div>
+		<div class=" redField_${i}"><span class="resultScoreText">0</span></div>
+ 	</div>
  #end
  
  
@@ -121,6 +142,85 @@
 		width:50px;
 		text-align:center
 	}
+	#result{
+		position:absolute;
+		top:180px;
+		left:160px;
+	}
+	#result[visible="false"]{
+		display:none;
+	}
+	.resultBars{
+		position:relative;
+		width:800;
+		float:left;
+	}
+	.resultFields{
+		position:relative;
+		width:1600;
+		float:left;
+	}
+	.resultText{
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		top:12;
+	}
+	.resultMidText{
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		top:10;
+	}
+	.resultScoreText{
+		position:relative;
+		font:75px "Arial Black", Arial, Helvetica, sans-serif;
+		top:-15;
+		color:black;
+	}
+	.resultNumber{
+		position:absolute;
+		left:70;
+		width:250px;
+	}
+	.resultCard{
+		position:absolute; 
+		left:260;
+		top:19;
+		display:none;
+	}
+	.resultRank{
+		position:absolute;
+		left:550;
+		width:200px;
+		text-align:right
+	}
+	
+	.resultWinner{
+		position:absolute;
+		left:400;
+		top:760;
+		width:800;
+		height:93;
+		text-align:center;
+		font:61px "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	
+	.blueField{
+		position:absolute;
+		left:266; 
+		width:266; 
+		height:80; 
+		background-color:#5995DE;
+		float:left;text-align:center;
+	}
+	.redField{
+		position:absolute; 
+		left:1064; width:266; 
+		height:80; background-color:#DA3434;
+		float:left;text-align:center;
+	}
+	.midField{
+		position:absolute; width:532; 
+		left:532; float:left;
+		text-align:center;
+	}
 	
 	
 	#scoreBar{
@@ -130,6 +230,9 @@
 		left:0px;
 		top:900px;
 	}
+	#scoreBar[visible="false"]{
+		display:none;
+	}
 	.score{
 		position:absolute;
 		height:180px;
@@ -138,6 +241,9 @@
 		font-size: 160px;
 		text-align:center;
 		color:white;
+	}
+	.score[visible="false"]{
+		display:none;
 	}
 	#scoreBlue{
 		background-color:blue;
@@ -267,6 +373,29 @@
   		#previewBar("blue" "2")
   		#previewBar("blue" "3")
   	</div>
+  	<div id="result"  visible="false"  >
+  		<div id="blueResultBars" class="resultBars">
+  			#resultBar("blue" "head")
+  			#resultBar("blue" "1")
+  			#resultBar("blue" "2")
+  		</div>
+  		<div id="redResultBars" class="resultBars">
+  			#resultBar("red" "head")
+  			#resultBar("red" "1")
+  			#resultBar("red" "2")
+  		</div>
+  		<div id="resultFields" class="resultFields">
+  		<br>
+  			#resultField ("Points Scored" "score")
+  			<br>
+  			#resultField ("Penalty Points" "penalty")
+  			<br>
+  			#resultField ("Total Points" "total")
+  		</div>
+  		
+  		<img id="winnerImg" class="resultWinner" src="/img/alliancebar92.png" alt="winner">
+  		<div id="winnerField" class="resultWinner">Tie!</div>
+  	</div>
   	<div id="scoreBar" >
   		#grid("blue" "50" "1")
   		#grid("blue" "50" "2")
@@ -278,13 +407,12 @@
   		#grid("red" "50" "1")
   		#ball("red" "25") 	
   		#parking("red" "20")
-  		#balance("red" "14") 
-  		
+  		#balance("red" "14")   		
   			
   	</div>
   	
   	<div id="scoreBlue" class="score">0</div>
-  	<div id="scoreRed" class="score">0</div>
+  	<div id="scoreRed" class="score" >0</div>
 
   	<script>
   	var startSound = document.getElementById("charge");
@@ -464,8 +592,19 @@
 					                    console.log(ajaxOptions);
 					                    console.log(thrownError);
 				  			}});
-            		} else if(data == 'SHOW RESULT'){
-            			
+            		} else if(data == 'SHOW_RESULT'){
+            			$.ajax({
+				  			url: "../resultdata/",
+				  			type: "GET",
+				  			dataType: 'json',
+				  			success: function(data){
+				  				showResult(data);
+				  			},
+				  			error:function(xhr, ajaxOptions, thrownError){
+					                    console.log(xhr);
+					                    console.log(ajaxOptions);
+					                    console.log(thrownError);
+				  			}});
             		}
             	#end
             	getDisplayCommand();
@@ -483,9 +622,8 @@
 	}
 	
 	function showPreview(data){
-		document.getElementById("timer").setAttribute("visible","false");
-		document.getElementById("random").setAttribute("visible","false");
-	
+		
+	//TODO RANK???
 		document.getElementById("red1_number").innerHTML = data.red1;
 		document.getElementById("red1_name").innerHTML = data.red1Name;
 		document.getElementById("red2_number").innerHTML = data.red2;
@@ -504,10 +642,72 @@
 		}
 		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
 	
+		
 		document.getElementById("timer").setAttribute("visible","false");
 		document.getElementById("random").setAttribute("visible","false");
 		document.getElementById("preview").setAttribute("visible","true");
+		document.getElementById("result").setAttribute("visible","false");
+		document.getElementById("scoreRed").setAttribute("visible","true");
+		document.getElementById("scoreBlue").setAttribute("visible","true");
+		document.getElementById("scoreBar").setAttribute("visible","true");
 	
+	}
+	function getArrow(dif){
+		if(dif < 0)return '&#9660;';
+		if(dif > 0)return '&#9650;';
+		return '&emsp;';
+	}
+	function getCardImage(card){
+		if(card == 1)return "/img/yellowcard.png";
+		if(card == 2)return "/img/redcard.png";
+		if(card == 3)return "/img/yellowredcard.png";
+		return "";
+	}
+	function showResult(data){
+		document.getElementById("red1_resultNumber").innerHTML = data.red1;
+		document.getElementById("red2_resultNumber").innerHTML = data.red2;
+		if(typeof data.red3 !== 'undefined'){
+			document.getElementById("red3_rsultNumber").innerHTML = data.red3;
+		}
+		document.getElementById("blue1_resultNumber").innerHTML = data.blue1;
+		document.getElementById("blue2_resultNumber").innerHTML = data.blue2;
+		if(typeof data.blue3 !== 'undefined'){
+			document.getElementById("blue3_resultNumber").innerHTML = data.blue3;
+		}
+		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
+		
+		document.getElementById("red1_resultRank").innerHTML = data.red1Rank + getArrow(red1Dif);
+		document.getElementById("red2_resultRank").innerHTML = data.red2Rank + getArrow(red1Dif);
+		document.getElementById("blue1_resultRank").innerHTML = data.blue1Rank + getArrow(blue1Dif);
+		document.getElementById("blue2_resultRank").innerHTML = data.blue2Rank + getArrow(blue1Dif);
+	
+		
+		document.getElementById("red1_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
+		if(data.red1Card > 0) document.getElementById("red1_card").src= getCardImage(red1Card);
+		document.getElementById("red2_card").setAttribute("visible", data.red2Card == 0 ? "false" : "true");
+		if(data.red2Card > 0) document.getElementById("red2_card").src= getCardImage(red2Card);
+		document.getElementById("blue1_card").setAttribute("visible", data.blue1Card == 0 ? "false" : "true");
+		if(data.blue1Card > 0) document.getElementById("blue1_card").src= getCardImage(blue1Card);
+		document.getElementById("blue2_card").setAttribute("visible", data.blue2Card == 0 ? "false" : "true");
+		if(data.blue2Card > 0) document.getElementById("blue2_card").src= getCardImage(blue2Card);
+	
+		document.getElementById("redField_score").innerHTML = data.redScore;
+		document.getElementById("redField_penalty").innerHTML = data.redPenalty;
+		document.getElementById("redField_total").innerHTML = data.redTotal;
+		document.getElementById("blueField_score").innerHTML = data.blueScore;
+		document.getElementById("blueField_penalty").innerHTML = data.bluePenalty;
+		document.getElementById("blueField_total").innerHTML = data.blueTotal;
+		
+		document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
+		document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
+	
+		document.getElementById("scoreRed").setAttribute("visible","false");
+		document.getElementById("scoreBlue").setAttribute("visible","false");
+		document.getElementById("scoreBar").setAttribute("visible","false");
+		document.getElementById("timer").setAttribute("visible","false");
+		document.getElementById("random").setAttribute("visible","false");
+		document.getElementById("preview").setAttribute("visible","false");
+		document.getElementById("result").setAttribute("visible","true");
 	}
 	
 	function showRandom(){
@@ -520,6 +720,11 @@
                     rand=data.rand;
                     document.getElementById("timer").setAttribute("visible","false");
                    	document.getElementById("preview").setAttribute("visible","false");
+                   	document.getElementById("scoreRed").setAttribute("visible","true");
+					document.getElementById("scoreBlue").setAttribute("visible","true");
+					document.getElementById("scoreBar").setAttribute("visible","true");
+					document.getElementById("result").setAttribute("visible","false");
+					
                     var r = document.getElementById("random");
                     r.setAttribute("visible", "true");
                     //TODO sizes?
@@ -544,6 +749,10 @@
 		document.getElementById("timer").setAttribute("visible","true");
 		document.getElementById("random").setAttribute("visible","false");
 		document.getElementById("preview").setAttribute("visible","false");
+		document.getElementById("scoreRed").setAttribute("visible","true");
+		document.getElementById("scoreBlue").setAttribute("visible","true");
+		document.getElementById("scoreBar").setAttribute("visible","true");
+		document.getElementById("result").setAttribute("visible","false");
 	}
 	
 	
@@ -561,10 +770,10 @@
   			success: function(data){  			
   				lastBreakdown = data.ts;
   				updateScores(data);
-  				window.setTimeout(getScoreUpdate(true), 1000);
+  				window.setTimeout(function(){getScoreUpdate(true);}, 1000);
   			},
   			error: function(){
-  				window.setTimeout(getScoreUpdate(true), 1000);
+  				window.setTimeout(function(){getScoreUpdate(true);}, 1000);
   			}});
   	}
   	function getJewelImage(val, flip){
@@ -681,6 +890,12 @@
    <img src="/img/froggy-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/froggy-grid-red50.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/snake-grid-blue50.png" width="1" height="1" alt="Image 03" /> 
-   <img src="/img/snake-grid-red50.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/snake-grid-red50.png" width="1" height="1" alt="Image 03" />    
+   <img src="/img/alliancebar92.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/alliancered92.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/allianceblue92.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/yellowcard.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/yellowredcard.png" width="1" height="1" alt="Image 03" />
+   <img src="/img/redcard.png" width="1" height="1" alt="Image 03" />
 </div>
 </html>

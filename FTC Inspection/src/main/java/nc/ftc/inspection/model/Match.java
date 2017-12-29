@@ -14,6 +14,14 @@ public class Match {
 	Object scoreLock = new Object();
 	public boolean refLockout = false;
 	
+	public static transient final Match TEST_MATCH;
+	
+	static {
+		Alliance red = new Alliance(-1, -2);
+		Alliance blue = new Alliance(-3,-4);
+		TEST_MATCH = new Match(-1, red, blue);
+	}
+	
 	public Match(int num, Alliance red, Alliance blue){
 		this.red = red;
 		this.blue = blue;

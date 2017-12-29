@@ -5,7 +5,11 @@ import nc.ftc.inspection.model.MatchResult;
 public class Display {
 	public Object displayCommandLock = new Object();
 	DisplayCommand lastCommand = DisplayCommand.SHOW_MATCH;
-	MatchResult result;
+	public MatchResult lastResult;
+	public int red1Dif;
+	public int red2Dif;
+	public int blue1Dif;
+	public int blue2Dif;
 	
 	public DisplayCommand getLastCommand() {
 		return lastCommand;
