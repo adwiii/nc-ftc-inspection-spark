@@ -423,6 +423,10 @@ function start(){
 		startBtn.setAttribute("state","back");
 		startBtn.innerHTML = "Pause Match";
 		startBtn.setAttribute("onclick", "pause()");
+		var commitBtn = document.getElementById("commitBtn");
+		commitBtn.innerHTML = "Edit Now";
+		commitBtn.setAttribute("onclick","lockout()");
+		commitBtn.setAttribute("state","off");
 		waitForMatchEnd();
 		acceptScores = true;
   		getScoreUpdate(false);

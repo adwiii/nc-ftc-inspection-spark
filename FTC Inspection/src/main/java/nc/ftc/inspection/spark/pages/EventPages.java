@@ -919,10 +919,11 @@ public class EventPages {
 				int blue2  = e.getRank(blue.getTeam2());;
 				
 				e.calculateRankings();
-				d.red1Dif = red1 - e.getRank(red.getTeam1());
-				d.red2Dif = red2 - e.getRank(red.getTeam2());
-				d.blue1Dif = blue1 - e.getRank(blue.getTeam1());
-				d.blue2Dif = blue2 -e.getRank(blue.getTeam2());;
+				//if unranked, show as improvement.
+				d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
+				d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
+				d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
+				d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());;
 				
 				
 				e.loadNextMatch();
@@ -991,7 +992,11 @@ public class EventPages {
 			res += "\"red1Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam1())+"\",";
 			res += "\"red2Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam2())+"\",";
 			res += "\"blue1Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam1())+"\",";
-			res += "\"blue2Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam2())+"\"";
+			res += "\"blue2Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam2())+"\",";
+			res += "\"red1Rank\":"+e.getRank(m.getRed().getTeam1())+",";
+			res += "\"red2Rank\":"+e.getRank(m.getRed().getTeam2())+",";
+			res += "\"blue1Rank\":"+e.getRank(m.getBlue().getTeam1())+",";
+			res += "\"blue2Rank\":"+e.getRank(m.getBlue().getTeam2());
 			res += "}";
 			return res;
 		};
@@ -1357,6 +1362,7 @@ public class EventPages {
 			res += "\"red2\":"+m.getRed().getTeam2()+",";
 			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
 			res += "\"blue2\":"+m.getBlue().getTeam2();
+			
 			res += "}";
 			return res;
 		};		

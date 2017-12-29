@@ -56,7 +56,7 @@
  <img id="${a}Bar${i}" src="/img/alliance${a}190.png" alt="${a}${i}">
  	<div class="preview previewText previewNumber" id="${a}${i}_number"></div>
  	<div class="preview previewText previewName" id="${a}${i}_name"></div>
- 	<div class="preview previewText previewRank" id="${a}${i}_Rank"></div>
+ 	<div class="preview previewText previewRank" id="${a}${i}_rank"></div>
  </div>
  #end
  
@@ -356,7 +356,7 @@
   	<div id="top">
   		Match 1
   	</div>
-  	<div id="timer" visible="false">
+  	<div id="timer" >
 	  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
@@ -375,7 +375,7 @@
   		#previewBar("blue" "2")
   		#previewBar("blue" "3")
   	</div>
-  	<div id="result"   >
+  	<div id="result" visible="false"  >
   		<div id="blueResultBars" class="resultBars">
   			#resultBar("blue" "head")
   			#resultBar("blue" "1")
@@ -621,23 +621,52 @@
 	
 	function resetScores(){
 		//TODO reset all the images and scores to pre-match values
+		var obj = {
+			red:{
+				parkingPoints:0,
+				jewelSet1:3,
+				jewelSet2:3,
+				cryptobox1:0,
+				cryptobox2:0,
+				balanced:0,
+				teleopPoints:0,
+				autoPoints:0,
+				foulPoints:0
+			},
+			blue:{
+				parkingPoints:0,
+				jewelSet1:3,
+				jewelSet2:3,
+				cryptobox1:0,
+				cryptobox2:0,
+				balanced:0,
+				teleopPoints:0,
+				autoPoints:0,
+				foulPoints:0
+			}
+		}
+		updateScores(obj);
 	}
 	
 	function showPreview(data){
 		
-	//TODO RANK???
+
 		document.getElementById("red1_number").innerHTML = data.red1;
 		document.getElementById("red1_name").innerHTML = data.red1Name;
+		document.getElementById("red1_rank").innerHTML = data.red1Rank == -1 ? "" : data.red1Rank;
 		document.getElementById("red2_number").innerHTML = data.red2;
 		document.getElementById("red2_name").innerHTML = data.red2Name;
+		document.getElementById("red2_rank").innerHTML = data.red2Rank == -1 ? "" : data.red2Rank;
 		if(typeof data.red3 !== 'undefined'){
 			document.getElementById("red3_number").innerHTML = data.red3;
 			document.getElementById("red3_name").innerHTML = data.red3Name;
 		}
 		document.getElementById("blue1_number").innerHTML = data.blue1;
 		document.getElementById("blue1_name").innerHTML = data.blue1Name;
+		document.getElementById("blue1_rank").innerHTML = data.blue1Rank == -1 ? "" : data.blue1Rank;
 		document.getElementById("blue2_number").innerHTML = data.blue2;
 		document.getElementById("blue2_name").innerHTML = data.blue2Name;
+		document.getElementById("blue2_rank").innerHTML = data.blue2Rank == -1 ? "" : data.blue2Rank;
 		if(typeof data.blue3 !== 'undefined'){
 			document.getElementById("blue3_number").innerHTML = data.blue3;
 			document.getElementById("blue3_name").innerHTML = data.blue3Name;
@@ -655,6 +684,7 @@
 	
 	}
 	function getArrow(dif){
+		dif = parseInt(dif);
 		if(dif < 0)return '&#9660;';
 		if(dif > 0)return '&#9650;';
 		return '&emsp;';
@@ -688,9 +718,9 @@
 		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
 		
 		document.getElementById("red1_resultRank").innerHTML = data.red1Rank + getArrow(data.red1Dif);
-		document.getElementById("red2_resultRank").innerHTML = data.red2Rank + getArrow(data.red1Dif);
+		document.getElementById("red2_resultRank").innerHTML = data.red2Rank + getArrow(data.red2Dif);
 		document.getElementById("blue1_resultRank").innerHTML = data.blue1Rank + getArrow(data.blue1Dif);
-		document.getElementById("blue2_resultRank").innerHTML = data.blue2Rank + getArrow(data.blue1Dif);
+		document.getElementById("blue2_resultRank").innerHTML = data.blue2Rank + getArrow(data.blue2Dif);
 	
 		
 		document.getElementById("red1_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
