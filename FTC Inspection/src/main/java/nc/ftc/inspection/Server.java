@@ -142,6 +142,7 @@ public class Server {
 		//ADMIN Pages
 		before(Path.Web.EDIT_PERMISSIONS, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.EDIT_PERMISSIONS, LoginPage.serveEditPermissionsPage);
+		post(Path.Web.EDIT_PERMISSIONS, LoginPage.handleEditPermissionsPost);
 		
 		before(Path.Web.MATCH_CONTROL, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);

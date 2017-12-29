@@ -1,10 +1,14 @@
 package nc.ftc.inspection.spark.pages;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
 
 import nc.ftc.inspection.AuthenticationManager;
 import nc.ftc.inspection.dao.UsersDAO;
+import nc.ftc.inspection.model.SimpleUser;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.util.Path;
 import spark.Request;
@@ -33,7 +37,7 @@ public class LoginPage {
 		Map<String, Object> model = new HashMap<>();
 		return serveCreateAccountPage(request, response, model);
 	};
-	
+
 	public static Object serveCreateAccountPage(Request request, Response response, Map<String, Object> model) {
 		try {
 			model.put("newUserCount", Integer.parseInt(request.params(":id")));
@@ -42,12 +46,12 @@ public class LoginPage {
 		}
 		return render(request, model, Path.Template.CREATE_ACCOUNT);
 	}
-	
+
 	public static Route serveUserPage = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
 		return render(request, model, Path.Template.USER_PAGE);
 	};
-	
+
 	public static Route handlePasswordChangePost = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
 		model.put("changePW", true);
@@ -80,7 +84,7 @@ public class LoginPage {
 		}
 		return render(request, model, Path.Template.LOGIN);
 	};
-	
+
 	public static Route handleLoginPost = (Request request, Response response) -> {
 		if (request.queryParams("newPassword1") != null || request.queryParams("newPassword2") != null) {
 			return handlePasswordChangePost.handle(request, response);
@@ -149,11 +153,47 @@ public class LoginPage {
 		response.redirect(Path.Web.LOGIN);
 		return null;
 	};
-	
+
 	public static Route serveEditPermissionsPage = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
-		
+		model.put("possibleRoles", User.editableRoles);
+		List<SimpleUser> users = User.getEditableUsers();
+		model.put("editableUsers", users);
+		Map<String, List<String>> userRoleMap = new HashMap<String, List<String>>();
+		for (SimpleUser user : users) {
+			userRoleMap.put(user.username, user.getPermissionsList());
+		}
+		Gson gson = new Gson();
+		model.put("userRoleMap", gson.toJson(userRoleMap));
 		return render(request, model, Path.Template.EDIT_PERMISSIONS);
 	};
-	
+
+	public static Route handleEditPermissionsPost = (Request request, Response response) -> {
+		//TODO add more specific error handling
+		try {
+			String roleString = request.queryParams("role");
+			int role = User.valMap.get(roleString);
+			if (role == User.SYSADMIN) {
+				throw new IllegalArgumentException("Cannot set SYSADMIN role");
+			}
+			Gson gson = new Gson();
+			String[] changedUsers = gson.fromJson(request.queryParams("changedUsers"), String[].class);
+			boolean add = Boolean.parseBoolean(request.queryParams("add"));
+			if (add) {
+				for (String username : changedUsers) {
+					UsersDAO.addRole(username, role);
+				}
+			} else {
+				for (String username : changedUsers) {
+					UsersDAO.removeRole(username, role);
+				}
+			}
+			return "OK";
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.status(400);
+			return "Unable to edit permissions";
+		}
+	};
+
 }

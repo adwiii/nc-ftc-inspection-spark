@@ -18,6 +18,7 @@ public class UsersDAO {
 	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
 	static final String GET_ALL_SQL = "SELECT username, hashedPassword, salt, type, realName, changed FROM users";
 	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?";
+	static final String UPDATE_TYPE_SQL = "UPDATE users SET type = ?, changed=1 WHERE username = ?";
 	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,0)";
 	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
 	static final String ASSIGN_ROLE_SQL = "INSERT OR REPLACE INTO roles VALUES (?,?,?)";
@@ -130,6 +131,34 @@ public class UsersDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static boolean addRole(String username, int role) {
+		User user = getUser(username);
+		int newRole = user.getType() | role;
+		return updateRole(username, newRole);
+	}
+	
+	public static boolean removeRole(String username, int role) {
+		User user = getUser(username);
+		int newRole = user.getType() & ~role;
+		return updateRole(username, newRole);
+	}
+	
+	private static boolean updateRole(String username, int newRole) {
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(UPDATE_TYPE_SQL);
+			ps.setString(2, username);
+			ps.setInt(1, newRole);
+			int affected = ps.executeUpdate();
+			if (affected > 1) {
+				throw new IllegalArgumentException("We had duplicate usernames, everything is on fire!");
+			}
+			return affected == 1;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	public static List<User> getAllUsers() {

@@ -1,4 +1,132 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+<!-- This is based off of the things found here: https://jsfiddle.net/DTcHh/16420/ -->
+<script>
+/*
+ * Original example found here: http://www.jquerybyexample.net/2012/05/how-to-move-items-between-listbox-using.html
+ * Modified by Esau Silva to support 'Move ALL items to left/right' and add better stylingon on Jan 28, 2016.
+ * 
+ */
+
+$(document).ready(function() {
+	var userRoleMap = $userRoleMap;
+   $('#btnRight').click(function (e) {
+        var selectedOpts = $('#allUsers option:selected');
+        if (selectedOpts.length == 0) {
+            //alert("Nothing to move.");
+            e.preventDefault();
+        }
+
+        $('#selectedUsers').append($(selectedOpts).clone());
+        $(selectedOpts).remove();
+        e.preventDefault();
+        
+        updateRoles();
+    });
+
+    $('#btnLeft').click(function (e) {
+        var selectedOpts = $('#selectedUsers option:selected');
+        if (selectedOpts.length == 0) {
+            //alert("Nothing to move.");
+            e.preventDefault();
+        }
+
+        $('#allUsers').append($(selectedOpts).clone());
+        $(selectedOpts).remove();
+        e.preventDefault();
+    });
+
+    $('#btnAllLeft').click(function (e) {
+        var selectedOpts = $('#selectedUsers option');
+        if (selectedOpts.length == 0) {
+            //alert("Nothing to move.");
+            e.preventDefault();
+        }
+
+        $('#allUsers').append($(selectedOpts).clone());
+        $(selectedOpts).remove();
+        e.preventDefault();
+    });
+    
+    //BEGIN CODE THAT TREY WROTE AND WAS NOT COPIED
+    
+    $('input[type=radio][name=possibleRoles]').change(function() {
+    	updateRoles();
+    });
+    $('#removeButton').click(function(e) {
+    	sendData(false);
+    });
+    $('#addButton').click(function(e) {
+    	sendData(true);
+    });
+    function updateRoles() {
+    	var selectedOpt = $('#possibleRoles option:selected')[0].value;
+    	var userOptions = $('#selectedUsers option');
+    	var users = [];
+    	for (let user of userOptions) {
+    		users.push(user.value);
+    		if (userRoleMap[user.value].indexOf(selectedOpt) >= 0) {
+    			user.style.color = "#008900";
+    		} else {
+    			user.style.color = "#BB0000";
+    		}
+    	}
+    }
+    function sendData(addPermission) {
+    	$.ajax({
+			url: "",
+  			type: "POST",
+  			data: {role:$('#possibleRoles option:selected')[0].value, changedUsers:$('#selectedUsers option'), add:addPermission},
+  			success: function(data){
+  				document.getElementById("team").value = "";
+  				document.getElementById("msg").innerHTML = "Team added";
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){  				
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+                document.getElementById("msg").innerHTML = xhr.responseText;
+  			}});
+    }
+});
+
+</script>
+<table>
+<tr><th>All Users:</th><th></th><th>Users to Edit:</th></tr>
+<tr style="height:20%"><td style="width:45%;height:100%">
+<select multiple="multiple" id="allUsers" size=10 style="width:100%;height:100%">
+#foreach($user in $editableUsers)
+	<option value="$user.username">$user.getUsername(): $user.getRealName()</option>
+#end
+</select>
+</td><td style="width:10%">
+<input type="button" value=">" id="btnRight"/>
+<input type="button" value="<" id="btnLeft"/>
+<input type="button" value="<<" id="btnAllLeft"/>
+</td><td style="width:45%;height:100%">
+<select multiple="multiple" id="selectedUsers" size=10 style="width:100%;height:100%">
+</select>
+</td></tr></table>
+<!-- Set of possible roles to change-->
+<br>
+<table>
+<tr>
+<th>
+Role to Edit:
+</th>
+<th>
+</th></tr>
+<tr><td>
+<select id="possibleRoles">
+#foreach ($role in $possibleRoles)
+	<option value="$role">$role</role>
+#end
+</select>
+</td>
+<td>
+<input type="button" id="removeButton" class="bad notification" value="Remove Permissions">
+<input type="button" id="addButton" class="good notification" value="Add Permissions">
+</td>
+
 
 #end

@@ -112,6 +112,9 @@ public class Path {
         public String getUserPage() {
         	return USER_PAGE;
         }
+        public String getEditPermissions() {
+        	return EDIT_PERMISSIONS;
+        }
     }
 
     public static class Template {
