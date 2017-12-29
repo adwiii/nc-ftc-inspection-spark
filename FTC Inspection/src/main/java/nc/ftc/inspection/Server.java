@@ -66,78 +66,140 @@ public class Server {
 		//TODO remove the debug screen for release?
 		enableDebugScreen();
 		
-		before("*", Filters.addTrailingSlashesAndLowercase);
-		
-		before(Path.Web.CREATE_ACCOUNT, Filters.getAuthenticationFilter(User.ADMIN));
-		before(Path.Web.CREATE_ACCOUNT_SIMPLE, Filters.getAuthenticationFilter(User.ADMIN));
-		
+		before("*", Filters.addTrailingSlashesAndLowercase);		
 		
 		get(Path.Web.INDEX, DefaultPages.indexPage);
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
+		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
+		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		get(Path.Web.IP_PAGE, DefaultPages.ipPage);
-		get(Path.Web.CHANGE_PW, LoginPage.servePasswordChangePage);
-		get(Path.Web.CREATE_EVENT, EventPages.serveEventCreationPage);
-		get(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.serveCreateAccountPage);
-		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
-		get(Path.Web.USER_PAGE, LoginPage.serveUserPage );
-		
-		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);
-		get(Path.Web.INSPECT, EventPages.serveInspectionPage);
-		get(Path.Web.INSPECT_HOME, EventPages.serveInspectionHome);
-		get(Path.Web.INSPECT_TEAM_HOME, EventPages.serveTeamInspectionHome);
-		get(Path.Web.INSPECT_TEAM_FORM, EventPages.serveInspectionPageReadOnly);
-		get(Path.Web.INSPECT_OVERRIDE, EventPages.serveInspectionOverride);
-		//TODO make change password/new user page
-		//TODO encrypt passwords on POST
-		get(Path.Web.ERROR_403, DefaultPages.error403);
-		get(Path.Web.MASTER_TEAM_LIST, GlobalPages.handleTeamListGet);
-		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
-		get(Path.Web.EVENT_STATUS, EventPages.handleGetStatusGet);
 		get(Path.Web.SCHEDULE, EventPages.serveSchedulePage);
-		get(Path.Web.HEAD_REF, EventPages.serveHeadRef);
-		get(Path.Web.REF, EventPages.serveRef);
+		get(Path.Web.ERROR_403, DefaultPages.error403);
+		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
+		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
+		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		get(Path.Web.EVENT_HOME, EventPages.serveEventHomePage);
+		//I am unsure about the ones below here
 		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
+		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
+		get(Path.Web.WAIT_FOR_MATCH_END, EventPages.handleWaitForEnd);
 
+		//THESE ARE GENERAL USERS BUT NO ONE SHOULD EVER SEE THEM DIRECTLY BC THEY ARE REST
+		get(Path.Web.MASTER_TEAM_LIST, GlobalPages.handleTeamListGet);
+		get(Path.Web.EVENT_STATUS, EventPages.handleGetStatusGet);
+		//I am unsure about the ones below here
 		get(Path.Web.SCORE, EventPages.handleGetScore);
-		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);
 		get(Path.Web.SCORE_BREAKDOWN, EventPages.handleGetScoreBreakdown);
 		get(Path.Web.SCHEDULE_STATUS, EventPages.handleGetScheduleStatus);
 		get(Path.Web.GET_MATCH, EventPages.handleGetCurrentMatch);
 		get(Path.Web.BOTH_SCORE, EventPages.handleGetFullScore);
-		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
-		get(Path.Web.WAIT_FOR_MATCH_END, EventPages.handleWaitForEnd);
-		
-		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
-		get(Path.Web.AUDIENCE_DISPLAY, EventPages.serveAudienceDisplay);
-		get(Path.Web.FIELD_DISPLAY, EventPages.serveFieldDisplay);
-		
-		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
-		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
-		get(Path.Web.GET_DISPLAY_COMMANDS, EventPages.handleGetDisplayCommands);
-		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditScorePage);
 		get(Path.Web.GET_MATCH_FULL, EventPages.handleGetFullResult);
 		get(Path.Web.GET_MATCH_INFO, EventPages.handleGetMatchInfo);
-		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		
+		//User Pages - Must be logged in
+		before(Path.Web.CHANGE_PW, Filters.getAuthenticationFilter());
+		get(Path.Web.CHANGE_PW, LoginPage.servePasswordChangePage);
+		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);
+		
+		before(Path.Web.USER_PAGE, Filters.getAuthenticationFilter());
+		get(Path.Web.USER_PAGE, LoginPage.serveUserPage );
+		
+		
+		//Inspection Pages - Must be inspector
+		before(Path.Web.INSPECT, Filters.getAuthenticationFilter(User.INSPECTOR));
+		get(Path.Web.INSPECT, EventPages.serveInspectionPage);
+		
+		before(Path.Web.INSPECT_HOME, Filters.getAuthenticationFilter(User.INSPECTOR));
+		get(Path.Web.INSPECT_HOME, EventPages.serveInspectionHome);
+		
+		//Team Inspection Pages
+		before(Path.Web.INSPECT_TEAM_HOME, Filters.getAuthenticationFilter(User.TEAM));
+		get(Path.Web.INSPECT_TEAM_HOME, EventPages.serveTeamInspectionHome);
+		
+		before(Path.Web.INSPECT_TEAM_FORM, Filters.getAuthenticationFilter(User.TEAM));
+		get(Path.Web.INSPECT_TEAM_FORM, EventPages.serveInspectionPageReadOnly);
+		
+		//LRI Pages
+		before(Path.Web.EDIT_FORM, Filters.getAuthenticationFilter(User.LI));
+		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);
+		
+		before(Path.Web.INSPECT_OVERRIDE, Filters.getAuthenticationFilter(User.LI));
+		get(Path.Web.INSPECT_OVERRIDE, EventPages.serveInspectionOverride);
+		
+		
+		//TODO encrypt passwords on POST
+		
+		//Head Ref pages
+		before(Path.Web.HEAD_REF, Filters.getAuthenticationFilter(User.HEAD_REF));
+		get(Path.Web.HEAD_REF, EventPages.serveHeadRef);
+		
+		//Ref Pages
+		before(Path.Web.REF, Filters.getAuthenticationFilter(User.REF));
+		get(Path.Web.REF, EventPages.serveRef);
+		before(Path.Web.INSPECT_ITEM, Filters.getAuthenticationFilter(User.REF));
+		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
+
+		//ADMIN Pages
+		before(Path.Web.MATCH_CONTROL, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.MATCH_CONTROL, EventPages.serveMatchControlPage);
+		
+		before(Path.Web.AUDIENCE_DISPLAY, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.AUDIENCE_DISPLAY, EventPages.serveAudienceDisplay);
+		
+		before(Path.Web.FIELD_DISPLAY, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.FIELD_DISPLAY, EventPages.serveFieldDisplay);
+		
+		before(Path.Web.MATCH_PREVIEW, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
+		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
+		
+		before(Path.Web.GET_TIMER_COMMANDS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
+		
+		before(Path.Web.GET_DISPLAY_COMMANDS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.GET_DISPLAY_COMMANDS, EventPages.handleGetDisplayCommands);
+		
+		before(Path.Web.EDIT_MATCH_SCORE, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditScorePage);
+		post(Path.Web.EDIT_MATCH_SCORE, EventPages.handleCommitEditedScore);
+		put(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditedScore);
+		
+		before(Path.Web.MANAGE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
+		
+		before(Path.Web.ADD_TEAM, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.ADD_TEAM, EventPages.serveAddTeam);
+		post(Path.Web.ADD_TEAM, EventPages.handleAddTeam);
+		
+		before(Path.Web.UPLOAD_SCHEDULE, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);
-		get(Path.Web.EVENT_HOME, EventPages.serveEventHomePage);
+		
+		before(Path.Web.EDIT_SCORE_HOME, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.EDIT_SCORE_HOME, EventPages.serveEditScoreHome);
 		
-		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
-		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
-		post(Path.Web.CHANGE_PW, LoginPage.handlePasswordChangePost);
+		before(Path.Web.CREATE_ACCOUNT_SIMPLE, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.CREATE_EVENT, EventPages.serveEventCreationPage);
 		post(Path.Web.CREATE_EVENT, EventPages.handleEventCreationPost);
-		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
-		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
-		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
-		post(Path.Web.NEW_TEAM, GlobalPages.handleNewTeamPost);
-		post(Path.Web.EDIT_MATCH_SCORE, EventPages.handleCommitEditedScore);
 		
-		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
+		before(Path.Web.CREATE_ACCOUNT_SIMPLE, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.serveCreateAccountPage);
+		post(Path.Web.CREATE_ACCOUNT_SIMPLE, LoginPage.handleCreateAccountPost);
+		
+		before(Path.Web.CREATE_ACCOUNT, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.CREATE_ACCOUNT, LoginPage.serveCreateAccountPage);
+		post(Path.Web.CREATE_ACCOUNT, LoginPage.handleCreateAccountPost);
+		
+		before(Path.Web.NEW_TEAM, Filters.getAuthenticationFilter(User.ADMIN));
+		post(Path.Web.NEW_TEAM, GlobalPages.handleNewTeamPost);
+		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
+		
+		
+		//headref?
 		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
 		post(Path.Web.RERANDOMIZE, EventPages.handleReRandomizePost);
+		
+		//admin?
+		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		post(Path.Web.PAUSE_MATCH, EventPages.handlePauseMatch);
 		post(Path.Web.RESUME_MATCH, EventPages.handleResumeMatch);
@@ -146,23 +208,18 @@ public class Server {
 		post(Path.Web.SCORE, EventPages.handleTeleopSubmit);
 		post(Path.Web.SCORE_AUTO, EventPages.handleAutoSubmit);
 		post(Path.Web.LOAD_MATCH, EventPages.handleLoadMatch);
-		
-		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
 		post(Path.Web.SHOW_PREVIEW, EventPages.handleShowPreviewCommand);
 		post(Path.Web.SHOW_MATCH, EventPages.handleShowMatch);
 		post(Path.Web.LOCKOUT_REFS, EventPages.handleLockoutRefs);
-		
+		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
+		put(Path.Web.EDIT_SCORE, EventPages.handleControlScoreEdit);
 		post(Path.Web.SET_STATUS, EventPages.handleSetStatus);
-		post(Path.Web.ADD_TEAM, EventPages.handleAddTeam);
 		post(Path.Web.RANKINGS, EventPages.handleRecalcRankings);
 		
-		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
-		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
+		//ref?
 		put(Path.Web.INSPECT_NOTE, EventPages.handleNote);
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
-		put(Path.Web.EDIT_SCORE, EventPages.handleControlScoreEdit);
-		put(Path.Web.EDIT_MATCH_SCORE, EventPages.handleGetEditedScore);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);

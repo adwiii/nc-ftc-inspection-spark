@@ -21,10 +21,10 @@ public class Filters {
     
     /**
      * This returns a filter that checks to see if the current user has the needed level to access this page
-     * @param level the minimum level needed to access this page
+     * @param type the minimum level needed to access this page
      * @return A filter to check this page
      */
-    public static Filter getAuthenticationFilter(int level) {
+    public static Filter getAuthenticationFilter(int type) {
     	return (Request request, Response response) -> {
     		int user = AuthenticationManager.getUserType(request.session().attribute("sessionToken"));
     		//if the user is none then we need to login
@@ -34,8 +34,24 @@ public class Filters {
                 response.redirect(Path.Web.LOGIN);
     		}
     		//if the user cannot access this page, then 403
-    		if ((user & level) == 0) {
+    		if ((user & type) == 0) {
     			response.redirect(Path.Web.ERROR_403);
+    		}
+    	};
+    }
+    
+    /**
+     * This returns a filter that checks that the user is logged in
+     * @return A filter to check this page for logged in
+     */
+    public static Filter getAuthenticationFilter() {
+    	return (Request request, Response response) -> {
+    		int user = AuthenticationManager.getUserType(request.session().attribute("sessionToken"));
+    		//if the user is none then we need to login
+    		if (user == User.NONE) {
+            	request.session().attribute("sessionToken", null); //ensure there is no sessionToken going in
+                request.session().attribute("loginRedirect", request.pathInfo());
+                response.redirect(Path.Web.LOGIN);
     		}
     	};
     }

@@ -36,6 +36,7 @@ public class Path {
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
         
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
+        //TODO change so as to not have duplicate constants?
         public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
         public static final String EVENT_STATUS = "/event/:event/status/data/"; //Endpoint to get data

@@ -9,9 +9,13 @@ public class User {
 	public static int SYSADMIN = 1<<31;
 	public static int ADMIN = 1<<30;
 	public static int KEY_VOLUNTEER = 1<<29;
+	public static int HEAD_REF = 1<<28;
+	public static int REF = 1<<27;
+	public static int LI = 1<<26;
+	public static int INSPECTOR = 1<<25;
 	public static int VOLUNTEER = 1<<2;
 	public static int TEAM = 1<<1;
-	public static int GENERAL = 1<<0;
+	public static int GENERAL = 1<<0;//we can change this to be something more useful
 	
 	public static HashMap<Integer, String> nameMap = new HashMap<>();
 	
@@ -19,6 +23,10 @@ public class User {
 		nameMap.put(SYSADMIN, "System Admin");
 		nameMap.put(ADMIN, "Admin");
 		nameMap.put(KEY_VOLUNTEER, "Key Volunteer");
+		nameMap.put(HEAD_REF, "Head Ref");
+		nameMap.put(REF, "Referee");
+		nameMap.put(LI, "Lead Inspector");
+		nameMap.put(INSPECTOR, "Inspector");
 		nameMap.put(VOLUNTEER, "Volunteer");
 		nameMap.put(TEAM, "Team Member");
 		nameMap.put(GENERAL, "General User");
