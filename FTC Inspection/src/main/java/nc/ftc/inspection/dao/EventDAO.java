@@ -12,6 +12,7 @@ import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -102,6 +103,10 @@ public class EventDAO {
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match ORDER BY q.match";
 	static final String GET_CARDS_DQS_SQL = "SELECT match, alliance, card1, card2, dq1, dq2 from qualsScores; ";
 	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
+	
+	//This SQL requires post-processing
+	static final String GET_CARDS_FOR_TEAM_SQL =  "SELECT q.match, red1, red2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=0 WHERE red1=? OR red2=? UNION "
+												+ "SELECT q.match, blue1, blue2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=1 WHERE blue1=? OR blue2=? ORDER BY q.match";
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -413,6 +418,7 @@ public class EventDAO {
 	}
 	
 	public static boolean createSchedule(String event, List<Match> matches){
+		//TODO if schedule already exists, PK violation -> way to overwrite schedule
 		try(Connection local = getLocalDB(event)){
 			for(Match m : matches){
 				System.out.println(m.getNumber());
@@ -504,6 +510,7 @@ public class EventDAO {
 	}
 	
 	public static boolean commitScores(String event, Match match){
+		if(match.getNumber() == -1)return true; //test match
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_DATA);
 			ps.setInt(1, 1);
@@ -680,6 +687,7 @@ public class EventDAO {
 		}
 	}
 	
+	
 	public static Match getMatchResultFull(String event, int num) {	
 		try (Connection local = getLocalDB(event)){
 			Match match = getMatch(event, num);
@@ -784,6 +792,35 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	public static Map<Integer, List<Integer>> getCardsForTeams(String event, int...teams){
+		try (Connection local = getLocalDB(event)){
+			Map<Integer, List<Integer>> map = new HashMap<>();
+			for(int t:teams) {
+				List<Integer> list = new ArrayList<Integer>();
+				PreparedStatement ps = local.prepareStatement(GET_CARDS_FOR_TEAM_SQL);
+				for(int i = 0; i < 4; i++) {
+					ps.setInt(i+1, t);
+				}
+				ResultSet rs = ps.executeQuery();
+				while(rs.next()) {
+					if(rs.getInt(2)==t && rs.getInt(4) >0) {
+						list.add(rs.getInt(1));
+					}
+					if(rs.getInt(3)==t && rs.getInt(5)>0) {
+						list.add(rs.getInt(1));
+					}
+				}
+				Collections.sort(list);
+				map.put(t, list);				
+			}
+			return map;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 }

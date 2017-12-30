@@ -23,6 +23,7 @@ public class Path {
         public static final String EVENT_HOME = "/event/:event/home/";
         public static final String EDIT_PERMISSIONS = "/users/manage/";
         
+        
         public static final String EDIT_FORM = "/event/:event/edit/";
         public static final String INSPECT_HOME = "/event/:event/inspect/";
 		public static final String INSPECT = "/event/:event/inspect/:form/"; //the inspection form page
@@ -64,6 +65,7 @@ public class Path {
         public static final String LOCKOUT_REFS = "/event/:event/control/lockout/";
         public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
         public static final String SHOW_PREVIEW = "/event/:event/display/preview/";
+        public static final String SHOW_RESULTS = "/event/:event/display/results/";
         public static final String SHOW_MATCH = "/event/:event/display/match/";
         public static final String START_MATCH = "event/:event/time/start/";
         public static final String PAUSE_MATCH = "event/:event/time/pause/";
@@ -74,6 +76,7 @@ public class Path {
         public static final String WAIT_FOR_MATCH_END = "event/:event/match/status/end/";
         public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
         public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
+        public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
         
         //get gets the page, PUT returns new score breakdown, and POST commits.
         public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
@@ -155,7 +158,7 @@ public class Path {
 		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
-		public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
+        public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
         
     }
 

@@ -42,6 +42,14 @@ public class Event {
 //		currentMatch = nextMatch;
 //	}
 	public void loadNextMatch(){
+		if(currentMatch != null && currentMatch == Match.TEST_MATCH) {
+			currentMatch = Match.TEST_MATCH;
+			currentMatch.refLockout = false;
+			currentMatch.status = MatchStatus.PRE_RANDOM;
+			currentMatch.clearSubmitted();
+			currentMatch.getRed().initializeScores();
+			currentMatch.getBlue().initializeScores();
+		}
 		previousMatch = currentMatch;
 		currentMatch = EventDAO.getNextMatch(data.getCode());
 		if(currentMatch == null){
@@ -57,7 +65,7 @@ public class Event {
 	
 	public void loadMatch(int num) {
 		Match temp = currentMatch;
-		currentMatch = EventDAO.getMatch(data.getCode(), num);
+		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num);
 		if(currentMatch == null) {
 			currentMatch = temp;
 		} else {
@@ -67,6 +75,8 @@ public class Event {
 		}
 		
 	}
+	
+	
 	
 	public EventData getData() {
 		return data;
@@ -179,6 +189,15 @@ public class Event {
 	
 	public List<Rank> getRankings(){
 		return rankings;
+	}
+	
+	public int getRank(int team) {
+		for(int i = 0; i < rankings.size(); i++) {
+			if(rankings.get(i).team.getNumber() == team) {
+				return i + 1;
+			}
+		}
+		return -1;
 	}
 	
 	

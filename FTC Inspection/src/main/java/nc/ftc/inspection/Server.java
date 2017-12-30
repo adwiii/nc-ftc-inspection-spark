@@ -225,6 +225,8 @@ public class Server {
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		
+		get(Path.Web.GET_POST_RESULTS_INFO, EventPages.handlePostResultData);
+		post(Path.Web.SHOW_RESULTS, EventPages.handleShowResults);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

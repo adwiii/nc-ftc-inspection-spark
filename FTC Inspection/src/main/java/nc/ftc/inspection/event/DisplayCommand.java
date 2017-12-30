@@ -5,5 +5,5 @@ package nc.ftc.inspection.event;
 //field display should ignore show preview/results unless it is being
 //used as the primary display
 public enum DisplayCommand {
-	SHOW_PREVIEW, SHOW_RANDOM, SHOW_MATCH, SHOW_RESULT
+	SHOW_PREVIEW, SHOW_RANDOM, SHOW_MATCH, SHOW_RESULT, STOP_SCORE_UPDATES
 }
