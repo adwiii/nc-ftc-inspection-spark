@@ -62,9 +62,7 @@ $(document).ready(function() {
     function updateRoles() {
     	var selectedOpt = $('#possibleRoles option:selected')[0].value;
     	var userOptions = $('#selectedUsers option');
-    	var users = [];
     	for (let user of userOptions) {
-    		users.push(user.value);
     		if (userRoleMap[user.value].indexOf(selectedOpt) >= 0) {
     			user.style.color = "#008900";
     		} else {
@@ -78,13 +76,36 @@ $(document).ready(function() {
     	for(var i = 0; i < sel.length; i++){
     		res.push(sel[i].value);
     	}
+    	var assignedRole = $('#possibleRoles option:selected')[0].value;
     	$.ajax({
 			url: "",
   			type: "POST",
-  			data: {role:$('#possibleRoles option:selected')[0].value, changedUsers:res, add:addPermission},
+  			data: {role:assignedRole, changedUsers:res, add:addPermission},
   			success: function(data){
-  				document.getElementById("team").value = "";
-  				document.getElementById("msg").innerHTML = "Team added";
+  				if (addPermission) {
+  					for (let user of res) {
+	  					userRoleMap[user].push(assignedRole);
+  					}	
+  					document.getElementById("msg").innerHTML = "Permissions successfully granted";
+  				} else {
+  					for (let user of res) {
+  						let arr = userRoleMap[user];
+  						let index = -1;
+  						let i = 0;
+  						for (let r of arr) {
+  							if (r == assignedRole) {
+  								index = i;
+  								break;
+  							}
+  							i++;
+  						}
+  						if (index != -1) {
+	  						arr.splice(index, 1);
+	  					}
+  					}
+  					document.getElementById("msg").innerHTML = "Permissions successfully removed";
+  				}
+  				updateRoles();
   			},
   			error:function(xhr, ajaxOptions, thrownError){  				
                 console.log(xhr);
@@ -131,6 +152,7 @@ Role to Edit:
 <td>
 <input type="button" id="removeButton" class="bad notification" value="Remove Permissions">
 <input type="button" id="addButton" class="good notification" value="Add Permissions">
+<div id="msg" style="text-align:center"></div>
 </td>
 
 
