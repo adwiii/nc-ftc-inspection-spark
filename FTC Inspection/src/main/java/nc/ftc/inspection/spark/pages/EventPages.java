@@ -22,6 +22,7 @@ import static nc.ftc.inspection.spark.util.ViewUtil.render;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -241,6 +242,7 @@ public class EventPages {
 		 	}
 			Part p = request.raw().getPart("file");
 			List<Match> matches = new ArrayList<>();
+			Set<Integer> teams = new HashSet<Integer>();
 			Scanner scan = new Scanner(p.getInputStream());
 			scan.useDelimiter("\\|");
 			try{
@@ -277,11 +279,16 @@ public class EventPages {
 				Alliance red = new Alliance(red1, r1S == 1, red2, r2S == 1);
 				Alliance blue = new Alliance(blue1, b1S == 1, blue2, b2S == 1);
 				matches.add(new Match(match, red, blue));
+				teams.add(red1);
+				teams.add(red2);
+				teams.add(blue1);
+				teams.add(blue2);
 			//	System.out.println(match+":"+red1+(r1S == 1 ? "*":"")+","+red2+(r2S == 1 ? "*":"")+","+blue1+(b1S == 1 ? "*":"")+","+blue2+(b2S == 1 ? "*":""));
 			}
 			}catch(Exception e){
 				e.printStackTrace();
 			}
+			//TODO add teams in Set to event if not in it, and display that occurance
 			scan.close();
 			EventDAO.createSchedule(event, matches);
 			response.status(200);

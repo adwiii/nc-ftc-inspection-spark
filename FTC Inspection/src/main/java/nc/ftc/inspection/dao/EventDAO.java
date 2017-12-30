@@ -418,6 +418,7 @@ public class EventDAO {
 	}
 	
 	public static boolean createSchedule(String event, List<Match> matches){
+		//TODO if schedule already exists, PK violation -> way to overwrite schedule
 		try(Connection local = getLocalDB(event)){
 			for(Match m : matches){
 				System.out.println(m.getNumber());
