@@ -1,6 +1,6 @@
 package nc.ftc.inspection.model;
 
-public class EventData {
+public class EventData implements Comparable<EventData> {
 	private String code;
 	private String name;
 	private int status;
@@ -34,6 +34,15 @@ public class EventData {
 
 	public java.sql.Date getDate() {
 		return date;
+	}
+
+	@Override
+	public int compareTo(EventData other) {
+		int comp = (this.getDate() != null && other.getDate() != null) ? this.getDate().compareTo(other.getDate()) : 0;
+		if (comp == 0) {
+			comp = (this.getCode() != null && other.getCode() != null) ? this.getCode().compareTo(other.getCode()) : 0;
+		}
+		return comp;
 	}
 
 

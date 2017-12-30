@@ -68,6 +68,7 @@ public class Server {
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);		
 		
+		get(Path.Web.DEFAULT, DefaultPages.forwardToIndex);
 		get(Path.Web.INDEX, DefaultPages.indexPage);
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
