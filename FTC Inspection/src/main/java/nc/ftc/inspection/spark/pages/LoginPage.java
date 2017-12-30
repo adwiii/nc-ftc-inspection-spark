@@ -177,7 +177,7 @@ public class LoginPage {
 				throw new IllegalArgumentException("Cannot set SYSADMIN role");
 			}
 			Gson gson = new Gson();
-			String[] changedUsers = gson.fromJson(request.queryParams("changedUsers"), String[].class);
+			String[] changedUsers = request.queryParamsValues("changedUsers[]");
 			boolean add = Boolean.parseBoolean(request.queryParams("add"));
 			if (add) {
 				for (String username : changedUsers) {
