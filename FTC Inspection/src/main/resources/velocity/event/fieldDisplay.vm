@@ -174,6 +174,7 @@
 		top:-15;
 		color:black;
 	}
+	
 	.resultNumber{
 		position:absolute;
 		left:70;
@@ -325,6 +326,31 @@
 	#ballRed{
 		float:right;
 	}
+	.wing{
+		position:absolute; 
+		width:294; height:94;
+		left:3;
+		font:80px "Arial Black", Arial, Helvetica, sans-serif;
+		text-align:center;
+		line-height:90px;
+		vertical-align:top;
+	}
+	.blueWing[card=false]{
+		background-color:blue;
+		color:white;
+	}
+	.blueWing[card=true]{
+		background-color:yellow;
+		color:blue;
+	}
+	.redWing[card=false]{
+		background-color:red;
+		color:white;
+	}
+	.redWing[card=true]{
+		background-color:yellow;
+		color:red;
+	}
 	</style>
 
 <body style="background-image:url('/img/BackgroundHD.png');overflow:hidden;">
@@ -360,7 +386,19 @@
 	  	<img id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
-	  	<img id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >  	
+	  	<img id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
+	  	<div id="blueWing" style="position:absolute; background-color:blue;width:300;height:200;top:162;left:-300;">
+	  		<div id="blueWing1" style="top:3;" class="wing blueWing" card=false>
+	  		</div>
+	  		<div id="blueWing2" style="top:103;" class="wing blueWing" card=false>
+	  		</div>
+	  	</div> 	
+	  	<div id="redWing" style="position:absolute; background-color:red;width:300;height:200;top:162;left:765;">
+	  		<div id="redWing1" style="top:3;" class="wing redWing" card=false>
+	  		</div>
+	  		<div id="redWing2" style="top:103;" class="wing redWing" card=false>
+	  		</div>
+	  	</div> 
   	</div>
   	<div id="random" visible="false">
   		<img id="randomImg" src="/img/random1_75.png" alt="Randomization" >
@@ -434,6 +472,9 @@
   	var endgameFlag = false; 
   	var rand;
   	
+  	var stopScores = false;
+  	
+  	
   	var minDigit = document.getElementById("minDigit");
   	var colon = document.getElementById("colon");
   	var tensDigit = document.getElementById("tensDigit");
@@ -478,6 +519,7 @@
 	}
 	
   	function start(){
+  		stopScores = false;
   		startTime = new Date().getTime();
   		timerInstance = setInterval(tick, 50);
   		startSound.play();
@@ -577,24 +619,33 @@
             	if(data == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
+            		#if(!$ad)getMatchInfo();#end
             	} else if(data == 'SHOW_MATCH'){
             		showMatch();
+            	} else if(data == 'STOP_SCORE_UPDATES'){
+            		stopScores = true;
             	}
-            	#if($ad)
+            	
             		else if(data == 'SHOW_PREVIEW'){
             			$.ajax({
 				  			url: "../match/",
 				  			type: "GET",
 				  			dataType: 'json',
 				  			success: function(data){
-				  				showPreview(data);
+				  				#if($ad)
+				  					showPreview(data);
+				  				#else
+				  					fillWings(data);
+				  				#end
 				  			},
 				  			error:function(xhr, ajaxOptions, thrownError){
 					                    console.log(xhr);
 					                    console.log(ajaxOptions);
 					                    console.log(thrownError);
 				  			}});
-            		} else if(data == 'SHOW_RESULT'){
+            		} 
+            		#if($ad)
+            		else if(data == 'SHOW_RESULT'){
             			$.ajax({
 				  			url: "../display/resultdata/",
 				  			type: "GET",
@@ -617,6 +668,43 @@
             }
          });
 
+	}
+	//Gets team numbers and card info to display beside the timer.
+	function getMatchInfo(){
+		$.ajax({
+  			url: "../match/",
+  			type: "GET",
+  			dataType: 'json',
+  			success: function(data){
+  				fillWings(data);
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){
+	                    console.log(xhr);
+	                    console.log(ajaxOptions);
+	                    console.log(thrownError);
+  			}});
+	}
+	function setTop(n){
+	
+		document.getElementById("top").innerHTML = n == -1 ? "Test Match" : ("Qualification Match "+n);
+	}
+	function fillWings(data){
+		var wing = document.getElementById("blueWing1");
+		wing.innerHTML = data.blue1;
+		wing.setAttribute("card", data.blue1Card);
+		
+		wing = document.getElementById("blueWing2");
+		wing.innerHTML = data.blue2;
+		wing.setAttribute("card", data.blue2Card);
+		
+		wing = document.getElementById("redWing1");
+		wing.innerHTML = data.red1;
+		wing.setAttribute("card", data.red1Card);
+		
+		wing = document.getElementById("redWing2");
+		wing.innerHTML = data.red2;
+		wing.setAttribute("card", data.red2Card);
+		setTop(data.number);
 	}
 	
 	function resetScores(){
@@ -671,7 +759,7 @@
 			document.getElementById("blue3_number").innerHTML = data.blue3;
 			document.getElementById("blue3_name").innerHTML = data.blue3Name;
 		}
-		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
+		setTop(data.number);//TODO eventually match name.
 	
 		
 		document.getElementById("timer").setAttribute("visible","false");
@@ -682,6 +770,7 @@
 		document.getElementById("scoreBlue").setAttribute("visible","true");
 		document.getElementById("scoreBar").setAttribute("visible","true");
 	
+		fillWings(data);
 	}
 	function getArrow(dif){
 		dif = parseInt(dif);
@@ -794,7 +883,7 @@
 	var lastBreakdown = 0;
 	function getScoreUpdate(block){
   		var data = {};
-  		$.ajax({
+  		activeUpdateRequest = $.ajax({
   			url: "../scorebreakdown/",
   			type: "GET",
   			dataType: 'json',
@@ -805,10 +894,12 @@
   			success: function(data){  			
   				lastBreakdown = data.ts;
   				updateScores(data);
-  				window.setTimeout(function(){getScoreUpdate(true);}, 1000);
+  				if(!stopScores){
+  					window.setTimeout(function(){getScoreUpdate(true);}, 1000);
+  				}
   			},
   			error: function(xhr, ajaxOptions, thrownError){
-  				if(xhr.responseText != "No match loaded"){
+  				if(xhr.responseText != "No match loaded" && !stopScores){
   					window.setTimeout(function(){getScoreUpdate(true);}, 1000);
   				}
   			}});

@@ -471,7 +471,10 @@ function resume(){
 
 function showPreview(){
 	var postObj = {};
-	$.post("../display/preview/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+	$.post("../display/preview/",postObj).done(function(data){
+		document.getElementById("randomBtn").setAttribute("state","ready");
+		document.getElementById("randomBtn").disabled = false;
+	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
 }
@@ -516,16 +519,16 @@ function commit(){
 function post(){ //posts results to AD
 	var postBtn = document.getElementById("postBtn");
 	postBtn.setAttribute("state","off");
-	postBtn.diabled = true;
+	//postBtn.diabled = true;
 	
 	var preview = document.getElementById("previewBtn");
 	preview.setAttribute("state", "ready");
 	preview.disabled = false;
-	var rand = document.getElementById("randomBtn");
+/*	var rand = document.getElementById("randomBtn");
 	rand.setAttribute("state", "ready");
 	rand.innerHTML = "Randomize";
 	rand.disabled = false;
-	
+	*/
 	//send command
 	var postObj = {};
 	$.post("../display/results/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
@@ -546,7 +549,7 @@ function openTab(event, tabName){
 		#topBar()
 		<div id="matchControl">
 			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Match Preview</button>
-			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "ready">Randomize</button>			
+			<button class="matchControlButton" id="randomBtn" onclick="randomize()"  state = "off" disabled>Randomize</button>			
 			<button class="matchControlButton" id="showBtn"   onclick="setDisplay()" state = "off" disabled>Set Display</button>
 			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>
 			<button class="matchControlButton" id="commitBtn" onclick="lockout()"     state = "off" disabled>Edit Now</button>

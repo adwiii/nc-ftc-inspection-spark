@@ -590,6 +590,9 @@ public class EventPages {
 				}
 				Match match = Server.activeEvents.get(e).getCurrentMatch();
 				match.getAlliance(request.params("alliance")).setInReview(true);
+				if(match.isInReview()) {
+					Server.activeEvents.get(e).getDisplay().issueCommand(DisplayCommand.STOP_SCORE_UPDATES);
+				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
 //				if(status == MatchStatus.AUTO) {
 //					match.calculateEndAuto();
@@ -982,21 +985,43 @@ public class EventPages {
 				return "{}";
 			}
 			Match m = e.getCurrentMatch();
+			Alliance red = m.getRed();
+			Alliance blue = m.getBlue();
 			//TODO fix this an dmake it not suck!
 			String res = "{";
 			res += "\"number\":" + m.getNumber()+",";
-			res += "\"red1\":"+m.getRed().getTeam1()+",";
-			res += "\"red2\":"+m.getRed().getTeam2()+",";
-			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
-			res += "\"blue2\":"+m.getBlue().getTeam2() +",";
-			res += "\"red1Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam1())+"\",";
-			res += "\"red2Name\":\""+GlobalDAO.getTeamName(m.getRed().getTeam2())+"\",";
-			res += "\"blue1Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam1())+"\",";
-			res += "\"blue2Name\":\""+GlobalDAO.getTeamName(m.getBlue().getTeam2())+"\",";
-			res += "\"red1Rank\":"+e.getRank(m.getRed().getTeam1())+",";
-			res += "\"red2Rank\":"+e.getRank(m.getRed().getTeam2())+",";
-			res += "\"blue1Rank\":"+e.getRank(m.getBlue().getTeam1())+",";
-			res += "\"blue2Rank\":"+e.getRank(m.getBlue().getTeam2());
+			res += "\"red1\":"+red.getTeam1()+",";
+			res += "\"red2\":"+red.getTeam2()+",";
+			res += "\"blue1\":"+blue.getTeam1()+",";
+			res += "\"blue2\":"+blue.getTeam2() +",";
+			res += "\"red1Name\":\""+GlobalDAO.getTeamName(red.getTeam1())+"\",";
+			res += "\"red2Name\":\""+GlobalDAO.getTeamName(red.getTeam2())+"\",";
+			res += "\"blue1Name\":\""+GlobalDAO.getTeamName(blue.getTeam1())+"\",";
+			res += "\"blue2Name\":\""+GlobalDAO.getTeamName(blue.getTeam2())+"\",";
+			res += "\"red1Rank\":"+e.getRank(red.getTeam1())+",";
+			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
+			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
+			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
+			
+			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
+			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(event, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
+			List<Integer> cardList = cardMap.get(red.getTeam1());			
+			Integer t = cardList.size() > 0 ? cardList.get(0) : null;
+			res += "\"red1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+			
+			cardList = cardMap.get(red.getTeam2()); 
+			t = cardList.size() > 0 ? cardList.get(0) : null;
+			res += "\"red2Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+			
+			cardList = cardMap.get(blue.getTeam1());
+			t = cardList.size() > 0 ? cardList.get(0) : null;
+			res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+			
+			cardList = cardMap.get(blue.getTeam2());
+			t = cardList.size() > 0 ? cardList.get(0) : null;
+			res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
+			
+			
 			res += "}";
 			return res;
 		};
