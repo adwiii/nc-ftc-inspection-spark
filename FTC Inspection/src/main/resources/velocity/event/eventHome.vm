@@ -85,5 +85,19 @@
 </ul>
 #end
 
+#if($ADMIN)
+<h2>
+	User Management Pages
+</h2>
+<ul>
+	<li>		
+		<a href="/create/account">Create Users</a>
+	</li>
+	<li>		
+		<a href="/users/manage">Manage Users</a>
+	</li>
+</ul>
+#end
+
 
 #end

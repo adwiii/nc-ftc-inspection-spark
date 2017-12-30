@@ -187,7 +187,7 @@ public class Server {
 		before(Path.Web.EDIT_SCORE_HOME, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.EDIT_SCORE_HOME, EventPages.serveEditScoreHome);
 		
-		before(Path.Web.CREATE_ACCOUNT_SIMPLE, Filters.getAuthenticationFilter(User.ADMIN));
+		before(Path.Web.CREATE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.CREATE_EVENT, EventPages.serveEventCreationPage);
 		post(Path.Web.CREATE_EVENT, EventPages.handleEventCreationPost);
 		
