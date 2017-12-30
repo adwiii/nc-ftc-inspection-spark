@@ -38,14 +38,17 @@
 #end
 #macro (ball $alliance $size)
 	<div id="ball$alliance" class="ball">
-  			<img id="jewel${alliance}1" src="/img/ball-split${size}.png" alt="Balance Stone">
+  			<img id="jewel${alliance}1" src="/img/ball-split${size}.png" alt="Balance Stone" >
   			<br>
-  			<img id="jewel${alliance}2" src="/img/ball-split${size}.png" alt="Balance Stone">
+  			<img id="jewel${alliance}2" src="/img/ball-split${size}.png" alt="Balance Stone" >
   		</div>
 #end
 #macro (balance $alliance $size)
 	<div id="balance$alliance" class="balance">
+	<br>
   			<img id="balance${alliance}1" src="/img/tt_black${size}.png" alt="Balance Stone">
+  			<br>
+  			<br>
   			<br>
   			<img id="balance${alliance}2" src="/img/tt_black${size}.png" alt="Balance Stone">
   		</div>
@@ -304,8 +307,8 @@
 	.balance{
 		position:relative;
 		height:180px;
-		width: 170px;
-		top:10px;
+		width: 220px;
+		top:5px;
 	}
 	#balanceBlue{
 		float:left;
@@ -318,7 +321,8 @@
 		height:180px;
 		width: 100px;
 		top:5px;
-		left:0px;
+		left:10px;
+		align:center;
 	}
 	#ballBlue{
 		float:left;
@@ -441,13 +445,13 @@
   		#grid("blue" "50" "2")
   		#ball("blue" "25")
   		#parking("blue" "20")
-  		#balance("blue" "14")
+  		#balance("blue" "18")
   		  		
   		#grid("red" "50" "2")
   		#grid("red" "50" "1")
   		#ball("red" "25") 	
   		#parking("red" "20")
-  		#balance("red" "14")   		
+  		#balance("red" "18")   		
   			
   	</div>
   	
@@ -487,6 +491,10 @@
   	var blueJewel2 = document.getElementById("jewelblue2");
   	var redJewel1 = document.getElementById("jewelred1");
   	var redJewel2 = document.getElementById("jewelred2");
+  	var redBalance1 = document.getElementById("balancered1");
+  	var redBalance2 = document.getElementById("balancered2");
+  	var blueBalance1 = document.getElementById("balanceblue1");
+  	var blueBalance2 = document.getElementById("balanceblue2");
   	
   	$().ready(function () {
     	getTimerCommand();
@@ -502,6 +510,10 @@
             type: "GET",
             success: function (data) {
             	console.log(data);
+            	if(data.indexOf("<html>")>=0){
+            		//weve been redirected to login page!
+            		window.location.reload(true);
+            	}
             	if(data == 'START'){
             		start();
             	} else if(data == 'PAUSE'){
@@ -614,8 +626,12 @@
         $.ajax({
             url: "../display/command/",
             type: "GET",
-            success: function (data) {
+            success: function (data, textStatus, xhr) {
             	console.log(data);
+            	if(data.indexOf("<html>")>=0){
+            		//weve been redirected to login page!
+            		window.location.reload(true);
+            	}
             	if(data == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
@@ -804,7 +820,7 @@
 		if(typeof data.blue3 !== 'undefined'){
 			document.getElementById("blue3_resultNumber").innerHTML = data.blue3;
 		}
-		document.getElementById("top").innerHTML = "Qualification Match "+data.number;
+		setTop(data.number);
 		
 		document.getElementById("red1_resultRank").innerHTML = data.red1Rank + getArrow(data.red1Dif);
 		document.getElementById("red2_resultRank").innerHTML = data.red2Rank + getArrow(data.red2Dif);
@@ -947,6 +963,11 @@
   		redParking1.src = obj.red.parkingPoints > 0 ? "/img/parking_red20.png" : "/img/parking_black20.png" ;
   		redParking2.src = obj.red.parkingPoints == 20 ? "/img/parking_red20.png" : "/img/parking_black20.png" ;
   		
+  		redBalance1.src = obj.red.balancePoints > 0 ? "/img/tt_red18.png" : "/img/tt_black18.png";
+  		redBalance2.src = obj.red.balancePoints > 20 ? "/img/tt_red18.png" : "/img/tt_black18.png";
+  		blueBalance1.src = obj.blue.balancePoints > 0 ? "/img/tt_blue18.png" : "/img/tt_black18.png";
+  		blueBalance2.src = obj.blue.balancePoints > 20 ? "/img/tt_blue18.png" : "/img/tt_black18.png";
+  		
   		blueJewel1.src = getJewelImage(obj.blue.jewelSet1, flip);
   		blueJewel2.src = getJewelImage(obj.blue.jewelSet2, flip);
   		redJewel1.src = getJewelImage(obj.red.jewelSet1, flip);
@@ -1003,7 +1024,9 @@
    <img src="/img/parking_black20.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/parking_blue20.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/parking_red20.png" width="1" height="1" alt="Image 03" /> 
-   <img src="/img/tt_black14.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/tt_black18.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/tt_blue18.png" width="1" height="1" alt="Image 03" /> 
+   <img src="/img/tt_red18.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/ball-split25.png" width="1" height="1" alt="Image 03" /> 
    <img src="/img/ball-split_red25.png" width="1" height="1" alt="Image 03" />  
    <img src="/img/ball-split_blue25.png" width="1" height="1" alt="Image 03" />  

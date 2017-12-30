@@ -158,6 +158,12 @@ public class Server {
 		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
 		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
 		
+		before(Path.Web.GET_POST_RESULTS_INFO, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.GET_POST_RESULTS_INFO, EventPages.handlePostResultData);
+		
+		before(Path.Web.SHOW_RESULTS, Filters.getAuthenticationFilter(User.ADMIN));
+		post(Path.Web.SHOW_RESULTS, EventPages.handleShowResults);
+		
 		before(Path.Web.GET_TIMER_COMMANDS, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
 		
@@ -226,8 +232,7 @@ public class Server {
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		
-		get(Path.Web.GET_POST_RESULTS_INFO, EventPages.handlePostResultData);
-		post(Path.Web.SHOW_RESULTS, EventPages.handleShowResults);
+		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

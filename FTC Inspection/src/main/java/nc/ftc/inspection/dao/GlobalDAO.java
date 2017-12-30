@@ -19,6 +19,9 @@ public class GlobalDAO {
 	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
 	
 	public static String getTeamName(int team) {
+		if(team < 0) {
+			return "Test Team "+(team * -1);
+		}
 		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = global.prepareStatement(GET_TEAM_NAME_SQL);
 			ps.setInt(1,  team);

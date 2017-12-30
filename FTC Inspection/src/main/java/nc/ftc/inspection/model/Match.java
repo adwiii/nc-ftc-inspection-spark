@@ -46,6 +46,9 @@ public class Match {
 	public boolean isRandomized(){
 		return randomization != 0;
 	}
+	public void clearRandom() {
+		randomization = 0;
+	}
 	public int getRandomization(){
 		return randomization;
 	}

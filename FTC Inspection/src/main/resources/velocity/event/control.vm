@@ -504,6 +504,12 @@ function commit(){
 		var commitBn = document.getElementById("commitBtn");
 		commitBtn.setAttribute("state", "off");
 		commitBtn.disabled = true;
+		var preview = document.getElementById("previewBtn");
+		preview.setAttribute("state", "ready");
+		preview.disabled = false;
+		var rand = document.getElementById("randomBtn");
+		rand.innerHTML = "Randomize";
+		
 		setControlState(true);
 		
 		getScheduleStatus();
@@ -585,6 +591,7 @@ function openTab(event, tabName){
 			
 		</div>
 		<div class="tabContent" id="SettingsTab">
+			<button onclick="loadMatch(this)" id="match-1">Test Match</button>
 		</div>
 	</body>
 </html>
