@@ -2,26 +2,46 @@ package nc.ftc.inspection.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+
+import nc.ftc.inspection.dao.UsersDAO;
 
 public class User {
 	
 	public static int SYSADMIN = 1<<31;
 	public static int ADMIN = 1<<30;
 	public static int KEY_VOLUNTEER = 1<<29;
+	public static int HEAD_REF = 1<<28;
+	public static int REF = 1<<27;
+	public static int LI = 1<<26;
+	public static int INSPECTOR = 1<<25;
 	public static int VOLUNTEER = 1<<2;
 	public static int TEAM = 1<<1;
-	public static int GENERAL = 1<<0;
+	public static int GENERAL = 1<<0;//we can change this to be something more useful
 	
 	public static HashMap<Integer, String> nameMap = new HashMap<>();
-	
+	public static HashMap<String, Integer> valMap = new HashMap<>();
+	public static List<String> editableRoles = new ArrayList<>();
 	static {
 		nameMap.put(SYSADMIN, "System Admin");
 		nameMap.put(ADMIN, "Admin");
 		nameMap.put(KEY_VOLUNTEER, "Key Volunteer");
+		nameMap.put(HEAD_REF, "Head Referee");
+		nameMap.put(REF, "Referee");
+		nameMap.put(LI, "Lead Inspector");
+		nameMap.put(INSPECTOR, "Inspector");
 		nameMap.put(VOLUNTEER, "Volunteer");
 		nameMap.put(TEAM, "Team Member");
 		nameMap.put(GENERAL, "General User");
+		Iterator<Entry<Integer, String>> it = nameMap.entrySet().iterator();
+		while(it.hasNext()) {
+			Entry<Integer, String> entry = it.next();
+			valMap.put(entry.getValue(), entry.getKey());
+			editableRoles.add(entry.getValue());
+		}
+		editableRoles.remove(nameMap.get(SYSADMIN)); //you can edit someone to have everything but sysadmin
 	}
 	
 	public static int NONE = 0; //this is for if you are not logged in
@@ -82,7 +102,7 @@ public class User {
 		this.realName = realName;
 	}
 	
-	public List<String> getPermissions() {
+	public List<String> getPermissionsList() {
 		List<String> list = new ArrayList<String>();
 		for (int i = 0; i < 32; i++) {
 			if (this.is(1<<i) && nameMap.containsKey(1<<i)) {
@@ -100,6 +120,22 @@ public class User {
 		//the check for this.type == type is to allow for 0 == 0 for general
 		return (this.type & type) != 0 || this.type == type;
 	}
+
+	public int getPermissions() {
+		return type;
+	}
 	
+	/**
+	 * If a user is a SYSADMIN then you cannot edit them at all, not even to give them additional permissions
+	 */
+	public static List<SimpleUser> getEditableUsers() {
+		List<SimpleUser> editableUsers = new ArrayList<>();
+		for (User user : UsersDAO.getAllUsers()) {
+			if (!user.is(SYSADMIN)) {
+				editableUsers.add(new SimpleUser(user));
+			}
+		}
+		return editableUsers;
+	}
 
 }

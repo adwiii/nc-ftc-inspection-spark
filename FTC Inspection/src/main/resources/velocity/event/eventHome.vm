@@ -1,6 +1,6 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-NOTE: Eventually this will only show links you are authrized to see. If you don't know what something is, dont go there please!
+#if($INSPECTOR)
 <h2>
 	Inspection Links
 </h2>
@@ -17,6 +17,7 @@ NOTE: Eventually this will only show links you are authrized to see. If you don'
 		<a href="../status">Inspection Status</a>
 	</li>
 </ul>
+#end
 
 	
 <h2>
@@ -38,6 +39,7 @@ NOTE: Eventually this will only show links you are authrized to see. If you don'
 	</li>
 </ul>
 
+#if($ADMIN)
 <h2>
 	Match Control & Display Pages
 </h2>
@@ -70,7 +72,9 @@ NOTE: Eventually this will only show links you are authrized to see. If you don'
 		<a href="../pit"><s>Pit Display</s></a>
 	</li>
 </ul>
+#end
 
+#if($ADMIN)
 <h2>
 	Event Management Pages
 </h2>
@@ -79,6 +83,7 @@ NOTE: Eventually this will only show links you are authrized to see. If you don'
 		<a href="../manage">Manage Event</a>
 	</li>
 </ul>
+#end
 
 
 #end

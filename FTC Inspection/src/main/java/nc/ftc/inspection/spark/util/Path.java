@@ -21,6 +21,7 @@ public class Path {
         public static final String ADD_TEAM = "/event/:event/manage/addteam/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
         public static final String EVENT_HOME = "/event/:event/home/";
+        public static final String EDIT_PERMISSIONS = "/users/manage/";
         
         
         public static final String EDIT_FORM = "/event/:event/edit/";
@@ -36,6 +37,7 @@ public class Path {
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
         
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
+        //TODO change so as to not have duplicate constants?
         public static final String EDIT_TEAM = "/teams/all/"; //PUT to edit team
         public static final String MASTER_TEAM_LIST = "/teams/all/"; //GET for list of teams
         public static final String EVENT_STATUS = "/event/:event/status/data/"; //Endpoint to get data
@@ -113,6 +115,9 @@ public class Path {
         public String getUserPage() {
         	return USER_PAGE;
         }
+        public String getEditPermissions() {
+        	return EDIT_PERMISSIONS;
+        }
     }
 
     public static class Template {
@@ -153,6 +158,7 @@ public class Path {
 		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
+        public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
         
     }
 

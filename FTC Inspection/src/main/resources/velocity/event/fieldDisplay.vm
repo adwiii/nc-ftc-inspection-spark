@@ -52,7 +52,7 @@
  #end
  
  #macro (previewBar $a $i)
- <div style="position:relative;">
+ <div style="position:relative;background-color:#D6C281">
  <img id="${a}Bar${i}" src="/img/alliance${a}190.png" alt="${a}${i}">
  	<div class="preview previewText previewNumber" id="${a}${i}_number"></div>
  	<div class="preview previewText previewName" id="${a}${i}_name"></div>

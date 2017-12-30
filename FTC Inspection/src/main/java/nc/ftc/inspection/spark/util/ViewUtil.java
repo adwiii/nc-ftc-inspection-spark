@@ -18,10 +18,22 @@ public class ViewUtil {
     	User user = getSessionCurrentUser(req);
     	if (user != null) {
     		model.put("currentUser", user.getUsername());
+        	model.put("rolesList", user.getPermissionsList());
         	model.put("roles", user.getPermissions());
+        	model.put("SYSADMIN",user.is(User.SYSADMIN));
+        	model.put("ADMIN",user.is(User.ADMIN));
+        	model.put("KEY_VOLUNTEER",user.is(User.KEY_VOLUNTEER));
+        	model.put("HEAD_REF",user.is(User.HEAD_REF));
+        	model.put("REF",user.is(User.REF));
+        	model.put("LI",user.is(User.LI));
+        	model.put("INSPECTOR",user.is(User.INSPECTOR));
+        	model.put("VOLUNTEER",user.is(User.VOLUNTEER));
+        	model.put("TEAM",user.is(User.TEAM));
+        	model.put("GENERAL",user.is(User.GENERAL));
     	} else {
     		model.put("currentUser", null);
-    		model.put("roles", new ArrayList<String>());
+    		model.put("rolesList", new ArrayList<String>());
+    		model.put("roles", 0);
     	}
         model.put("currentPath", req.pathInfo());
         model.put("request", req);

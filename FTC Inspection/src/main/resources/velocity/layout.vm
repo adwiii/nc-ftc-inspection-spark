@@ -10,6 +10,24 @@
 	<script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
+  	<script>
+  		Role = {
+  			SYSADMIN : 1<<31,
+			ADMIN : 1<<30,
+			KEY_VOLUNTEER : 1<<29,
+			HEAD_REF : 1<<28,
+			REF : 1<<27,
+			LI : 1<<26,
+			INSPECTOR : 1<<25,
+			VOLUNTEER : 1<<2,
+			TEAM : 1<<1,
+			GENERAL : 1<<0,
+			NONE : 0
+  		};
+		function hasRole(role) {
+			return ($roles & role) != 0 || $roles === role;
+		};
+  	</script>
 </head>
 <body>
 <header>
