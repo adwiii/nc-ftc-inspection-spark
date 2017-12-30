@@ -41,14 +41,21 @@ public class Event {
 //	public void setCurrentMatch(Match nextMatch) {
 //		currentMatch = nextMatch;
 //	}
+	
+	private void loadTestMatch() {
+		currentMatch = Match.TEST_MATCH;
+		currentMatch.refLockout = false;
+		currentMatch.setStatus( MatchStatus.PRE_RANDOM);
+		currentMatch.clearRandom();
+		currentMatch.clearSubmitted();
+		currentMatch.getRed().initializeScores();
+		currentMatch.getBlue().initializeScores();
+		System.out.println("Loaded Test Match");
+	}
 	public void loadNextMatch(){
 		if(currentMatch != null && currentMatch == Match.TEST_MATCH) {
-			currentMatch = Match.TEST_MATCH;
-			currentMatch.refLockout = false;
-			currentMatch.status = MatchStatus.PRE_RANDOM;
-			currentMatch.clearSubmitted();
-			currentMatch.getRed().initializeScores();
-			currentMatch.getBlue().initializeScores();
+			loadTestMatch();
+			return;
 		}
 		previousMatch = currentMatch;
 		currentMatch = EventDAO.getNextMatch(data.getCode());
@@ -69,6 +76,9 @@ public class Event {
 		if(currentMatch == null) {
 			currentMatch = temp;
 		} else {
+			if(currentMatch == Match.TEST_MATCH) {
+				loadTestMatch();
+			}				
 			previousMatch = currentMatch;
 			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
 			System.out.println("Loaded match #"+currentMatch.getNumber());

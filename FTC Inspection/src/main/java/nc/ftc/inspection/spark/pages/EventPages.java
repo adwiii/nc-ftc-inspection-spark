@@ -1140,6 +1140,8 @@ public class EventPages {
 			return "OK";
 		};
 		
+		
+		
 		public static Route serveInspectionHome = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<>();
 			String event = request.params("event");
