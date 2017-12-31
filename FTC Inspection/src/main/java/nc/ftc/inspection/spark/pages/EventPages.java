@@ -1574,16 +1574,18 @@ public class EventPages {
 			return "{"+String.join(",", list)+"}";
 		};
 
-		public static Route handleGetFullScoresheet = (Request request, Response resp) -> {
+		public static Route handleGetFullScoresheet = (Request request, Response response) -> {
 			Map<String, Object> map = new HashMap<String, Object>();
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null) {
-				resp.status(400);
-				return "Event not active";
+				return DefaultPages.notFound.handle(request, response);
 			}
 			int m = Integer.parseInt(request.params("match"));
 			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
+			if (match == null) {
+				return DefaultPages.notFound.handle(request, response);
+			}
 			map.put("matchNumber", match.getNumber());
 			map.put("fieldNumber", match.getNumber() % 2 + 1);
 			map.put("red", match.getRed());
