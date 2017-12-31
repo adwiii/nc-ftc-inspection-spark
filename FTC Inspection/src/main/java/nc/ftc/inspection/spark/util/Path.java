@@ -67,6 +67,7 @@ public class Path {
         public static final String MATCH_PREVIEW = "/event/:event/time/preview/";
         public static final String SHOW_PREVIEW = "/event/:event/display/preview/";
         public static final String SHOW_RESULTS = "/event/:event/display/results/";
+        public static final String SHOW_RESULTS_OLD = "/event/:event/display/postold/";
         public static final String SHOW_MATCH = "/event/:event/display/match/";
         public static final String START_MATCH = "event/:event/time/start/";
         public static final String PAUSE_MATCH = "event/:event/time/pause/";
@@ -89,6 +90,8 @@ public class Path {
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
         public static final String FIELD_DISPLAY  ="/event/:event/field/";
+        
+        public static final String REMOTE_POST = "/update/";
         
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 

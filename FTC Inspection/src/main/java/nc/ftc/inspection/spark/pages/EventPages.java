@@ -1,6 +1,7 @@
 package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.event.ADState;
@@ -34,6 +35,8 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
+
+import com.google.gson.Gson;
 
 import java.sql.Date;
 
@@ -1128,7 +1131,6 @@ public class EventPages {
 			return "OK";
 		};
 		public static Route handleShowResults = (Request request, Response response) ->{
-			//TODO the waitForPreview can probably be moved to AD instance in Event.
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null){
@@ -1137,6 +1139,35 @@ public class EventPages {
 			}
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_RESULT);
 			
+			return "OK";
+		};
+		
+		public static Route handleShowOldResults = (Request request, Response response) ->{
+			
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			//Set te Display's lastResult object
+			int match = Integer.parseInt(request.queryParams("match"));
+			Match m = EventDAO.getMatchResultFull(event, match);
+			Alliance red = m.getRed();
+			Alliance blue = m.getBlue();
+			m.getScoreBreakdown();//force score calc
+			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
+			
+			Display d = e.getDisplay();
+			//do not show change in rank for reposting old matches 
+			d.blue1Dif = 0;
+			d.blue2Dif = 0;
+			d.red1Dif = 0;
+			d.red2Dif = 0;
+			d.lastResult = mr;
+			
+			
+			e.getDisplay().issueCommand(DisplayCommand.SHOW_RESULT);		
 			return "OK";
 		};
 		
@@ -1572,5 +1603,12 @@ public class EventPages {
 			list.add(json("blue2Card", blueCard2 ));
 			
 			return "{"+String.join(",", list)+"}";
+		};
+		
+		public static Route handleRemoteUpdatePost = (Request request, Response response)->{
+			String key = request.queryParams("key");
+			Update[] updates = new Gson().fromJson(request.queryParams("updates"), Update[].class);
+			System.out.println(Arrays.toString(updates));
+			return "OK";
 		};
 }

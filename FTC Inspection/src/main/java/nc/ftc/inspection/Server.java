@@ -13,6 +13,7 @@ import java.util.Scanner;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
+import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.model.Alliance;
@@ -30,6 +31,7 @@ import nc.ftc.inspection.spark.util.Path;
 public class Server {
 	public static final String DB_PATH;// = "src/main/resources/db/";
 	public static final String GLOBAL_DB;// = "jdbc:sqlite:"+DB_PATH+"global.db"; 
+	public static final String CONFIG_DB;
 
 	//maps event code to Event object for in-RAM cache of data.
 	//currently only for live-scoring. May need to add inspection in the future.
@@ -40,6 +42,7 @@ public class Server {
 	static{ //TODO check if were in eclipse. If not, change DB path to lib folder?
 		DB_PATH = "src/main/resources/db/";
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
+		CONFIG_DB = "jdbc:sqlite:"+DB_PATH+"config.db";
 	}
 	public static void main(String[] args) {
 		try {//idk, somethings up with gradle but this makes it work.
@@ -47,7 +50,8 @@ public class Server {
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		
+		ConfigDAO.runStartupCheck();
+		RemoteUpdater.getInstance();
 //		System.out.println(EventDAO.getStatus("test2"));
 ////		EventDAO.cre
 //		EventDAO.createEventDatabase("test12");
@@ -164,6 +168,9 @@ public class Server {
 		before(Path.Web.SHOW_RESULTS, Filters.getAuthenticationFilter(User.ADMIN));
 		post(Path.Web.SHOW_RESULTS, EventPages.handleShowResults);
 		
+		before(Path.Web.SHOW_RESULTS_OLD, Filters.getAuthenticationFilter(User.ADMIN));
+		post(Path.Web.SHOW_RESULTS_OLD, EventPages.handleShowOldResults);
+		
 		before(Path.Web.GET_TIMER_COMMANDS, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.GET_TIMER_COMMANDS, EventPages.handleGetTimerCommands);
 		
@@ -232,7 +239,8 @@ public class Server {
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		
-		
+		//Leave open. authentication handled every request by access keys.(kindof)
+		post(Path.Web.REMOTE_POST, EventPages.handleRemoteUpdatePost);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

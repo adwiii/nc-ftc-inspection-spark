@@ -96,7 +96,7 @@
   				entry = document.createElement("div");
   				entry.id = "match"+m;
   				entry.className = "scheduleEntry";
-  				entry.setAttribute("onclick", "loadMatch(this)");
+  			//	entry.setAttribute("onclick", "loadMatch(this)");
   				sched.appendChild(entry);
   			} else{
   				while (entry.firstChild) {
@@ -112,7 +112,7 @@
 			cell = document.createElement("div");
 			cell.className = "scheduleStatus";
 			cell.id = "match"+m+"status";
-			cell.innerHTML = match.status;
+			cell.innerHTML = eval(match.status) == 1 ? "Played" : (eval(match.status) == 2 ? "Cancelled" : "Scheduled");
 			entry.appendChild(cell);
 			
 			cell = document.createElement("div");
@@ -141,6 +141,22 @@
 			cell.id = "match"+m+"blueScore";
 			cell.innerHTML = match.blueScore;
 			entry.appendChild(cell);
+			
+			cell = document.createElement("button");
+			cell.className = "scheduleTeam";
+			cell.id= "loadm"+m;
+			cell.innerHTML = eval(match.status) == 0 ? "Play" : "Re-Play";
+			cell.setAttribute("onclick","loadMatch(this)");
+			entry.appendChild(cell);
+			
+			if(eval(match.status)==1){
+				cell = document.createElement("button");
+				cell.className = "scheduleTeam";
+				cell.id= "postm"+m;
+				cell.innerHTML = "Post";
+				cell.setAttribute("onclick","postOld(this)");
+				entry.appendChild(cell);			
+			}
   			
   		}
   	}
@@ -542,6 +558,13 @@ function post(){ //posts results to AD
     });
 }
 
+function postOld(src){
+	var postObj = {match:src.id.substring(5)};
+	$.post("../display/postold/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
 function openTab(event, tabName){
 	tabcontent = document.getElementsByClassName("tabContent");
 	for (i = 0; i < tabcontent.length; i++) {
@@ -586,7 +609,9 @@ function openTab(event, tabName){
 				<div class="scheduleTeam">Red 2</div>
 				<div class="scheduleTeam">Blue 1</div>
 				<div class="scheduleTeam">Blue 2</div>
-				<div class="scheduleTeam">Blue Score</div>				
+				<div class="scheduleTeam">Blue Score</div>		
+				<div class="scheduleTeam">Play</div>
+				<div class="scheduleTeam">Post Result</div>		
 			</div>
 			
 		</div>
