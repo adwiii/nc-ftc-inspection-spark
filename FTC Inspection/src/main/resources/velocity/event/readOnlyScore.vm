@@ -1,0 +1,112 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<!-- Red is:#EE1C29, Blue is 0268B3, Dark Gray is 6E6D72, light gray is E8E8E8 -->
+<!-- empty box is &#x2610; checked box is &#x2611; -->
+<style>
+.scoresheet td {
+	width: 25%;
+	height:100%;
+}
+.scoresheet img {
+    display: block;
+    margin: 0 auto;
+ }
+ .right {
+ 	text-align: right;
+ 	padding-right: 10px;
+ }
+ .left {
+ 	text-align: left;
+ 	padding-left: 10px;
+ }
+ .center {
+ 	text-align: center;
+ 	padding-left: 10px;
+ 	padding-right: 10px;
+ }
+ .dark {
+ 	font-size: 120%;
+ 	background: #6E6D72;
+ 	color: #FCFCFC;
+ }
+ .light {
+ 	background: #E8E8E8;
+ 	color: #1D1D1D;
+ }
+ // taken from here: https://stackoverflow.com/questions/1241757/applying-borders-to-a-single-table-cell-when-using-border-collapse
+table {
+	border-collapse: collapse;
+}
+td {
+	border: 2px solid #FFFFFF;
+}
+.noborder {
+	border: 0px solid #FFFFFF;
+}
+.lightBorder div {
+	text-align:center;
+ 	border: 2px solid #828282;
+    margin: -2px;
+}
+.bottomBorder {
+	border-bottom: 2px solid #828282;
+}
+small {
+	color: #292929;
+}
+</style>
+<table>
+<tr>
+<td>
+<table class="scoresheet">
+<!-- Red Scoresheet -->
+<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#EE1C25;color:#F5FEFD;text-align:center;font-size:130%">Red<br>Alliance</td><td><img id="logo" src="/img/game-logo.png"></td></tr>
+<tr><td></td><td class="right">Match:$matchNumber</td><td class="left">Field:$fieldNumber</td><td></td></tr>
+<tr><td class="dark center" colspan="4">Autonomous Period</td></tr>
+<tr><td class="right" colspan="3">Single Jewel Remaining</td><td class="lightBorder"><div>&nbsp;$redScores.get("jewels")</div></td></tr>
+<tr><td class="right" colspan="3">Glyphs in Cryptobox</td><td class="lightBorder"><div>&nbsp;$redScores.get("autoGlyphs")</div></td></tr>
+<tr><td class="right" colspan="3">Cryptobox Keys</td><td class="lightBorder"><div>&nbsp;$redScores.get("cryptoboxKeys")</div></td></tr>
+<tr><td class="right" colspan="3">Robots in Safe Zone</td><td class="lightBorder"><div>&nbsp;$redScores.get("parkedAuto")</div></td></tr>
+<tr><td class="dark center" colspan="4">Driver Controlled Period</td></tr>
+<tr><td class="light center">Glyphs</td><td class="light center" colspan="3">Completed</td></tr>
+<tr><td class="center"><small>Scored</small></td><td class="center"><small>Rows</small></td><td class="center"><small>Columns</small></td><td class="center"><small>Ciphers</small></td></tr>
+<tr><td class="lightBorder"><div>&nbsp;$redScores.get("glyphs")</div></td><td class="lightBorder"><div>&nbsp;$redScores.get("rows")</div></td><td class="lightBorder"><div>&nbsp;$redScores.get("columns")</div></td><td class="lightBorder"><div>&nbsp;$redScores.get("ciphers")</div></td></tr>
+<tr><td class="dark center" colspan="4">End Game Period</td></tr>
+<tr><td class="light center" colspan="4">Relics</td></tr>
+<tr><td class="center"><small>Zone 1</small></td><td class="center"><small>Zone 2</small></td><td class="center"><small>Zone 3</small></td><td class="center"><small>Upright</small></td></tr>
+<tr><td class="lightBorder"><div>&nbsp;$redZone1</div></td><td class="lightBorder"><div>&nbsp;$redZone2</div></td><td class="lightBorder"><div>&nbsp;$redZone3</div></td><td class="lightBorder"><div>&nbsp;$redStanding</div></td></tr>
+<tr><td colspan="2"></td><td class="right">Robots Balanced</td><td class="lightBorder"><div>&nbsp;$redScores.get("balanced")</div></td></tr>
+<tr><td class="dark center" colspan="4">Penalties</td></tr>
+<tr><td class="center"># Minor</td><td class="lightBorder"><div>&nbsp;$redScores.get("minor")</div></td><td class="center"># Major</td><td class="lightBorder"><div>&nbsp;$redScores.get("major")</div></td></tr>
+<tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">Red Card</td></tr>
+<tr><td class="center bottomBorder">$red.team1</td><td class="center">#if($redScores.get("dq1")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card1") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card1") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
+<tr><td class="center bottomBorder">$red.team2</td><td class="center">#if($redScores.get("dq2")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card2") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card2") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
+</table>
+</td><td>
+<table class="scoresheet">
+<!-- Blue Scoresheet -->
+<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#0268B3;color:#F5FEFD;text-align:center;font-size:130%">Blue<br>Alliance</td><td><img id="logo" src="/img/game-logo.png"></td></tr>
+<tr><td></td><td class="right">Match:$matchNumber</td><td class="left">Field:$fieldNumber</td><td></td></tr>
+<tr><td class="dark center" colspan="4">Autonomous Period</td></tr>
+<tr><td class="right" colspan="3">Single Jewel Remaining</td><td class="lightBorder"><div>&nbsp;$blueScores.get("jewels")</div></td></tr>
+<tr><td class="right" colspan="3">Glyphs in Cryptobox</td><td class="lightBorder"><div>&nbsp;$blueScores.get("autoGlyphs")</div></td></tr>
+<tr><td class="right" colspan="3">Cryptobox Keys</td><td class="lightBorder"><div>&nbsp;$blueScores.get("cryptoboxKeys")</div></td></tr>
+<tr><td class="right" colspan="3">Robots in Safe Zone</td><td class="lightBorder"><div>&nbsp;$blueScores.get("parkedAuto")</div></td></tr>
+<tr><td class="dark center" colspan="4">Driver Controlled Period</td></tr>
+<tr><td class="light center">Glyphs</td><td class="light center" colspan="3">Completed</td></tr>
+<tr><td class="center"><small>Scored</small></td><td class="center"><small>Rows</small></td><td class="center"><small>Columns</small></td><td class="center"><small>Ciphers</small></td></tr>
+<tr><td class="lightBorder"><div>&nbsp;$blueScores.get("glyphs")</div></td><td class="lightBorder"><div>&nbsp;$blueScores.get("rows")</div></td><td class="lightBorder"><div>&nbsp;$blueScores.get("columns")</div></td><td class="lightBorder"><div>&nbsp;$blueScores.get("ciphers")</div></td></tr>
+<tr><td class="dark center" colspan="4">End Game Period</td></tr>
+<tr><td class="light center" colspan="4">Relics</td></tr>
+<tr><td class="center"><small>Zone 1</small></td><td class="center"><small>Zone 2</small></td><td class="center"><small>Zone 3</small></td><td class="center"><small>Upright</small></td></tr>
+<tr><td class="lightBorder"><div>&nbsp;$blueZone1</div></td><td class="lightBorder"><div>&nbsp;$blueZone2</div></td><td class="lightBorder"><div>&nbsp;$blueZone3</div></td><td class="lightBorder"><div>&nbsp;$blueStanding</div></td></tr>
+<tr><td colspan="2"></td><td class="right">Robots Balanced</td><td class="lightBorder"><div>&nbsp;$blueScores.get("balanced")</div></td></tr>
+<tr><td class="dark center" colspan="4">Penalties</td></tr>
+<tr><td class="center"># Minor</td><td class="lightBorder"><div>&nbsp;$blueScores.get("minor")</div></td><td class="center"># Major</td><td class="lightBorder"><div>&nbsp;$blueScores.get("major")</div></td></tr>
+<tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">blue Card</td></tr>
+<tr><td class="center bottomBorder">$blue.team1</td><td class="center">#if($blueScores.get("dq1")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card1") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card1") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
+<tr><td class="center bottomBorder">$blue.team2</td><td class="center">#if($blueScores.get("dq2")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card2") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card2") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
+</table>
+</td></tr>
+</table>
+#end
