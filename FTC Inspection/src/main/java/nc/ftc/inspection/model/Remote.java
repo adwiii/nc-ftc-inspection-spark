@@ -18,7 +18,7 @@ public class Remote {
 		this.key = k;
 	}
 	public void sendPOST(List<NameValuePair> form) throws IOException {
-		HttpPost post = new HttpPost("http://localhost/update/");
+		HttpPost post = new HttpPost(host.startsWith("http://") ? host : ("http://"+host));
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
 		post.setEntity(entity);
 		try(CloseableHttpClient client = HttpClients.createMinimal()){

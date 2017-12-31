@@ -1,5 +1,6 @@
 package nc.ftc.inspection.dao;
 
+import java.lang.reflect.Field;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,12 +18,15 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.Update;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
@@ -33,7 +37,20 @@ import nc.ftc.inspection.model.Team;
 
 public class EventDAO {
 	public static final SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
-	static final String CREATE_EVENT_SQL = "INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)";
+	public static class SQL {
+		public String sql;
+		public int id;
+		public SQL(int id, String sql) {
+			this.id = id; this.sql = sql;
+		}
+	}
+	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
+	private static final RemoteUpdater updater = RemoteUpdater.getInstance();
+	
+	
+	//MAX SQL = 14
+	//TODO THis needs to be a command
+	static final SQL CREATE_EVENT_SQL = new SQL(1,"INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)");
 	static final String[] CREATE_EVENT_DB_SQL ={ 
 											"ATTACH DATABASE ':code.db' AS local;" , 
 											"CREATE TABLE local.teams(number INTEGER PRIMARY KEY);",
@@ -55,14 +72,15 @@ public class EventDAO {
 													
 											//TODO create trigger for adding item to row
 											};
-	static final String SET_EVENT_STATUS_SQL = "UPDATE events SET STATUS = ? WHERE code = ?;";
+	//TODO This needs to eb a command. (it accesses global)
+	public static final SQL SET_EVENT_STATUS_SQL = new SQL(2,"UPDATE events SET STATUS = ? WHERE code = ?;");
 	static final String[] POPULATE_TEAMS_SQL = {
 											"INSERT INTO inspectionStatus (team) SELECT number FROM teams;",
 											"INSERT INTO formStatus SELECT number, form.formID, itemIndex, 0 FROM teams LEFT JOIN formRows form ON type = 2 LEFT JOIN formItems items ON items.formID = form.formID AND items.row = form.row;",
 											"INSERT INTO formComments (team, formID) SELECT number, formID FROM teams LEFT JOIN (SELECT DISTINCT formID from formRows);",
 											"INSERT INTO formSigs (team, formID, sigIndex) SELECT number, formID, i from teams LEFT JOIN (SELECT DISTINCT formID from formRows) LEFT JOIN (SELECT 0 AS i UNION SELECT 1 AS i);"
 	};
-	static final String ADD_TEAM_SQL = "INSERT INTO teams VALUES (?);";
+	public static final SQL ADD_TEAM_SQL = new SQL(3, "INSERT INTO teams VALUES (?);");
 	static final String ADD_TEAM_LATE = "";
 	static final String GET_EVENT_LIST_SQL = "SELECT * FROM events;";
 	static final String GET_EVENT_SQL = "SELECT * FROM events WHERE code = ?;";
@@ -73,31 +91,31 @@ public class EventDAO {
 	//This query should probably be optimized at some point, it has 2 nested selects
 	static final String GET_FAILED_ROWS_SQL = "SELECT fr.row, fr.description, fr.rule, fr.page FROM formRows fr INNER JOIN (SELECT row, fi.formID from formItems fi INNER JOIN (select cbIndex, formID from formStatus where formID=? AND team=? AND status=0) j ON fi.itemIndex = j.cbIndex AND fi.formID = j.formID WHERE fi.req=1) j2 ON fr.row = j2.row AND fr.formID = j2.formID ORDER BY fr.row;";
 	
-	static final String SET_FORM_STATUS_SQL = "UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?";
+	static final SQL SET_FORM_STATUS_SQL = new SQL(4,"UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?");
 	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
 	static final String GET_TEAMSTATUS_SQL = "SELECT * FROM inspectionStatus WHERE team=?;";
 	static final String GET_TEAMS_SQL = "SELECT a.number, ti.name FROM teams a LEFT JOIN global.teamInfo ti ON ti.number = a.number ORDER BY a.number;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
-	static final String SET_STATUS_SQL = "UPDATE inspectionStatus SET :column = ? WHERE team = ?";
+	static final SQL SET_STATUS_SQL = new SQL(14,"UPDATE inspectionStatus SET :column = ? WHERE team = ?");
 	static final String GET_COMMENT_SQL = "SELECT team,comment FROM formComments WHERE team IN (:in) AND formID = ?";
 	static final String GET_SIG_SQL = "SELECT team,sigIndex,sig FROM formSigs WHERE team IN (:in) AND formID = ?";
-	static final String SET_COMMENT_SQL = "UPDATE formComments SET comment = ? WHERE team = ? AND formID = ? ";
-	static final String SET_SIG_SQL = "UPDATE formSigs SET sig = ? WHERE team = ? AND formID = ? AND sigIndex = ? ";
+	static final SQL SET_COMMENT_SQL = new SQL(5,"UPDATE formComments SET comment = ? WHERE team = ? AND formID = ? ");
+	static final SQL SET_SIG_SQL = new SQL(6,"UPDATE formSigs SET sig = ? WHERE team = ? AND formID = ? AND sigIndex = ? ");
 	
 	//TODO change to >= 2 when Inspection is stored in active events.
 	static final String GET_ACTIVE_EVENTS_SQL = "SELECT * FROM events WHERE status >= 3 AND status <= 5;";
-	static final String CREATE_SCHEDULE_SQL = "INSERT INTO quals VALUES (?,?,?,?,?,?,?,?,?);";
-	static final String CREATE_SCHEDULE_DATA_SQL = "INSERT INTO qualsData VALUES (?,?,?);";
-	static final String CREATE_SCHEDULE_RESULTS_SQL = "INSERT INTO qualsResults (match) VALUES (?);";
-	static final String CREATE_SCHEDULE_SCORES_SQL = "INSERT INTO qualsScores (match, alliance) VALUES (?,?);";
+	static final SQL CREATE_SCHEDULE_SQL = new SQL(7,"INSERT INTO quals VALUES (?,?,?,?,?,?,?,?,?);");
+	static final SQL CREATE_SCHEDULE_DATA_SQL = new SQL(8,"INSERT INTO qualsData VALUES (?,?,?);");
+	static final SQL CREATE_SCHEDULE_RESULTS_SQL = new SQL(9,"INSERT INTO qualsResults (match) VALUES (?);");
+	static final SQL CREATE_SCHEDULE_SCORES_SQL = new SQL(10,"INSERT INTO qualsScores (match, alliance) VALUES (?,?);");
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
 	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
 	static final String GET_MATCH_SQL = "SELECT q.* FROM quals q WHERE q.match=? ORDER BY match LIMIT 1;";
 	
-	static final String COMMIT_MATCH_DATA = "UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;";
-	static final String COMMIT_MATCH_RESULTS = "UPDATE qualsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;";
-	static final String COMMIT_MATCH_SCORES = "UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?";
+	static final SQL COMMIT_MATCH_DATA = new SQL(11,"UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;");
+	static final SQL COMMIT_MATCH_RESULTS = new SQL(12,"UPDATE qualsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;");
+	static final SQL COMMIT_MATCH_SCORES = new SQL(13,"UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?");
 	
 	static final String GET_SCHEDULE_STATUS_QUALS = "SELECT q.match, red1, red2, blue1, blue2, status, redScore, blueScore FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match ORDER BY q.match";
@@ -107,6 +125,31 @@ public class EventDAO {
 	//This SQL requires post-processing
 	static final String GET_CARDS_FOR_TEAM_SQL =  "SELECT q.match, red1, red2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=0 WHERE red1=? OR red2=? UNION "
 												+ "SELECT q.match, blue1, blue2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=1 WHERE blue1=? OR blue2=? ORDER BY q.match";
+	
+	static {
+		Field[] fields = EventDAO.class.getDeclaredFields();
+		System.out.println(fields.length);
+		for(Field f : fields) {
+			if(f.getType().equals(SQL.class)) {
+				SQL s = null;
+				try {
+					s = (SQL) f.get(null);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+					continue;
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+					continue;
+				}
+				if(s == null)continue;
+				if(queryMap.containsKey(s.id)) {
+					System.err.println("DUPLICATE SQL MAPPING IN EVENTDAO: "+s.id);
+				}
+				queryMap.put(s.id, s);
+			}
+		}
+	}
+	
 	
 	protected static Connection getLocalDB(String code) throws SQLException{
 		return DriverManager.getConnection("jdbc:sqlite:"+Server.DB_PATH+code+".db");
@@ -145,7 +188,7 @@ public class EventDAO {
 	
 	public static boolean createEvent(String code, String name, java.sql.Date date){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
+			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL.sql);
 			ps.setString(1, code);
 			ps.setString(2, name);
 			ps.setDate(3, date);
@@ -159,7 +202,7 @@ public class EventDAO {
 	
 	public static boolean setEventStatus(String code, int status){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(SET_EVENT_STATUS_SQL);
+			PreparedStatement ps = conn.prepareStatement(SET_EVENT_STATUS_SQL.sql);
 			ps.setInt(1, status);
 			ps.setString(2, code);
 			int affected = ps.executeUpdate();
@@ -173,9 +216,10 @@ public class EventDAO {
 	public static boolean addTeamToEvent(int team, String eventCode){
 		//TODO IF EVENT PAST SETUP, need to do ADD_TEAM_LATE_SQL
 		try(Connection conn = getLocalDB(eventCode)){
-			PreparedStatement ps = conn.prepareStatement(ADD_TEAM_SQL);
+			PreparedStatement ps = conn.prepareStatement(ADD_TEAM_SQL.sql);
 			ps.setInt(1, team);
 			int affected = ps.executeUpdate();
+			updater.enqueue(new Update(eventCode, 1, null,ADD_TEAM_SQL.id, team));
 			return affected == 1;
 		}catch(Exception e){
 			if(e.getMessage().contains("PRIMARY KEY must be unique")) {
@@ -314,14 +358,14 @@ public class EventDAO {
 	
 	public static boolean setFormStatus(String event, String form, int team, int itemIndex, boolean status){
 		try(Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(SET_FORM_STATUS_SQL);
+			PreparedStatement ps = local.prepareStatement(SET_FORM_STATUS_SQL.sql);
 			//System.out.println(status+","+form+","+team+","+itemIndex);
 			ps.setBoolean(1,  status);
 			ps.setString(2, form);
 			ps.setInt(3,  team);
 			ps.setInt(4,  itemIndex);
 			int affected = ps.executeUpdate();
-			//System.out.println(affected);
+			updater.enqueue(new Update(event, 1, null,SET_FORM_STATUS_SQL.id, status, form, team, itemIndex));
 			return affected == 1;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -333,10 +377,13 @@ public class EventDAO {
 	public static boolean setTeamStatus(String event, String form, int team, int status){
 		//TODO handle same status returning false in calling method by checking!
 		try(Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(SET_STATUS_SQL.replaceAll(":column", form));
+			PreparedStatement ps = local.prepareStatement(SET_STATUS_SQL.sql.replaceAll(":column", form));
 			ps.setInt(1, status);
 			ps.setInt(2, team);
 			int affected = ps.executeUpdate();
+			Map<String, String> map = new HashMap<>();
+			map.put(":column", form);
+			updater.enqueue(new Update(event, 1, map, SET_STATUS_SQL.id, status, team));
 			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -422,7 +469,7 @@ public class EventDAO {
 		try(Connection local = getLocalDB(event)){
 			for(Match m : matches){
 				System.out.println(m.getNumber());
-				PreparedStatement ps = local.prepareStatement(CREATE_SCHEDULE_SQL);
+				PreparedStatement ps = local.prepareStatement(CREATE_SCHEDULE_SQL.sql);
 				ps.setInt(1, m.getNumber());
 				Alliance red = m.getRed();
 				Alliance blue = m.getBlue();
@@ -435,22 +482,28 @@ public class EventDAO {
 				ps.setInt(8, blue.getTeam2());
 				ps.setBoolean(9,  blue.is2Surrogate());
 				ps.executeUpdate();
-				ps = local.prepareStatement(CREATE_SCHEDULE_DATA_SQL);
+				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_SQL.id, m.getNumber(), red.getTeam1(), red.is1Surrogate(), red.getTeam2(),
+						red.is2Surrogate(), blue.getTeam1(), blue.is1Surrogate(), blue.getTeam2(), blue.is2Surrogate()));
+				ps = local.prepareStatement(CREATE_SCHEDULE_DATA_SQL.sql);
 				ps.setInt(1,  m.getNumber());
 				ps.setInt(2, 0);
 				ps.setInt(3, 0);
 				ps.executeUpdate();
-				ps = local.prepareStatement(CREATE_SCHEDULE_RESULTS_SQL);
+				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_DATA_SQL.id, m.getNumber(), 0, 0));
+				ps = local.prepareStatement(CREATE_SCHEDULE_RESULTS_SQL.sql);
 				ps.setInt(1, m.getNumber());
 				ps.executeUpdate();
-				ps = local.prepareStatement(CREATE_SCHEDULE_SCORES_SQL);
+				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_RESULTS_SQL.id, m.getNumber()));
+				ps = local.prepareStatement(CREATE_SCHEDULE_SCORES_SQL.sql);
 				ps.setInt(1, m.getNumber());
 				ps.setInt(2, 0);
 				ps.executeUpdate();
-				ps = local.prepareStatement(CREATE_SCHEDULE_SCORES_SQL);
+				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_SCORES_SQL.id, m.getNumber(), 0));
+				ps = local.prepareStatement(CREATE_SCHEDULE_SCORES_SQL.sql);
 				ps.setInt(1,  m.getNumber());
 				ps.setInt(2,  1);
 				ps.executeUpdate();
+				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_SCORES_SQL.id, m.getNumber(), 1));
 			}			
 		} catch(Exception e){
 			e.printStackTrace();
@@ -512,7 +565,7 @@ public class EventDAO {
 	public static boolean commitScores(String event, Match match){
 		if(match.getNumber() == -1)return true; //test match
 		try(Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_DATA);
+			PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_DATA.sql);
 			ps.setInt(1, 1);
 			ps.setInt(2, match.getRandomization());
 			ps.setInt(3,  match.getNumber());
@@ -520,10 +573,9 @@ public class EventDAO {
 			if(affected != 1){
 				return false;
 			}
-			//TODO FIX THIS!!!! the calculate scores method is not ok!
-			//THE ONLY CORRECT ONE IS IN FULLBREAKDOWN!
-			//(if theres a way to edit scores, testing the fix could be done by using that and not changing anything)
-			ps = local.prepareStatement(COMMIT_MATCH_RESULTS);
+			updater.enqueue(new Update(event, 1, null, COMMIT_MATCH_DATA.id, 1, match.getRandomization(), match.getNumber())); 
+			
+			ps = local.prepareStatement(COMMIT_MATCH_RESULTS.sql);
 			match.getScoreBreakdown();//Force score calc
 			Alliance blue = match.getBlue();
 			Alliance red = match.getRed();
@@ -536,9 +588,10 @@ public class EventDAO {
 			if(affected != 1){
 				return false;
 			}
+			updater.enqueue(new Update(event, 1, null, COMMIT_MATCH_RESULTS.id, red.getLastScore(), blue.getLastScore(), red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getNumber()));
 			
-			commitAllianceScore(match.getNumber(), match.getBlue(), Alliance.BLUE, local);
-			commitAllianceScore(match.getNumber(), match.getRed(), Alliance.RED, local);
+			commitAllianceScore(event, match.getNumber(), match.getBlue(), Alliance.BLUE, local);
+			commitAllianceScore(event, match.getNumber(), match.getRed(), Alliance.RED, local);
 			
 			return affected == 1;
 		} catch (SQLException e) {
@@ -555,9 +608,9 @@ public class EventDAO {
 		}
 	}
 	//UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=? WHERE match=? AND alliance=?
-	private static int commitAllianceScore(int match, Alliance a, int aI, Connection local) throws SQLException{
+	private static int commitAllianceScore(String event, int match, Alliance a, int aI, Connection local) throws SQLException{
 		//TODO make this a loop.
-		PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_SCORES);
+		PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_SCORES.sql);
 		setParam(ps, 1, a, "autoGlyphs", Types.INTEGER);
 		setParam(ps, 2, a, "cryptoboxKeys", Types.INTEGER);
 		setParam(ps, 3, a, "jewels", Types.INTEGER);
@@ -584,7 +637,16 @@ public class EventDAO {
 		setParam(ps, 24, a, "dq2", Types.INTEGER);
 		ps.setInt(25, match);
 		ps.setInt(26,  aI);		
-		return ps.executeUpdate();
+		int r = ps.executeUpdate();
+		//this has to be same order
+		updater.enqueue(new Update(event, 1, null, COMMIT_MATCH_SCORES.id, a.getScore("autoGlyphs"), a.getScore("cryptoboxKeys"),
+				a.getScore("jewels"), a.getScore("parkedAuto"), a.getScore("glyphs"), a.getScore("rows"), 
+				a.getScore("columns"), a.getScore("ciphers"), a.getScore("relic1Zone"), a.getScore("relic1Standing"), 
+				a.getScore("relic2Zone"), a.getScore("relic2Standing"), a.getScore("balanced"), a.getScore("major"),
+				a.getScore("minor"), a.getScore("cryptobox1"), a.getScore("cryptobox2"), a.getScore("jewelSet1"),
+				a.getScore("jewelSet2"), a.getScore("adjust"), a.getScore("card1"), a.getScore("card2"), a.getScore("dq1"),
+				a.getScore("dq2"), match, aI));
+		return r;
 	}
 	
 	private static String json(String name, Object value) {
@@ -744,12 +806,12 @@ public class EventDAO {
 	}	
 	public static boolean setFormComment(String event, String form, int team, String comment) {
 		try (Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(SET_COMMENT_SQL);
+			PreparedStatement ps = local.prepareStatement(SET_COMMENT_SQL.sql);
 			ps.setInt(2, team);
 			ps.setString(3,  form);
 			ps.setString(1,  comment);
-			System.out.println(team+","+form+","+comment);
-			System.out.println(ps.executeUpdate());
+			ps.executeUpdate();
+			updater.enqueue(new Update(event, 1, null, SET_COMMENT_SQL.id, comment, team, form));
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -758,13 +820,13 @@ public class EventDAO {
 	}
 	public static boolean updateSigs(String event, String form, int team, int sigIndex, String sig) {
 		try (Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(SET_SIG_SQL);
+			PreparedStatement ps = local.prepareStatement(SET_SIG_SQL.sql);
 			ps.setInt(2, team);
 			ps.setString(3,  form);
 			ps.setInt(4,  sigIndex);
 			ps.setString(1, sig);
-			System.out.println(team+","+form+","+sigIndex+","+sig);
 			ps.executeUpdate();
+			updater.enqueue(new Update(event, 1, null, SET_SIG_SQL.id, sig, team, form, sigIndex));
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -821,6 +883,30 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public static boolean executeRemoteUpdate(String event, Map<String, String> v, Object[] p) {
+		if(p == null)return true;
+		if(p.length == 0)return true;
+		String sql = queryMap.get(new Double(p[0].toString()).intValue()).sql;
+		if(v != null) {
+			for(Entry<String, String> entry : v.entrySet()) {
+				sql = sql.replaceAll(entry.getKey(), entry.getValue());
+			}
+		}
+		System.out.println("Executing Update ("+event+"): "+sql+" "+Arrays.toString(p));
+		try (Connection local = getLocalDB(event)){			
+			PreparedStatement ps = local.prepareStatement(sql);
+			for(int i = 1; i < p.length; i++) {
+				//params 1 -indexed, so this works beautifully!
+				ps.setObject(i, p[i]);
+			}
+			ps.execute();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
+			return false;
+		}
 	}
 	
 }

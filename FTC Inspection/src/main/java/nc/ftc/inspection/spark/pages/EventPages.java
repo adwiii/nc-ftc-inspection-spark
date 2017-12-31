@@ -1,6 +1,7 @@
 package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.event.ADState;
@@ -1643,7 +1644,14 @@ public class EventPages {
 		public static Route handleRemoteUpdatePost = (Request request, Response response)->{
 			String key = request.queryParams("key");
 			Update[] updates = new Gson().fromJson(request.queryParams("updates"), Update[].class);
-			System.out.println(Arrays.toString(updates));
+			Thread thread = new Thread() {
+				public void run() {
+					for(Update u : updates) {
+						u.execute();
+					}
+				}
+			};
+			thread.start();
 			return "OK";
 		};
 }

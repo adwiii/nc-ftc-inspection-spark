@@ -40,7 +40,9 @@ public class Server {
 	// For the local server, this should be the event it is at, and for the remote server, there should be no default
 	public static String defaultEventCode = "test11";
 	static{ //TODO check if were in eclipse. If not, change DB path to lib folder?
-		DB_PATH = "src/main/resources/db/";
+		String db = System.getProperty("db");
+		DB_PATH = db == null ? "src/main/resources/db/" : db;
+		System.out.println("DB Path set to: "+DB_PATH);
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 		CONFIG_DB = "jdbc:sqlite:"+DB_PATH+"config.db";
 	}
@@ -66,8 +68,15 @@ public class Server {
 		
 		
 		port(80);
-		staticFiles.location("/public");
-		//TODO remove the debug screen for release?
+		String loc = System.getProperty("location");
+		if(loc != null && loc.equals("external")){
+			staticFiles.externalLocation("src/main/resources/public");
+			System.out.println("External Static Files");
+		} else {
+			staticFiles.location("/public");
+			System.out.println("Internal Static Files");
+		}
+			//TODO remove the debug screen for release?
 		enableDebugScreen();
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);		

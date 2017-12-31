@@ -14,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.Gson;
 
 import nc.ftc.inspection.dao.ConfigDAO;
+import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Remote;
 
 public class RemoteUpdater extends Thread {
@@ -25,10 +26,7 @@ public class RemoteUpdater extends Thread {
 	
 	private RemoteUpdater() {
 		remotes = ConfigDAO.getRemotes();
-		remotes.add(new Remote("localhost/update/", "empty"));
-		Map<String, String> map = new HashMap<>();
-		map.put(":ay", "column");
-		queue.add(new Update("test10", 1, map, 1, 3, 2, false, "hello"));
+		//remotes.add(new Remote("34.230.27.38/update/", "empty"));
 		start();
 	}
 	
@@ -44,6 +42,7 @@ public class RemoteUpdater extends Thread {
 	}
 	
 	public synchronized void enqueue(Update update) {
+		if(remotes.size() == 0)return;
 		queue.offer(update);
 	}
 	
@@ -61,6 +60,17 @@ public class RemoteUpdater extends Thread {
 				}
 			} else {
 				//empty queue into a POST object & send it to host.
+				if(queue.isEmpty()) {
+					synchronized(this) {
+						try {
+							this.wait(10000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					continue;
+				}
 				List<NameValuePair> form = new ArrayList<>();
 				form.add(new BasicNameValuePair("key", "key"));
 				Gson gson = new Gson();
