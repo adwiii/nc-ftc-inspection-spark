@@ -1,7 +1,6 @@
 package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.Server;
-import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.event.ADState;
@@ -1603,6 +1602,42 @@ public class EventPages {
 			list.add(json("blue2Card", blueCard2 ));
 			
 			return "{"+String.join(",", list)+"}";
+		};
+		public static Route handleGetFullScoresheet = (Request request, Response response) -> {
+			Map<String, Object> map = new HashMap<String, Object>();
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				return DefaultPages.notFound.handle(request, response);
+			}
+			int m = Integer.parseInt(request.params("match"));
+			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
+			if (match == null) {
+				return DefaultPages.notFound.handle(request, response);
+			}
+			map.put("matchNumber", match.getNumber());
+			map.put("fieldNumber", match.getNumber() % 2 + 1);
+			map.put("red", match.getRed());
+			map.put("blue", match.getBlue());
+			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());
+			int redRelic2Zone = Integer.parseInt(match.getRed().getScore("relic2Zone").toString());
+			boolean redRelic1Standing = Boolean.parseBoolean(match.getRed().getScore("relic1Standing").toString());
+			boolean redRelic2Standing = Boolean.parseBoolean(match.getRed().getScore("relic2Standing").toString());
+			map.put("redZone1", ((redRelic1Zone == 1) ? 1 : 0) + ((redRelic2Zone == 1) ? 1 : 0));
+			map.put("redZone2", ((redRelic1Zone == 2) ? 1 : 0) + ((redRelic2Zone == 2) ? 1 : 0));
+			map.put("redZone3", ((redRelic1Zone == 3) ? 1 : 0) + ((redRelic2Zone == 3) ? 1 : 0));
+			map.put("redStanding", (redRelic1Standing && redRelic2Standing) ? 2 : (redRelic1Standing || redRelic2Standing) ? 1 : 0);
+			map.put("redScores", match.getRed().getRawScores());
+			int blueRelic1Zone = Integer.parseInt(match.getBlue().getScore("relic1Zone").toString());
+			int blueRelic2Zone = Integer.parseInt(match.getBlue().getScore("relic2Zone").toString());
+			boolean blueRelic1Standing = Boolean.parseBoolean(match.getBlue().getScore("relic1Standing").toString());
+			boolean blueRelic2Standing = Boolean.parseBoolean(match.getBlue().getScore("relic2Standing").toString());
+			map.put("blueZone1", ((blueRelic1Zone == 1) ? 1 : 0) + ((blueRelic2Zone == 1) ? 1 : 0));
+			map.put("blueZone2", ((blueRelic1Zone == 2) ? 1 : 0) + ((blueRelic2Zone == 2) ? 1 : 0));
+			map.put("blueZone3", ((blueRelic1Zone == 3) ? 1 : 0) + ((blueRelic2Zone == 3) ? 1 : 0));
+			map.put("blueStanding", (blueRelic1Standing && blueRelic2Standing) ? 2 : (blueRelic1Standing || blueRelic2Standing) ? 1 : 0);
+			map.put("blueScores", match.getBlue().getRawScores());
+			return render(request, map, Path.Template.FULL_SCORESHEET);
 		};
 		
 		public static Route handleRemoteUpdatePost = (Request request, Response response)->{

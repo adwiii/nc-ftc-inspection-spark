@@ -132,6 +132,10 @@ public class Alliance {
 		return list;
 	}
 	
+	public Map<String, Object> getRawScores() {
+		return scores;
+	}
+	
 	
 	/**
 	 * DEPRECATED, Call event.getScoreBreakdown, then read this instances lastCalculatedScoreNoPenalties field

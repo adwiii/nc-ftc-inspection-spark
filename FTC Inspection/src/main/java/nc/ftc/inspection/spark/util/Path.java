@@ -79,6 +79,7 @@ public class Path {
         public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
         public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
         public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
+        public static final String GET_FULL_SCORESHEET = "/event/:event/match/:match/scoresheet/";
         
         //get gets the page, PUT returns new score breakdown, and POST commits.
         public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
@@ -163,6 +164,7 @@ public class Path {
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
+        public static final String FULL_SCORESHEET = "/velocity/event/readOnlyScore.vm";
         
     }
 
