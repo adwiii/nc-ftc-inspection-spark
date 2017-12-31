@@ -7,6 +7,7 @@ public class Path {
     // The @Getter methods are needed in order to access
     // the variables from Velocity Templates
     public static class Web {
+    	public static final String DEFAULT = "/";
         public static final String INDEX = "/index/";
         public static final String LOGIN = "/login/";
         public static final String USER_PAGE = "/me/";

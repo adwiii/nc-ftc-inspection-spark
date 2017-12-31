@@ -121,7 +121,7 @@ public class EventDAO {
 	}
 	public static List<EventData> getEvents(){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(CREATE_EVENT_SQL);
+			PreparedStatement ps = conn.prepareStatement(GET_EVENT_LIST_SQL);
 			ResultSet rs = ps.executeQuery();
 			return createEventList(rs);
 		}catch(Exception e){
@@ -133,7 +133,7 @@ public class EventDAO {
 	public static EventData getEvent(String code){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(GET_EVENT_SQL);
-			ps.setString(1, code);
+			ps.setString(1, code.toUpperCase());
 			ResultSet rs = ps.executeQuery();
 			if(!rs.next())return null;
 			return new EventData(rs.getString(1), rs.getString(2), rs.getInt(4), rs.getDate(3));

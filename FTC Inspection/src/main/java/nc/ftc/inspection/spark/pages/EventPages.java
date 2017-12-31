@@ -1490,7 +1490,11 @@ public class EventPages {
 			return "OK";
 		};
 		public static Route serveEventHomePage = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.EVENT_HOME);
+			Map<String, Object> map = new HashMap<String, Object>();
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			map.put("event", data);
+			return render(request, map, Path.Template.EVENT_HOME);
 		};
 
 		public static Route serveEditScoreHome= (Request request, Response response) ->{
