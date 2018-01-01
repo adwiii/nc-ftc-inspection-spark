@@ -37,7 +37,8 @@
     	padding: 14px 16px;
     	background-color: inherit;
 	}
-  	.dropdown:hover .dropdown-content {
+  	.dropdown:hover .dropdown-content,
+  	.dropdown:active .dropdown-content {
 	    display: block;
 	    animation:none;
 	}
@@ -63,19 +64,31 @@
   	</style>
 </head>
 <body>
-<header>
+<header 
+#if($mobile)
+style="padding-top:3%;"
+#end
+>
     <nav>
-    	#if(!$mobile)
+    	##if(!$mobile)
     		<a href="$WebPath.getIndex()"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
-    	#end
+    	##end
     	<!-- <a href="$WebPath.getInspection()">Inspection</a> -->
     	<!-- <a href="$WebPath.getConsole()">Console</a> -->
     	<ul id="menu" #if($mobile) style="margin-top:0px;" #end>
     	    #if($sysEvent)
     	    <li class="dropdown">
-    			<a class="dropbtn" href="/event/$sysEvent/home/">Event Home</a>
+    	    	#if($mobile)
+    	    		## Mobile needs for it to not be clickable
+    	    		<a class="dropbtn">Event</a>
+    	    	#else
+    	    	    <a class="dropbtn" href="/event/$sysEvent/home/">Event Home</a>
+    	    	#end
     			<div class="dropdown-content">
     			<ul>
+    				#if($mobile)
+    					<li><a href="/event/$sysEvent/home">Home</a></li>
+    				#end
     			    <li><a href="/event/$sysEvent/schedule">Schedule</a></li>
     				<li><a href="/event/$sysEvent/results">Results</a></li>
     				<li><a href="/event/$sysEvent/rankings">Rankings</a></li>
@@ -83,9 +96,17 @@
     		</li>
     		#if($INSPECTOR)
     		 <li class="dropdown">
-    			<a class="dropbtn" href="/event/$sysEvent/status/">Inspection</a>
+    			#if($mobile)
+    	    		## Mobile needs for it to not be clickable
+    	    		<a class="dropbtn">Inspection</a>
+    	    	#else
+    	    	    <a class="dropbtn" href="/event/$sysEvent/status/">Inspection</a>
+    	    	#end
     			<div class="dropdown-content">
     			<ul>
+    				#if($mobile)
+    					<li><a href="/event/$sysEvent/status">Status</a></li>	
+    				#end
     			    <li><a href="/event/$sysEvent/inspect/ci">Check In</a></li>
     				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
     				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
