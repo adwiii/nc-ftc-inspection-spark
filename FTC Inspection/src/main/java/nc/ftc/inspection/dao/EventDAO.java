@@ -170,7 +170,7 @@ public class EventDAO {
 	public static EventData getEvent(String code){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(GET_EVENT_SQL);
-			ps.setString(1, code.toUpperCase());
+			ps.setString(1, code);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.next())return null;
 			return new EventData(rs.getString(1), rs.getString(2), rs.getInt(4), rs.getDate(3));

@@ -1,0 +1,85 @@
+#parse("/velocity/layout.vm")
+<style>
+@media print
+{
+  table {
+   page-break-after:auto 
+  }
+  tr    { 
+  	page-break-inside:avoid;
+  	page-break-after:auto 
+  }
+  td    { 
+  	page-break-inside:avoid;
+  	page-break-after:auto 
+  }
+  thead {
+   	display:table-header-group 
+  }
+  tfoot {
+  	display:table-footer-group 
+  }
+}
+td {
+	text-align:center;
+}
+</style>
+#@mainLayout("1000px")
+<CENTER><H2>$event<BR>
+Match Results (w/ Details)</H2></CENTER>
+<HR>
+Column Abbreviations:
+<ul>
+<li>Tot - Total Match Score</li>
+<li>Auto - Autonomous Score. Includes scores for jewels remaining on platforms, glyphs scored in crypto boxes including the cryptobox key, and robots parked in the safe zone.</li>
+<li>AutoB - Autonomous Bonus Score. No autonomous bonus score in this game</li>
+<li>Tele - Tele-Operated Score. Includes scores for glyphs in the cryptoboxes and how many rows, columns, and ciphers are completed.</li>
+<li>EndG - End Game Score. Includes scores balanced robots and relics in each zone including whether the relics are upright.</li>
+<li>Pen - Penalty Points Assessed. This includes any penalties assessed during the match. These points are for penalties incurred by the other alliance which are added to the alliance's score.</li>
+<p> </p>
+<DIV ALIGN=CENTER><TABLE BORDER=2 CELLPADDING=5 CELLSPACING=1 WIDTH=75%>
+<TR ALIGN=CENTER><TH BGCOLOR="#CCCCCC">&nbsp;</th><TH BGCOLOR="#CCCCCC">&nbsp;</th><TH BGCOLOR="#CCCCCC">&nbsp;</th><TH BGCOLOR="#CCCCCC">&nbsp;</th><TH BGCOLOR="#CCCCCC" COLSPAN="6">Red Scores</TH><TH BGCOLOR="#CCCCCC" COLSPAN="6">Blue Scores</TH><TR ALIGN=CENTER><TH BGCOLOR="#CCCCCC">Match</TH><TH BGCOLOR="#CCCCCC">Result</TH><TH BGCOLOR="#CCCCCC">Red Teams</TH><TH BGCOLOR="#CCCCCC">Blue Teams</TH><TH BGCOLOR="#CCCCCC">Tot</TH><TH BGCOLOR="#CCCCCC">Auto</TH><TH BGCOLOR="#CCCCCC">AutoB</TH><TH BGCOLOR="#CCCCCC">Tele</TH><TH BGCOLOR="#CCCCCC">EndG</TH><TH BGCOLOR="#CCCCCC">Pen</TH><TH BGCOLOR="#CCCCCC">Tot</TH><TH BGCOLOR="#CCCCCC">Auto</TH><TH BGCOLOR="#CCCCCC">AutoB</TH><TH BGCOLOR="#CCCCCC">Tele</TH><TH BGCOLOR="#CCCCCC">EndG</TH><TH BGCOLOR="#CCCCCC">Pen</TH></TR>
+
+<!-- <TR ALIGN=CENTER><TD BGCOLOR="#FFFFFF">Q-1</TD><TD BGCOLOR="#44AAFF">12-22 B</TD><TD BGCOLOR="#FFFFFF">11528 3587 </TD><TD BGCOLOR="#FFFFFF">12828 9999 </TD><TD BGCOLOR="#FFFFFF">12</TD><TD BGCOLOR="#FFFFFF">10</TD><TD BGCOLOR="#FFFFFF">0</TD><TD BGCOLOR="#FFFFFF">2</TD><TD BGCOLOR="#FFFFFF">0</TD><TD BGCOLOR="#FFFFFF">0</TD><TD BGCOLOR="#FFFFFF">22</TD><TD BGCOLOR="#FFFFFF">0</TD><TD BGCOLOR="#FFFFFF">0</TD><TD BGCOLOR="#FFFFFF">22</TD><TD BGCOLOR="#FFFFFF">0</TD><TD BGCOLOR="#FFFFFF">0</TD></TR> -->
+#set ($redColor = "#FF4444")
+#set ($blueColor = "#44AAFF")
+#foreach($m in $matches)
+	#if($m.number % 2 == 1)
+		#set ($c = "#FFFFFF")	
+	#else
+		#set ($c = "#CCCCCC")
+	#end
+	<TR ALIGN=CENTER>
+		<TD BGCOLOR=$c>Q-$m.number</TD>
+		<TD BGCOLOR="$m.winColor">
+			#if($m.status == 1)
+				${m.getRedTotal()}-${m.getBlueTotal()} $m.winChar
+			#end
+		</TD>
+		<TD BGCOLOR=$c> $m.red.team1#if($m.red.is1Surrogate())*#end $m.red.team2#if($m.red.is2Surrogate())*#end</TD>
+		<TD BGCOLOR=$c> $m.blue.team1#if($m.blue.is1Surrogate())*#end $m.blue.team2#if($m.blue.is2Surrogate())*#end</TD>
+		<!-- Red -->
+		<TD BGCOLOR=$c>$m.redScore </TD>
+		<TD BGCOLOR=$c> </TD>
+		<!-- AUTO B is always 0 this year -->
+		<TD BGCOLOR=$c>0</TD>
+		<TD BGCOLOR=$c> </TD>
+		<TD BGCOLOR=$c> </TD>
+		<TD BGCOLOR=$c>$m.bluePenalty </TD>
+		<!-- Blue -->
+		<TD BGCOLOR=$c>$m.blueScore </TD>
+		<TD BGCOLOR=$c> </TD>
+		<!-- AUTO B is always 0 this year -->
+		<TD BGCOLOR=$c>0</TD>
+		<TD BGCOLOR=$c> </TD>
+		<TD BGCOLOR=$c> </TD>
+		<TD BGCOLOR=$c>$m.redPenalty </TD>
+	</TR>
+#end
+</table>
+<HR>
+<P align=left><STRONG>Note:</STRONG> * Indicates a surrogate match.  Those matches do NOT count in the rankings</P>
+<CENTER><SMALL>MatchMaker Scheduling Software &copy; 2007 Idle Loop Software Design. LLC</SMALL></CENTER>
+<CENTER><SMALL>FTC Scoring Software &copy; 2017-2018 <i>FIRST&reg;</i></CENTER></SMALL>
+<CENTER><SMALL>Match Results (w/ Details) generated at 12/31/17 07:20:40 PM</SMALL></CENTER>
+#end

@@ -1,6 +1,16 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <h1>$event.code: $event.name</h1>
+<h2>
+	Event Info
+</h2>
+	<li>
+		<a href="../schedule">Match Schedule</a>
+	</li><li>
+		<a href="../results">Match Results</a>
+	</li><li>
+		<a href="../rankings">Rankings</a>
+	</li>
 #if($INSPECTOR)
 <h2>
 	Inspection Links
@@ -20,7 +30,7 @@
 </ul>
 #end
 
-	
+#if($REFEREE)
 <h2>
 	Live Scoring Links
 </h2>
@@ -29,17 +39,9 @@
 		<a href="../ref/blue">Blue Alliance Referee/Score Tracker</a>
 	</li><li>
 		<a href="../ref/red">Red Alliance Referee/Score Tracker</a>
-	</li><li>
-		<a href="/" ><s>View Scoresheets</s></a>
-	</li><li>
-		<a href="../schedule">Match Schedule</a>
-	</li><li>
-		<a href="../results">Match Results</a>
-	</li><li>
-		<a href="../rankings">Rankings</a>
 	</li>
 </ul>
-
+#end
 #if($ADMIN)
 <h2>
 	Match Control & Display Pages

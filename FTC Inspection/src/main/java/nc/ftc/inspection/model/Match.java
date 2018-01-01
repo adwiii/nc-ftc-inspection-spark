@@ -1,13 +1,20 @@
 package nc.ftc.inspection.model;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class Match {
 	int number;
 	Alliance red;
 	Alliance blue;
+	public transient Map<String, String> redScoreBreakdown;
+	public transient Map<String, String> blueScoreBreakdown;
 	public transient MatchStatus status; //pre-match (pre-randomize), auto, auto-review, teleop, teleop-review, pre-commit, post-commit
 	transient int randomization = 0; 
 	long lastChange = 0;
@@ -133,6 +140,7 @@ public class Match {
 		//store this in ram (call this method to calculate score, that way this code is only written once)
 		a.lastCalculatedScoreNoPenalties = autoPoints + teleopPoints + adjust;
 		
+		list.add(json("noPenaltyScore", autoPoints + teleopPoints + adjust));
 		list.add(json("glyphPoints", glyphPoints));
 		list.add(json("rowPoints", rowPoints));
 		list.add(json("columnPoints", columnPoints));
@@ -140,6 +148,7 @@ public class Match {
 		list.add(json("relicPoints", relicPoints));
 		list.add(json("balancePoints", balancePoints));
 		list.add(json("teleopPoints", teleopPoints));
+		list.add(json("endPoints", relicPoints + balancePoints));
 		
 		list.add(json("adjust", adjust));
 		
@@ -151,14 +160,25 @@ public class Match {
 		return list;
 	}
 	
-	private String getScoreBreakdown(Alliance a) {
+	public String getScoreBreakdown(Alliance a) {
 		String res =  String.join(",", getScoreBreakdownNoPenalty(a))+", \"foulPoints\":\"";
-		res += (a == red ? blue : red).getPenaltyPoints() + "\"";
-		return res;
+		Alliance opp = (a == red ? blue : red);
+		res += opp.getPenaltyPoints() + "\"";
+		res += ",\"minorPoints\":\"" + opp.getMinorPenaltyPoints() + "\"";
+		res += ",\"majorPoints\":\"" + opp.getMajorPenaltyPoints() + "\"";
+		res += ",\"score\":\"" + (a.lastCalculatedScoreNoPenalties + opp.getPenaltyPoints()) + "\"";
+		return "{" + res + "}";
 	}
 	
 	public String getScoreBreakdown(){
-		return "{\"red\":{"+getScoreBreakdown(red)+"},\"blue\":{"+getScoreBreakdown(blue)+"}, \"ts\":"+lastChange+"}";
+		Gson gson = new Gson();
+		//taken from https://stackoverflow.com/questions/2779251/how-can-i-convert-json-to-a-hashmap-using-gson
+		Type type = new TypeToken<Map<String, String>>(){}.getType();
+		String redBreakdown = getScoreBreakdown(red);
+		redScoreBreakdown = gson.fromJson(redBreakdown, type);
+		String blueBreakdown = getScoreBreakdown(blue);
+		blueScoreBreakdown = gson.fromJson(blueBreakdown, type);
+		return "{\"red\":"+redBreakdown+",\"blue\":"+blueBreakdown+", \"ts\":"+lastChange+"}";
 	}
 	
 	public String getFullScores() {
