@@ -65,6 +65,7 @@ small {
    		});
 	});
 </script>
+<a href="../../../results"><< To Results Page</a>
 <table>
 #if($redScore > $blueScore) 
 <tr><td colspan="2" class="center" style="font-size:200%"><b>$redScore</b> - $blueScore</td></tr>

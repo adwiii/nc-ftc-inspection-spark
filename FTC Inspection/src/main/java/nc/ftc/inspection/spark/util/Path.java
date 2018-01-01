@@ -22,6 +22,7 @@ public class Path {
         public static final String ADD_TEAM = "/event/:event/manage/addteam/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
         public static final String EVENT_HOME = "/event/:event/home/";
+        public static final String EVENT_SIMPLE = "/event/:event/";
         public static final String EDIT_PERMISSIONS = "/users/manage/";
         
         
@@ -88,6 +89,7 @@ public class Path {
         public static final String GET_MATCH_INFO = "/event/:event/match/:match/info/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
+        public static final String MATCH_RESULTS_SIMPLE = "event/:event/results/simple/";
         public static final String MATCH_RESULTS_DETAILS = "event/:event/results/details/";
         public static final String RANKINGS = "/event/:event/rankings/";
         
@@ -152,7 +154,8 @@ public class Path {
         public static final String REF_REVIEW = "/velocity/event/ref_review.vm";
         public static final String REF_POST_SUBMIT = "/velocity/event/ref_postSubmit.vm";
         public static final String CONTROL = "/velocity/event/control.vm";
-		public static final String MATCH_RESULT = "/velocity/event/results.vm";
+        public static final String MATCH_RESULT = "/velocity/event/results.vm";
+        public static final String MATCH_RESULT_SIMPLE = "/velocity/event/resultsSimple.vm";
 		public static final String MATCH_RESULT_DETAIL = "/velocity/event/resultsDetail.vm";
 		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
 		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";

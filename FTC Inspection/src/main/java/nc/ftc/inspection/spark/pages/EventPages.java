@@ -1101,6 +1101,20 @@ public class EventPages {
 			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
+		public static Route serveResultsSimplePage = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			List<MatchResult> results = EventDAO.getMatchResults(event);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("matches", results);
+			map.put("event", event); //TODO get event name from DB
+			return render(request, map, Path.Template.MATCH_RESULT_SIMPLE);
+		};
+		
 		public static Route serveAudienceDisplay = (Request request, Response response) ->{
 			return render(request, new HashMap<String, Object>(), Path.Template.AUDIENCE_DISPLAY);
 		};

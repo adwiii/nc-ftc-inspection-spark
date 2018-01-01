@@ -81,7 +81,7 @@ public class Server {
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);		
 		
-		get(Path.Web.DEFAULT, DefaultPages.forwardToIndex);
+		get(Path.Web.DEFAULT, DefaultPages.forwardTo(Path.Web.INDEX));
 		get(Path.Web.INDEX, DefaultPages.indexPage);
 		get(Path.Web.LOGIN, LoginPage.serveLoginPage);
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
@@ -92,8 +92,10 @@ public class Server {
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		get(Path.Web.MATCH_RESULTS_SIMPLE, EventPages.serveResultsSimplePage);
 		get(Path.Web.MATCH_RESULTS_DETAILS, EventPages.serveResultsDetailPage);
 		get(Path.Web.EVENT_HOME, EventPages.serveEventHomePage);
+		get(Path.Web.EVENT_SIMPLE, DefaultPages.forwardTo("./home/"));
 		//I am unsure about the ones below here
 		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);

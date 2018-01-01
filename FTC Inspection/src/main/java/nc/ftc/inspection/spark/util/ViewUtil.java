@@ -35,11 +35,16 @@ public class ViewUtil {
     		model.put("rolesList", new ArrayList<String>());
     		model.put("roles", 0);
     	}
+    	String sysEvent = req.params("event");
+    	if (sysEvent != null) {
+    		model.put("sysEvent", sysEvent);
+    	}
         model.put("currentPath", req.pathInfo());
         model.put("request", req);
         System.out.println(req.userAgent().toLowerCase().contains("mobile") + ": " + req.userAgent());
         model.put("mobile", req.userAgent().toLowerCase().contains("mobile"));
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
+        model.put("time", System.currentTimeMillis());
         return velocityEngine().render(new ModelAndView(model, templatePath));
     }
 
