@@ -24,6 +24,6 @@
 </body>
 <script>
 	
-	window.setTimeout(function(){window.location.reload(true);}, 15000);
+	window.setTimeout(function(){window.location.reload(true);}, 60000);
 </script>
 #end

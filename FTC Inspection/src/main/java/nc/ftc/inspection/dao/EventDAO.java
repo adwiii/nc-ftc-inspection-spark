@@ -37,19 +37,13 @@ import nc.ftc.inspection.model.Team;
 
 public class EventDAO {
 	public static final SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
-	public static class SQL {
-		public String sql;
-		public int id;
-		public SQL(int id, String sql) {
-			this.id = id; this.sql = sql;
-		}
-	}
+	
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static final RemoteUpdater updater = RemoteUpdater.getInstance();
 	
 	
 	//MAX SQL = 14
-	//TODO THis needs to be a command
+	//TODO THis needs to be a command - NO, this should not be a thing! Must create an event locally.
 	static final SQL CREATE_EVENT_SQL = new SQL(1,"INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)");
 	static final String[] CREATE_EVENT_DB_SQL ={ 
 											"ATTACH DATABASE ':code.db' AS local;" , 
@@ -92,7 +86,7 @@ public class EventDAO {
 	static final String GET_FAILED_ROWS_SQL = "SELECT fr.row, fr.description, fr.rule, fr.page FROM formRows fr INNER JOIN (SELECT row, fi.formID from formItems fi INNER JOIN (select cbIndex, formID from formStatus where formID=? AND team=? AND status=0) j ON fi.itemIndex = j.cbIndex AND fi.formID = j.formID WHERE fi.req=1) j2 ON fr.row = j2.row AND fr.formID = j2.formID ORDER BY fr.row;";
 	
 	static final SQL SET_FORM_STATUS_SQL = new SQL(4,"UPDATE formStatus SET status = ? WHERE formID = ? AND team = ? AND cbIndex = ?");
-	static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
+	public static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
 	static final String GET_TEAMSTATUS_SQL = "SELECT * FROM inspectionStatus WHERE team=?;";
 	static final String GET_TEAMS_SQL = "SELECT a.number, ti.name FROM teams a LEFT JOIN global.teamInfo ti ON ti.number = a.number ORDER BY a.number;";
@@ -206,6 +200,7 @@ public class EventDAO {
 			ps.setInt(1, status);
 			ps.setString(2, code);
 			int affected = ps.executeUpdate();
+			updater.enqueue(new Update(code, Update.COMMAND, null, Update.SET_EVENT_STATUS_CMD, status));
 			return affected == 1;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -239,6 +234,7 @@ public class EventDAO {
 				sql.addBatch(CREATE_EVENT_DB_SQL[i]);
 			}
 			sql.executeBatch();
+			updater.enqueue(new Update(code, Update.COMMAND, null, Update.CREATE_EVENT_DB_CMD));
 			return true;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -262,6 +258,7 @@ public class EventDAO {
 				sql.addBatch(s);
 			}
 			sql.executeBatch();
+			updater.enqueue(new Update(event, Update.COMMAND, null, Update.POPULATE_STATUS_TABLES_CMD));
 			return true;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -555,7 +552,7 @@ public class EventDAO {
 				//e.setCurrentMatch(getNextMatch(ed.getCode()));
 				e.loadNextMatch();
 				Server.activeEvents.put(ed.getCode(), e);
-				System.out.println(ed.getCode());
+				System.out.println("Loaded event "+ed.getCode());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

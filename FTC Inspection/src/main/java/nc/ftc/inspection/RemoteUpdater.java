@@ -26,7 +26,6 @@ public class RemoteUpdater extends Thread {
 	
 	private RemoteUpdater() {
 		remotes = ConfigDAO.getRemotes();
-		//remotes.add(new Remote("34.230.27.38/update/", "empty"));
 		start();
 	}
 	
@@ -44,14 +43,12 @@ public class RemoteUpdater extends Thread {
 	public synchronized void enqueue(Update update) {
 		if(remotes.size() == 0)return;
 		queue.offer(update);
-	}
-	
-	
+	}	
 	
 	public void run() {
 		while(!shutdown) {
 			if(remotes.size() == 0) {
-				synchronized(this) {
+				synchronized(instance) {
 					try {
 						this.wait();
 					} catch (InterruptedException e) {
@@ -61,35 +58,38 @@ public class RemoteUpdater extends Thread {
 			} else {
 				//empty queue into a POST object & send it to host.
 				if(queue.isEmpty()) {
-					synchronized(this) {
+					synchronized(instance) {
 						try {
 							this.wait(10000);
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
-					continue;
+					if(queue.isEmpty()) {
+						continue;
+					}
 				}
 				List<NameValuePair> form = new ArrayList<>();
-				form.add(new BasicNameValuePair("key", "key"));
+				
 				Gson gson = new Gson();
 				List<Update> updates = new ArrayList<>(queue.size() + 2);
-				synchronized(this) {
+				synchronized(instance) {
 					while(!queue.isEmpty()) {
 						updates.add(queue.poll());
 					}
 				}
-				form.add(new BasicNameValuePair("updates", gson.toJson(updates)));
-				for(Remote r : remotes) {
-					try {
-						r.sendPOST(form);
-						System.out.println("Sent");
-					} catch (IOException e) {
-						e.printStackTrace();
+				form.add(new BasicNameValuePair("u", gson.toJson(updates)));
+				synchronized(remotes) { //prevent concurrent modification from expired key removal
+					for(Remote r : remotes) {
+						Thread t = new Thread() {
+							public void run() {
+								r.sendPOST(form);
+							}
+						};
+						t.start();					
 					}
 				}
-				synchronized(this) {
+				synchronized(instance) {
 					try {
 						this.wait(10000); //up this after testing
 					} catch (InterruptedException e) {
@@ -98,5 +98,42 @@ public class RemoteUpdater extends Thread {
 			}
 		}
 	}
+	private Thread hook = new Thread() {
+		public void run() {
+			//give all enqueued a (very quick) chance to finish.
+			//if no con, hopefully they realize it quickly.
+			System.err.println("Shutting down remote updater! (This will take 3 seconds)");
+			synchronized(instance) {
+				instance.notifyAll();
+			}
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			int n = 0;
+			for(Remote r : remotes) {
+				n += r.saveFailureQueue();
+			}
+			System.out.println("Remote updater shutdown. "+n+" unsent updates saved.");
+		}
+	};
+	
+	public static Thread getHook() {
+		return instance.hook;
+	}
 
+	public void removeRemote(Remote r) {
+		synchronized(remotes) {
+			remotes.remove(r);
+		}
+	}
+
+	public void addRemote(Remote remote) {
+		remotes.add(remote);
+		synchronized(this){
+			this.notify();
+		}
+		
+	}
 }

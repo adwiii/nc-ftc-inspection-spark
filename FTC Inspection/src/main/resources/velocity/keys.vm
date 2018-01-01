@@ -1,0 +1,74 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<h1>Server Configuration</h1>
+
+
+<h2>
+	Access Key Management
+</h2>
+This page allows for the management of access keys, which allow other instances of the server to push data to this one. 
+Each event can only have one access key active at a time. Once a server authenticates with it, it can not be used by another one.
+Use this page to delete existing keys, and generate new ones. Previously generated keys are NOT shown, as the plaintext values are not stored.
+When you click generate, a key will be shown. Write it down or enter it into the other server before leaving this page. 
+Generating a new key for an event will cause the servers pushing that event to this one to lose their authentication if one exists.
+<br><br>
+
+<style>
+td{
+	text-align:center;
+}
+</style>
+<fieldset>
+	<legend>Access Keys:</legend>
+	<table>
+		<tr><th>Event Code</th> <th> Access Key</th> <th> Status</th> <th>Generate Key</th><th>Delete</th></tr>
+		#foreach($k in $keys)
+			<tr>
+				<td>$k.event</td>
+				<td id="key_$k.event">#if($k.created)**********#end</td>
+				<td id="status_$k.event">#if($k.verified)In-use#elseif($k.created)Un-used#end</td>
+				<td><button onclick="generate('$k.event')">Generate</button></td>
+				<td><button onclick="deleteK('$k.event')" id="delete_$k.event" #if(!$k.created)disabled#end>Delete</button></td>
+			</tr>
+		#end 
+	</table>
+</fieldset>
+
+<script>
+	function generate(event){
+		var postObj = {event:event}
+		$.ajax({
+			url:"",
+			type:"POST",
+			data: postObj,
+			success:function(data){
+				document.getElementById("key_"+event).innerHTML = data;
+				document.getElementById("status_"+event).innerHTML = "Un-used";
+				document.getElementById("delete_"+event).disabled = false;
+			},
+			error: function(xhr, textStatus, errorThrown) {
+	        	document.getElementById("status_"+event).innerHTML = "<font color='red'>"+xhr.responseText+"</red>";
+	    	}
+	    });
+	}
+	
+	function deleteK(event){
+		$.ajax({
+			url:"?event="+event,
+			type:"DELETE",
+			success:function(data){
+				document.getElementById("key_"+event).innerHTML = "";
+				document.getElementById("status_"+event).innerHTML = "";
+				document.getElementById("delete_"+event).disabled = true;
+			},
+			error: function(xhr, textStatus, errorThrown) {
+	        	document.getElementById("status_"+event).innerHTML = "<font color='red'>"+xhr.responseText+"</red>";
+	    	}
+	    });
+	}
+	
+	
+</script>
+
+
+#end

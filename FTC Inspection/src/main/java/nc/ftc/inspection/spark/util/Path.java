@@ -93,6 +93,11 @@ public class Path {
         public static final String FIELD_DISPLAY  ="/event/:event/field/";
         
         public static final String REMOTE_POST = "/update/";
+        public static final String SERVER_CONFIG = "/config/";
+        public static final String VERIFY = "/config/verify/";
+        public static final String CLIENT_KEYS = "/config/keys/";
+        public static final String REMOTE_KEYS = "/config/remotes/";
+        public static final String PING = "/ping/";
         
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
@@ -165,6 +170,9 @@ public class Path {
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
         public static final String FULL_SCORESHEET = "/velocity/event/readOnlyScore.vm";
+        public static final String CLIENT_KEYS = "/velocity/keys.vm";
+        public static final String REMOTE_KEYS = "/velocity/remotes.vm";
+        public static final String SERVER_CONFIG = "/velocity/serverConfig.vm";
         
     }
 

@@ -1641,17 +1641,5 @@ public class EventPages {
 			return render(request, map, Path.Template.FULL_SCORESHEET);
 		};
 		
-		public static Route handleRemoteUpdatePost = (Request request, Response response)->{
-			String key = request.queryParams("key");
-			Update[] updates = new Gson().fromJson(request.queryParams("updates"), Update[].class);
-			Thread thread = new Thread() {
-				public void run() {
-					for(Update u : updates) {
-						u.execute();
-					}
-				}
-			};
-			thread.start();
-			return "OK";
-		};
+		
 }

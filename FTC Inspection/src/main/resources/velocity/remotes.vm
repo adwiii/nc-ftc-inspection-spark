@@ -1,0 +1,106 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<h1>Server Configuration</h1>
+
+
+<h2>
+	Remote Server Management
+</h2>
+These are the hosts this server will push data to. To add a host, you need to get the access key
+from the host for a specific event. The form to add a host is below the table. Editing will require a new key, 
+which when generated on the remote server will invalidate the current one. Downloading data from a remote will 
+overwrite this server's local data with the data from the remote server.
+<br><br>
+
+<style>
+td{
+	text-align:center;
+}
+</style>
+<fieldset>
+	<legend>Current Remote Servers:</legend>
+	<table>
+		<tr><th>Hostname / IP</th> <th> Event Code</th> <th> Data Download</th> <th>Edit</th><th>Delete</th></tr>
+		#foreach($h in $hosts)
+			<tr>
+				<td>$h.host</td>
+				<td>$h.event</td>
+				<td><button onclick="download('$h.host', '$h.event')" disabled >Data Download</button></td>
+				<td><button onclick="edit('$h.host', '$h.event')">Edit</button></td>
+				<td><button onclick="deleteH('$h.host','$h.event')">Delete</button></td>
+			</tr>
+		#end 
+	</table>
+</fieldset>
+<br><br>
+<fieldset>
+	<legend>Add/Edit Remote Server</legend>
+	<label for="host">Host:</label><input type="text" id="host"></input>
+	<button onclick="test()">Test Connection</button><div id="testMsg"></div><br>
+	<label for="event">Event Code:</label> <input type="text" id="event"></input>
+	<label for="key">Access Key:</label><input type="text" id="key"></input>
+	<button id="submit" onclick="submit()">Submit</button>
+	<div id="msg"></div>
+</fieldset>
+
+<script>
+	function test(){
+		var postObj = {host:document.getElementById("host").value};
+		$.ajax({
+			url:"",
+			type:"PUT",
+			data: postObj,
+			success:function(data){
+				document.getElementById("testMsg").innerHTML = "<font color='green'>Success</font>";
+			},
+			error: function(xhr, textStatus, errorThrown) {
+	        	document.getElementById("testMsg").innerHTML = "<font color='red'>"+xhr.responseText+"</red>";
+	    	}
+	    });
+	}
+	
+	function submit(){
+		var postObj = {
+			host:document.getElementById("host").value, 
+			event:document.getElementById("event").value,
+			key:document.getElementById("key").value
+		};
+		$.ajax({
+			url:"",
+			type:"POST",
+			data: postObj,
+			success:function(data){
+				window.location.reload(true);
+			},
+			error: function(xhr, textStatus, errorThrown) {
+	        	document.getElementById("msg").innerHTML = "<font color='red'>"+xhr.responseText+"</red>";
+	    	}
+	    });
+	}
+	
+	function deleteH(host, event){
+		$.ajax({
+			url:"?host="+host+"&event="+event,
+			type:"DELETE",
+			success:function(data){
+				window.location.reload(true);
+			},
+			error: function(xhr, textStatus, errorThrown) {
+	        	console.log("Error");
+	    	}
+	    });
+	}
+	
+	function edit(host, event){
+		document.getElementById("host").value = host;
+		document.getElementById("event").value = event;
+		document.getElementById("key").value = "";
+		document.getElementById("msg").innerHTML = "";
+		document.getElementById("testMsg").innerHTML = "";
+	}
+	
+	
+</script>
+
+
+#end

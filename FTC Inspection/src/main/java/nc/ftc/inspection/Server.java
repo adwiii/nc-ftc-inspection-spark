@@ -25,6 +25,7 @@ import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
 import nc.ftc.inspection.spark.pages.GlobalPages;
 import nc.ftc.inspection.spark.pages.LoginPage;
+import nc.ftc.inspection.spark.pages.ServerPages;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
 
@@ -53,7 +54,8 @@ public class Server {
 			e1.printStackTrace();
 		}
 		ConfigDAO.runStartupCheck();
-		RemoteUpdater.getInstance();
+		RemoteUpdater.getInstance();//force classloader
+		Runtime.getRuntime().addShutdownHook(RemoteUpdater.getHook());
 //		System.out.println(EventDAO.getStatus("test2"));
 ////		EventDAO.cre
 //		EventDAO.createEventDatabase("test12");
@@ -222,11 +224,11 @@ public class Server {
 		put(Path.Web.EDIT_TEAM, GlobalPages.handleNewTeamPost);
 		
 		
-		//headref?
+		//headref | admin
 		post(Path.Web.RANDOMIZE, EventPages.handleRandomizePost);
 		post(Path.Web.RERANDOMIZE, EventPages.handleReRandomizePost);
 		
-		//admin?
+		//admin? - yes, except this would block the get to rankings
 		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		post(Path.Web.PAUSE_MATCH, EventPages.handlePauseMatch);
@@ -249,8 +251,24 @@ public class Server {
 		put(Path.Web.INSPECT_SIG, EventPages.handleSig);
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		
+		
 		//Leave open. authentication handled every request by access keys.(kindof)
-		post(Path.Web.REMOTE_POST, EventPages.handleRemoteUpdatePost);
+		post(Path.Web.REMOTE_POST, ServerPages.handleRemoteUpdatePost);
+		post(Path.Web.VERIFY, ServerPages.handleVerify);
+		//leave open... cuz ping.
+		get(Path.Web.PING, ServerPages.handlePing);
+		
+		//admin
+		get(Path.Web.SERVER_CONFIG, ServerPages.serveConfigPage);			
+		get(Path.Web.REMOTE_KEYS, ServerPages.serveRemoteKeyPage);
+		post(Path.Web.REMOTE_KEYS, ServerPages.handleSaveRemoteKey);
+		put(Path.Web.REMOTE_KEYS, ServerPages.handlTestRemote);
+		delete(Path.Web.REMOTE_KEYS, ServerPages.handleDeleteRemoteKey);
+		
+		//sys-admin
+		get(Path.Web.CLIENT_KEYS, ServerPages.serveClientKeyPage);
+		post(Path.Web.CLIENT_KEYS, ServerPages.handleGenerateKey);
+		delete(Path.Web.CLIENT_KEYS, ServerPages.handleDeleteClientKey);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

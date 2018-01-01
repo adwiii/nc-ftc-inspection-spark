@@ -1,14 +1,21 @@
 package nc.ftc.inspection.dao;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
+import nc.ftc.inspection.Update;
 import nc.ftc.inspection.model.User;
 
 import org.mindrot.jbcrypt.*;
@@ -17,12 +24,36 @@ public class UsersDAO {
 	
 	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
 	static final String GET_ALL_SQL = "SELECT username, hashedPassword, salt, type, realName, changed FROM users";
-	static final String UPDATE_PASSWORD_SQL = "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?";
-	static final String UPDATE_TYPE_SQL = "UPDATE users SET type = ?, changed=1 WHERE username = ?";
-	static final String NEW_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,0)";
+	static final SQL UPDATE_PASSWORD_SQL = new SQL(1, "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?");
+	static final SQL UPDATE_TYPE_SQL = new SQL(2, "UPDATE users SET type = ?, changed=1 WHERE username = ?");
+	static final SQL NEW_USER_SQL = new SQL(3, "INSERT INTO users VALUES (?,?,?,?,?,0)");
 	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
-	static final String ASSIGN_ROLE_SQL = "INSERT OR REPLACE INTO roles VALUES (?,?,?)";
-	
+	static final SQL ASSIGN_ROLE_SQL = new SQL(4, "INSERT OR REPLACE INTO roles VALUES (?,?,?)");
+	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
+	private static RemoteUpdater updater = RemoteUpdater.getInstance();
+	static {
+		Field[] fields = UsersDAO.class.getDeclaredFields();
+		System.out.println(fields.length);
+		for(Field f : fields) {
+			if(f.getType().equals(SQL.class)) {
+				SQL s = null;
+				try {
+					s = (SQL) f.get(null);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+					continue;
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+					continue;
+				}
+				if(s == null)continue;
+				if(queryMap.containsKey(s.id)) {
+					System.err.println("DUPLICATE SQL MAPPING IN UsersDAO: "+s.id);
+				}
+				queryMap.put(s.id, s);
+			}
+		}
+	}
 
 	
 	/**
@@ -59,14 +90,15 @@ public class UsersDAO {
 			user.setSalt(BCrypt.gensalt());
 			user.setHashedPw(BCrypt.hashpw(newPw, user.getSalt()));
 			
-			PreparedStatement ps = conn.prepareStatement(UPDATE_PASSWORD_SQL);
+			PreparedStatement ps = conn.prepareStatement(UPDATE_PASSWORD_SQL.sql);
 			ps.setString(1, user.getHashedPw());
 			ps.setString(2, user.getSalt());
 			ps.setString(3, user.getUsername());
 			int affected = ps.executeUpdate();
 			if(affected > 1){
-				throw new RuntimeException("OMFG WE HAD >1 USER ENTRIES -- WE DONE SCREWED UP");
+				throw new RuntimeException("OMG WE HAD >1 USER ENTRIES -- WE DONE SCREWED UP");
 			}
+			updater.enqueue(new Update(null, Update.USER_DB_UPDATE, null, UPDATE_PASSWORD_SQL.id, user.getHashedPw(), user.getSalt(), user.getUsername() ));
 			return affected == 1;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -88,7 +120,7 @@ public class UsersDAO {
 			return false;
 		}
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL);
+			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL.sql);
 			String salt = BCrypt.gensalt();
 			String hashedPw = BCrypt.hashpw(password, salt);
 			//TODO fill these in.
@@ -101,6 +133,7 @@ public class UsersDAO {
 			if(affected > 1){
 				throw new RuntimeException("WTF?");
 			}
+			updater.enqueue(new Update(null, Update.USER_DB_UPDATE, null, NEW_USER_SQL.id, username, hashedPw,type, salt, realName ));
 			return affected == 1;
 		}catch(Exception e){
 			if(e instanceof SQLException){
@@ -147,13 +180,14 @@ public class UsersDAO {
 	
 	private static boolean updateRole(String username, int newRole) {
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(UPDATE_TYPE_SQL);
+			PreparedStatement ps = conn.prepareStatement(UPDATE_TYPE_SQL.sql);
 			ps.setString(2, username);
 			ps.setInt(1, newRole);
 			int affected = ps.executeUpdate();
 			if (affected > 1) {
 				throw new IllegalArgumentException("We had duplicate usernames, everything is on fire!");
 			}
+			updater.enqueue(new Update(null, Update.USER_DB_UPDATE, null, UPDATE_TYPE_SQL.id, newRole, username));
 			return affected == 1;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -208,17 +242,42 @@ public class UsersDAO {
 	 */
 	public static boolean assignRole(String eventCode, String user, int role){
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			PreparedStatement ps = conn.prepareStatement(ASSIGN_ROLE_SQL);
+			PreparedStatement ps = conn.prepareStatement(ASSIGN_ROLE_SQL.sql);
 			ps.setString(1, user);
 			ps.setString(2,  eventCode);
 			ps.setInt(3,  role);
 			int affected = ps.executeUpdate();
+			updater.enqueue(new Update(eventCode, Update.USER_DB_UPDATE, null, ASSIGN_ROLE_SQL.id, user, eventCode, role));
 			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
-	
+
+	public static boolean executeRemoteUpdate(Map<String, String> v, Object[] p) {
+		if(p == null)return true;
+		if(p.length == 0)return true;
+		String sql = queryMap.get(new Double(p[0].toString()).intValue()).sql;
+		if(v != null) {
+			for(Entry<String, String> entry : v.entrySet()) {
+				sql = sql.replaceAll(entry.getKey(), entry.getValue());
+			}
+		}
+		System.out.println("Executing Update (user): "+sql+" "+Arrays.toString(p));
+		try (Connection local = DriverManager.getConnection(Server.GLOBAL_DB)){			
+			PreparedStatement ps = local.prepareStatement(sql);
+			for(int i = 1; i < p.length; i++) {
+				//params 1 -indexed, so this works beautifully!
+				ps.setObject(i, p[i]);
+			}
+			ps.execute();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
+			return false;
+		}
+	}
 
 }
