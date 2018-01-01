@@ -80,6 +80,7 @@ public class Path {
         public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
         public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
         public static final String GET_FULL_SCORESHEET = "/event/:event/match/:match/scoresheet/";
+        public static final String GET_ALLIANCE_BREAKDOWN = "/event/:event/match/:match/scoresheet/:alliance/";
         
         //get gets the page, PUT returns new score breakdown, and POST commits.
         public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
@@ -87,6 +88,7 @@ public class Path {
         public static final String GET_MATCH_INFO = "/event/:event/match/:match/info/";
         
         public static final String MATCH_RESULTS = "event/:event/results/";
+        public static final String MATCH_RESULTS_DETAILS = "event/:event/results/details/";
         public static final String RANKINGS = "/event/:event/rankings/";
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
@@ -151,6 +153,7 @@ public class Path {
         public static final String REF_POST_SUBMIT = "/velocity/event/ref_postSubmit.vm";
         public static final String CONTROL = "/velocity/event/control.vm";
 		public static final String MATCH_RESULT = "/velocity/event/results.vm";
+		public static final String MATCH_RESULT_DETAIL = "/velocity/event/resultsDetail.vm";
 		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
 		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";
 		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
@@ -165,6 +168,7 @@ public class Path {
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
         public static final String FULL_SCORESHEET = "/velocity/event/readOnlyScore.vm";
+        public static final String ALLIANCE_BREAKDOWN = "/velocity/event/readOnlyBreakdown.vm";
         
     }
 

@@ -1,5 +1,6 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+#parse("/velocity/event/scoreMacros.vm")
 <!-- Red is:#EE1C29, Blue is 0268B3, Dark Gray is 6E6D72, light gray is E8E8E8 -->
 <!-- empty box is &#x2610; checked box is &#x2611; -->
 <style>
@@ -55,29 +56,13 @@ small {
 	color: #292929;
 }
 </style>
-<script>
-	$( document ).ready(function() {
-       $("td#redHeader").bind("click",function() {
-      		location = "./red";
-   		});
-   		$("td#blueHeader").bind("click",function() {
-      		location = "./blue";
-   		});
-	});
-</script>
 <table>
-#if($redScore > $blueScore) 
-<tr><td colspan="2" class="center" style="font-size:200%"><b>$redScore</b> - $blueScore</td></tr>
-#elseif($redScore < $blueScore)
-<tr><td colspan="2" class="center" style="font-size:200%">$redScore - <b>$blueScore</b></td></tr>
-#else
-<tr><td colspan="2" class="center" style="font-size:200%">$redScore - $blueScore</td></tr>
-#end
 <tr>
 <td>
+#if($redAlliance == "true")
 <table class="scoresheet">
 <!-- Red Scoresheet -->
-<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#EE1C25;color:#F5FEFD;text-align:center;font-size:130%" id="redHeader">Red<br>Alliance</a></td><td><img id="logo" src="/img/game-logo.png"></td></tr>
+<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#EE1C25;color:#F5FEFD;text-align:center;font-size:130%">Red<br>Alliance</td><td><img id="logo" src="/img/game-logo.png"></td></tr>
 <tr><td></td><td class="right">Match:$matchNumber</td><td class="left">Field:$fieldNumber</td><td></td></tr>
 <tr><td class="dark center" colspan="4">Autonomous Period</td></tr>
 <tr><td class="right" colspan="3">Single Jewel Remaining</td><td class="lightBorder"><div>&nbsp;$redScores.get("jewels")</div></td></tr>
@@ -99,10 +84,11 @@ small {
 <tr><td class="center bottomBorder">$red.team1</td><td class="center">#if($redScores.get("dq1")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card1") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card1") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
 <tr><td class="center bottomBorder">$red.team2</td><td class="center">#if($redScores.get("dq2")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card2") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card2") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
 </table>
-</td><td>
+#end
+#if($blueAlliance == "true")
 <table class="scoresheet">
 <!-- Blue Scoresheet -->
-<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#0268B3;color:#F5FEFD;text-align:center;font-size:130%" id="blueHeader">Blue<br>Alliance</td><td><img id="logo" src="/img/game-logo.png"></td></tr>
+<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#0268B3;color:#F5FEFD;text-align:center;font-size:130%">Blue<br>Alliance</td><td><img id="logo" src="/img/game-logo.png"></td></tr>
 <tr><td></td><td class="right">Match:$matchNumber</td><td class="left">Field:$fieldNumber</td><td></td></tr>
 <tr><td class="dark center" colspan="4">Autonomous Period</td></tr>
 <tr><td class="right" colspan="3">Single Jewel Remaining</td><td class="lightBorder"><div>&nbsp;$blueScores.get("jewels")</div></td></tr>
@@ -124,6 +110,56 @@ small {
 <tr><td class="center bottomBorder">$blue.team1</td><td class="center">#if($blueScores.get("dq1")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card1") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card1") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
 <tr><td class="center bottomBorder">$blue.team2</td><td class="center">#if($blueScores.get("dq2")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card2") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card2") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
 </table>
+#end
+</td><td>
+#if($redAlliance == "true")
+		<fieldset class="breakdown">
+			<legend>Score Breakdown</legend>
+			<table>
+				<tr><th>Auto</th><th>$redBreakdown.get("autoPoints")</th></tr>					
+				<tr><td>Jewel Points</td><td>$redBreakdown.get("jewelPoints")</td></tr>
+				<tr><td>Glyph Points</td><td>$redBreakdown.get("glyphAutoPoints")</td></tr>
+				<tr><td>Key Bonus</td><td>$redBreakdown.get("keyPoints")</td></tr>
+				<tr><td>Parking Points</td><td>$redBreakdown.get("parkingPoints")</td></tr>
+				<tr><th>Teleop</th><th>$redBreakdown.get("teleopPoints")</th></tr>
+				<tr><td>Glyph Points</td><td>$redBreakdown.get("glyphPoints")</td></tr>
+				<tr><td>Row Bonus</td><td>$redBreakdown.get("rowPoints")</td></tr>
+				<tr><td>Column Bonus</td><td>$redBreakdown.get("columnPoints")</td></tr>
+				<tr><td>Cipher Bonus</td><td>$redBreakdown.get("cipherPoints")</td></tr>
+				<tr><td>Relic Points</td><td>$redBreakdown.get("relicPoints")</td></tr>
+				<tr><td>Balance Points</td><td>$redBreakdown.get("balancePoints")</td></tr>
+				<tr><th>Foul</th><th>$redBreakdown.get("foulPoints")</th></tr>
+				<tr><td>Minor Penalties</td><td>$redBreakdown.get("minorPoints")</td></tr>
+				<tr><td>Major Penalties</td><td>$redBreakdown.get("majorPoints")</td></tr>
+				<tr><td colspan="2"><hr></td></tr>
+				<tr><th>Score</th><th>$redBreakdown.get("score")</th></tr>
+			</table>
+		</fieldset>	
+#end
+#if($blueAlliance == "true")
+		<fieldset class="breakdown">
+			<legend>Score Breakdown</legend>
+			<table>
+				<tr><th>Auto</th><th>$blueBreakdown.get("autoPoints")</th></tr>					
+				<tr><td>Jewel Points</td><td>$blueBreakdown.get("jewelPoints")</td></tr>
+				<tr><td>Glyph Points</td><td>$blueBreakdown.get("glyphAutoPoints")</td></tr>
+				<tr><td>Key Bonus</td><td>$blueBreakdown.get("keyPoints")</td></tr>
+				<tr><td>Parking Points</td><td>$blueBreakdown.get("parkingPoints")</td></tr>
+				<tr><th>Teleop</th><th>$blueBreakdown.get("teleopPoints")</th></tr>
+				<tr><td>Glyph Points</td><td>$blueBreakdown.get("glyphPoints")</td></tr>
+				<tr><td>Row Bonus</td><td>$blueBreakdown.get("rowPoints")</td></tr>
+				<tr><td>Column Bonus</td><td>$blueBreakdown.get("columnPoints")</td></tr>
+				<tr><td>Cipher Bonus</td><td>$blueBreakdown.get("cipherPoints")</td></tr>
+				<tr><td>Relic Points</td><td>$blueBreakdown.get("relicPoints")</td></tr>
+				<tr><td>Balance Points</td><td>$blueBreakdown.get("balancePoints")</td></tr>
+				<tr><th>Foul</th><th>$blueBreakdown.get("foulPoints")</th></tr>
+				<tr><td>Minor Penalties</td><td>$blueBreakdown.get("minorPoints")</td></tr>
+				<tr><td>Major Penalties</td><td>$blueBreakdown.get("majorPoints")</td></tr>
+				<tr><td colspan="2"><hr></td></tr>
+				<tr><th>Score</th><th>$blueBreakdown.get("score")</th></tr>
+			</table>
+		</fieldset>	
+#end
 </td></tr>
 </table>
 #end

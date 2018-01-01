@@ -92,12 +92,14 @@ public class Server {
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		get(Path.Web.MATCH_RESULTS_DETAILS, EventPages.serveResultsDetailPage);
 		get(Path.Web.EVENT_HOME, EventPages.serveEventHomePage);
 		//I am unsure about the ones below here
 		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
 		get(Path.Web.WAIT_FOR_MATCH_END, EventPages.handleWaitForEnd);
 		get(Path.Web.GET_FULL_SCORESHEET, EventPages.handleGetFullScoresheet);
+		get(Path.Web.GET_ALLIANCE_BREAKDOWN, EventPages.handleGetAllianceBreakdown);
 
 		//THESE ARE GENERAL USERS BUT NO ONE SHOULD EVER SEE THEM DIRECTLY BC THEY ARE REST
 		get(Path.Web.MASTER_TEAM_LIST, GlobalPages.handleTeamListGet);

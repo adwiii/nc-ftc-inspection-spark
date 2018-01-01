@@ -1,4 +1,4 @@
-#macro(mainLayout)
+#macro(mainLayout $mainWidth)
 <html>
 <head>
     <title>FTC Inspection App</title>
@@ -49,7 +49,11 @@
         </ul>
     </nav>
 </header>
-<main>
+<main
+ #if($mainWidth)
+ style="max-width:$mainWidth"
+ #end
+ >
     <div id="content">
         $bodyContent
     </div>

@@ -21,15 +21,15 @@ public class Alliance {
 	//how they are stored in the db in the matchScores tables
 	public static transient final int RED = 0;
 	public static transient final int BLUE = 1;
-	
+
 	public static transient final int NO_CARD = 0;
 	public static transient final int YELLOW_CARD = 1;
 	public static transient final int RED_CARD = 2;
-	
-	
+
+
 
 	int lastCalculatedScoreNoPenalties = 0;
-	
+
 	static Map<String, Number> scoreMap = new HashMap<>();
 	static{
 		//TODO put all the possible fields in an array/db, make this support multiple years.
@@ -46,7 +46,7 @@ public class Alliance {
 		scoreMap.put("relic2Standing", 15);
 		scoreMap.put("balanced", 20);
 	}
-	
+
 	public Alliance(int t1, int t2){
 		team1 = t1;
 		team2 = t2;
@@ -68,7 +68,7 @@ public class Alliance {
 	public boolean is2Surrogate(){
 		return surrogate2;
 	}
-	
+
 	public void initializeScores(){
 		scores = new HashMap<>();
 		scores.put("major", 0);
@@ -92,7 +92,7 @@ public class Alliance {
 		scores.put("cryptobox2", 0);
 		scores.put("jewelSet1", 0b11);
 		scores.put("jewelSet2", 0b11);
-		
+
 		//cards/dq
 		scores.put("card1", NO_CARD);
 		scores.put("card2", NO_CARD);
@@ -100,11 +100,11 @@ public class Alliance {
 		scores.put("dq1", false);
 		scores.put("dq2", false);
 		scores.put("dq3", false);//TODO same here
-		
+
 	}
-	
+
 	public void updateScore(String field, Object value){
-		
+
 		Object old = scores.get(field);
 		if(old == null){
 			throw new IllegalArgumentException("Invalid field "+field);
@@ -114,16 +114,16 @@ public class Alliance {
 			//TODO notify anyone who needs update on scores. Different than state change cuz need to know what field changed
 		}
 	}
-	
+
 	public Set<String> getScoreFields(){
 		return scores.keySet();
 	}
-	
-	
+
+
 	public Object getScore(String field){
 		return scores.get(field);
 	}
-	
+
 	public List<String> getScores(){
 		List<String> list = new ArrayList<String>();
 		for(Entry<String, Object> entry : scores.entrySet()){
@@ -131,12 +131,12 @@ public class Alliance {
 		}
 		return list;
 	}
-	
+
 	public Map<String, Object> getRawScores() {
 		return scores;
 	}
-	
-	
+
+
 	/**
 	 * DEPRECATED, Call event.getScoreBreakdown, then read this instances lastCalculatedScoreNoPenalties field
 	 * @return -1
@@ -156,21 +156,29 @@ public class Alliance {
 			}
 		}
 		return score;
-		*/
+		 */
 		return -1;
 	}
-	
+
 	public int getPenaltyPoints(){
-		return 10 * Integer.parseInt(scores.get("minor").toString())+ 40 * Integer.parseInt(scores.get("major").toString());
+		return getMinorPenaltyPoints() + getMajorPenaltyPoints();
 	}
-	
+
+	public int getMinorPenaltyPoints() {
+		return 10 * Integer.parseInt(scores.get("minor").toString());
+	}
+
+	public int getMajorPenaltyPoints() {
+		return 40 * Integer.parseInt(scores.get("major").toString());
+	}
+
 	public void setSubmitted(boolean sub){
 		this.scoreSubmitted = sub;
 	}
 	public boolean scoreSubmitted(){
 		return scoreSubmitted;
 	}
-	
+
 	public void setAutoSubmitted(boolean sub){
 		this.autoSubmitted = sub;
 	}
@@ -183,7 +191,7 @@ public class Alliance {
 	public boolean isInReview() {
 		return inReview;
 	}
-	
+
 	//1,2,3 is red left, 4, 5, 6, is blue left
 	public int getRedJewels() {
 		int count = 0;
@@ -239,7 +247,7 @@ public class Alliance {
 			if(cb == 6710886 || cbInv == 6710886 || cb == 6908265 || cbInv == 6908265 || cb == 10065510 || cbInv == 10065510) {
 				ciphers++;
 			}
-			
+
 			for(int r = 0; r < 4; r++) {
 				int t = (cb >> (r * 6)) & 0x3F; //t is the value for the row.
 				int thisRow = 0;
@@ -252,7 +260,7 @@ public class Alliance {
 					rows++;
 				}
 			}
-			
+
 			final int COLUMN_MASK = 0b11000011000011000011;
 			for(int c = 0; c < 3; c++) {
 				int t = cb & (COLUMN_MASK << (2*c));
@@ -267,7 +275,7 @@ public class Alliance {
 				}
 			}			
 		}
-		 // each glyph counted twice.
+		// each glyph counted twice.
 		glyphs /= 2;
 		scores.put("glyphs", glyphs);
 		scores.put("rows", rows);
@@ -278,5 +286,5 @@ public class Alliance {
 	public int getLastScore() {
 		return lastCalculatedScoreNoPenalties;
 	}
-	
+
 }
