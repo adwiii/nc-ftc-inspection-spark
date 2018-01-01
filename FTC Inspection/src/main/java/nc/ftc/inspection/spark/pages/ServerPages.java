@@ -1,11 +1,22 @@
 package nc.ftc.inspection.spark.pages;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.commons.io.IOUtils;
@@ -22,6 +33,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.Gson;
 
 import nc.ftc.inspection.RemoteUpdater;
+import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.model.Remote;
@@ -180,6 +192,103 @@ public class ServerPages {
 	
 	public static Route handlePing = (Request request, Response response) ->{
 		return "OK";
+	};
+	
+	private static String serveFile(String name, Response response) {
+		File file = new File(Server.DB_PATH+name+".db");
+	    response.raw().setContentType("application/octet-stream");
+	    response.raw().setHeader("Content-Disposition","attachment; filename="+file.getName()+".zip");
+	    try {
+
+	        try(ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.raw().getOutputStream()));
+	        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file)))
+	        {
+	            ZipEntry zipEntry = new ZipEntry(file.getName());
+
+	            zipOutputStream.putNextEntry(zipEntry);
+	            byte[] buffer = new byte[1024];
+	            int len;
+	            while ((len = bufferedInputStream.read(buffer)) > 0) {
+	                zipOutputStream.write(buffer,0,len);
+	            }
+	        }
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }
+		return "";
+	}
+	
+	/**
+	 * Sends global.db to the requester
+	 */
+	public static Route handleDataDownloadGlobal = (Request request, Response response) ->{
+		String event = request.queryParams("e");
+		String key = request.queryParams("k");
+		//TODO check key
+		return serveFile("global", response);
+	};
+	
+	public static Route handleDataDownloadEvent = (Request request, Response response) ->{
+		String event = request.queryParams("e");
+		String key = request.queryParams("k");
+		//TODO check key
+		return serveFile(event, response);
+	};
+	
+	private static boolean getDB(String host, String event, String key, String db) {	
+		List<NameValuePair> form = new ArrayList<NameValuePair>(2);
+		form.add(new BasicNameValuePair("k", key));
+		form.add(new BasicNameValuePair("e", event));		
+		HttpPost post = new HttpPost((host.startsWith("http://") ? host : ("http://"+host))+"/config/remotes/dd"+(db.equals("global")?"global/":"event/"));
+		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
+		post.setEntity(entity);
+		try(CloseableHttpClient client = HttpClients.createMinimal()){
+			HttpResponse resp = client.execute(post);
+			String filename = resp.getFirstHeader("Content-Disposition").getValue();
+			filename = filename.substring(filename.indexOf("filename=")+9);
+			if(resp.getStatusLine().getStatusCode() == 200) {
+				BufferedInputStream in = new BufferedInputStream(resp.getEntity().getContent());
+				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+filename)); 
+				byte[] buffer = new byte[1024];
+	            int len;
+	            while ((len = in.read(buffer)) > 0) {
+	                out.write(buffer,0,len);
+	            }
+	            in.close();
+	            out.flush();
+	            out.close();
+	            //We have the file, now delete the existing db and unzip this one.
+	            String name = filename.substring(0, filename.length()-4);//cut of the "-.zip"
+	            if(Files.deleteIfExists(new File(Server.DB_PATH+name).toPath())) {
+	            	 ZipInputStream zip = new ZipInputStream(new FileInputStream(Server.DB_PATH+filename));
+	            	 zip.getNextEntry();
+	            	 out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+name));
+	                 byte[] buf = new byte[1024];
+	                 int read = 0;
+	                 while ((read = zip.read(buf)) != -1) {
+	                     out.write(buf, 0, read);
+	                 }
+	                 out.flush();
+	                 out.close();
+	                 zip.close();
+	            } else {
+	            	//We have the zip tho!
+	            	
+	            }
+			}
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}	
+		
+	}
+	public static Route handleDataDownloadPost = (Request request, Response response) ->{
+		String event = request.queryParams("event");
+		//get key 
+		getDB("localhost",event, "", "global");
+		getDB("localhost",event, "", event);
+		return "";
 	};
 	
 }

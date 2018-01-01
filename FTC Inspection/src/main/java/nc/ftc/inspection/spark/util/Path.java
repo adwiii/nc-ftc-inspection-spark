@@ -101,6 +101,9 @@ public class Path {
         public static final String VERIFY = "/config/verify/";
         public static final String CLIENT_KEYS = "/config/keys/";
         public static final String REMOTE_KEYS = "/config/remotes/";
+        public static final String DATA_DOWNLOAD = "/config/remotes/dd/";
+        public static final String DATA_DOWNLOAD_GLOBAL = "/config/remotes/ddglobal/";
+        public static final String DATA_DOWNLOAD_EVENT = "/config/remotes/ddevent/";
         public static final String PING = "/ping/";
         
         //restarting teleop vs restarting match??

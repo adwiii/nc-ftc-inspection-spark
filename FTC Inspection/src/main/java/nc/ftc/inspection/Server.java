@@ -274,6 +274,10 @@ public class Server {
 		post(Path.Web.CLIENT_KEYS, ServerPages.handleGenerateKey);
 		delete(Path.Web.CLIENT_KEYS, ServerPages.handleDeleteClientKey);
 		
+		post(Path.Web.DATA_DOWNLOAD, ServerPages.handleDataDownloadPost);
+		post(Path.Web.DATA_DOWNLOAD_GLOBAL, ServerPages.handleDataDownloadGlobal);
+		post(Path.Web.DATA_DOWNLOAD_EVENT, ServerPages.handleDataDownloadEvent);
+		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		
 		after("*", Filters.addGzipHeader);
