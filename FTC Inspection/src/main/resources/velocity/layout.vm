@@ -89,6 +89,7 @@ style="padding-top:3%;"
     				#if($mobile)
     					<li><a href="/event/$sysEvent/home">Home</a></li>
     				#end
+    				<li><a href="/event/$sysEvent/status/">Inspection</a></li>
     			    <li><a href="/event/$sysEvent/schedule">Schedule</a></li>
     				<li><a href="/event/$sysEvent/results">Results</a></li>
     				<li><a href="/event/$sysEvent/rankings">Rankings</a></li>

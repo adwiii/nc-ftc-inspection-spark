@@ -4,6 +4,7 @@
 <h2>
 	Event Info
 </h2>
+<ul>
 	<li>
 		<a href="../schedule">Match Schedule</a>
 	</li><li>
@@ -11,24 +12,26 @@
 	</li><li>
 		<a href="../rankings">Rankings</a>
 	</li>
-#if($INSPECTOR)
+</ul>
 <h2>
 	Inspection Links
 </h2>
 <ul>
 	<li>
-		<a href="../inspect/ci">Team Check-in</a>
-	</li><li>
+		<a href="../status">Inspection Status</a>
+	</li>
+	#if($INSPECTOR)
+	<li>
 		<a href="../inspect/hw">Hardware Inspection</a>
 	</li><li>
 		<a href="../inspect/sw">Software Inspection</a>
 	</li><li>
 		<a href="../inspect/fd">Field Inspection</a>
 	</li><li>
-		<a href="../status">Inspection Status</a>
+		<a href="../inspect/ci">Team Check-in</a>
 	</li>
+	#end
 </ul>
-#end
 
 #if($REFEREE)
 <h2>
