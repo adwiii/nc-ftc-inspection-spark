@@ -200,6 +200,9 @@ public class EventDAO {
 			ps.setInt(1, status);
 			ps.setString(2, code);
 			int affected = ps.executeUpdate();
+			if(status == EventData.QUALS) {
+				Server.activeEvents.put(code, new Event(getEvent(code)));
+			}
 			updater.enqueue(new Update(code, Update.COMMAND, null, Update.SET_EVENT_STATUS_CMD, status));
 			return affected == 1;
 		}catch(Exception e){
@@ -401,6 +404,10 @@ public class EventDAO {
 			}
 			return result;
 		} catch (SQLException e) {
+			if(e.getMessage().contains("no such table")) {
+				System.err.println("OLD DB ("+event+")"+e.getMessage());
+				return null;
+			}
 			e.printStackTrace();
 		}
 		return null;
@@ -590,6 +597,7 @@ public class EventDAO {
 			commitAllianceScore(event, match.getNumber(), match.getBlue(), Alliance.BLUE, local);
 			commitAllianceScore(event, match.getNumber(), match.getRed(), Alliance.RED, local);
 			
+			updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_RANKINGS));
 			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -741,6 +749,10 @@ public class EventDAO {
 			return result;
 		}
 		catch(Exception e) {
+			if(e.getMessage().contains("no such column")) {
+				System.err.println("OLD DB ("+event+")"+e.getMessage());
+				return null;
+			}
 			e.printStackTrace();
 			return null;
 		}

@@ -7,8 +7,8 @@
 	Remote Server Management
 </h2>
 These are the hosts this server will push data to. To add a host, you need to get the access key
-from the host for a specific event. The form to add a host is below the table. Editing will require a new key, 
-which when generated on the remote server will invalidate the current one. Downloading data from a remote will 
+from the host for a specific event. The form to add a host is below the table. To edit a remote connection, delete the existing one and re-enter
+with a new key, which when generated on the remote server will invalidate the current one. Downloading data from a remote will 
 overwrite this server's local data with the data from the remote server.
 <br><br>
 
@@ -25,19 +25,21 @@ td{
 			<tr>
 				<td>$h.host</td>
 				<td>$h.event</td>
-				<td><button onclick="download('$h.host', '$h.event')" disabled >Data Download</button></td>
+				<td><button onclick="download('$h.host', '$h.event')">Data Download</button></td>
 				<td><button onclick="edit('$h.host', '$h.event')">Edit</button></td>
 				<td><button onclick="deleteH('$h.host','$h.event')">Delete</button></td>
+				
 			</tr>
 		#end 
 	</table>
 </fieldset>
+<div id="msgTop"></div>
 <br><br>
 <fieldset>
 	<legend>Add/Edit Remote Server</legend>
 	<label for="host">Host:</label><input type="text" id="host"></input>
 	<button onclick="test()">Test Connection</button><div id="testMsg"></div><br>
-	<label for="event">Event Code:</label> <input type="text" id="event"></input>
+	<label for="event">Event Code:</label> <input type="text" id="event" disabled></input>
 	<label for="key">Access Key:</label><input type="text" id="key"></input>
 	<button id="submit" onclick="submit()">Submit</button>
 	<div id="msg"></div>
@@ -88,6 +90,38 @@ td{
 			error: function(xhr, textStatus, errorThrown) {
 	        	console.log("Error");
 	    	}
+	    });
+	}
+	
+	function download(host, event){
+		var postObj = {
+			host:host,
+			event:event
+		};
+		$.ajax({
+			url:"dd/",
+			type:"POST",
+			data: postObj,
+			success:function(data){
+				document.getElementById("msgTop").innerHTML = "<font color=green>Data Download Success</font>";
+			},
+			error: function(xhr, textStatus, errorThrown) {
+	        	var r = "<font color=red>"+xhr.responseText+"</font>:";
+	        	if(xhr.responseText.indexOf("Invalid Key") >= 0){
+	        		r += "Try again, if the problem persists you may need to get a new access key from the remote server.";
+	        	} 
+	        	if(xhr.responseText.indexOf("Error connecting to server") >= 0){
+	        		r += "Ensure you have an internet connection and can reach the server.";
+	        	} 
+	        	if(xhr.responseText.indexOf("Error downloading zip file") >= 0){
+	        		r += "Try again. May need to contact an admin of the remote server to manually download the data.";
+	        	} 
+	        	if(xhr.responseText.indexOf("Error deleting existing") >= 0 || xhr.responseText.indexOf("Error unzipping") >= 0){
+	        		r += "Try again. Make sure no other programs have the db file open. If the problem persists, go to the database directory and manually extract " + xhr.responseText.substring(24)+", replacing any existing .db files with the same name.";
+	        	} 
+	        	
+	        	document.getElementById("msgTop").innerHTML = r;
+	        }
 	    });
 	}
 	

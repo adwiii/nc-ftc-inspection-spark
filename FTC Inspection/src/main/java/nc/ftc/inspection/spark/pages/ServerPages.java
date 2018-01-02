@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -224,18 +226,25 @@ public class ServerPages {
 	public static Route handleDataDownloadGlobal = (Request request, Response response) ->{
 		String event = request.queryParams("e");
 		String key = request.queryParams("k");
-		//TODO check key
-		return serveFile("global", response);
+		if(ConfigDAO.checkKey(event, key)) {
+			return serveFile("global", response);
+		}
+		response.status(403);
+		return "Invalid Key";
 	};
 	
 	public static Route handleDataDownloadEvent = (Request request, Response response) ->{
 		String event = request.queryParams("e");
 		String key = request.queryParams("k");
-		//TODO check key
-		return serveFile(event, response);
+		
+		if(ConfigDAO.checkKey(event, key)) {
+			return serveFile(event, response);
+		}
+		response.status(403);
+		return "Invalid Key";
 	};
 	
-	private static boolean getDB(String host, String event, String key, String db) {	
+	private static String getDB(String host, String event, String key, String db) {	
 		List<NameValuePair> form = new ArrayList<NameValuePair>(2);
 		form.add(new BasicNameValuePair("k", key));
 		form.add(new BasicNameValuePair("e", event));		
@@ -244,7 +253,14 @@ public class ServerPages {
 		post.setEntity(entity);
 		try(CloseableHttpClient client = HttpClients.createMinimal()){
 			HttpResponse resp = client.execute(post);
-			String filename = resp.getFirstHeader("Content-Disposition").getValue();
+			Header head = resp.getFirstHeader("Content-Disposition");
+			if(head == null) {
+				if(resp.getStatusLine().getStatusCode() == 403) {
+					return "Invalid Key";
+				}
+				return "Error downloading zip file "+db+".db.zip";
+			}
+			String filename = head.getValue();
 			filename = filename.substring(filename.indexOf("filename=")+9);
 			if(resp.getStatusLine().getStatusCode() == 200) {
 				BufferedInputStream in = new BufferedInputStream(resp.getEntity().getContent());
@@ -259,36 +275,58 @@ public class ServerPages {
 	            out.close();
 	            //We have the file, now delete the existing db and unzip this one.
 	            String name = filename.substring(0, filename.length()-4);//cut of the "-.zip"
-	            if(Files.deleteIfExists(new File(Server.DB_PATH+name).toPath())) {
-	            	 ZipInputStream zip = new ZipInputStream(new FileInputStream(Server.DB_PATH+filename));
-	            	 zip.getNextEntry();
-	            	 out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+name));
-	                 byte[] buf = new byte[1024];
-	                 int read = 0;
-	                 while ((read = zip.read(buf)) != -1) {
-	                     out.write(buf, 0, read);
-	                 }
-	                 out.flush();
-	                 out.close();
-	                 zip.close();
-	            } else {
-	            	//We have the zip tho!
-	            	
-	            }
+	            try {
+		            Files.deleteIfExists(new File(Server.DB_PATH+name).toPath());
+		            try {
+		            	 ZipInputStream zip = new ZipInputStream(new FileInputStream(Server.DB_PATH+filename));
+		            	 zip.getNextEntry();
+		            	 out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+name));
+		                 byte[] buf = new byte[1024];
+		                 int read = 0;
+		                 while ((read = zip.read(buf)) != -1) {
+		                     out.write(buf, 0, read);
+		                 }
+		                 out.flush();
+		                 out.close();
+		                 zip.close();
+		                 return "OK";
+	            	}catch(IOException e) {
+	            		//error unzipping db.
+	            		return "Error unzipping "+name;
+	            	}
+	            }catch(IOException e) {
+            		return "Error deleting existing "+name;
+            	}
+	           
 			}
-			return true;
+			if(resp.getStatusLine().getStatusCode() == 403) {
+				return "Invalid Key";
+			}
+			return "Error downloading zip file "+filename;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			return "Error connecting to server";
 		}	
 		
 	}
 	public static Route handleDataDownloadPost = (Request request, Response response) ->{
+		String host = request.queryParams("host");
 		String event = request.queryParams("event");
-		//get key 
-		getDB("localhost",event, "", "global");
-		getDB("localhost",event, "", event);
-		return "";
+		String key = ConfigDAO.getRemoteKey(host, event);
+		String resp1 = getDB(host,event, key, "global");
+		String resp2 = getDB(host,event, key, event);
+		if(resp1.equals("OK")) {
+			if(resp2.equals("OK")) {
+				return "OK";
+			}
+			response.status(500);
+			return resp1;
+		}
+		response.status(500);
+		if(resp2.equals("OK")) {
+			return resp2;
+		}
+		return resp1+";"+resp2;
 	};
 	
 }

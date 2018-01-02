@@ -30,7 +30,7 @@ public class Update {
 	public static final transient int POPULATE_STATUS_TABLES_CMD = 3;
 	//TODO IMPLEMENT
 	public static final transient int ACTIVATE_EVENT = 4; //add event to active events
-	
+	public static final transient int RECALCULATE_RANKINGS = 5;
 	
 	//TODO IF A SERVER EVER HAS TO POST ABOUT 2 EVENTS, expand REMOTES TO HAVE A key[] 
 	//not two remotes so things dont get duplicated.
@@ -74,6 +74,8 @@ public class Update {
 		case SET_EVENT_STATUS_CMD:       return EventDAO.setEventStatus(e, getInt(1));
 		case CREATE_EVENT_DB_CMD:        return EventDAO.createEventDatabase(e);
 		case POPULATE_STATUS_TABLES_CMD: return EventDAO.populateStatusTables(e);
+		case RECALCULATE_RANKINGS:       Server.activeEvents.get(e).calculateRankings();
+										 return true;
 		}
 		return false;
 	}

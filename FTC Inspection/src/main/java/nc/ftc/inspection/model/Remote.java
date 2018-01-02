@@ -46,7 +46,7 @@ public class Remote {
 				System.err.println("Invalid key for "+host+" for event "+event+"! Deleteing entry!");
 				ConfigDAO.deleteRemote(host, event);
 				RemoteUpdater.getInstance().removeRemote(this);
-				this.failed = null;
+				this.failed.clear();;
 			}
 		}	
 	}

@@ -33,6 +33,7 @@ public class ConfigDAO {
 	static final String GET_KEYS = "SELECT code, verified FROM global.events LEFT JOIN clientKeys ON code=event;";
 	static final String GET_KEY = "SELECT pw FROM clientKeys WHERE event=?";
 	static final String GET_REMOTES = "SELECT * FROM remotes";
+	static final String GET_REMOTE_KEY = "SELECT pw FROM remotes WHERE host=? AND event=?";
 	static final String SAVE_KEY = "INSERT OR REPLACE INTO clientKeys VALUES(?,?, ?)";	
 	static final String SAVE_REMOTE = "INSERT OR REPLACE INTO remotes VALUES(?,?, ?)";
 	static final String DELETE_KEY = "DELETE FROM clientKeys WHERE event=?";
@@ -125,6 +126,20 @@ public class ConfigDAO {
 				list.add(new Remote(rs.getString(1), rs.getString(2), rs.getString(3)));
 			}
 			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String getRemoteKey(String host, String event) {
+		try(Connection conn = DriverManager.getConnection(Server.CONFIG_DB)){
+			PreparedStatement ps = conn.prepareStatement(GET_REMOTE_KEY);
+			ps.setString(1, host);
+			ps.setString(2, event);
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next())return null;
+			return rs.getString(1);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

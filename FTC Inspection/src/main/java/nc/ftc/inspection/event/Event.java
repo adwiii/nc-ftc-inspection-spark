@@ -112,13 +112,10 @@ public class Event {
 		rankings.clear();
 		List<Team> teams = EventDAO.getTeams(data.getCode());
 		HashMap<Integer, Rank> map = new HashMap<Integer, Rank>();
-		System.out.println(teams.size());
 		for(Team t : teams) {
-			System.out.println(t.getNumber());
 			Rank r = new Rank(t);
 			rankings.add(r);
 			map.put(t.getNumber(), r);
-			System.out.println("Team "+t.getNumber()+"");
 		}
 		List<MatchResult> results = EventDAO.getMatchResultsForRankings(data.getCode());
 		

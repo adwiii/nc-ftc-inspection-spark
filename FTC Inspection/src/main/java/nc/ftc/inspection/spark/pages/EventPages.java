@@ -1488,8 +1488,7 @@ public class EventPages {
 			case 2:
 				EventDAO.populateStatusTables(code);
 				break;
-			case 3:
-				Server.activeEvents.put(code, new Event(data));
+			case 3:				
 				System.out.println(code + " added to active events.");
 				break;
 			}

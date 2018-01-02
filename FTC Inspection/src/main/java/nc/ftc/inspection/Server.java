@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import javax.servlet.MultipartConfigElement;
@@ -67,7 +68,13 @@ public class Server {
 //			System.out.println(fr);
 //		}
 		EventDAO.loadActiveEvents();
-		
+		for(Entry<String, Event> e : activeEvents.entrySet()) {
+			try {
+				e.getValue().calculateRankings();
+			}catch(Exception e1) {
+				System.err.println("Cant calculate rankings for "+e.getKey());
+			}
+		}
 		
 		port(80);
 		String loc = System.getProperty("location");
@@ -256,25 +263,32 @@ public class Server {
 		put(Path.Web.INSPECT_STATUS, EventPages.handleFormStatus);
 		
 		
-		//Leave open. authentication handled every request by access keys.(kindof)
+		//Leave open. authentication handled every request by access keys.
 		post(Path.Web.REMOTE_POST, ServerPages.handleRemoteUpdatePost);
 		post(Path.Web.VERIFY, ServerPages.handleVerify);
 		//leave open... cuz ping.
 		get(Path.Web.PING, ServerPages.handlePing);
 		
-		//admin
-		get(Path.Web.SERVER_CONFIG, ServerPages.serveConfigPage);			
+		
+		before(Path.Web.SERVER_CONFIG, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.SERVER_CONFIG, ServerPages.serveConfigPage);		
+
+		before(Path.Web.REMOTE_KEYS, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.REMOTE_KEYS, ServerPages.serveRemoteKeyPage);
 		post(Path.Web.REMOTE_KEYS, ServerPages.handleSaveRemoteKey);
 		put(Path.Web.REMOTE_KEYS, ServerPages.handlTestRemote);
 		delete(Path.Web.REMOTE_KEYS, ServerPages.handleDeleteRemoteKey);
 		
-		//sys-admin
+		before(Path.Web.CLIENT_KEYS, Filters.getAuthenticationFilter(User.SYSADMIN));
 		get(Path.Web.CLIENT_KEYS, ServerPages.serveClientKeyPage);
 		post(Path.Web.CLIENT_KEYS, ServerPages.handleGenerateKey);
 		delete(Path.Web.CLIENT_KEYS, ServerPages.handleDeleteClientKey);
 		
+		
+		before(Path.Web.DATA_DOWNLOAD, Filters.getAuthenticationFilter(User.ADMIN));
 		post(Path.Web.DATA_DOWNLOAD, ServerPages.handleDataDownloadPost);
+		
+		//leave open, authentication done via access key.
 		post(Path.Web.DATA_DOWNLOAD_GLOBAL, ServerPages.handleDataDownloadGlobal);
 		post(Path.Web.DATA_DOWNLOAD_EVENT, ServerPages.handleDataDownloadEvent);
 		

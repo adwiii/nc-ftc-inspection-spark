@@ -127,10 +127,30 @@ public class RemoteUpdater extends Thread {
 		synchronized(remotes) {
 			remotes.remove(r);
 		}
+		synchronized(instance) {
+			instance.notify();
+		}
+	}
+	
+	public void removeRemote(String host, String event) {
+		Remote target = null;
+		synchronized(remotes) {
+			for(Remote r : remotes) {
+				if(r.getHost().equals(host) && r.getEvent().equals(event)) {
+					target = r;
+					break;
+				}
+			}
+		}
+		if(target != null) {
+			removeRemote(target);
+		}
 	}
 
 	public void addRemote(Remote remote) {
-		remotes.add(remote);
+		synchronized(remotes){
+			remotes.add(remote);
+		}
 		synchronized(this){
 			this.notify();
 		}
