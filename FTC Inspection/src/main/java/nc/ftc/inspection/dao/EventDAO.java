@@ -58,12 +58,18 @@ public class EventDAO {
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
 											"INSERT INTO local.formItems SELECT * FROM formItems;",											
 											
-											//TODO where to put cards - qualsData & qualsResults?  matches- red1Card, red2Card, blue1Card, blue2Card?
+											
 											"CREATE TABLE local.quals(match INTEGER PRIMARY KEY, red1 INTEGER REFERENCES teams(number), red1S BOOLEAN, red2 INTEGER REFERENCES teams(number), red2S BOOLEAN, blue1 INTEGER REFERENCES teams(number), blue1S BOOLEAN, blue2 INTEGER REFERENCES teams(number), blue2S BOOLEAN);", //non-game specific info
 											"CREATE TABLE local.qualsData(match INTEGER REFERENCES quals(match), status INTEGER, randomization INTEGER, PRIMARY KEY (match)); ", //status and game-specific info necessary
 											"CREATE TABLE local.qualsResults(match INTEGER REFERENCES quals(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
-											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, adjust INTEGER, card1 INTEGER, card2 INTEGER, dq1 BOOLEAN, dq2 BOOLEAN, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
-													
+											"CREATE TABLE local.qualsScores(match INTEGER REFERENCES quals(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, adjust INTEGER, card1 INTEGER, card2 INTEGER, dq1 BOOLEAN, dq2 BOOLEAN, PRIMARY KEY (match, alliance) );", //completely game specific (except penalties)
+												
+											"CREATE TABLE local.alliances(rank PRIMARY KEY, team1 INTEGER, team2 INTEGER, team3 INTEGER);",
+											"CREATE TABLE local.elims(match INTEGER PRIMARY KEY, red INTEGER REFERENCES alliances(rank), blue INTEGER REFERENCES alliances(rank));", //non-game specific info
+											"CREATE TABLE local.elimsData(match INTEGER REFERENCES elims(match), status INTEGER, randomization INTEGER, name VARCHAR, PRIMARY KEY (match)); ", //status and game-specific info necessary
+											"CREATE TABLE local.elimsResults(match INTEGER REFERENCES elims(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
+											"CREATE TABLE local.elimsScores(match INTEGER REFERENCES elims(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, adjust INTEGER, card1 INTEGER, card2 INTEGER, dq1 BOOLEAN, dq2 BOOLEAN, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
+												
 											//TODO create trigger for adding item to row
 											};
 	//TODO This needs to eb a command. (it accesses global)
@@ -116,6 +122,33 @@ public class EventDAO {
 	static final String GET_CARDS_DQS_SQL = "SELECT match, alliance, card1, card2, dq1, dq2 from qualsScores; ";
 	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
 	
+	
+	static final SQL SET_ALLIANCE_SQL = new SQL(15, "INSERT OR REPLACE INTO alliances VALUES (?,?,?,?);");
+	
+	//used when need to create more matches (alliances uploaded, need 3+ matches, SFs complete.)
+	static final SQL ADD_ELIMS_MATCH_SQL = new SQL(16, "INSERT INTO elims VALUES (?,?,?);");
+	static final SQL ADD_ELIMS_MATCH_RESULT_SQL = new SQL(17, "INSERT INTO elimsResults (match) VALUES (?);");
+	static final SQL ADD_ELIMS_MATCH_DATA_SQL = new SQL(18, "INSERT INTO elimsData (match, status, name) VALUES (?,?, ?);");
+	static final SQL ADD_ELIMS_MATCH_SCORES_SQL = new SQL(19, "INSERT INTO elimsScores (match, alliance) VALUES (?,?);");
+	
+	//use string replaceall instead
+//	static final SQL COMMIT_ELIMS_DATA = new SQL(20, "UPDATE elimsData SET status=1, randomization = ? WHERE match=?;");
+	static final SQL CANCEL_ELIMS_MATCH_SQL = new SQL(21, "UPDATE elimsData SET status=2 WHERE match=?;");
+//	static final SQL COMMIT_ELIMS_RESULTS_SQL = new SQL(22, "UPDATE elimsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;");
+//	static final SQL COMMIT_ELIMS_SCORES_SQL = new SQL(23,"UPDATE elimsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?");
+	
+	static final String GET_SCHEDULE_ELIMS_SQL = "SELECT * FROM elims";
+	static final String GET_NEXT_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE ed.status==0 ORDER BY q.match LIMIT 1;";
+	static final String GET_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE q.match=? ORDER BY q.match LIMIT 1;";
+	
+	//This ones def gonna break! (red and blue 3 at end to reuse quals code)
+	static final String GET_SCHEDULE_STATUS_ELIMS_SQL = "SELECT q.match, r.team1, r.team2, b.team1, b.team2, status, redScore, blueScore, r.team3, b.team3, name  FROM elims q LEFT JOIN elimsData qd ON q.match = qd.match LEFT JOIN elimsResults qr ON q.match = qr.match LEFT JOIN alliances r ON r.rank=q.red LEFT JOIN alliances b ON b.rank=q.blue;"; 
+	static final String GET_RESULTS_ELIMS = "SELECT q.match, red.team1, red.team2, red.team3, blue.team1, blue.team2, blue.team3, redScore, blueScore, status, redPenalty, bluePenalty FROM elims q LEFT JOIN elimsData qd ON q.match = qd.match LEFT JOIN elimsResults qr ON q.match = qr.match LEFT JOIN alliances rred ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue ORDER BY q.match";	
+	static final String GET_CARDS_ELIMS_SQL = "SELECT match, alliance, card1 from elimsScores; ";
+	static final String GET_ELIMS_RESULTS_FULL_SQL = "SELECT * FROM elimsScores s WHERE match=?;";
+	
+	//include all statuses, so caller can know if more matches exist already
+	static final String GET_ELIMS_SERIES_RESULTS_SQL = "SELECT er.*, ed.status FROM elimsResult er LEFT JOIN elimsData ed ON ed.match = er.match WHERE er.name LIKE ?";
 	//This SQL requires post-processing
 	static final String GET_CARDS_FOR_TEAM_SQL =  "SELECT q.match, red1, red2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=0 WHERE red1=? OR red2=? UNION "
 												+ "SELECT q.match, blue1, blue2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=1 WHERE blue1=? OR blue2=? ORDER BY q.match";
@@ -520,6 +553,13 @@ public class EventDAO {
 		Alliance blue = new Alliance(rs.getInt(6), rs.getBoolean(7), rs.getInt(8), rs.getBoolean(9));
 		return new Match(rs.getInt(1), red, blue);
 	}
+	private static Match parseElimsMatch(ResultSet rs) throws SQLException{
+		Alliance red = new Alliance(rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+		Alliance blue = new Alliance(rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9));
+		Match match = new Match(rs.getInt(1), red, blue, rs.getString(10));
+		match.setCancelled(rs.getBoolean(11));
+		return match;
+	}
 	public static List<Match> getSchedule(String event){
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(GET_SCHEDULE_SQL);
@@ -535,11 +575,12 @@ public class EventDAO {
 	}
 	public static Match getNextMatch(String event){
 		try(Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(GET_NEXT_MATCH_SQL);
+			boolean elims = getEvent(event).getStatus() == EventData.ELIMS;
+			PreparedStatement ps = local.prepareStatement(elims ? GET_NEXT_ELIMS_MATCH_SQL :GET_NEXT_MATCH_SQL);
 			ResultSet rs = ps.executeQuery();
 			List<Match> matches = new ArrayList<>();
 			while(rs.next()){
-				matches.add(parseMatch(rs));
+				matches.add(elims ? parseElimsMatch(rs) : parseMatch(rs));
 			}
 			System.out.println(matches.get(0));
 			return matches.get(0);
@@ -568,8 +609,15 @@ public class EventDAO {
 	
 	public static boolean commitScores(String event, Match match){
 		if(match.getNumber() == -1)return true; //test match
+		boolean elims = getEvent(event).getStatus() == EventData.ELIMS;
 		try(Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_DATA.sql);
+			Map<String, String> map = null;
+			if(elims) {
+				map = new HashMap<String, String>();
+				map.put("quals", "elims");
+			}
+			String sql = elims ? COMMIT_MATCH_DATA.sql.replaceAll("quals","elims") : COMMIT_MATCH_DATA.sql;
+			PreparedStatement ps = local.prepareStatement(sql);
 			ps.setInt(1, 1);
 			ps.setInt(2, match.getRandomization());
 			ps.setInt(3,  match.getNumber());
@@ -577,9 +625,12 @@ public class EventDAO {
 			if(affected != 1){
 				return false;
 			}
-			updater.enqueue(new Update(event, 1, null, COMMIT_MATCH_DATA.id, 1, match.getRandomization(), match.getNumber())); 
 			
-			ps = local.prepareStatement(COMMIT_MATCH_RESULTS.sql);
+			//TODO TEST THE MAP!
+			updater.enqueue(new Update(event, 1, map, COMMIT_MATCH_DATA.id, 1, match.getRandomization(), match.getNumber())); 
+			
+			sql = elims ? COMMIT_MATCH_RESULTS.sql.replaceAll("quals", "elims") : COMMIT_MATCH_RESULTS.sql;
+			ps = local.prepareStatement(sql);
 			match.getScoreBreakdown();//Force score calc
 			Alliance blue = match.getBlue();
 			Alliance red = match.getRed();
@@ -592,12 +643,14 @@ public class EventDAO {
 			if(affected != 1){
 				return false;
 			}
-			updater.enqueue(new Update(event, 1, null, COMMIT_MATCH_RESULTS.id, red.getLastScore(), blue.getLastScore(), red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getNumber()));
+			updater.enqueue(new Update(event, 1, map, COMMIT_MATCH_RESULTS.id, red.getLastScore(), blue.getLastScore(), red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getNumber()));
 			
-			commitAllianceScore(event, match.getNumber(), match.getBlue(), Alliance.BLUE, local);
-			commitAllianceScore(event, match.getNumber(), match.getRed(), Alliance.RED, local);
+			commitAllianceScore(event, match.getNumber(), match.getBlue(), Alliance.BLUE, local, elims);
+			commitAllianceScore(event, match.getNumber(), match.getRed(), Alliance.RED, local, elims);
 			
-			updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_RANKINGS));
+			if(!elims) {
+				updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_RANKINGS));
+			}
 			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -613,9 +666,15 @@ public class EventDAO {
 		}
 	}
 	//UPDATE qualsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=? WHERE match=? AND alliance=?
-	private static int commitAllianceScore(String event, int match, Alliance a, int aI, Connection local) throws SQLException{
+	private static int commitAllianceScore(String event, int match, Alliance a, int aI, Connection local, boolean elims) throws SQLException{
 		//TODO make this a loop.
-		PreparedStatement ps = local.prepareStatement(COMMIT_MATCH_SCORES.sql);
+		String sql = elims ? COMMIT_MATCH_SCORES.sql.replaceAll("quals", "elims") : COMMIT_MATCH_SCORES.sql;
+		Map<String, String> map = null;
+		if(elims) {
+			map = new HashMap<String, String>();
+			map.put("quals", "elims");
+		}
+		PreparedStatement ps = local.prepareStatement(sql);
 		setParam(ps, 1, a, "autoGlyphs", Types.INTEGER);
 		setParam(ps, 2, a, "cryptoboxKeys", Types.INTEGER);
 		setParam(ps, 3, a, "jewels", Types.INTEGER);
@@ -644,7 +703,7 @@ public class EventDAO {
 		ps.setInt(26,  aI);		
 		int r = ps.executeUpdate();
 		//this has to be same order
-		updater.enqueue(new Update(event, 1, null, COMMIT_MATCH_SCORES.id, a.getScore("autoGlyphs"), a.getScore("cryptoboxKeys"),
+		updater.enqueue(new Update(event, 1, map, COMMIT_MATCH_SCORES.id, a.getScore("autoGlyphs"), a.getScore("cryptoboxKeys"),
 				a.getScore("jewels"), a.getScore("parkedAuto"), a.getScore("glyphs"), a.getScore("rows"), 
 				a.getScore("columns"), a.getScore("ciphers"), a.getScore("relic1Zone"), a.getScore("relic1Standing"), 
 				a.getScore("relic2Zone"), a.getScore("relic2Standing"), a.getScore("balanced"), a.getScore("major"),
@@ -660,7 +719,8 @@ public class EventDAO {
 	
 	public static String getScheduleStatusJSON(String event) {
 		try (Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(GET_SCHEDULE_STATUS_QUALS);
+			int status = EventDAO.getEvent(event).getStatus();
+			PreparedStatement ps = local.prepareStatement(status == EventData.QUALS ? GET_SCHEDULE_STATUS_QUALS : GET_SCHEDULE_STATUS_ELIMS_SQL);
 			ResultSet rs = ps.executeQuery();
 			String result = "[";
 			while(rs.next()) {
@@ -674,6 +734,11 @@ public class EventDAO {
 				list.add(json("status", rs.getObject(6)));
 				list.add(json("redScore", rs.getObject(7)));
 				list.add(json("blueScore", rs.getObject(8)));
+				if(status == EventData.ELIMS) {
+					list.add(json("red3", rs.getObject(9)));
+					list.add(json("blue3", rs.getObject(10)));
+					list.add(json("name", rs.getObject(11)));
+				}
 				result += String.join(",", list);
 				result += "},";
 			}
@@ -688,16 +753,18 @@ public class EventDAO {
 	}
 	public static Match getMatch(String event, int num) {
 		try(Connection local = getLocalDB(event)){
-			PreparedStatement ps = local.prepareStatement(GET_MATCH_SQL);
+			int status = getEvent(event).getStatus();
+			PreparedStatement ps = local.prepareStatement(status == EventData.ELIMS ?  GET_ELIMS_MATCH_SQL : GET_MATCH_SQL);
 			ps.setInt(1,  num);
 			ResultSet rs = ps.executeQuery();
 			Match m = null;
 			while(rs.next()){
-				m = parseMatch(rs);
+				m = status == EventData.ELIMS ?  parseElimsMatch(rs) : parseMatch(rs) ;
 			}
 			if(m == null)return null;
 			return m;
 		}catch(Exception e){
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -917,5 +984,84 @@ public class EventDAO {
 			return false;
 		}
 	}
+	
+	public static boolean createAlliances(String event, Alliance[] data) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SET_ALLIANCE_SQL.sql);
+			for(int i = 0; i < 4; i++) {
+				ps.setInt(1, data[i].getRank());
+				ps.setInt(2, data[i].getTeam1());
+				ps.setInt(3, data[i].getTeam2());
+				ps.setInt(4, data[i].getTeam3());
+				ps.executeUpdate();
+				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, SET_ALLIANCE_SQL.id,data[i].getRank(), data[i].getTeam1(), data[i].getTeam2(), data[i].getTeam3() ));
+			}
+			
+			return true;			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	
+	public static boolean createElimsMatches(String event, List<Match> matches) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps;
+			for(Match match : matches) {
+				ps = local.prepareStatement(ADD_ELIMS_MATCH_SQL.sql);
+				ps.setInt(1, match.getNumber());
+				ps.setInt(2, match.getRed().getRank());
+				ps.setInt(3,  match.getBlue().getRank());
+				ps.executeUpdate();
+				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SQL.id, match.getNumber(), match.getRed().getRank(), match.getBlue().getRank()));
+				
+				ps = local.prepareStatement(ADD_ELIMS_MATCH_DATA_SQL.sql);
+				ps.setInt(1,match.getNumber());
+				ps.setInt(2, match.isCancelled() ? 2 : 0); //when generating tie breaks, calling method needs to cancel extra matches
+				ps.setString(3, match.getName());
+				ps.executeUpdate();
+				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_DATA_SQL.id, match.getNumber(), match.isCancelled() ? 2 : 0, match.getName()));
+				
+				ps = local.prepareStatement(ADD_ELIMS_MATCH_RESULT_SQL.sql);
+				ps.setInt(1,  match.getNumber());
+				ps.executeUpdate();
+				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_RESULT_SQL.id, match.getNumber()));
+				
+				ps = local.prepareStatement(ADD_ELIMS_MATCH_SCORES_SQL.sql);
+				ps.setInt(1, match.getNumber());
+				ps.setInt(2, 0);
+				ps.executeUpdate();
+				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 0));
+				
+				ps = local.prepareStatement(ADD_ELIMS_MATCH_SCORES_SQL.sql);
+				ps.setInt(1, match.getNumber());
+				ps.setInt(2, 1);
+				ps.executeUpdate();
+				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static List<MatchResult> getSeriesResults(String event, String series){
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_ELIMS_SERIES_RESULTS_SQL);
+			ps.setString(1, series+"%");
+			List<MatchResult> results = new ArrayList<>();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				results.add(new MatchResult(rs.getInt(1), null, null, rs.getInt(2), rs.getInt(3),rs.getInt(6), rs.getInt(4), rs.getInt(5)));
+			}
+			return results;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
 	
 }

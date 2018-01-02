@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class Match {
 	int number;
+	String name;
 	Alliance red;
 	Alliance blue;
 	public transient Map<String, String> redScoreBreakdown;
@@ -20,19 +21,36 @@ public class Match {
 	long lastChange = 0;
 	Object scoreLock = new Object();
 	public boolean refLockout = false;
+	boolean cancelled = false;
 	
 	public static transient final Match TEST_MATCH;
 	
 	static {
 		Alliance red = new Alliance(-1, -2);
 		Alliance blue = new Alliance(-3,-4);
-		TEST_MATCH = new Match(-1, red, blue);
+		TEST_MATCH = new Match(-1, red, blue, "Test Match");
 	}
 	
 	public Match(int num, Alliance red, Alliance blue){
 		this.red = red;
 		this.blue = blue;
 		this.number = num;
+	}
+	public Match(int num, Alliance red, Alliance blue, String name) {
+		this(num,red,blue);
+		this.name = name;
+	}
+	public boolean isCancelled() {
+		return cancelled;
+	}
+	public void setCancelled(boolean c) {
+		cancelled = c;
+	}
+	public String getName() {
+		if(name == null) {
+			return "Qualification Match "+number;
+		}
+		return name;
 	}
 	public int getNumber(){
 		return number;

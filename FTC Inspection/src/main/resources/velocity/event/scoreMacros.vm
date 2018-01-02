@@ -475,12 +475,19 @@
   		slot.getElementsByClassName("teamNumber")[0].value = data.red2;
   		
   		
+  		
   		slot = document.getElementById("blue_1_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.blue1;
   		
   		slot = document.getElementById("blue_2_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.blue2;
   		
+  		if(typeof data.red3 !== 'undefined'){
+  			slot = document.getElementById("red_3_slot");
+  			slot.getElementsByClassName("teamNumber")[0].value = data.red3;
+  			slot = document.getElementById("blue_3_slot");
+  			slot.getElementsByClassName("teamNumber")[0].value = data.blue3;
+  		}
   		
   	}
 #end

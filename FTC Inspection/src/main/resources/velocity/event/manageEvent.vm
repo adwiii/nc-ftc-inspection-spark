@@ -62,11 +62,25 @@
 		Qualification
 		<br>
 		This Step: Upload Quals schedule <a href="./scheduleupload/">here.</a>
-		Then the event is ready!
+		Then the event is ready! <br>
+		Next Step:After Finishing Quals, begin the alliance selection:
+		<button onclick="setStatus(4)">Alliance Selection</button>
 	#elseif($status == 4)
-		Elimination
+		Alliance Selection
+		<br>
+		This Step: Use the FIRST software to generate alliances.  Upload alliances <a href="./allianceupload/">here.</a>
+		<br>
+		Next Step:After uploading alliances, begin elims:
+		<button onclick="setStatus(5)">Eliminations</button>
 	#elseif($status == 5)
-		Complete
+		Eliminations
+		<br>
+		This Step: Play elimination matches.
+		<br>
+		Next Step: After completion, mark event as completed.
+		<button onclick="setStatus(6)">Complete</button>
+	#elseif($status == 6)
+		Complete!
 	#end
 	<!--
 	<select name="eventStage">
@@ -74,8 +88,8 @@
   		<option value="setup" #if($status == 1)selected#end>Setup</option>
   		<option value="inspection" #if($status == 2)selected#end>Inspection</option>
   		<option value="quals" #if($status == 3)selected#end>Qualifications</option>
-  		<option value="elims" #if($status == 4)selected#end>Eliminations</option>
-  		<option value="final" #if($status == 5)selected#end>Completed</option>
+  		<option value="elims" #if($status == 5)selected#end>Eliminations</option>
+  		<option value="final" #if($status == 6)selected#end>Completed</option>
 	</select>	
 	-->
 #end

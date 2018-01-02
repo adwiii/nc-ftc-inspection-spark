@@ -292,6 +292,11 @@ public class Server {
 		post(Path.Web.DATA_DOWNLOAD_GLOBAL, ServerPages.handleDataDownloadGlobal);
 		post(Path.Web.DATA_DOWNLOAD_EVENT, ServerPages.handleDataDownloadEvent);
 		
+		
+		get(Path.Web.UPLOAD_ALLIANCES, EventPages.serveAllianceUploadPage);
+		post(Path.Web.UPLOAD_ALLIANCES, EventPages.handleAllianceUpload);
+		
+		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		
 		after("*", Filters.addGzipHeader);

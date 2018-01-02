@@ -919,27 +919,79 @@ public class EventPages {
 				}
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
-				
-				//TODO save old rankings to get change
-				//TODO save MatchResult Object to e.display
-				Alliance red = match.getRed();
-				Alliance blue = match.getBlue();
-				Display d = e.getDisplay();
-				MatchResult mr = new MatchResult(match.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
-
-				d.lastResult = mr;
-				int red1 = e.getRank(red.getTeam1());
-				int red2 = e.getRank(red.getTeam2());
-				int blue1 = e.getRank(blue.getTeam1());
-				int blue2  = e.getRank(blue.getTeam2());;
-				
-				e.calculateRankings();
-				//if unranked, show as improvement.
-				d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
-				d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
-				d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
-				d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());;
-				
+				//TODO for elims, dont do rank check, do series record check & generate new matches or cancel matches
+				if(e.getData().getStatus() == EventData.ELIMS) {
+					//TODO Move this code for edit commit
+					String name = e.getCurrentMatch().getName();
+					String prefix = name.substring(0, name.lastIndexOf("-"));
+					//check for series victory.
+					List<MatchResult> series = EventDAO.getSeriesResults(event, prefix);
+					int redWin = 0;
+					int blueWin = 0;
+					int unplayed = 0;
+					int cancelled = 0;
+					for(MatchResult mr : series) {
+						if(mr.getStatus() == 1) {
+							if(mr.getWinChar() == 'R')redWin++;
+							if(mr.getWinChar() == 'B')blueWin++;
+						}
+						if(mr.getStatus() == 0) {
+							unplayed++;
+						}
+						if(mr.getStatus() == 2) {
+							cancelled++;
+						}
+					}
+					
+					//This is built to handle weird stuff, out of order, and crazy match editing.
+					//if making finals matches, get highest match number and use next odd number.
+					if(redWin >= 2) {
+						//handle red advance if SF
+						//if more matches scheduled, cancel them
+						if(unplayed > 0) {
+							//cancel all future unplayed matches.
+						}
+					} else if(blueWin >= 2) {
+						//handle blue advance if SF
+						//if more matches scheduled, cancel them
+						if(unplayed > 0) {
+							//cancel all future unplayed matches.
+						}
+					} else {
+						//if more matches of status = 2, were fine
+						//if more matches but cancelled, uncancel them (this would only happen if edit caused them to be cancelled)
+						//if no more matches, create another match
+						//add 2 to this match number for next match!
+						//(really, add # of fields to the match number)
+						if(unplayed == 0) {
+							if(cancelled > 0) {
+								//uncancel first cancelled match for this series.
+							} else {
+								//create new match
+							}
+						}
+						
+					}
+					
+				} else {
+					Alliance red = match.getRed();
+					Alliance blue = match.getBlue();
+					Display d = e.getDisplay();
+					MatchResult mr = new MatchResult(match.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
+	
+					d.lastResult = mr;
+					int red1 = e.getRank(red.getTeam1());
+					int red2 = e.getRank(red.getTeam2());
+					int blue1 = e.getRank(blue.getTeam1());
+					int blue2  = e.getRank(blue.getTeam2());;
+					
+					e.calculateRankings();
+					//if unranked, show as improvement.
+					d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
+					d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
+					d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
+					d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());;
+				}
 				
 				e.loadNextMatch();
 			}
@@ -1002,6 +1054,7 @@ public class EventPages {
 			//TODO fix this an dmake it not suck!
 			String res = "{";
 			res += "\"number\":" + m.getNumber()+",";
+			res += "\"name\":\"" + m.getName()+"\",";
 			res += "\"red1\":"+red.getTeam1()+",";
 			res += "\"red2\":"+red.getTeam2()+",";
 			res += "\"blue1\":"+blue.getTeam1()+",";
@@ -1014,6 +1067,12 @@ public class EventPages {
 			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
 			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
 			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
+			if(e.getData().getStatus() == EventData.ELIMS) {
+				res += "\"red3\":"+red.getTeam3() +",";
+				res += "\"blue3\":"+blue.getTeam3() +",";
+				res += "\"red3Name\":\""+GlobalDAO.getTeamName(blue.getTeam3()) +"\",";
+				res += "\"blue3Name\":\""+GlobalDAO.getTeamName(blue.getTeam3()) +"\",";
+			}
 			
 			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
 			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(event, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
@@ -1727,6 +1786,69 @@ public class EventPages {
 			map.put("blueStanding", (blueRelic1Standing && blueRelic2Standing) ? 2 : (blueRelic1Standing || blueRelic2Standing) ? 1 : 0);
 			map.put("blueScores", match.getBlue().getRawScores());
 			return render(request, map, Path.Template.ALLIANCE_BREAKDOWN);			
+		};
+
+		public static Route serveAllianceUploadPage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.UPLOAD_ALLIANCES);
+		};
+
+		public static Route handleAllianceUpload = (Request request, Response response) ->{
+
+			String location = "public";          // the directory location where files will be stored
+			long maxFileSize = 100000000;       // the maximum size allowed for uploaded files
+			long maxRequestSize = 100000000;    // the maximum size allowed for multipart/form-data requests
+			int fileSizeThreshold = 1024;       // the size threshold after which files will be written to disk
+			
+			MultipartConfigElement multipartConfigElement = new MultipartConfigElement(
+			     location, maxFileSize, maxRequestSize, fileSizeThreshold);
+			 request.raw().setAttribute("org.eclipse.jetty.multipartConfig",
+			     multipartConfigElement);
+				
+			 	String event = request.params("event");
+			 	EventData data = EventDAO.getEvent(event);
+			 	if(data.getStatus() != EventData.SELECTION) {
+			 		response.status(409);
+			 		return "Not in selection phase!";
+			 	}
+				Part p = request.raw().getPart("file");
+				Scanner scan = new Scanner(p.getInputStream());
+				scan.useDelimiter("\\||\n");
+				Alliance[] alliances = new Alliance[4];
+				try{
+					int rank = 0;
+					while(scan.hasNextLine()){
+						if(rank > 3) {
+							System.err.println("More than 4 alliances not supported.");
+							break;
+						}
+						scan.nextInt();
+						//always in order?
+						int alliance = scan.nextInt();
+						scan.nextInt();
+						int t1 = scan.nextInt();
+						int t2 = scan.nextInt();
+						String s  =scan.nextLine();
+						int t3 = Integer.parseInt(s.substring(1));
+						alliances[rank] = new Alliance(rank + 1, t1, t2, t3);
+						rank++;
+						
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+				scan.close();
+				EventDAO.createAlliances(event, alliances);
+				//now, generate SF1-1,2-1,1-2,and 2-2.
+				List<Match> matches = new ArrayList<>(4);
+				//Red=1, Blue=4
+				matches.add( new Match(1, alliances[0], alliances[3], "SF-1-1"));
+				//Red=2, Blue=3
+				matches.add( new Match(2, alliances[1], alliances[2], "SF-2-1"));
+				matches.add( new Match(3, alliances[0], alliances[3], "SF-1-2"));
+				matches.add( new Match(4, alliances[1], alliances[2], "SF-2-2"));
+				EventDAO.createElimsMatches(event, matches);
+				response.status(200);
+				return "OK";
 		};
 		
 		

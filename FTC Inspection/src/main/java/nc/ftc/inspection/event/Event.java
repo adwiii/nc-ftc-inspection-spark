@@ -81,7 +81,7 @@ public class Event {
 			}				
 			previousMatch = currentMatch;
 			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
-			System.out.println("Loaded match #"+currentMatch.getNumber());
+			System.out.println("Loaded "+currentMatch.getName());
 		}
 		
 	}
