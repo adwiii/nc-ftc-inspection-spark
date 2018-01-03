@@ -17,8 +17,8 @@ body {
 }
 
 h1, h2, h3, h4 {
-    font-family: monospace;
     font-weight: 300;
+    font-size:120%;
     color: #444;
 }
 

@@ -40,7 +40,7 @@
   	.dropdown:hover .dropdown-content,
   	.dropdown:active .dropdown-content {
 	    display: block;
-	    animation:none;
+	    
 	}
   	.dropdown-content {
     	display: none;
@@ -115,6 +115,21 @@ style="padding-top:3%;"
     			</div>
     		</li>
     		#end
+    		#end
+    		#if($ADMIN)
+    		<li class="dropdown">
+    	    	<a class="dropbtn">Admin</a>
+    			<div class="dropdown-content">
+    			<ul>
+    				<li><a href="/create/event/">Create&nbsp;Event</a></li>
+    				#if($sysEvent)
+    					<li><a href="/event/$sysEvent/manage/">Manage&nbsp;Event</a></li>
+    				#end
+    			    <li><a href="/create/account/">Create&nbsp;Users</a></li>
+    				<li><a href="/users/manage/">Manage&nbsp;Users</a></li>
+    				<li><a href="/config/">Server&nbsp;Config</a></li>
+    			</div>
+    		</li>
     		#end
             #if($currentUser)
                 <li>
