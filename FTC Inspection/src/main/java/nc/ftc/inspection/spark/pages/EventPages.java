@@ -22,6 +22,7 @@ import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -866,6 +867,127 @@ public class EventPages {
 			return "Not in review phase!";
 		};
 		
+		private static void handleEndSF(String event, List<MatchResult> sf1, List<MatchResult> sf2) {
+			int red1 = 0;
+			int blue1 = 0;
+			int red2 = 0;
+			int blue2 = 0;
+			for(MatchResult mr : sf1) {
+				if(mr.getStatus() == 1) {
+					if(mr.getWinChar() == 'R')red1++;
+					if(mr.getWinChar() == 'B')blue1++;
+				}
+			}
+			for(MatchResult mr : sf2) {
+				if(mr.getStatus() == 1) {
+					if(mr.getWinChar() == 'R')red2++;
+					if(mr.getWinChar() == 'B')blue2++;
+				}
+			}
+			if((red2 >= 2 || blue2 >= 2) && (red1 >=2 || blue1 >= 2)){
+				//SF complete
+				System.out.println("Semifinals complete!");
+				//red = winner of SF1
+				//blue = winner of SF2
+				Alliance red = new Alliance(red1 >= 2 ? 1 : 4);
+				Alliance blue = new Alliance(red2 >= 2 ? 2 : 3);
+				int max1 = sf1.stream().mapToInt(MatchResult::getNumber).max().getAsInt();//series.stream().max(Comparator.comparingInt(MatchResult::getNumber)).get().getNumber();
+				int max2 = sf2.stream().mapToInt(MatchResult::getNumber).max().getAsInt();
+				int f = Math.max(max1, max2);
+				//get nex number where n % field count = 1
+				//assert 2 field. find ext odd number
+				f++;
+				if(f%2 == 0)f++;
+				Match f1 = new Match(f, red, blue, "F-1" );
+				Match f2 = new Match(f+2, red, blue, "F-2" );
+				List<Match> finals = new ArrayList<Match>(2);
+				finals.add(f1);
+				finals.add(f2);
+				EventDAO.createElimsMatches(event, finals);
+			}
+		}
+		
+		//call then on commit or commit edit of elims matches 
+		private static void handleElimsUpdate(String event, Match match) {
+			//GOTTA GET THE MATCH submitted
+			String name = match.getName();
+			String prefix = name.substring(0, name.lastIndexOf("-"));
+			//check for series victory.
+			List<MatchResult> series = EventDAO.getSeriesResults(event, prefix);
+			int redWin = 0;
+			int blueWin = 0;
+			int unplayed = 0;
+			int cancelled = 0;
+			for(MatchResult mr : series) {
+				if(mr.getStatus() == 1) {
+					if(mr.getWinChar() == 'R')redWin++;
+					if(mr.getWinChar() == 'B')blueWin++;
+				}
+				if(mr.getStatus() == 0) {
+					unplayed++;
+				}
+				if(mr.getStatus() == 2) {
+					cancelled++;
+				}
+			}
+			
+			//This is built to handle weird stuff, out of order, and crazy match editing.
+			//if making finals matches, get highest match number and use next odd number.
+			if(redWin >= 2 || blueWin >= 2) {
+				//handle red advance if SF
+				//if more matches scheduled, cancel them
+				if(unplayed > 0) {
+					//cancel all future unplayed matches.
+					for(MatchResult m : series) {
+						if(m.getStatus() == 0) {
+							EventDAO.cancelMatch(event, m.getNumber());
+						}
+					}
+				}
+				
+				if(prefix.startsWith("SF-")) {
+					char sf = prefix.charAt(3);
+					char otherSF = sf == '1' ? '2' : '1'; //get other SF to check if its done.
+					List<MatchResult> other = EventDAO.getSeriesResults(event, "SF-"+otherSF);
+					if(sf == '1') {
+						handleEndSF(event, series, other);
+					} else {
+						handleEndSF(event, other, series);
+					}
+				}
+			} else {
+				//if more matches of status = 2, were fine
+				//if more matches but cancelled, uncancel them (this would only happen if edit caused them to be cancelled)
+				//if no more matches, create another match
+				//add 2 to this match number for next match!
+				//(really, add # of fields to the match number)
+				if(unplayed == 0) {
+					if(cancelled > 0) {
+						//uncancel first cancelled match for this series.
+						for(MatchResult mr : series) {
+							if(mr.getStatus() == 2) {
+								//uncancel
+								EventDAO.uncancelMatch(event, mr.getNumber());
+								break;
+							}
+						}
+					} else {
+						//create new match
+						MatchResult last = series.stream().max(Comparator.comparingInt(MatchResult::getNumber)).get();
+						int num = Integer.parseInt(name.substring(name.lastIndexOf("-")+1));
+						int dif = last.getNumber() - match.getNumber();
+						num += dif / 2; //this should be the last part of the name of the last match. 
+						//needs to be + no fields
+						Match m = new Match(last.getNumber() + 2, match.getRed(), match.getBlue(), prefix+"-"+(num+1) );
+						List<Match> matches = new ArrayList<>(1);
+						matches.add(m);
+						System.out.println("Creating Match "+m.getName());
+						EventDAO.createElimsMatches(event, matches);
+					}
+				}
+				
+			}
+		}
 		
 		
 		public static Route handleScoreCommit = (Request request, Response response) ->{
@@ -921,58 +1043,7 @@ public class EventPages {
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				//TODO for elims, dont do rank check, do series record check & generate new matches or cancel matches
 				if(e.getData().getStatus() == EventData.ELIMS) {
-					//TODO Move this code for edit commit
-					String name = e.getCurrentMatch().getName();
-					String prefix = name.substring(0, name.lastIndexOf("-"));
-					//check for series victory.
-					List<MatchResult> series = EventDAO.getSeriesResults(event, prefix);
-					int redWin = 0;
-					int blueWin = 0;
-					int unplayed = 0;
-					int cancelled = 0;
-					for(MatchResult mr : series) {
-						if(mr.getStatus() == 1) {
-							if(mr.getWinChar() == 'R')redWin++;
-							if(mr.getWinChar() == 'B')blueWin++;
-						}
-						if(mr.getStatus() == 0) {
-							unplayed++;
-						}
-						if(mr.getStatus() == 2) {
-							cancelled++;
-						}
-					}
-					
-					//This is built to handle weird stuff, out of order, and crazy match editing.
-					//if making finals matches, get highest match number and use next odd number.
-					if(redWin >= 2) {
-						//handle red advance if SF
-						//if more matches scheduled, cancel them
-						if(unplayed > 0) {
-							//cancel all future unplayed matches.
-						}
-					} else if(blueWin >= 2) {
-						//handle blue advance if SF
-						//if more matches scheduled, cancel them
-						if(unplayed > 0) {
-							//cancel all future unplayed matches.
-						}
-					} else {
-						//if more matches of status = 2, were fine
-						//if more matches but cancelled, uncancel them (this would only happen if edit caused them to be cancelled)
-						//if no more matches, create another match
-						//add 2 to this match number for next match!
-						//(really, add # of fields to the match number)
-						if(unplayed == 0) {
-							if(cancelled > 0) {
-								//uncancel first cancelled match for this series.
-							} else {
-								//create new match
-							}
-						}
-						
-					}
-					
+					handleElimsUpdate(event, e.getCurrentMatch());					
 				} else {
 					Alliance red = match.getRed();
 					Alliance blue = match.getBlue();

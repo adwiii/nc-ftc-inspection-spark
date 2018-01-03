@@ -133,6 +133,7 @@ public class EventDAO {
 	
 	//use string replaceall instead
 //	static final SQL COMMIT_ELIMS_DATA = new SQL(20, "UPDATE elimsData SET status=1, randomization = ? WHERE match=?;");
+	static final SQL UNCANCEL_ELIMS_MATCH_SQL = new SQL(21, "UPDATE elimsData SET status=0 WHERE match=?;");
 	static final SQL CANCEL_ELIMS_MATCH_SQL = new SQL(21, "UPDATE elimsData SET status=2 WHERE match=?;");
 //	static final SQL COMMIT_ELIMS_RESULTS_SQL = new SQL(22, "UPDATE elimsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;");
 //	static final SQL COMMIT_ELIMS_SCORES_SQL = new SQL(23,"UPDATE elimsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?");
@@ -148,7 +149,7 @@ public class EventDAO {
 	static final String GET_ELIMS_RESULTS_FULL_SQL = "SELECT * FROM elimsScores s WHERE match=?;";
 	
 	//include all statuses, so caller can know if more matches exist already
-	static final String GET_ELIMS_SERIES_RESULTS_SQL = "SELECT er.*, ed.status FROM elimsResult er LEFT JOIN elimsData ed ON ed.match = er.match WHERE er.name LIKE ?";
+	static final String GET_ELIMS_SERIES_RESULTS_SQL = "SELECT er.*, ed.status FROM elimsResults er LEFT JOIN elimsData ed ON ed.match = er.match WHERE ed.name LIKE ?";
 	//This SQL requires post-processing
 	static final String GET_CARDS_FOR_TEAM_SQL =  "SELECT q.match, red1, red2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=0 WHERE red1=? OR red2=? UNION "
 												+ "SELECT q.match, blue1, blue2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=1 WHERE blue1=? OR blue2=? ORDER BY q.match";
@@ -1005,6 +1006,7 @@ public class EventDAO {
 	}
 	
 	
+	
 	public static boolean createElimsMatches(String event, List<Match> matches) {
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps;
@@ -1062,6 +1064,30 @@ public class EventDAO {
 		return null;
 	}
 	
+	public static boolean cancelMatch(String event, int m) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(CANCEL_ELIMS_MATCH_SQL.sql);
+			ps.setInt(1, m);
+			int affected = ps.executeUpdate();
+			updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, CANCEL_ELIMS_MATCH_SQL.id, m));
+			return affected == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
+	public static boolean uncancelMatch(String event, int m) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(UNCANCEL_ELIMS_MATCH_SQL.sql);
+			ps.setInt(1, m);
+			int affected = ps.executeUpdate();
+			updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, UNCANCEL_ELIMS_MATCH_SQL.id, m));
+			return affected == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
 }
