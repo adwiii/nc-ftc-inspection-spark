@@ -99,6 +99,7 @@ public class Server {
 		get(Path.Web.SCHEDULE, EventPages.serveSchedulePage);
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
+		get(Path.Web.PIT_DISPLAY, EventPages.servePitPage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
 		get(Path.Web.MATCH_RESULTS_SIMPLE, EventPages.serveResultsSimplePage);

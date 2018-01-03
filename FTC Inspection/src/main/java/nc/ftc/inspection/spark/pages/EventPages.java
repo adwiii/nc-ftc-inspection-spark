@@ -248,6 +248,29 @@ public class EventPages {
 		}
 	};
 	
+	public static Route servePitPage = (Request request, Response response) -> {
+		Map<String, Object> model = new HashMap<String, Object>();
+		String event = request.params("event");
+		String projString = request.queryParams("proj");
+		boolean proj = (projString == null) ? false : Boolean.parseBoolean(projString);
+		model.put("event", event);//TODO get the event name from db
+		Event e = Server.activeEvents.get(event);
+		if(e == null){
+			response.status(500);
+			return "Event not active.";
+		}
+	//	e.calculateRankings(); TODO make another endpoint to force recalc
+		model.put("rankings", e.getRankings());
+		model.put("event", e.getData().getName());
+		List<MatchResult> results = EventDAO.getMatchResults(event);
+		model.put("matches", results);
+		if (proj) {
+			return render(request, model, Path.Template.PIT_DISPLAY_PROJECTOR);
+		} else {
+			return render(request, model, Path.Template.PIT_DISPLAY);
+		}
+	};
+	
 	public static Route serveSchedulePage = (Request request, Response response) ->{
 		String event = request.params("event");
 		Map<String, Object> model = new HashMap<String, Object>();

@@ -525,7 +525,7 @@
   	$().ready(function () {
   		var zoom = $("#body").width() / 1920;
   		$("#body").css("zoom", zoom);
-  		$("#body").css("top", ($("body").height() - zoom * $("body").height()) / 2);
+  		//$("#body").css("top", ($("body").height() - zoom * $("body").height()) / 2);
     	getTimerCommand();
     	getDisplayCommand();
 	});

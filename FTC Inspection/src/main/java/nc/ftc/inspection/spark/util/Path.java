@@ -82,6 +82,7 @@ public class Path {
         public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
         public static final String GET_FULL_SCORESHEET = "/event/:event/match/:match/scoresheet/";
         public static final String GET_ALLIANCE_BREAKDOWN = "/event/:event/match/:match/scoresheet/:alliance/";
+        public static final String PIT_DISPLAY = "/event/:event/pit/";
         
         //get gets the page, PUT returns new score breakdown, and POST commits.
         public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
@@ -154,6 +155,8 @@ public class Path {
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
         public static final String STATUS_PAGE_PROJECTOR = "/velocity/event/statusProjector.vm";
+        public static final String PIT_DISPLAY = "/velocity/event/pit.vm";
+        public static final String PIT_DISPLAY_PROJECTOR = "/velocity/event/pitProjector.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
         public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm"; 
