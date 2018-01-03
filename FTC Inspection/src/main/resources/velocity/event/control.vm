@@ -88,9 +88,10 @@
   	function updateScheduleTab(schedule){
   		var sched = document.getElementById("ScheduleTab");
   		for(var i = 0; i < schedule.length; i++){
-  			var m = i + 1;
+  			
   			console.log(schedule[i]);
   			var match = schedule[i];
+  			var m = match.match;
   			var entry = document.getElementById("match"+m);
   			if(entry == null){
   				entry = document.createElement("div");
@@ -128,7 +129,7 @@
 			for(var n = 1; n < 4; n++){ 
 				cell = document.createElement("div");
 				cell.className = "scheduleTeam";
-  				cell.id = "match"+m+"red"+m;
+  				cell.id = "match"+m+"red"+n;
   				if(n<3 || elim){
   					cell.innerHTML = match["red"+n];
   				}
@@ -137,7 +138,7 @@
 			for(var n = 1; n < 4; n++){ 
 				cell = document.createElement("div");
 				cell.className = "scheduleTeam";
-  				cell.id = "match"+m+"blue"+m;
+  				cell.id = "match"+m+"blue"+n;
   				if(n<3 || elim){
   					cell.innerHTML = match["blue"+n];
   				}

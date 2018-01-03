@@ -1172,8 +1172,20 @@ public class EventPages {
 			if(e.getData().getStatus() == EventData.ELIMS) {
 				res += "\"red3\":"+red.getTeam3() +",";
 				res += "\"blue3\":"+blue.getTeam3() +",";
-				res += "\"red3Name\":\""+GlobalDAO.getTeamName(blue.getTeam3()) +"\",";
+				res += "\"red3Name\":\""+GlobalDAO.getTeamName(red.getTeam3()) +"\",";
 				res += "\"blue3Name\":\""+GlobalDAO.getTeamName(blue.getTeam3()) +"\",";
+				String prefix = m.getName().substring(0, m.getName().lastIndexOf("-"));
+				List<MatchResult> series = EventDAO.getSeriesResults(event, prefix);
+				int redWin = 0;
+				int blueWin = 0;
+				for(MatchResult mr : series) {
+					if(mr.getStatus() == 1) {
+						if(mr.getWinChar() == 'R')redWin++;
+						if(mr.getWinChar() == 'B')blueWin++;
+					}
+				}				
+				res += "\"redWins\":"+redWin+",";
+				res += "\"blueWins\":"+blueWin+",";
 			}
 			
 			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
