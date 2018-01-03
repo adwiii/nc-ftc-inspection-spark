@@ -155,6 +155,7 @@ public class Path {
         public static final String INSPECT_HOME = "/velocity/event/inspect_index.vm";
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
+        public static final String STATUS_PAGE_PROJECTOR = "/velocity/event/statusProjector.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
         public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm"; 

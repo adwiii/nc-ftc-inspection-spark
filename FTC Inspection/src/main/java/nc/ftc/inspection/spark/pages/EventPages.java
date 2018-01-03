@@ -209,13 +209,44 @@ public class EventPages {
 	};
 	
 	public static Route serveStatusPage = (Request request, Response response) -> {
-		String event = request.params("event");
 		Map<String, Object> model = new HashMap<String, Object>();
+		String event = request.params("event");
+		String projString = request.queryParams("proj");
+		boolean proj = (projString == null) ? false : Boolean.parseBoolean(projString);
+		String colsString = request.queryParams("cols");
+		int cols = (colsString == null) ? 1 : Integer.parseInt(colsString);
+		model.put("numCols", cols - 1);//velocity does things weird
+		List<Team> teams = EventDAO.getStatus(event);
+		int numTeamsPerCol = (int) Math.floor(teams.size() / (double) cols);
+		int numExtra = teams.size() - numTeamsPerCol * cols;
+		List<List<Team>> teamsPerCol = new ArrayList<List<Team>>();
+		List<Team> cur = new ArrayList<Team>();
+		int curCol = 0;
+		int column = 0;
+		for (int count = 0; count < teams.size(); count++) {
+			cur.add(teams.get(count));
+			curCol++;
+			if (curCol == numTeamsPerCol + ((column < numExtra) ? 1 : 0)) {
+				curCol = 0;
+				column++;
+				teamsPerCol.add(cur);
+				cur = new ArrayList<Team>();
+			}
+		}
+		if (cur.size() != 0) {
+			teamsPerCol.add(cur);
+		}
+		model.put("teamsPerCol", teamsPerCol);
 		model.put("event", event);//TODO get the event name from db
 		String[] columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
 		model.put("headers", columns);
-		model.put("teams", EventDAO.getStatus(event));
-		return render(request, model, Path.Template.STATUS_PAGE);
+
+		model.put("teams", teams);
+		if (proj) {
+			return render(request, model, Path.Template.STATUS_PAGE_PROJECTOR);
+		} else {
+			return render(request, model, Path.Template.STATUS_PAGE);
+		}
 	};
 	
 	public static Route serveSchedulePage = (Request request, Response response) ->{

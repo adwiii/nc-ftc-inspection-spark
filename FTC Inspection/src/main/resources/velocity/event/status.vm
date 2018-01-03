@@ -1,5 +1,23 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+<style>
+.equal {
+	width:7.5%;
+}
+.legendLeft {
+	width:20%;
+	text-align:center;
+}
+.legend {
+	width:10%;
+}
+</style>
+<a href=".."><< To Event Home</a>
+<div style="float:right">
+<a href="./?proj=true&cols=1">Projector friendly: 1 column</a><br>
+<a href="./?proj=true&cols=2">Projector friendly: 2 columns</a><br>
+<a href="./?proj=true&cols=3">Projector friendly: 3 columns</a><br>
+</div>
 <h1 align=center>$event</h1>
 <body>
 <table id="statusTable" align=center border=3>
@@ -14,13 +32,23 @@
 		<tr id="row_"$r.number>
 		#foreach ($h in $headers)
 			#set($s = $r.getStatus($h))
-			<td id=${h}_$r.number bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>&nbsp;</td>
+			<td class="equal" id=${h}_$r.number bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>&nbsp;</td>
 		#end
-		<td style="text-align:center;" >$r.number</td>
+		<td style="text-align:center;width:15%" >$r.number</td>
 		<td >$r.name</td>
 		</tr>
 	#end
 </table>
+<table border="3" align=center class="legend">;
+		<tr><th>Symbol</th><th>Meaning</th><th>Symbol</th><th>Meaning</th></tr>
+		<tr><td class="legendLeft" bgcolor="#FFFFFF">&nbsp;</td><td>Uninspected</td>
+		<td class="legendLeft">CI</td><td>Check-In</td></tr>
+		<tr><td class="legendLeft" bgcolor="#00FFFF">&nbsp;</td><td>In Progress</td>
+		<td class="legendLeft">HW</td><td>Hardware</td></tr>
+		<tr><td class="legendLeft" bgcolor="#FF0000">&nbsp;</td><td>Failed</td>
+		<td class="legendLeft">SW</td><td>Software</td></tr>
+		<tr><td class="legendLeft" bgcolor="#00FF00">&nbsp;</td><td>Passed</td>
+		<td class="legendLeft">FD</td><td>Field</td></tr></table>
 </body>
 <script>
 	
