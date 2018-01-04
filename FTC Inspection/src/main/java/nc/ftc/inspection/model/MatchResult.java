@@ -40,7 +40,8 @@ public class MatchResult {
 			winChar = 'B';
 		} else {
 			winChar = 'T';
-			winColor = number % 2 == 1 ? "#FFFFFF" : "#CCCCCC";
+			//the official software has #CCC for all ties even though it alternates if the match hasn't played yet
+			winColor = "#CCCCCC";
 		}
 		this.status = status;
 	}

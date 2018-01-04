@@ -19,7 +19,7 @@ public class Path {
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
-        public static final String ADD_TEAM = "/event/:event/manage/addteam/";
+        public static final String MANAGE_EVENT_TEAMS = "/event/:event/manage/teams/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
         public static final String EVENT_HOME = "/event/:event/home/";
         public static final String EVENT_SIMPLE = "/event/:event/";
@@ -178,7 +178,7 @@ public class Path {
 		public static final String EDIT_SCORE_HOME = "/velocity/event/editScoreHome.vm";
 		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";
 		public static final String RANKINGS = "/velocity/event/rankings.vm";
-		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
+		public static final String MANAGE_EVENT_TEAMS = "/velocity/event/manageEventTeams.vm";
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
