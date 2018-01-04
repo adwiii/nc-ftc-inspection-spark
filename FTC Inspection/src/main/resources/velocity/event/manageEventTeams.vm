@@ -1,6 +1,16 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-
+<style>
+	option {
+		font-family: "Lucida Console", Monaco, monospace;
+	}
+	td {
+		vertical-align:top;
+	}
+	button {
+		margin: 8px;
+	}
+</style>
 <script>
 	function addTeam(){
 		$.ajax({
@@ -18,10 +28,125 @@
                 document.getElementById("msg").innerHTML = xhr.responseText;
   			}});  	
 	}
-</script>
+		function removeTeams(){
+		var selectedOpts = $('#selectedUsers option');
+		var options = $('#selectedUsers option');
+        var arr = options.map(function(_, o) { return o.value; }).get();
+		$.ajax({
+			url: "?teams="+arr.toString(),
+  			type: "DELETE",
+  			data: {},
+  			success: function(data){
+  				document.getElementById("team").value = "";
+  				document.getElementById("msg").innerHTML = "Team added";
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){  				
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+                document.getElementById("msg").innerHTML = xhr.responseText;
+  			}});  	
+	}
+	
+	$(document).ready(function() {
+   $('#btnRight').click(function (e) {
+        var selectedOpts = $('#allUsers option:selected');
+        if (selectedOpts.length == 0) {
+            //alert("Nothing to move.");
+            e.preventDefault();
+        }
 
+        $('#selectedUsers').append($(selectedOpts).clone());
+        $(selectedOpts).remove();
+        
+        //copied from: https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+        var options = $('#selectedUsers option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: parseInt(o.value) }; }).get();
+		arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+		options.each(function(i, o) {
+  			o.value = arr[i].v;
+  			$(o).text(arr[i].t);
+		});
+        e.preventDefault();
+        
+    });
+
+    $('#btnLeft').click(function (e) {
+        var selectedOpts = $('#selectedUsers option:selected');
+        if (selectedOpts.length == 0) {
+            //alert("Nothing to move.");
+            e.preventDefault();
+        }
+
+        $('#allUsers').append($(selectedOpts).clone());
+        $(selectedOpts).remove();
+        
+        //copied from: https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+        var options = $('#allUsers option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: parseInt(o.value) }; }).get();
+		arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+		options.each(function(i, o) {
+  			o.value = arr[i].v;
+  			$(o).text(arr[i].t);
+		});
+        e.preventDefault();
+    });
+
+    $('#btnAllLeft').click(function (e) {
+        var selectedOpts = $('#selectedUsers option');
+        if (selectedOpts.length == 0) {
+            //alert("Nothing to move.");
+            e.preventDefault();
+        }
+
+        $('#allUsers').append($(selectedOpts).clone());
+        $(selectedOpts).remove();
+        
+        var options = $('#allUsers option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: parseInt(o.value) }; }).get();
+		arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+		options.each(function(i, o) {
+  			o.value = arr[i].v;
+  			$(o).text(arr[i].t);
+		});
+        e.preventDefault();
+    });
+    
+    
+    
+        
+});
+</script>
+<table>
+<tr>
+<td>
 <input type="text" id="team"></input>
+</td><td>
 <button onclick="addTeam()">Add Team</button>
+</td></tr></table>
+<table class="equal">
+<tr>
+<td>
+<table>
+<tr><th>All Teams:</th><th></th><th>Teams to remove:</th></tr>
+<tr style="height:20%"><td style="width:45%;height:100%">
+<select multiple="multiple" id="allUsers" size=10 style="width:100%;height:100%">
+#foreach($team in $teamList)
+	#set($spaces = 5 - $team.numDigits)
+	<option value="$team.number"><pre>#foreach($x in [1..$spaces])&nbsp;#end$team.number:$team.name</pre></option>
+#end
+</select>
+</td><td style="width:10%">
+<input type="button" value=">" id="btnRight"/>
+<input type="button" value="<" id="btnLeft"/>
+<input type="button" value="<<" id="btnAllLeft"/>
+</td><td style="width:45%;height:100%">
+<select multiple="multiple" id="selectedUsers" size=10 style="width:100%;height:100%">
+</select>
+</td></tr></table>
+</td><td>
+<input type="button"  onclick="removeTeams()" 	id="removeButton" class="bad notification" value="Remove teams">
+</td></tr></table>
 <div id="msg"></div>
 
 

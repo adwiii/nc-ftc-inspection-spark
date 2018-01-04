@@ -1552,7 +1552,11 @@ public class EventPages {
 		};
 		
 		public static Route serveAddTeam = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.MANAGE_EVENT_TEAMS);
+			Map<String, Object> model = new HashMap<String, Object>();
+			String code = request.params("event");
+			List<Team> teamList = EventDAO.getTeams(code);
+			model.put("teamList", teamList);
+			return render(request, model, Path.Template.MANAGE_EVENT_TEAMS);
 		};
 		
 		public static Route handleAddTeam = (Request request, Response response) ->{
@@ -1566,6 +1570,29 @@ public class EventPages {
 			int team = Integer.parseInt(request.queryParams("team"));
 			if(EventDAO.addTeamToEvent(team, code)) {
 				return "OK"; 
+			}
+			response.status(400);
+			return "Team already in event";
+			}catch(Exception e) {
+				response.status(400);
+				return "Invalid team number";
+			}
+		};
+		
+		public static Route handleRemoveTeam = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			String[] teams = request.queryParams("teams").split(",");
+			if(data.getStatus() != 1) {
+				response.status(409);
+				return "Not in setup phase!";
+			}
+			try {
+			//TODO THOMAS PLZ DO
+			for (String team : teams) {
+				if(EventDAO.addTeamToEvent(Integer.parseInt(team), code)) {
+					return "OK"; 
+				}
 			}
 			response.status(400);
 			return "Team already in event";
