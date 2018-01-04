@@ -209,9 +209,9 @@ public class Server {
 		before(Path.Web.MANAGE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
 		
-		before(Path.Web.ADD_TEAM, Filters.getAuthenticationFilter(User.ADMIN));
-		get(Path.Web.ADD_TEAM, EventPages.serveAddTeam);
-		post(Path.Web.ADD_TEAM, EventPages.handleAddTeam);
+		before(Path.Web.MANAGE_EVENT_TEAMS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.MANAGE_EVENT_TEAMS, EventPages.serveAddTeam);
+		post(Path.Web.MANAGE_EVENT_TEAMS, EventPages.handleAddTeam);
 		
 		before(Path.Web.UPLOAD_SCHEDULE, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);

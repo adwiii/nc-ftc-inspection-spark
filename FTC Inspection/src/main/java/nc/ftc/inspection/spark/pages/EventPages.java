@@ -1552,7 +1552,7 @@ public class EventPages {
 		};
 		
 		public static Route serveAddTeam = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.ADD_TEAM);
+			return render(request, new HashMap<String, Object>(), Path.Template.MANAGE_EVENT_TEAMS);
 		};
 		
 		public static Route handleAddTeam = (Request request, Response response) ->{
