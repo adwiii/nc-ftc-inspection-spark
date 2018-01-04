@@ -168,6 +168,7 @@
 		height:100%;
 		background:white;
 		float:left;
+		text-align:center;
 	}
 	.dqBox{
 		margin: 10px 10px;
@@ -299,6 +300,8 @@
 #end
 
 #macro (scoreJS)
+	var matchName = "";
+
 	function updateScoreBreakdown(obj){
   		for(var i = 0; i < 2; i++){
   			var a = i == 0 ? "blue" : "red"
@@ -315,7 +318,7 @@
 	  		document.getElementById(a + "RelicPoints").innerHTML = obj[a].relicPoints;
 	  		document.getElementById(a + "BalancePoints").innerHTML = obj[a].balancePoints;
 	  		document.getElementById(a + "FoulScore").innerHTML = obj[a].foulPoints;
-	  		document.getElementById(a+"Score").innerHTML = parseInt(obj[a].autoPoints)+parseInt(obj[a].teleopPoints)+parseInt(obj[a].foulPoints)+parseInt(obj[a].adjust);
+	  		document.getElementById(a+"Score").innerHTML = obj[a].score;//parseInt(obj[a].autoPoints)+parseInt(obj[a].teleopPoints)+parseInt(obj[a].foulPoints)+parseInt(obj[a].adjust);
   		}
   	}
   	
@@ -374,8 +377,12 @@
   			
   			slot = document.getElementById(a+"_2_slot");
   			slot.getElementsByClassName("dqBox")[0].checked = eval(data[a].dq2);
-  			var c = data[a].card2;
+  			var c = matchName.indexOf('F') >= 0 ? data[a].card1 : data[a].card2;
   			slot.getElementsByClassName("teamCard")[0].value =  c == 2 ? "red" : (c == 1 ? "yellow" : "green");
+  		
+  			if(matchName.indexOf('F') >= 0){
+  				slot = document.getElementById(a+"_3_slot").getElementsByClassName("teamCard")[0].value =  c == 2 ? "red" : (c == 1 ? "yellow" : "green");
+  			}
   		}
   	}
   	
@@ -411,6 +418,15 @@
 			src.value = "red";
 		} else{
 			src.value = "green";
+		}
+		
+		if(matchName.indexOf("F") >= 0){
+			//elims - set all on the same alliance the same
+			var a = src.parentNode.id.split("_")[0];
+			document.getElementById(a+"_1_slot").getElementsByClassName("teamCard")[0].value = src.value;
+			document.getElementById(a+"_2_slot").getElementsByClassName("teamCard")[0].value = src.value;
+			document.getElementById(a+"_3_slot").getElementsByClassName("teamCard")[0].value = src.value;
+			updateScore(a, "card1", src.value == "green" ? 0 : (src.value == "yellow" ? 1 : 2));
 		}
 	}
 	function getRelicZone(a, i){
@@ -482,12 +498,16 @@
   		slot = document.getElementById("blue_2_slot");
   		slot.getElementsByClassName("teamNumber")[0].value = data.blue2;
   		
+  		matchName = data.name;
+  		centerHeader.innerHTML = data.name;
   		if(typeof data.red3 !== 'undefined'){
   			slot = document.getElementById("red_3_slot");
   			slot.getElementsByClassName("teamNumber")[0].value = data.red3;
   			slot = document.getElementById("blue_3_slot");
   			slot.getElementsByClassName("teamNumber")[0].value = data.blue3;
   		}
+  		
+  		
   		
   	}
 #end

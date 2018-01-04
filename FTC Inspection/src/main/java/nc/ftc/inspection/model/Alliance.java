@@ -30,6 +30,8 @@ public class Alliance {
 
 
 	int lastCalculatedScoreNoPenalties = 0;
+	//Only used in elims
+	boolean carriesCard = false;
 
 	static Map<String, Number> scoreMap = new HashMap<>();
 	static{
@@ -301,6 +303,12 @@ public class Alliance {
 
 	public int getLastScore() {
 		return lastCalculatedScoreNoPenalties;
+	}
+	public void setCardCarry(boolean c) {
+		this.carriesCard = c;
+	}
+	public boolean carriesCard() {
+		return this.carriesCard;
 	}
 
 }

@@ -64,10 +64,11 @@
  #end
  
  #macro (resultBar $a $i)
- 	<div style="position:relative;">
- 		<img id="${a}Bar${i}" src="/img/alliance${a}92.png" alt="${a}${i}">
+ 	<div class="resultBar resultBar$i">
+ 		<div  class="result resultText resultSeed"><span class="resultSeedText" id="${a}${i}Seed">4</span></div>
+ 		<img id="${a}Bar${i}" src="/img/alliance${a}92.png" class="resultBarImg" alt="${a}${i}">
  		<div class="result resultText resultNumber" id=${a}${i}_resultNumber>
- 			#if($i == "head")Team#else 77777#end
+ 			#if($i == "head")&nbsp;99999&nbsp;99999&nbsp;99999#end
  		</div>
  		<img src="" id="${a}${i}_card" alt="card"  class="result resultText resultCard" visible="false"> 		
  		<div class="result resultText resultRank" id=${a}${i}_resultRank>
@@ -79,7 +80,7 @@
  #macro (resultField $lab $id)
  	<div style="position:relative; height:80;">
 		<div class="blueField"><span class="resultScoreText" id="blueField_${id}">0</span></div>
-		<div class=" midField"><span class="resultMidText">$lab</span></div>
+		<div class="midField"><span class="resultMidText">$lab</span></div>
 		<div class="redField"><span class="resultScoreText" id="redField_${id}">0</span></div>
  	</div>
  #end
@@ -158,6 +159,7 @@
 	#result[visible="false"]{
 		display:none;
 	}
+	
 	.resultBars{
 		position:relative;
 		width:800;
@@ -182,15 +184,20 @@
 		top:-15;
 		color:black;
 	}
-	
 	.resultNumber{
 		position:absolute;
 		left:70;
 		width:250px;
 	}
+	
 	.resultCard{
 		position:absolute; 
 		left:260;
+		top:19;
+	}
+	div[elims="true"] > div > div > .resultCard{
+		position:absolute; 
+		left:675;
 		top:19;
 	}
 	.resultCard[visible="false"]{
@@ -215,6 +222,54 @@
 	.resultWinner[visible="false"]{
 		display:none;
 	}
+	.resultBar{
+		position:relative;
+	}
+	div[elims="true"] > div > .resultBar{
+		display:none;
+	}
+	div[elims="true"] > div > .resultBarhead{
+		position:relative;
+		display:block;
+	}
+	div[elims="true"] > div > div > .resultRank{
+		display:none;
+	}
+	div[elims="false"] > div > div > .resultSeed{
+		display:none;
+	}
+	div[elims="true"] > div > div > .resultSeed{
+		position:absolute;
+		background-color:white;
+		border-radius:50%;
+		top:22;
+		left:30;
+		width:50;
+		height:50;
+	}
+	.resultSeedText{
+	position:absolute;
+			font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		top:-10;
+		left:-1;
+		width:50;
+		text-align:center;
+		
+	}
+	div[elims="true"] > .seriesResult{
+		position:absolute;
+		left:400;
+		top:460;
+		width:800;
+		height:93;
+		text-align:center;
+		font:61px "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	div[elims="false"] > .seriesResult{
+		display:none;
+	}
+	
+	
 	
 	.blueField{
 		position:absolute;
@@ -379,6 +434,30 @@
 		top:162;
 		left:765;
 	}
+	#redWing[teams="3"]{
+		position:absolute; 
+		background-color:red;
+		width:300;
+		height:300;
+		top:112;
+		left:765;
+	}
+	#blueWing{
+		position:absolute; 
+		background-color:blue;
+		width:300;
+		height:200;
+		top:162;
+		left:-300;
+	}
+	#blueWing[teams="3"]{
+		position:absolute; 
+		background-color:blue;
+		width:300;
+		height:300;
+		top:112;
+		left:-300;
+	}
 	body {
 		overflow:hidden;
 		max-width:100%;
@@ -431,7 +510,7 @@
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
-	  	<div id="blueWing" style="position:absolute; background-color:blue;width:300;height:200;top:162;left:-300;">
+	  	<div id="blueWing" teams="2">
 	  		<div id="blueWing1" style="top:3;" class="wing blueWing" card=false>
 	  		</div>
 	  		<div id="blueWing2" style="top:103;" class="wing blueWing" card=false>
@@ -439,7 +518,7 @@
 	  		<div id="blueWing3" style="top:203;" class="wing blueWing" card=false visible="false">
 	  		</div>
 	  	</div> 	
-	  	<div id="redWing">
+	  	<div id="redWing" teams="2">
 	  		<div id="redWing1" style="top:3;" class="wing redWing" card=false>
 	  		</div>
 	  		<div id="redWing2" style="top:103;" class="wing redWing" card=false>
@@ -462,9 +541,9 @@
   		#previewBar("blue" "3")
   		
   		<img id="seriesStatusImg" class="resultWinner" src="/img/alliancebar92.png" alt="winner" visible="false">
-  		<div id="seriesStatus" class="resultWinner" visible="false">Tie!</div>
+  		<div id="seriesStatus" class="resultWinner" visible="false">Series Tied</div>
   	</div>
-  	<div id="result" visible="false"  >
+  	<div id="result" visible="false" elims="false" >
   		<div id="blueResultBars" class="resultBars">
   			#resultBar("blue" "head")
   			#resultBar("blue" "1")
@@ -483,6 +562,8 @@
   			<br>
   			#resultField ("Total Points" "total")
   		</div>
+  		<img id="seriesResultImg" class="seriesResult" src="/img/alliancebar92.png" alt="winner" visible="false">
+  		<div id="seriesResult" class="seriesResult" visible="false">Series Tied</div>
   		
   		<img id="winnerImg" class="resultWinner" src="/img/alliancebar92.png" alt="winner">
   		<div id="winnerField" class="resultWinner">Series Tied!</div>
@@ -792,23 +873,13 @@
 			wing.setAttribute("card", data.blue1Card);
 			wing.setAttribute("visible", "true");
 			
-			var fullwing = document.getElementById("blueWing");
-			fullwing.style.top = "112px"; //subtract one more pizel for half the 1x border
-			fullwing.style.height = "300px";
+			document.getElementById("blueWing").setAttribute("teams","3");
 		
-			fullwing = document.getElementById("redWing");
-			fullwing.style.top = "112px"; //subtract one more pizel for half the 1x border
-			fullwing.style.height = "300px";
+			document.getElementById("redWing").setAttribute("teams","3");
 		} else{
-		   document.getElementById("redWing3").setAttribute("visible", "false");
-		   document.getElementById("blueWing3").setAttribute("visible", "false");
-		   console.log("back");
-		   var wing = document.getElementById("blueWing");
-		   wing.height = "200px";
-		   wing.top = "162px";
-		   var wing = document.getElementById("redWing");
-		   wing.height = "200px";
-		   wing.top = "162px";
+		  document.getElementById("blueWing").setAttribute("teams","2");
+		
+			document.getElementById("redWing").setAttribute("teams","2");
 		}
 		
 		setTop(data.name);
@@ -867,7 +938,7 @@
 			document.getElementById("blue3_number").innerHTML = data.blue3;
 			document.getElementById("blue3_name").innerHTML = data.blue3Name;
 		}
-		setTop(data.name);//TODO eventually match name.
+		setTop(data.name);
 	
 		
 		document.getElementById("timer").setAttribute("visible","false");
@@ -909,6 +980,10 @@
 	}
 	function showResult(data){
 	
+		var elims = data.name.indexOf("F") >= 0;
+		
+		document.getElementById("result").setAttribute("elims", elims ? "true" : "false");
+	
 		document.getElementById("scoreRed").setAttribute("visible","false");
 		document.getElementById("scoreBlue").setAttribute("visible","false");
 		document.getElementById("scoreBar").setAttribute("visible","false");
@@ -919,14 +994,10 @@
 	
 		document.getElementById("red1_resultNumber").innerHTML = data.red1;
 		document.getElementById("red2_resultNumber").innerHTML = data.red2;
-		if(typeof data.red3 !== 'undefined'){
-			document.getElementById("red3_rsultNumber").innerHTML = data.red3;
-		}
+		
 		document.getElementById("blue1_resultNumber").innerHTML = data.blue1;
 		document.getElementById("blue2_resultNumber").innerHTML = data.blue2;
-		if(typeof data.blue3 !== 'undefined'){
-			document.getElementById("blue3_resultNumber").innerHTML = data.blue3;
-		}
+		
 		setTop(data.name);
 		
 		document.getElementById("red1_resultRank").innerHTML = data.red1Rank + getArrow(data.red1Dif);
@@ -950,6 +1021,38 @@
 		document.getElementById("blueField_score").innerHTML = data.blueScore;
 		document.getElementById("blueField_penalty").innerHTML = data.redPenalty;
 		document.getElementById("blueField_total").innerHTML = data.blueTotal;
+		
+		if(elims){
+			document.getElementById("redhead_resultNumber").innerHTML = "&nbsp;"+data.red1+"&nbsp;"+data.red2+"&nbsp;"+data.red3;
+			document.getElementById("redheadSeed").innerHTML = data.redRank;
+		
+		document.getElementById("bluehead_resultNumber").innerHTML = "&nbsp;"+data.blue1+"&nbsp;"+data.blue2+"&nbsp;"+data.blue3;
+			document.getElementById("blueheadSeed").innerHTML = data.blueRank;
+		
+			var sr = "Series Tied";
+			var im = "bar";
+			if(data.redWins >= 2){
+				sr = "RED wins series!";
+				im = "red";
+			} else if(data.blueWins >= 2){
+				sr = "BLUE wins series!";
+				im = "blue";
+			} else if(data.redWins > data.blueWins){
+				sr = "RED leads series";
+				im = "red";
+			} else if(data.blueWins > data.redWins){
+				sr = "BLUE leads series";
+				im = "blue";
+			} 
+			document.getElementById("seriesResult").innerHTML = sr;
+			document.getElementById("seriesResultImg").src = "/img/alliance"+im+"92.png";
+			
+			document.getElementById("redhead_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
+			if(data.red1Card > 0) document.getElementById("redhead_card").src=getCardImage(data.red1Card);
+			document.getElementById("bluehead_card").setAttribute("visible", data.blue1Card == 0 ? "false" : "true");
+			if(data.blue1Card > 0) document.getElementById("bluehead_card").src=getCardImage(data.blue1Card);
+		
+		}
 		
 		document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
 		document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";

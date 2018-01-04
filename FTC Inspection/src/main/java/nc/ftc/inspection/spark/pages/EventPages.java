@@ -548,6 +548,8 @@ public class EventPages {
 					}
 				}
 			}
+			//card carry handled for active my during load, so this call is the one exception
+			//that way we dont have to access the DB every time a score changes.
 			return e.getCurrentMatch().getScoreBreakdown();
 		};
 		
@@ -891,6 +893,7 @@ public class EventPages {
 							match.getBlue().updateScore(key, request.queryParams(key));
 						}
 					}
+					e.fillCardCarry(e.getCurrentMatch());
 					return e.getCurrentMatch().getScoreBreakdown();
 				//}
 			}
@@ -1074,7 +1077,17 @@ public class EventPages {
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				//TODO for elims, dont do rank check, do series record check & generate new matches or cancel matches
 				if(e.getData().getStatus() == EventData.ELIMS) {
-					handleElimsUpdate(event, e.getCurrentMatch());					
+					handleElimsUpdate(event, e.getCurrentMatch());	
+					Alliance red = match.getRed();
+					Alliance blue = match.getBlue();
+					MatchResult res = new MatchResult(match.getNumber(), red, blue, red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getName());
+					Display d = e.getDisplay();
+					d.lastResult = res;
+					//No change in rankings
+					d.red1Dif = 0;
+					d.red2Dif = 0;
+					d.blue1Dif = 0;
+					d.blue2Dif = 0;
 				} else {
 					Alliance red = match.getRed();
 					Alliance blue = match.getBlue();
@@ -1344,8 +1357,11 @@ public class EventPages {
 			Match m = EventDAO.getMatchResultFull(event, match);
 			Alliance red = m.getRed();
 			Alliance blue = m.getBlue();
+			if(m.isElims()) {
+				e.fillCardCarry(m);
+			}
 			m.getScoreBreakdown();//force score calc
-			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
+			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints(), m.getName()  );
 			
 			Display d = e.getDisplay();
 			//do not show change in rank for reposting old matches 
@@ -1582,6 +1598,7 @@ public class EventPages {
 			}
 			int m = Integer.parseInt(request.params("match"));
 			Match match = createMatchObject(request, response, m);
+			if(match.isElims())e.fillCardCarry(match);
 			return match.getScoreBreakdown();
 		};
 		public static Route handleCommitEditedScore = (Request request, Response response) ->{
@@ -1734,10 +1751,10 @@ public class EventPages {
 			MatchResult mr = d.lastResult;
 			Alliance red = mr.getRed();
 			Alliance blue = mr.getBlue();
-			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(code, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
 			List<String> list = new ArrayList<>(20);
 			
 			list.add(json("number", mr.getNumber()));
+			list.add(json("name", mr.getName()));
 			
 			list.add(json("red1Dif", d.red1Dif));
 			list.add(json("red2Dif", d.red2Dif));
@@ -1757,33 +1774,76 @@ public class EventPages {
 			list.add(json("blue1", blue.getTeam1()));
 			list.add(json("blue2", blue.getTeam2()));
 			
-			list.add(json("red1Rank", e.getRank(red.getTeam1())));
-			list.add(json("red2Rank", e.getRank(red.getTeam2())));
-			list.add(json("blue1Rank", e.getRank(blue.getTeam1())));
-			list.add(json("blue2Rank", e.getRank(blue.getTeam2())));
+			
 			
 			int redCard1 = Integer.parseInt(red.getScore("card1").toString());
 			int redCard2 = Integer.parseInt(red.getScore("card2").toString());
 			int blueCard1 = Integer.parseInt(blue.getScore("card1").toString());
 			int blueCard2 = Integer.parseInt(blue.getScore("card2").toString());
 			
-			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
-			List<Integer> cardList = cardMap.get(red.getTeam1());			
-			Integer t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && redCard1==1)redCard1 = 3;
-			
-			cardList = cardMap.get(red.getTeam2()); 
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && redCard2==1)redCard2 = 3;
-			
-			cardList = cardMap.get(blue.getTeam1());
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && blueCard1==1)blueCard1 = 3;
-			
-			cardList = cardMap.get(blue.getTeam2());
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && blueCard2==1)blueCard2 = 3;
-			
+			if(e.getData().getStatus() == EventData.ELIMS) {
+				//team3
+				list.add(json("red3", red.getTeam3()));
+				list.add(json("blue3", blue.getTeam3()));
+				
+				//put seeds here
+				list.add(json("redRank", mr.getRed().getRank()));
+				list.add(json("blueRank", mr.getBlue().getRank()));
+				
+				//get card info for elims - done by alliance, only set card1 (sent below if)
+				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(code);
+				List<Integer> cardList = cardMap.get(red.getRank());
+				if(redCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
+					redCard1 = 3;
+				}
+				cardList = cardMap.get(blue.getRank());
+				if(blueCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
+					blueCard1 = 3;
+				}
+				
+				
+				//get series results
+				String name = mr.getName();
+				String prefix = name.substring(0, name.lastIndexOf("-"));
+				//check for series victory.
+				List<MatchResult> series = EventDAO.getSeriesResults(code, prefix);
+				int redWin = 0;
+				int blueWin = 0;
+				for(MatchResult r : series) {
+					if(r.getStatus() == 1) {
+						if(r.getWinChar() == 'R')redWin++;
+						if(r.getWinChar() == 'B')blueWin++;
+					}
+				}
+				list.add(json("redWins", redWin));
+				list.add(json("blueWins", blueWin));
+			} else {
+				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(code, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
+				
+				list.add(json("red1Rank", e.getRank(red.getTeam1())));
+				list.add(json("red2Rank", e.getRank(red.getTeam2())));
+				list.add(json("blue1Rank", e.getRank(blue.getTeam1())));
+				list.add(json("blue2Rank", e.getRank(blue.getTeam2())));
+				
+				//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
+				List<Integer> cardList = cardMap.get(red.getTeam1());			
+				Integer t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && redCard1==1)redCard1 = 3;
+				
+				cardList = cardMap.get(red.getTeam2()); 
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && redCard2==1)redCard2 = 3;
+				
+				cardList = cardMap.get(blue.getTeam1());
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && blueCard1==1)blueCard1 = 3;
+				
+				cardList = cardMap.get(blue.getTeam2());
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && blueCard2==1)blueCard2 = 3;
+				
+				
+			}
 			
 			list.add(json("red1Card", redCard1 ));
 			list.add(json("red2Card", redCard2 ));
@@ -1819,6 +1879,9 @@ public class EventPages {
 			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
+			}
+			if(match.isElims()) {
+				e.fillCardCarry(match);
 			}
 			match.getScoreBreakdown();
 			map.put("redScore", Integer.parseInt(match.redScoreBreakdown.get("score")));
@@ -1870,14 +1933,18 @@ public class EventPages {
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
+			if(match.isElims()) {
+				e.fillCardCarry(match);
+			}
 			match.getScoreBreakdown();
 			//taken from https://stackoverflow.com/questions/2779251/how-can-i-convert-json-to-a-hashmap-using-gson
 			Type type = new TypeToken<Map<String, String>>(){}.getType();
 			Gson gson = new Gson();
+		
 			map.put("redBreakdown", gson.fromJson(match.getScoreBreakdown(match.getRed()), type));
 			map.put("blueBreakdown", gson.fromJson(match.getScoreBreakdown(match.getBlue()), type));
 			map.put("matchNumber", match.getNumber());
-			map.put("fieldNumber", match.getNumber() % 2);
+			map.put("fieldNumber", match.getNumber() % 2); //TODO hardcoded field
 			map.put("red", match.getRed());
 			map.put("blue", match.getBlue());
 			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());

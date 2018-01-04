@@ -134,7 +134,7 @@ public class EventDAO {
 	//use string replaceall instead
 //	static final SQL COMMIT_ELIMS_DATA = new SQL(20, "UPDATE elimsData SET status=1, randomization = ? WHERE match=?;");
 	static final SQL UNCANCEL_ELIMS_MATCH_SQL = new SQL(21, "UPDATE elimsData SET status=0 WHERE match=?;");
-	static final SQL CANCEL_ELIMS_MATCH_SQL = new SQL(21, "UPDATE elimsData SET status=2 WHERE match=?;");
+	static final SQL CANCEL_ELIMS_MATCH_SQL = new SQL(22, "UPDATE elimsData SET status=2 WHERE match=?;");
 //	static final SQL COMMIT_ELIMS_RESULTS_SQL = new SQL(22, "UPDATE elimsResults SET redScore = ?, blueScore = ?, redPenalty = ?, bluePenalty = ? WHERE match = ?;");
 //	static final SQL COMMIT_ELIMS_SCORES_SQL = new SQL(23,"UPDATE elimsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?");
 	
@@ -145,7 +145,7 @@ public class EventDAO {
 	//This ones def gonna break! (red and blue 3 at end to reuse quals code)
 	static final String GET_SCHEDULE_STATUS_ELIMS_SQL = "SELECT q.match, r.team1, r.team2, b.team1, b.team2, status, redScore, blueScore, r.team3, b.team3, name  FROM elims q LEFT JOIN elimsData qd ON q.match = qd.match LEFT JOIN elimsResults qr ON q.match = qr.match LEFT JOIN alliances r ON r.rank=q.red LEFT JOIN alliances b ON b.rank=q.blue;"; 
 	static final String GET_RESULTS_ELIMS = "SELECT q.match, red.team1, red.team2, red.team3, blue.team1, blue.team2, blue.team3, redScore, blueScore, status, redPenalty, bluePenalty FROM elims q LEFT JOIN elimsData qd ON q.match = qd.match LEFT JOIN elimsResults qr ON q.match = qr.match LEFT JOIN alliances rred ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue ORDER BY q.match";	
-	static final String GET_CARDS_ELIMS_SQL = "SELECT match, alliance, card1 from elimsScores; ";
+	static final String GET_CARDS_ELIMS_SQL = "SELECT e.match, e.red, e.blue, red.card1, blue.card1 FROM elims e INNER JOIN elimsScores red ON e.match=red.match AND red.alliance=0 INNER JOIN elimsScores blue ON e.match=blue.match AND blue.alliance=1 WHERE red.card1 + blue.card1 > 0;";
 	static final String GET_ELIMS_RESULTS_FULL_SQL = "SELECT * FROM elimsScores s WHERE match=?;";
 	
 	//include all statuses, so caller can know if more matches exist already
@@ -610,7 +610,7 @@ public class EventDAO {
 	
 	public static boolean commitScores(String event, Match match){
 		if(match.getNumber() == -1)return true; //test match
-		boolean elims = getEvent(event).getStatus() == EventData.ELIMS;
+		boolean elims = match.isElims();//getEvent(event).getStatus() == EventData.ELIMS;
 		try(Connection local = getLocalDB(event)){
 			Map<String, String> map = null;
 			if(elims) {
@@ -632,7 +632,12 @@ public class EventDAO {
 			
 			sql = elims ? COMMIT_MATCH_RESULTS.sql.replaceAll("quals", "elims") : COMMIT_MATCH_RESULTS.sql;
 			ps = local.prepareStatement(sql);
-			match.getScoreBreakdown();//Force score calc
+			
+			if(elims) {
+				Server.activeEvents.get(event).fillCardCarry(match);
+			}
+			match.getScoreBreakdown();//Force score calc			
+			
 			Alliance blue = match.getBlue();
 			Alliance red = match.getRed();
 			ps.setInt(1, red.getLastScore() );
@@ -830,7 +835,8 @@ public class EventDAO {
 	public static Match getMatchResultFull(String event, int num) {	
 		try (Connection local = getLocalDB(event)){
 			Match match = getMatch(event, num);
-			PreparedStatement ps = local.prepareStatement(GET_MATCH_RESULTS_FULL_SQL);
+			boolean elims = Server.activeEvents.get(event).getData().getStatus() >= EventData.ELIMS;
+			PreparedStatement ps = local.prepareStatement(GET_MATCH_RESULTS_FULL_SQL.replaceAll("qual", "elim"));
 			ps.setInt(1, num);
 			ResultSet rs = ps.executeQuery();
 			 
@@ -1088,6 +1094,29 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public static Map<Integer, List<Integer>> getCardsElims(String event){
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_CARDS_ELIMS_SQL);
+			Map<Integer, List<Integer>> map = new HashMap<>();
+			for(int i = 1; i < 5; i++) {
+				map.put(i, new ArrayList<Integer>(2));
+			}
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				if(rs.getInt(4) > 0) {
+					map.get(rs.getInt(2)).add(rs.getInt(1));
+				}
+				if(rs.getInt(5) > 0) {
+					map.get(rs.getInt(3)).add(rs.getInt(1));
+				}
+			}
+			return map;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 }
