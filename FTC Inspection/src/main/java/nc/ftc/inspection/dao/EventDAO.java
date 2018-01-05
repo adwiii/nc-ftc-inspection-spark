@@ -800,13 +800,17 @@ public class EventDAO {
 				result.add(mr);
 			}
 			//"SELECT q.match, q.red, red.team1, red.team2, red.team3, q.blue, blue.team1, blue.team2, blue.team3, redScore, blueScore, status, redPenalty, bluePenalty, q.name
-			ps = local.prepareStatement(GET_RESULTS_ELIMS);
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				Alliance red = new Alliance(rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
-				Alliance blue = new Alliance(rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9));
-				MatchResult mr = new MatchResult(rs.getInt(1), red, blue, rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getString(15));
-				result.add(mr);
+			try {
+				ps = local.prepareStatement(GET_RESULTS_ELIMS);
+				rs = ps.executeQuery();
+				while(rs.next()) {
+					Alliance red = new Alliance(rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+					Alliance blue = new Alliance(rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9));
+					MatchResult mr = new MatchResult(rs.getInt(1), red, blue, rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getString(15));
+					result.add(mr);
+				}
+			}catch(Exception e) {
+				System.err.println("NO ELIMS TABLES IN DB FOR "+event);
 			}
 			return result;
 		}
