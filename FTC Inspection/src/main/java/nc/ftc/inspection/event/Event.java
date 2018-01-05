@@ -76,7 +76,7 @@ public class Event {
 	
 	public void loadMatch(int num) {
 		Match temp = currentMatch;
-		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num);
+		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num, data.getStatus() >= EventData.ELIMS);
 		if(currentMatch == null) {
 			currentMatch = temp;
 		} else {

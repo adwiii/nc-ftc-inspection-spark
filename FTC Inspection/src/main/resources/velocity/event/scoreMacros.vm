@@ -90,17 +90,17 @@
 			<div id="leftTeams">
 				<div class="teamSlotHeader" style="text-align:right">DQ</div>
 				<div class="teamSlot" id="red_1_slot" style="justify-content: flex-end;">
-					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<button class="teamCard" onclick="clickCard(this)">Card</button>
 					<input type="text" class="teamNumber"/>
 					<input type="checkbox" class="dqBox"/>
 				</div>
 				<div class="teamSlot" id="red_2_slot" style="justify-content: flex-end;">
-					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<button class="teamCard" onclick="clickCard(this)">Card</button>
 					<input type="text" class="teamNumber"/>
 					<input type="checkbox" class="dqBox"/>
 				</div>
 				<div class="teamSlot" id="red_3_slot" style="justify-content: flex-end;">
-					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<button class="teamCard" onclick="clickCard(this)">Card</button>
 					<input type="text" class="teamNumber"/>
 					<input type="checkbox" class="dqBox"/>
 				</div>
@@ -117,17 +117,17 @@
 				<div class="teamSlot" id="blue_1_slot">
 					<input type="checkbox" class="dqBox"/>
 					<input type="text" class="teamNumber"/>
-					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<button class="teamCard" onclick="clickCard(this)">Card</button>
 				</div>
 				<div class="teamSlot" id="blue_2_slot">
 					<input type="checkbox" class="dqBox"/>
 					<input type="text" class="teamNumber"/>
-					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<button class="teamCard" onclick="clickCard(this)">Card</button>
 				</div>
 				<div class="teamSlot" id="blue_3_slot">
 					<input type="checkbox" class="dqBox"/>
 					<input type="text" class="teamNumber"/>
-					<button class="teamCard" onclick="toggleCard(this)">Card</button>
+					<button class="teamCard" onclick="clickCard(this)">Card</button>
 				</div>
 			</div>
 		</div>
@@ -411,15 +411,8 @@
 		updateScore(alliance, "relic"+relic+"Standing", next == "on" ? "true" : "false");
 	}
 	
-	function toggleCard(src){
-		if(src.value == "green"){
-			src.value = "yellow";
-		} else if(src.value== "yellow"){
-			src.value = "red";
-		} else{
-			src.value = "green";
-		}
-		
+	function clickCard(src){
+		toggleCard(src);
 		if(matchName.indexOf("F") >= 0){
 			//elims - set all on the same alliance the same
 			var a = src.parentNode.id.split("_")[0];
@@ -428,6 +421,17 @@
 			document.getElementById(a+"_3_slot").getElementsByClassName("teamCard")[0].value = src.value;
 			updateScore(a, "card1", src.value == "green" ? 0 : (src.value == "yellow" ? 1 : 2));
 		}
+	}
+	
+	function toggleCard(src){
+		if(src.value == "green"){
+			src.value = "yellow";
+		} else if(src.value== "yellow"){
+			src.value = "red";
+		} else{
+			src.value = "green";
+		}		
+		
 	}
 	function getRelicZone(a, i){
 		if(document.getElementById(a+"Relic"+i+"Zone3").getAttribute("state") == "on")return 3;

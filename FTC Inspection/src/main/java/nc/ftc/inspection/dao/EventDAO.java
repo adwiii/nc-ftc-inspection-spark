@@ -141,13 +141,14 @@ public class EventDAO {
 	static final String GET_SCHEDULE_ELIMS_SQL = "SELECT * FROM elims";
 	static final String GET_NEXT_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE ed.status==0 ORDER BY q.match LIMIT 1;";
 	static final String GET_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE q.match=? ORDER BY q.match LIMIT 1;";
+	static final String GET_ELIMS_MATCH_BASIC = "SELECT red, blue FROM elims WHERE match = ?;";
 	
 	//This ones def gonna break! (red and blue 3 at end to reuse quals code)
 	static final String GET_SCHEDULE_STATUS_ELIMS_SQL = "SELECT q.match, r.team1, r.team2, b.team1, b.team2, status, redScore, blueScore, r.team3, b.team3, name  FROM elims q LEFT JOIN elimsData qd ON q.match = qd.match LEFT JOIN elimsResults qr ON q.match = qr.match LEFT JOIN alliances r ON r.rank=q.red LEFT JOIN alliances b ON b.rank=q.blue;"; 
 	static final String GET_RESULTS_ELIMS = "SELECT q.match, red.team1, red.team2, red.team3, blue.team1, blue.team2, blue.team3, redScore, blueScore, status, redPenalty, bluePenalty FROM elims q LEFT JOIN elimsData qd ON q.match = qd.match LEFT JOIN elimsResults qr ON q.match = qr.match LEFT JOIN alliances rred ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue ORDER BY q.match";	
 	static final String GET_CARDS_ELIMS_SQL = "SELECT e.match, e.red, e.blue, red.card1, blue.card1 FROM elims e INNER JOIN elimsScores red ON e.match=red.match AND red.alliance=0 INNER JOIN elimsScores blue ON e.match=blue.match AND blue.alliance=1 WHERE red.card1 + blue.card1 > 0;";
 	static final String GET_ELIMS_RESULTS_FULL_SQL = "SELECT * FROM elimsScores s WHERE match=?;";
-	
+	static final String GET_ELIMS_MATCH_NUMBER_SQL = "SELECT match FROM elimsData WHERE name = ?;";
 	//include all statuses, so caller can know if more matches exist already
 	static final String GET_ELIMS_SERIES_RESULTS_SQL = "SELECT er.*, ed.status FROM elimsResults er LEFT JOIN elimsData ed ON ed.match = er.match WHERE ed.name LIKE ?";
 	//This SQL requires post-processing
@@ -757,7 +758,7 @@ public class EventDAO {
 			return "";
 		}
 	}
-	public static Match getMatch(String event, int num) {
+	public static Match getMatch(String event, int num, boolean elims) {
 		try(Connection local = getLocalDB(event)){
 			int status = getEvent(event).getStatus();
 			PreparedStatement ps = local.prepareStatement(status == EventData.ELIMS ?  GET_ELIMS_MATCH_SQL : GET_MATCH_SQL);
@@ -765,7 +766,7 @@ public class EventDAO {
 			ResultSet rs = ps.executeQuery();
 			Match m = null;
 			while(rs.next()){
-				m = status == EventData.ELIMS ?  parseElimsMatch(rs) : parseMatch(rs) ;
+				m = elims ?  parseElimsMatch(rs) : parseMatch(rs) ;
 			}
 			if(m == null)return null;
 			return m;
@@ -832,11 +833,10 @@ public class EventDAO {
 	}
 	
 	
-	public static Match getMatchResultFull(String event, int num) {	
+	public static Match getMatchResultFull(String event, int num, boolean elims) {	
 		try (Connection local = getLocalDB(event)){
-			Match match = getMatch(event, num);
-			boolean elims = Server.activeEvents.get(event).getData().getStatus() >= EventData.ELIMS;
-			PreparedStatement ps = local.prepareStatement(GET_MATCH_RESULTS_FULL_SQL.replaceAll("qual", "elim"));
+			Match match = getMatch(event, num, elims);
+			PreparedStatement ps = local.prepareStatement(elims ? GET_MATCH_RESULTS_FULL_SQL.replaceAll("qual", "elim") : GET_MATCH_RESULTS_FULL_SQL);
 			ps.setInt(1, num);
 			ResultSet rs = ps.executeQuery();
 			 
@@ -1113,6 +1113,32 @@ public class EventDAO {
 				}
 			}
 			return map;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static int getElimsMatchNumber(String event,String name) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_ELIMS_MATCH_NUMBER_SQL);
+			ps.setString(1, name.toUpperCase());
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next())return 0;
+			return rs.getInt(1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public static int[] getElimsMatchBasic(String event, int match) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_ELIMS_MATCH_BASIC);
+			ps.setInt(1, match);
+			ResultSet rs = ps.executeQuery();
+			if(!rs.next())return null;
+			return new int[] {rs.getInt(1), rs.getInt(2)};
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

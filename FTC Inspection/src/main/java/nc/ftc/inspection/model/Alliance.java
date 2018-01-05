@@ -68,6 +68,10 @@ public class Alliance {
 		this.team2 = team2;
 		this.team3 = team3;
 	}
+	public Alliance(int i, int j, int rank) {
+		this(i,j);
+		this.rank=rank;
+	}
 	public int getTeam1(){
 		return team1;
 	}

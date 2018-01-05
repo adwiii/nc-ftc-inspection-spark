@@ -248,6 +248,9 @@ public class Match {
 	public boolean isElims() {
 		return name != null && name.indexOf('F') >= 0;
 	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	
 }

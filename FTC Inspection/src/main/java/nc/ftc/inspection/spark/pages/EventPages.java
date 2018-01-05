@@ -1354,7 +1354,7 @@ public class EventPages {
 			}
 			//Set te Display's lastResult object
 			int match = Integer.parseInt(request.queryParams("match"));
-			Match m = EventDAO.getMatchResultFull(event, match);
+			Match m = EventDAO.getMatchResultFull(event, match, e.getData().getStatus() >= EventData.ELIMS);
 			Alliance red = m.getRed();
 			Alliance blue = m.getBlue();
 			if(m.isElims()) {
@@ -1545,13 +1545,15 @@ public class EventPages {
 				response.status(400);
 				return "Event not active";
 			}
-			int m = Integer.parseInt(request.params("match"));
-			return EventDAO.getMatchResultFull(event, m).getFullScores();
+			String match = request.params("match");
+			boolean elims = match.indexOf('-') >= 0;
+			int m = elims ? EventDAO.getElimsMatchNumber(event, match) : Integer.parseInt(match);
+			return EventDAO.getMatchResultFull(event, m, elims).getFullScores();
 		};
 		
 		public static Route handleGetEditScorePage = (Request request, Response response) ->{
 			HashMap<String, Object> map = new HashMap<>();
-			map.put("match", Integer.parseInt(request.params("match")));
+			//map.put("match", Integer.parseInt(request.params("match")));
 			return render(request, map, Path.Template.EDIT_MATCH_SCORE);
 		};
 		
@@ -1562,11 +1564,22 @@ public class EventPages {
 			 * <alliance>_card_<index>
 			 * <alliance>_dq_<index> 
 			 */
-			//team numbers shouldnt matter for this
-			Alliance red = new Alliance(0,0);
+			//team numbers shouldnt matter for this, except for elims
+			int rr = 0;
+			int br = 0;
+			if(request.params("match").indexOf('-')>=0) {
+				int[] r = EventDAO.getElimsMatchBasic(request.params("event"), m);
+				rr = r[0];
+				br = r[1];
+			}
+			Alliance red = new Alliance(0,0, rr);
 			red.initializeScores();
-			Alliance blue = new Alliance(0,0);
+			Alliance blue = new Alliance(0,0, br);
 			blue.initializeScores();
+			
+			
+			
+			
 			Match match = new Match(m, red, blue);
 			
 			for(String key : params){
@@ -1596,9 +1609,14 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			int m = Integer.parseInt(request.params("match"));
+			String ms = request.params("match");
+			boolean elims = ms.indexOf("-") >= 0;
+			int m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
 			Match match = createMatchObject(request, response, m);
-			if(match.isElims())e.fillCardCarry(match);
+			if(elims) {
+				match.setName(ms.toUpperCase());
+				e.fillCardCarry(match);
+			}
 			return match.getScoreBreakdown();
 		};
 		public static Route handleCommitEditedScore = (Request request, Response response) ->{
@@ -1608,10 +1626,20 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			int m = Integer.parseInt(request.params("match"));
+			String ms = request.params("match");
+			boolean elims = ms.indexOf("-") >= 0;
+			int m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
 			Match match = createMatchObject(request, response, m);
+			if(elims) {
+				match.setName(ms.toUpperCase());
+				
+			}
 			if(EventDAO.commitScores(event, match)){
-				e.calculateRankings();
+				if(elims) {
+					handleElimsUpdate(event, match);//this may do weird things!!!!
+				} else {
+					e.calculateRankings();
+				}
 				return "OK";
 			}
 			response.status(500);
@@ -1625,10 +1653,14 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			int num = Integer.parseInt(request.params("match"));
-			Match m = EventDAO.getMatch(event, num);
+			
+			String ms = request.params("match");
+			boolean elims = ms.indexOf('-') >= 0;
+			int num = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
+			Match m = EventDAO.getMatch(event, num, elims);
 			String res = "{";
 			res += "\"number\":" + m.getNumber()+",";
+			res += "\"name\":\""+m.getName() +"\",";
 			res += "\"red1\":"+m.getRed().getTeam1()+",";
 			res += "\"red2\":"+m.getRed().getTeam2()+",";
 			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
@@ -1868,6 +1900,9 @@ public class EventPages {
 			return render(request, map, Path.Template.MATCH_RESULT_DETAIL);
 		};
 		
+		/**
+		 * match param is match name if elims
+		 */
 		public static Route handleGetFullScoresheet = (Request request, Response response) -> {
 			Map<String, Object> map = new HashMap<String, Object>();
 			String event = request.params("event");
@@ -1875,12 +1910,15 @@ public class EventPages {
 			if(e == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			int m = Integer.parseInt(request.params("match"));
-			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
+			String ms = request.params("match");
+			int m = 0;
+			boolean elims = ms.indexOf('-') >= 0;
+			m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
+			Match match = EventDAO.getMatchResultFull(event, m, elims);//.getFullScores();
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			if(match.isElims()) {
+			if(elims) {
 				e.fillCardCarry(match);
 			}
 			match.getScoreBreakdown();
@@ -1928,12 +1966,15 @@ public class EventPages {
 			if(e == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			int m = Integer.parseInt(request.params("match"));
-			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
+			String ms = request.params("match");
+			int m = 0;
+			boolean elims = ms.indexOf('-') >= 0;
+			m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
+			Match match = EventDAO.getMatchResultFull(event, m, elims);//.getFullScores();
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			if(match.isElims()) {
+			if(elims) {
 				e.fillCardCarry(match);
 			}
 			match.getScoreBreakdown();
