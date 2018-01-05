@@ -15,9 +15,35 @@
 </head>
 <a href=".."><< To Event Home</a>
 <center><h2>$event <br> Match List</h2></center>
+
+#if($elims.size() > 0)
+	<center><h2>Elimination Matches</h2></center>
+	<div align=CENTER><table border=1 cellpadding=0 cellspacing=1 width=100%>
+	<tr align=CENTER><TH BGCOLOR="#CCCCCC">Number</TH><TH BGCOLOR="#CCCCCC">Red 1</TH><TH BGCOLOR="#CCCCCC">Red 2</TH><TH BGCOLOR="#CCCCCC">Red 3</TH><TH BGCOLOR="#CCCCCC">Blue 1</TH><TH BGCOLOR="#CCCCCC">Blue 2</TH><TH BGCOLOR="#CCCCCC">Blue 3</TH></tr>
+		#set($i = 1)
+		#foreach ($m in $elims)
+			#if($i % 2 == 1)
+				#set ($c = "#FFFFFF")
+			#else
+				#set ($c = "#CCCCCC")
+			#end
+			#set($i = $i + 1)
+			<tr align=CENTER>
+				<td BGCOLOR=$c>$m.number</td>
+				<td BGCOLOR=$c>$m.red.team1</td>
+				<td BGCOLOR=$c>$m.red.team2</td>
+				<td BGCOLOR=$c>$m.red.team3</td>
+				<td BGCOLOR=$c>$m.blue.team1</td>
+				<td BGCOLOR=$c>$m.blue.team2</td>
+				<td BGCOLOR=$c>$m.blue.team3</td>
+				</tr>
+		#end
+	</table></DIV>
+#end
+
 <center><h2>Qualification Matches</h2></center>
 <div align=CENTER><table border=1 cellpadding=0 cellspacing=1 width=100%>
-<tr align=CENTER><TH BGCOLOR="#CCCCCC">Number</TH><TH BGCOLOR="#CCCCCC">Red 1</TH><TH BGCOLOR="#CCCCCC">Red 2</TH><TH BGCOLOR="#CCCCCC">Blue 1</TH><TH BGCOLOR="#CCCCCC">Blue 2</TR></tr>
+<tr align=CENTER><TH BGCOLOR="#CCCCCC">Number</TH><TH BGCOLOR="#CCCCCC">Red 1</TH><TH BGCOLOR="#CCCCCC">Red 2</TH><TH BGCOLOR="#CCCCCC">Blue 1</TH><TH BGCOLOR="#CCCCCC">Blue 2</TH></tr>
 	#foreach ($m in $matches)
 		#if($m.number % 2 == 1)
 			#set ($c = "#FFFFFF")

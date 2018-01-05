@@ -253,7 +253,19 @@ public class EventPages {
 		String event = request.params("event");
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("event", event);//TODO get the event name from db
-		model.put("matches", EventDAO.getSchedule(event));
+		List<Match> schedule = EventDAO.getSchedule(event);
+		List<Match> quals = new ArrayList<>(schedule.size());
+		List<Match> elims = new ArrayList<>(10);
+		for(Match m : schedule) {
+			if(m.isElims()) {
+				elims.add(m);
+			} else {
+				quals.add(m);
+			}
+		}
+		model.put("matches", quals);
+		model.put("elims", elims);
+		
 		return render(request, model, Path.Template.SCHEDULE_PAGE);
 	};
 	
