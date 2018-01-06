@@ -1,6 +1,7 @@
 package nc.ftc.inspection.spark.util;
 
 import org.apache.velocity.app.*;
+import org.apache.velocity.runtime.parser.node.MathUtils;
 
 import nc.ftc.inspection.model.User;
 import spark.*;
@@ -45,6 +46,9 @@ public class ViewUtil {
         model.put("mobile", req.userAgent().toLowerCase().contains("mobile"));
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
         model.put("time", System.currentTimeMillis());
+        model.put("Math", Math.class);
+        model.put("String", String.class);
+        model.put("MathUtils", MathUtils.class);
         return velocityEngine().render(new ModelAndView(model, templatePath));
     }
 

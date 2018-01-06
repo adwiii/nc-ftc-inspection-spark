@@ -19,7 +19,7 @@ public class Path {
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
-        public static final String ADD_TEAM = "/event/:event/manage/addteam/";
+        public static final String MANAGE_EVENT_TEAMS = "/event/:event/manage/teams/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
         public static final String EVENT_HOME = "/event/:event/home/";
         public static final String EVENT_SIMPLE = "/event/:event/";
@@ -82,6 +82,7 @@ public class Path {
         public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
         public static final String GET_FULL_SCORESHEET = "/event/:event/match/:match/scoresheet/";
         public static final String GET_ALLIANCE_BREAKDOWN = "/event/:event/match/:match/scoresheet/:alliance/";
+        public static final String PIT_DISPLAY = "/event/:event/pit/";
         
         //get gets the page, PUT returns new score breakdown, and POST commits.
         public static final String EDIT_MATCH_SCORE = "/event/:event/match/:match/edit/";
@@ -105,6 +106,8 @@ public class Path {
         public static final String DATA_DOWNLOAD_GLOBAL = "/config/remotes/ddglobal/";
         public static final String DATA_DOWNLOAD_EVENT = "/config/remotes/ddevent/";
         public static final String PING = "/ping/";
+        
+        public static final String UPLOAD_ALLIANCES = "/event/:event/manage/allianceupload/";
         
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
@@ -153,6 +156,9 @@ public class Path {
         public static final String INSPECT_HOME = "/velocity/event/inspect_index.vm";
         public static final String INSPECT = "/velocity/event/inspect.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
+        public static final String STATUS_PAGE_PROJECTOR = "/velocity/event/statusProjector.vm";
+        public static final String PIT_DISPLAY = "/velocity/event/pit.vm";
+        public static final String PIT_DISPLAY_PROJECTOR = "/velocity/event/pitProjector.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
         public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm"; 
@@ -174,7 +180,7 @@ public class Path {
 		public static final String EDIT_SCORE_HOME = "/velocity/event/editScoreHome.vm";
 		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";
 		public static final String RANKINGS = "/velocity/event/rankings.vm";
-		public static final String ADD_TEAM = "/velocity/event/addTeam.vm";
+		public static final String MANAGE_EVENT_TEAMS = "/velocity/event/manageEventTeams.vm";
 		public static final String UPLOAD_SCHEDULE = "/velocity/event/uploadSchedule.vm";
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
@@ -183,6 +189,7 @@ public class Path {
         public static final String CLIENT_KEYS = "/velocity/keys.vm";
         public static final String REMOTE_KEYS = "/velocity/remotes.vm";
         public static final String SERVER_CONFIG = "/velocity/serverConfig.vm";
+        public static final String UPLOAD_ALLIANCES = "/velocity/event/uploadAlliances.vm";
         
     }
 

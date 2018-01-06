@@ -99,6 +99,7 @@ public class Server {
 		get(Path.Web.SCHEDULE, EventPages.serveSchedulePage);
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
+		get(Path.Web.PIT_DISPLAY, EventPages.servePitPage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
 		get(Path.Web.MATCH_RESULTS_SIMPLE, EventPages.serveResultsSimplePage);
@@ -208,9 +209,10 @@ public class Server {
 		before(Path.Web.MANAGE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
 		
-		before(Path.Web.ADD_TEAM, Filters.getAuthenticationFilter(User.ADMIN));
-		get(Path.Web.ADD_TEAM, EventPages.serveAddTeam);
-		post(Path.Web.ADD_TEAM, EventPages.handleAddTeam);
+		before(Path.Web.MANAGE_EVENT_TEAMS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.MANAGE_EVENT_TEAMS, EventPages.serveAddTeam);
+		post(Path.Web.MANAGE_EVENT_TEAMS, EventPages.handleAddTeam);
+		delete(Path.Web.MANAGE_EVENT_TEAMS, EventPages.handleRemoveTeam);
 		
 		before(Path.Web.UPLOAD_SCHEDULE, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);
@@ -291,6 +293,11 @@ public class Server {
 		//leave open, authentication done via access key.
 		post(Path.Web.DATA_DOWNLOAD_GLOBAL, ServerPages.handleDataDownloadGlobal);
 		post(Path.Web.DATA_DOWNLOAD_EVENT, ServerPages.handleDataDownloadEvent);
+		
+		
+		get(Path.Web.UPLOAD_ALLIANCES, EventPages.serveAllianceUploadPage);
+		post(Path.Web.UPLOAD_ALLIANCES, EventPages.handleAllianceUpload);
+		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

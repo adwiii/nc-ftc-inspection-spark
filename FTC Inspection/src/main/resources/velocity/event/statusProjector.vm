@@ -1,0 +1,82 @@
+<title>FTC Inspection App</title>
+    <link rel="stylesheet" href="/main.css">
+    <link rel="icon" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+  	<link rel="stylesheet" href="/js/jquery-ui.css">
+	<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
+  	<script>
+  		Role = {
+  			SYSADMIN : 1<<31,
+			ADMIN : 1<<30,
+			KEY_VOLUNTEER : 1<<29,
+			HEAD_REF : 1<<28,
+			REF : 1<<27,
+			LI : 1<<26,
+			INSPECTOR : 1<<25,
+			VOLUNTEER : 1<<2,
+			TEAM : 1<<1,
+			GENERAL : 1<<0,
+			NONE : 0
+  		};
+		function hasRole(role) {
+			return ($roles & role) != 0 || $roles === role;
+		};
+  	</script>
+<style>
+.equal {
+	width:7.5%;
+}
+.legendLeft {
+	width:20%;
+	text-align:center;
+}
+.legend {
+	width:10%;
+}
+</style>
+<h1 align=center>$event</h1>
+<body>
+<table align=center >
+<tr>
+	#foreach($i in [0..$numCols])
+	<td style="padding:5px">
+		<table id="statusTable" align=center border=3>
+    	<tr class="header">
+		#foreach ($h in $headers)
+			<th>$h</th>
+		#end
+		<th>Team</th>
+		<th>Name</th>
+	</tr>
+	#foreach ($r in $teamsPerCol.get($i))
+		<tr id="row_"$r.number>
+		#foreach ($h in $headers)
+			#set($s = $r.getStatus($h))
+			<td class="equal" id=${h}_$r.number bgcolor=#if($s == 1)'#0FF'#elseif($s == 2)'#F00'#elseif($s == 3)'#0F0'#else'#FFF'#end>&nbsp;</td>
+		#end
+		<td style="text-align:center;width:15%" >$r.number</td>
+		<td >$r.name</td>
+		</tr>
+	#end
+	</td>
+	</table>
+	#end
+</table>
+		<table border="3" align=center class="legend">;
+		<tr><th>Symbol</th><th>Meaning</th><th>Symbol</th><th>Meaning</th></tr>
+		<tr><td class="legendLeft" bgcolor="#FFFFFF">&nbsp;</td><td>Uninspected</td>
+		<td class="legendLeft">CI</td><td>Check-In</td></tr>
+		<tr><td class="legendLeft" bgcolor="#00FFFF">&nbsp;</td><td>In Progress</td>
+		<td class="legendLeft">HW</td><td>Hardware</td></tr>
+		<tr><td class="legendLeft" bgcolor="#FF0000">&nbsp;</td><td>Failed</td>
+		<td class="legendLeft">SW</td><td>Software</td></tr>
+		<tr><td class="legendLeft" bgcolor="#00FF00">&nbsp;</td><td>Passed</td>
+		<td class="legendLeft">FD</td><td>Field</td></tr></table>
+</body>
+<script>
+	
+	window.setTimeout(function(){window.location.reload(true);}, 60000);
+</script>

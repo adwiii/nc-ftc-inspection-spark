@@ -19,6 +19,15 @@ $(document).ready(function() {
 
         $('#selectedUsers').append($(selectedOpts).clone());
         $(selectedOpts).remove();
+        
+        //copied from: https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+        var options = $('#selectedUsers option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+		arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+		options.each(function(i, o) {
+  			o.value = arr[i].v;
+  			$(o).text(arr[i].t);
+		});
         e.preventDefault();
         
         updateRoles();
@@ -33,6 +42,15 @@ $(document).ready(function() {
 
         $('#allUsers').append($(selectedOpts).clone());
         $(selectedOpts).remove();
+        
+         //copied from: https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+        var options = $('#allUsers option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+		arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+		options.each(function(i, o) {
+  			o.value = arr[i].v;
+  			$(o).text(arr[i].t);
+		});
         e.preventDefault();
     });
 
@@ -45,8 +63,24 @@ $(document).ready(function() {
 
         $('#allUsers').append($(selectedOpts).clone());
         $(selectedOpts).remove();
+        
+        var options = $('#allUsers option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+		arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+		options.each(function(i, o) {
+  			o.value = arr[i].v;
+  			$(o).text(arr[i].t);
+		});
         e.preventDefault();
     });
+    
+    var options = $('#allUsers option');
+    var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+	arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+	options.each(function(i, o) {
+  		o.value = arr[i].v;
+  		$(o).text(arr[i].t);
+	});
     
     //BEGIN CODE THAT TREY WROTE AND WAS NOT COPIED
     

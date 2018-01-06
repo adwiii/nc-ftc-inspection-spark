@@ -88,9 +88,10 @@
   	function updateScheduleTab(schedule){
   		var sched = document.getElementById("ScheduleTab");
   		for(var i = 0; i < schedule.length; i++){
-  			var m = i + 1;
+  			
   			console.log(schedule[i]);
   			var match = schedule[i];
+  			var m = match.match;
   			var entry = document.getElementById("match"+m);
   			if(entry == null){
   				entry = document.createElement("div");
@@ -103,10 +104,14 @@
 				  entry.removeChild(entry.firstChild);
 				}
   			}
+  			
+  			var elim = typeof match.name !== 'undefined';
+ 
+  			
 			var cell = document.createElement("div");
 			cell.className= "scheduleMatch";
 			cell.id = "match"+m+"match";
-			cell.innerHTML = match.match;
+			cell.innerHTML =  elim ? match.name : match.match;
 			entry.appendChild(cell);
 			
 			cell = document.createElement("div");
@@ -121,18 +126,22 @@
 			cell.innerHTML = match.redScore;
 			entry.appendChild(cell);
 			
-			for(var n = 1; n < 3; n++){ 
+			for(var n = 1; n < 4; n++){ 
 				cell = document.createElement("div");
 				cell.className = "scheduleTeam";
-  				cell.id = "match"+m+"red"+m;
-  				cell.innerHTML = match["red"+n];
+  				cell.id = "match"+m+"red"+n;
+  				if(n<3 || elim){
+  					cell.innerHTML = match["red"+n];
+  				}
   				entry.appendChild(cell);  				
 			}
-			for(var n = 1; n < 3; n++){ 
+			for(var n = 1; n < 4; n++){ 
 				cell = document.createElement("div");
 				cell.className = "scheduleTeam";
-  				cell.id = "match"+m+"blue"+m;
-  				cell.innerHTML = match["blue"+n];
+  				cell.id = "match"+m+"blue"+n;
+  				if(n<3 || elim){
+  					cell.innerHTML = match["blue"+n];
+  				}
   				entry.appendChild(cell);  				
 			}
 			
@@ -607,8 +616,10 @@ function openTab(event, tabName){
 				<div class="scheduleTeam">Red Score</div>
 				<div class="scheduleTeam">Red 1</div>
 				<div class="scheduleTeam">Red 2</div>
+				<div class="scheduleTeam">Red 3</div>
 				<div class="scheduleTeam">Blue 1</div>
 				<div class="scheduleTeam">Blue 2</div>
+				<div class="scheduleTeam">Blue 3</div>
 				<div class="scheduleTeam">Blue Score</div>		
 				<div class="scheduleTeam">Play</div>
 				<div class="scheduleTeam">Post Result</div>		
