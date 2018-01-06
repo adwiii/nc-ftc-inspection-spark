@@ -9,7 +9,8 @@ import java.util.Set;
 
 public class Alliance {
 	//TODO where to put (static) mapping of values to points? Here?
-	int team1, team2;
+	int team1, team2, team3;
+	int rank;
 	boolean surrogate1 = false;
 	boolean surrogate2 = false;
 	//Keep scores in hash map - easy to change each year, easy to isolate for PUT requests.
@@ -29,6 +30,8 @@ public class Alliance {
 
 
 	int lastCalculatedScoreNoPenalties = 0;
+	//Only used in elims
+	boolean carriesCard = false;
 
 	static Map<String, Number> scoreMap = new HashMap<>();
 	static{
@@ -56,11 +59,30 @@ public class Alliance {
 		surrogate1 = s1;
 		surrogate2 = s2;
 	}
+	public Alliance(int rank) {
+		this.rank = rank;
+	}
+	public Alliance(int rank, int team1, int team2, int team3) {
+		this(rank);
+		this.team1 = team1;
+		this.team2 = team2;
+		this.team3 = team3;
+	}
+	public Alliance(int i, int j, int rank) {
+		this(i,j);
+		this.rank=rank;
+	}
 	public int getTeam1(){
 		return team1;
 	}
 	public int getTeam2(){
 		return team2;
+	}
+	public int getTeam3() {
+		return team3;
+	}
+	public int getRank() {
+		return rank;
 	}
 	public boolean is1Surrogate(){
 		return surrogate1;
@@ -285,6 +307,12 @@ public class Alliance {
 
 	public int getLastScore() {
 		return lastCalculatedScoreNoPenalties;
+	}
+	public void setCardCarry(boolean c) {
+		this.carriesCard = c;
+	}
+	public boolean carriesCard() {
+		return this.carriesCard;
 	}
 
 }

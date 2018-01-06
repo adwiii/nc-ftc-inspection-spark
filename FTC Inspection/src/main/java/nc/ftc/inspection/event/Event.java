@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Alliance;
@@ -66,13 +67,16 @@ public class Event {
 		if(previousMatch != null){
 			previousMatch.setStatus(MatchStatus.POST_COMMIT);
 		}
+		if(currentMatch.isElims()) { //for breakdown calc
+			fillCardCarry(currentMatch);
+		}
 		currentMatch.setStatus(MatchStatus.PRE_RANDOM);
 		System.out.println("Loaded match #"+currentMatch.getNumber());
 	}
 	
 	public void loadMatch(int num) {
 		Match temp = currentMatch;
-		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num);
+		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num, data.getStatus() >= EventData.ELIMS);
 		if(currentMatch == null) {
 			currentMatch = temp;
 		} else {
@@ -81,7 +85,7 @@ public class Event {
 			}				
 			previousMatch = currentMatch;
 			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
-			System.out.println("Loaded match #"+currentMatch.getNumber());
+			System.out.println("Loaded "+currentMatch.getName());
 		}
 		
 	}
@@ -161,9 +165,19 @@ public class Event {
 					if(!dqBlue2 && !blue.is2Surrogate()) blue2.RP += RP;
 				} else {
 					//if both teams on losing alliance DQ'd, winning team gets their SCORE (inc penalties) as RP
-				
+					//ignoring that case for now!
+					//get other teams pre-penalty score
+					int RP = 0;
+					if(mr.getWinChar() == 'R')RP = mr.getBlueScore();
+					if(mr.getWinChar() == 'B')RP = mr.getRedScore();
+					if(!dqRed1&& !red.is1Surrogate()) red1.RP += RP;
+					if(!dqRed2&& !red.is2Surrogate()) red2.RP += RP;
+					if(!dqBlue1 && !blue.is1Surrogate()) blue1.RP += RP;
+					if(!dqBlue2 && !blue.is2Surrogate()) blue2.RP += RP;
 				
 				}//TODO call this method after every commit and on recalc command
+				
+				
 				
 				//add matches to list of scores for non-DQ/surrogate teams
 				if(!dqRed1 && !red.is1Surrogate()) red1.scores.add(mr.getRedTotal());
@@ -205,6 +219,22 @@ public class Event {
 			}
 		}
 		return -1;
+	}
+	/**
+	 * Sets the cardCary flag in the two alliances in the given match, using card data from this event.
+	 * @param m
+	 */
+	public void fillCardCarry(Match m) {
+		if(!m.isElims())throw new IllegalStateException("DONT SET CARD CARRY FOR NON_ELIMINATION MATCHES!");
+		Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(data.getCode());
+		List<Integer> cardList = cardMap.get(m.getRed().getRank());
+		if(cardList.size()>0 && cardList.get(0) < m.getNumber()) {
+			m.getRed().setCardCarry(true);
+		}
+		cardList = cardMap.get(m.getBlue().getRank());
+		if(cardList.size()>0 && cardList.get(0) < m.getNumber()) {
+			m.getBlue().setCardCarry(true);
+		}
 	}
 	
 	

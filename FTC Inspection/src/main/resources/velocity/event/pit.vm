@@ -115,11 +115,17 @@ Pit Display
 	#end
 		<TR ALIGN=CENTER class="move">
 		<TD BGCOLOR="$m.winColor">
-		Q-$m.number
+			#if($m.isElims())
+				$m.name
+			#else
+				Q-$m.number
+			#end
 		</TD>
 		<TD BGCOLOR="$m.winColor">
 			#if($m.status == 1)
 				${m.getRedTotal()}-${m.getBlueTotal()} $m.winChar
+			#elseif ($m.status == 0)
+				Unplayed
 			#end
 		</TD>
 		</TR>
@@ -149,6 +155,7 @@ Pit Display
   			$("#rankingTable .move").slice(0, 5).appendTo("#rankingTable");
   			$("#matchTable .move").slice(0, 5).appendTo("#matchTable");
   		}, 3000);
+  		window.setTimeout(function(){window.location.reload(true);}, 180000);
 	});
 </script>
 </body>

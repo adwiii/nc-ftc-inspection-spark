@@ -22,6 +22,7 @@ import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -275,7 +276,19 @@ public class EventPages {
 		String event = request.params("event");
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("event", event);//TODO get the event name from db
-		model.put("matches", EventDAO.getSchedule(event));
+		List<Match> schedule = EventDAO.getSchedule(event);
+		List<Match> quals = new ArrayList<>(schedule.size());
+		List<Match> elims = new ArrayList<>(10);
+		for(Match m : schedule) {
+			if(m.isElims()) {
+				elims.add(m);
+			} else {
+				quals.add(m);
+			}
+		}
+		model.put("matches", quals);
+		model.put("elims", elims);
+		
 		return render(request, model, Path.Template.SCHEDULE_PAGE);
 	};
 	
@@ -570,6 +583,8 @@ public class EventPages {
 					}
 				}
 			}
+			//card carry handled for active my during load, so this call is the one exception
+			//that way we dont have to access the DB every time a score changes.
 			return e.getCurrentMatch().getScoreBreakdown();
 		};
 		
@@ -913,6 +928,7 @@ public class EventPages {
 							match.getBlue().updateScore(key, request.queryParams(key));
 						}
 					}
+					e.fillCardCarry(e.getCurrentMatch());
 					return e.getCurrentMatch().getScoreBreakdown();
 				//}
 			}
@@ -920,6 +936,127 @@ public class EventPages {
 			return "Not in review phase!";
 		};
 		
+		private static void handleEndSF(String event, List<MatchResult> sf1, List<MatchResult> sf2) {
+			int red1 = 0;
+			int blue1 = 0;
+			int red2 = 0;
+			int blue2 = 0;
+			for(MatchResult mr : sf1) {
+				if(mr.getStatus() == 1) {
+					if(mr.getWinChar() == 'R')red1++;
+					if(mr.getWinChar() == 'B')blue1++;
+				}
+			}
+			for(MatchResult mr : sf2) {
+				if(mr.getStatus() == 1) {
+					if(mr.getWinChar() == 'R')red2++;
+					if(mr.getWinChar() == 'B')blue2++;
+				}
+			}
+			if((red2 >= 2 || blue2 >= 2) && (red1 >=2 || blue1 >= 2)){
+				//SF complete
+				System.out.println("Semifinals complete!");
+				//red = winner of SF1
+				//blue = winner of SF2
+				Alliance red = new Alliance(red1 >= 2 ? 1 : 4);
+				Alliance blue = new Alliance(red2 >= 2 ? 2 : 3);
+				int max1 = sf1.stream().mapToInt(MatchResult::getNumber).max().getAsInt();//series.stream().max(Comparator.comparingInt(MatchResult::getNumber)).get().getNumber();
+				int max2 = sf2.stream().mapToInt(MatchResult::getNumber).max().getAsInt();
+				int f = Math.max(max1, max2);
+				//get nex number where n % field count = 1
+				//assert 2 field. find ext odd number
+				f++;
+				if(f%2 == 0)f++;
+				Match f1 = new Match(f, red, blue, "F-1" );
+				Match f2 = new Match(f+2, red, blue, "F-2" );
+				List<Match> finals = new ArrayList<Match>(2);
+				finals.add(f1);
+				finals.add(f2);
+				EventDAO.createElimsMatches(event, finals);
+			}
+		}
+		
+		//call then on commit or commit edit of elims matches 
+		private static void handleElimsUpdate(String event, Match match) {
+			//GOTTA GET THE MATCH submitted
+			String name = match.getName();
+			String prefix = name.substring(0, name.lastIndexOf("-"));
+			//check for series victory.
+			List<MatchResult> series = EventDAO.getSeriesResults(event, prefix);
+			int redWin = 0;
+			int blueWin = 0;
+			int unplayed = 0;
+			int cancelled = 0;
+			for(MatchResult mr : series) {
+				if(mr.getStatus() == 1) {
+					if(mr.getWinChar() == 'R')redWin++;
+					if(mr.getWinChar() == 'B')blueWin++;
+				}
+				if(mr.getStatus() == 0) {
+					unplayed++;
+				}
+				if(mr.getStatus() == 2) {
+					cancelled++;
+				}
+			}
+			
+			//This is built to handle weird stuff, out of order, and crazy match editing.
+			//if making finals matches, get highest match number and use next odd number.
+			if(redWin >= 2 || blueWin >= 2) {
+				//handle red advance if SF
+				//if more matches scheduled, cancel them
+				if(unplayed > 0) {
+					//cancel all future unplayed matches.
+					for(MatchResult m : series) {
+						if(m.getStatus() == 0) {
+							EventDAO.cancelMatch(event, m.getNumber());
+						}
+					}
+				}
+				
+				if(prefix.startsWith("SF-")) {
+					char sf = prefix.charAt(3);
+					char otherSF = sf == '1' ? '2' : '1'; //get other SF to check if its done.
+					List<MatchResult> other = EventDAO.getSeriesResults(event, "SF-"+otherSF);
+					if(sf == '1') {
+						handleEndSF(event, series, other);
+					} else {
+						handleEndSF(event, other, series);
+					}
+				}
+			} else {
+				//if more matches of status = 2, were fine
+				//if more matches but cancelled, uncancel them (this would only happen if edit caused them to be cancelled)
+				//if no more matches, create another match
+				//add 2 to this match number for next match!
+				//(really, add # of fields to the match number)
+				if(unplayed == 0) {
+					if(cancelled > 0) {
+						//uncancel first cancelled match for this series.
+						for(MatchResult mr : series) {
+							if(mr.getStatus() == 2) {
+								//uncancel
+								EventDAO.uncancelMatch(event, mr.getNumber());
+								break;
+							}
+						}
+					} else {
+						//create new match
+						MatchResult last = series.stream().max(Comparator.comparingInt(MatchResult::getNumber)).get();
+						int num = Integer.parseInt(name.substring(name.lastIndexOf("-")+1));
+						int dif = last.getNumber() - match.getNumber();
+						num += dif / 2; //this should be the last part of the name of the last match. 
+						//needs to be + no fields
+						Match m = new Match(last.getNumber() + 2, match.getRed(), match.getBlue(), prefix+"-"+(num+1) );
+						List<Match> matches = new ArrayList<>(1);
+						matches.add(m);
+						System.out.println("Creating Match "+m.getName());
+						EventDAO.createElimsMatches(event, matches);
+					}
+				}
+				
+			}
+		}
 		
 		
 		public static Route handleScoreCommit = (Request request, Response response) ->{
@@ -973,27 +1110,38 @@ public class EventPages {
 				}
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
-				
-				//TODO save old rankings to get change
-				//TODO save MatchResult Object to e.display
-				Alliance red = match.getRed();
-				Alliance blue = match.getBlue();
-				Display d = e.getDisplay();
-				MatchResult mr = new MatchResult(match.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
-
-				d.lastResult = mr;
-				int red1 = e.getRank(red.getTeam1());
-				int red2 = e.getRank(red.getTeam2());
-				int blue1 = e.getRank(blue.getTeam1());
-				int blue2  = e.getRank(blue.getTeam2());;
-				
-				e.calculateRankings();
-				//if unranked, show as improvement.
-				d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
-				d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
-				d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
-				d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());;
-				
+				//TODO for elims, dont do rank check, do series record check & generate new matches or cancel matches
+				if(e.getData().getStatus() == EventData.ELIMS) {
+					handleElimsUpdate(event, e.getCurrentMatch());	
+					Alliance red = match.getRed();
+					Alliance blue = match.getBlue();
+					MatchResult res = new MatchResult(match.getNumber(), red, blue, red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getName());
+					Display d = e.getDisplay();
+					d.lastResult = res;
+					//No change in rankings
+					d.red1Dif = 0;
+					d.red2Dif = 0;
+					d.blue1Dif = 0;
+					d.blue2Dif = 0;
+				} else {
+					Alliance red = match.getRed();
+					Alliance blue = match.getBlue();
+					Display d = e.getDisplay();
+					MatchResult mr = new MatchResult(match.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
+	
+					d.lastResult = mr;
+					int red1 = e.getRank(red.getTeam1());
+					int red2 = e.getRank(red.getTeam2());
+					int blue1 = e.getRank(blue.getTeam1());
+					int blue2  = e.getRank(blue.getTeam2());;
+					
+					e.calculateRankings();
+					//if unranked, show as improvement.
+					d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
+					d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
+					d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
+					d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());;
+				}
 				
 				e.loadNextMatch();
 			}
@@ -1056,6 +1204,7 @@ public class EventPages {
 			//TODO fix this an dmake it not suck!
 			String res = "{";
 			res += "\"number\":" + m.getNumber()+",";
+			res += "\"name\":\"" + m.getName()+"\",";
 			res += "\"red1\":"+red.getTeam1()+",";
 			res += "\"red2\":"+red.getTeam2()+",";
 			res += "\"blue1\":"+blue.getTeam1()+",";
@@ -1068,6 +1217,24 @@ public class EventPages {
 			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
 			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
 			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
+			if(e.getData().getStatus() == EventData.ELIMS) {
+				res += "\"red3\":"+red.getTeam3() +",";
+				res += "\"blue3\":"+blue.getTeam3() +",";
+				res += "\"red3Name\":\""+GlobalDAO.getTeamName(red.getTeam3()) +"\",";
+				res += "\"blue3Name\":\""+GlobalDAO.getTeamName(blue.getTeam3()) +"\",";
+				String prefix = m.getName().substring(0, m.getName().lastIndexOf("-"));
+				List<MatchResult> series = EventDAO.getSeriesResults(event, prefix);
+				int redWin = 0;
+				int blueWin = 0;
+				for(MatchResult mr : series) {
+					if(mr.getStatus() == 1) {
+						if(mr.getWinChar() == 'R')redWin++;
+						if(mr.getWinChar() == 'B')blueWin++;
+					}
+				}				
+				res += "\"redWins\":"+redWin+",";
+				res += "\"blueWins\":"+blueWin+",";
+			}
 			
 			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
 			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(event, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
@@ -1222,11 +1389,14 @@ public class EventPages {
 			}
 			//Set te Display's lastResult object
 			int match = Integer.parseInt(request.queryParams("match"));
-			Match m = EventDAO.getMatchResultFull(event, match);
+			Match m = EventDAO.getMatchResultFull(event, match, e.getData().getStatus() >= EventData.ELIMS);
 			Alliance red = m.getRed();
 			Alliance blue = m.getBlue();
+			if(m.isElims()) {
+				e.fillCardCarry(m);
+			}
 			m.getScoreBreakdown();//force score calc
-			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints()  );
+			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints(), m.getName()  );
 			
 			Display d = e.getDisplay();
 			//do not show change in rank for reposting old matches 
@@ -1410,13 +1580,15 @@ public class EventPages {
 				response.status(400);
 				return "Event not active";
 			}
-			int m = Integer.parseInt(request.params("match"));
-			return EventDAO.getMatchResultFull(event, m).getFullScores();
+			String match = request.params("match");
+			boolean elims = match.indexOf('-') >= 0;
+			int m = elims ? EventDAO.getElimsMatchNumber(event, match) : Integer.parseInt(match);
+			return EventDAO.getMatchResultFull(event, m, elims).getFullScores();
 		};
 		
 		public static Route handleGetEditScorePage = (Request request, Response response) ->{
 			HashMap<String, Object> map = new HashMap<>();
-			map.put("match", Integer.parseInt(request.params("match")));
+			//map.put("match", Integer.parseInt(request.params("match")));
 			return render(request, map, Path.Template.EDIT_MATCH_SCORE);
 		};
 		
@@ -1427,11 +1599,22 @@ public class EventPages {
 			 * <alliance>_card_<index>
 			 * <alliance>_dq_<index> 
 			 */
-			//team numbers shouldnt matter for this
-			Alliance red = new Alliance(0,0);
+			//team numbers shouldnt matter for this, except for elims
+			int rr = 0;
+			int br = 0;
+			if(request.params("match").indexOf('-')>=0) {
+				int[] r = EventDAO.getElimsMatchBasic(request.params("event"), m);
+				rr = r[0];
+				br = r[1];
+			}
+			Alliance red = new Alliance(0,0, rr);
 			red.initializeScores();
-			Alliance blue = new Alliance(0,0);
+			Alliance blue = new Alliance(0,0, br);
 			blue.initializeScores();
+			
+			
+			
+			
 			Match match = new Match(m, red, blue);
 			
 			for(String key : params){
@@ -1461,8 +1644,14 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			int m = Integer.parseInt(request.params("match"));
+			String ms = request.params("match");
+			boolean elims = ms.indexOf("-") >= 0;
+			int m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
 			Match match = createMatchObject(request, response, m);
+			if(elims) {
+				match.setName(ms.toUpperCase());
+				e.fillCardCarry(match);
+			}
 			return match.getScoreBreakdown();
 		};
 		public static Route handleCommitEditedScore = (Request request, Response response) ->{
@@ -1472,10 +1661,20 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			int m = Integer.parseInt(request.params("match"));
+			String ms = request.params("match");
+			boolean elims = ms.indexOf("-") >= 0;
+			int m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
 			Match match = createMatchObject(request, response, m);
+			if(elims) {
+				match.setName(ms.toUpperCase());
+				
+			}
 			if(EventDAO.commitScores(event, match)){
-				e.calculateRankings();
+				if(elims) {
+					handleElimsUpdate(event, match);//this may do weird things!!!!
+				} else {
+					e.calculateRankings();
+				}
 				return "OK";
 			}
 			response.status(500);
@@ -1489,10 +1688,14 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			int num = Integer.parseInt(request.params("match"));
-			Match m = EventDAO.getMatch(event, num);
+			
+			String ms = request.params("match");
+			boolean elims = ms.indexOf('-') >= 0;
+			int num = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
+			Match m = EventDAO.getMatch(event, num, elims);
 			String res = "{";
 			res += "\"number\":" + m.getNumber()+",";
+			res += "\"name\":\""+m.getName() +"\",";
 			res += "\"red1\":"+m.getRed().getTeam1()+",";
 			res += "\"red2\":"+m.getRed().getTeam2()+",";
 			res += "\"blue1\":"+m.getBlue().getTeam1()+",";
@@ -1642,10 +1845,10 @@ public class EventPages {
 			MatchResult mr = d.lastResult;
 			Alliance red = mr.getRed();
 			Alliance blue = mr.getBlue();
-			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(code, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
 			List<String> list = new ArrayList<>(20);
 			
 			list.add(json("number", mr.getNumber()));
+			list.add(json("name", mr.getName()));
 			
 			list.add(json("red1Dif", d.red1Dif));
 			list.add(json("red2Dif", d.red2Dif));
@@ -1665,33 +1868,76 @@ public class EventPages {
 			list.add(json("blue1", blue.getTeam1()));
 			list.add(json("blue2", blue.getTeam2()));
 			
-			list.add(json("red1Rank", e.getRank(red.getTeam1())));
-			list.add(json("red2Rank", e.getRank(red.getTeam2())));
-			list.add(json("blue1Rank", e.getRank(blue.getTeam1())));
-			list.add(json("blue2Rank", e.getRank(blue.getTeam2())));
+			
 			
 			int redCard1 = Integer.parseInt(red.getScore("card1").toString());
 			int redCard2 = Integer.parseInt(red.getScore("card2").toString());
 			int blueCard1 = Integer.parseInt(blue.getScore("card1").toString());
 			int blueCard2 = Integer.parseInt(blue.getScore("card2").toString());
 			
-			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
-			List<Integer> cardList = cardMap.get(red.getTeam1());			
-			Integer t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && redCard1==1)redCard1 = 3;
-			
-			cardList = cardMap.get(red.getTeam2()); 
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && redCard2==1)redCard2 = 3;
-			
-			cardList = cardMap.get(blue.getTeam1());
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && blueCard1==1)blueCard1 = 3;
-			
-			cardList = cardMap.get(blue.getTeam2());
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			if(t!=null && t.intValue()<mr.getNumber() && blueCard2==1)blueCard2 = 3;
-			
+			if(e.getData().getStatus() == EventData.ELIMS) {
+				//team3
+				list.add(json("red3", red.getTeam3()));
+				list.add(json("blue3", blue.getTeam3()));
+				
+				//put seeds here
+				list.add(json("redRank", mr.getRed().getRank()));
+				list.add(json("blueRank", mr.getBlue().getRank()));
+				
+				//get card info for elims - done by alliance, only set card1 (sent below if)
+				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(code);
+				List<Integer> cardList = cardMap.get(red.getRank());
+				if(redCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
+					redCard1 = 3;
+				}
+				cardList = cardMap.get(blue.getRank());
+				if(blueCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
+					blueCard1 = 3;
+				}
+				
+				
+				//get series results
+				String name = mr.getName();
+				String prefix = name.substring(0, name.lastIndexOf("-"));
+				//check for series victory.
+				List<MatchResult> series = EventDAO.getSeriesResults(code, prefix);
+				int redWin = 0;
+				int blueWin = 0;
+				for(MatchResult r : series) {
+					if(r.getStatus() == 1) {
+						if(r.getWinChar() == 'R')redWin++;
+						if(r.getWinChar() == 'B')blueWin++;
+					}
+				}
+				list.add(json("redWins", redWin));
+				list.add(json("blueWins", blueWin));
+			} else {
+				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(code, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
+				
+				list.add(json("red1Rank", e.getRank(red.getTeam1())));
+				list.add(json("red2Rank", e.getRank(red.getTeam2())));
+				list.add(json("blue1Rank", e.getRank(blue.getTeam1())));
+				list.add(json("blue2Rank", e.getRank(blue.getTeam2())));
+				
+				//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
+				List<Integer> cardList = cardMap.get(red.getTeam1());			
+				Integer t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && redCard1==1)redCard1 = 3;
+				
+				cardList = cardMap.get(red.getTeam2()); 
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && redCard2==1)redCard2 = 3;
+				
+				cardList = cardMap.get(blue.getTeam1());
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && blueCard1==1)blueCard1 = 3;
+				
+				cardList = cardMap.get(blue.getTeam2());
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				if(t!=null && t.intValue()<mr.getNumber() && blueCard2==1)blueCard2 = 3;
+				
+				
+			}
 			
 			list.add(json("red1Card", redCard1 ));
 			list.add(json("red2Card", redCard2 ));
@@ -1716,6 +1962,9 @@ public class EventPages {
 			return render(request, map, Path.Template.MATCH_RESULT_DETAIL);
 		};
 		
+		/**
+		 * match param is match name if elims
+		 */
 		public static Route handleGetFullScoresheet = (Request request, Response response) -> {
 			Map<String, Object> map = new HashMap<String, Object>();
 			String event = request.params("event");
@@ -1723,10 +1972,16 @@ public class EventPages {
 			if(e == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			int m = Integer.parseInt(request.params("match"));
-			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
+			String ms = request.params("match");
+			int m = 0;
+			boolean elims = ms.indexOf('-') >= 0;
+			m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
+			Match match = EventDAO.getMatchResultFull(event, m, elims);//.getFullScores();
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
+			}
+			if(elims) {
+				e.fillCardCarry(match);
 			}
 			match.getScoreBreakdown();
 			map.put("redScore", Integer.parseInt(match.redScoreBreakdown.get("score")));
@@ -1773,19 +2028,26 @@ public class EventPages {
 			if(e == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			int m = Integer.parseInt(request.params("match"));
-			Match match = EventDAO.getMatchResultFull(event, m);//.getFullScores();
+			String ms = request.params("match");
+			int m = 0;
+			boolean elims = ms.indexOf('-') >= 0;
+			m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
+			Match match = EventDAO.getMatchResultFull(event, m, elims);//.getFullScores();
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
+			}
+			if(elims) {
+				e.fillCardCarry(match);
 			}
 			match.getScoreBreakdown();
 			//taken from https://stackoverflow.com/questions/2779251/how-can-i-convert-json-to-a-hashmap-using-gson
 			Type type = new TypeToken<Map<String, String>>(){}.getType();
 			Gson gson = new Gson();
+		
 			map.put("redBreakdown", gson.fromJson(match.getScoreBreakdown(match.getRed()), type));
 			map.put("blueBreakdown", gson.fromJson(match.getScoreBreakdown(match.getBlue()), type));
 			map.put("matchNumber", match.getNumber());
-			map.put("fieldNumber", match.getNumber() % 2);
+			map.put("fieldNumber", match.getNumber() % 2); //TODO hardcoded field
 			map.put("red", match.getRed());
 			map.put("blue", match.getBlue());
 			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());
@@ -1808,6 +2070,69 @@ public class EventPages {
 			map.put("blueStanding", (blueRelic1Standing && blueRelic2Standing) ? 2 : (blueRelic1Standing || blueRelic2Standing) ? 1 : 0);
 			map.put("blueScores", match.getBlue().getRawScores());
 			return render(request, map, Path.Template.ALLIANCE_BREAKDOWN);			
+		};
+
+		public static Route serveAllianceUploadPage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.UPLOAD_ALLIANCES);
+		};
+
+		public static Route handleAllianceUpload = (Request request, Response response) ->{
+
+			String location = "public";          // the directory location where files will be stored
+			long maxFileSize = 100000000;       // the maximum size allowed for uploaded files
+			long maxRequestSize = 100000000;    // the maximum size allowed for multipart/form-data requests
+			int fileSizeThreshold = 1024;       // the size threshold after which files will be written to disk
+			
+			MultipartConfigElement multipartConfigElement = new MultipartConfigElement(
+			     location, maxFileSize, maxRequestSize, fileSizeThreshold);
+			 request.raw().setAttribute("org.eclipse.jetty.multipartConfig",
+			     multipartConfigElement);
+				
+			 	String event = request.params("event");
+			 	EventData data = EventDAO.getEvent(event);
+			 	if(data.getStatus() != EventData.SELECTION) {
+			 		response.status(409);
+			 		return "Not in selection phase!";
+			 	}
+				Part p = request.raw().getPart("file");
+				Scanner scan = new Scanner(p.getInputStream());
+				scan.useDelimiter("\\||\n");
+				Alliance[] alliances = new Alliance[4];
+				try{
+					int rank = 0;
+					while(scan.hasNextLine()){
+						if(rank > 3) {
+							System.err.println("More than 4 alliances not supported.");
+							break;
+						}
+						scan.nextInt();
+						//always in order?
+						int alliance = scan.nextInt();
+						scan.nextInt();
+						int t1 = scan.nextInt();
+						int t2 = scan.nextInt();
+						String s  =scan.nextLine();
+						int t3 = Integer.parseInt(s.substring(1));
+						alliances[rank] = new Alliance(rank + 1, t1, t2, t3);
+						rank++;
+						
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+				scan.close();
+				EventDAO.createAlliances(event, alliances);
+				//now, generate SF1-1,2-1,1-2,and 2-2.
+				List<Match> matches = new ArrayList<>(4);
+				//Red=1, Blue=4
+				matches.add( new Match(1, alliances[0], alliances[3], "SF-1-1"));
+				//Red=2, Blue=3
+				matches.add( new Match(2, alliances[1], alliances[2], "SF-2-1"));
+				matches.add( new Match(3, alliances[0], alliances[3], "SF-1-2"));
+				matches.add( new Match(4, alliances[1], alliances[2], "SF-2-2"));
+				EventDAO.createElimsMatches(event, matches);
+				response.status(200);
+				return "OK";
 		};
 		
 		

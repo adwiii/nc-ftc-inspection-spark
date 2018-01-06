@@ -16,11 +16,15 @@ public class MatchResult {
 	String RED = "#FF4444";
 	String BLUE = "#44AAFF";
 	int status;
+	String name;
 	
-	
+	//TODO for 2 team elims, make that show up properly in the results page.
 	//Blue score included auto, teleop, and adjust
 	//Blue penalty is # of points resulting from BLUE penalties. They count toward RED!
-	
+	public MatchResult(int n, Alliance r, Alliance b, int rs, int bs, int status, int redP, int blueP, String name) {
+		this(n,r,b,rs,bs,status,redP,blueP);
+		this.name = name;
+	}
 	public MatchResult(int n, Alliance r, Alliance b, int rs, int bs, int status, int redP, int blueP) {
 		red = r;
 		blue = b;
@@ -81,5 +85,11 @@ public class MatchResult {
 	}
 	public int getStatus() {
 		return status;
+	}
+	public String getName() {
+		return name == null ? "Qualification Match "+getNumber() : name;
+	}
+	public boolean isElims() {
+		return getName().indexOf('-') >= 0;
 	}
 }

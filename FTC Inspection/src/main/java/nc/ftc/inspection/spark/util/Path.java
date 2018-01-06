@@ -107,6 +107,8 @@ public class Path {
         public static final String DATA_DOWNLOAD_EVENT = "/config/remotes/ddevent/";
         public static final String PING = "/ping/";
         
+        public static final String UPLOAD_ALLIANCES = "/event/:event/manage/allianceupload/";
+        
         //restarting teleop vs restarting match??
         public static final String ABORT_MATCH = "event/:event/time/abort/"; 
 		public static final String ALL = "*";
@@ -187,6 +189,7 @@ public class Path {
         public static final String CLIENT_KEYS = "/velocity/keys.vm";
         public static final String REMOTE_KEYS = "/velocity/remotes.vm";
         public static final String SERVER_CONFIG = "/velocity/serverConfig.vm";
+        public static final String UPLOAD_ALLIANCES = "/velocity/event/uploadAlliances.vm";
         
     }
 

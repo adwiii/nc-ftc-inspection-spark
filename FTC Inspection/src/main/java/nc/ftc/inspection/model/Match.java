@@ -9,8 +9,11 @@ import java.util.Random;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import nc.ftc.inspection.dao.EventDAO;
+
 public class Match {
 	int number;
+	String name;
 	Alliance red;
 	Alliance blue;
 	public transient Map<String, String> redScoreBreakdown;
@@ -20,19 +23,36 @@ public class Match {
 	long lastChange = 0;
 	Object scoreLock = new Object();
 	public boolean refLockout = false;
+	boolean cancelled = false;
 	
 	public static transient final Match TEST_MATCH;
 	
 	static {
 		Alliance red = new Alliance(-1, -2);
 		Alliance blue = new Alliance(-3,-4);
-		TEST_MATCH = new Match(-1, red, blue);
+		TEST_MATCH = new Match(-1, red, blue, "Test Match");
 	}
 	
 	public Match(int num, Alliance red, Alliance blue){
 		this.red = red;
 		this.blue = blue;
 		this.number = num;
+	}
+	public Match(int num, Alliance red, Alliance blue, String name) {
+		this(num,red,blue);
+		this.name = name;
+	}
+	public boolean isCancelled() {
+		return cancelled;
+	}
+	public void setCancelled(boolean c) {
+		cancelled = c;
+	}
+	public String getName() {
+		if(name == null) {
+			return "Qualification Match "+number;
+		}
+		return name;
 	}
 	public int getNumber(){
 		return number;
@@ -106,6 +126,11 @@ public class Match {
 		return "\"" + name + "\":\"" + value.toString() + "\"";
 	}
 	
+	/**
+	 *
+	 * @param a
+	 * @return
+	 */
 	private List<String> getScoreBreakdownNoPenalty(Alliance a) {
 		List<String> list = new ArrayList<String>();
 		int jewelPoints = 0;
@@ -135,6 +160,8 @@ public class Match {
 		int balancePoints = 20 * Integer.parseInt(a.scores.get("balanced").toString());
 		int teleopPoints = glyphPoints + rowPoints + columnPoints + cipherPoints + relicPoints + balancePoints; 
 		
+		
+		
 		int adjust = Integer.parseInt(a.scores.get("adjust").toString());
 		
 		//store this in ram (call this method to calculate score, that way this code is only written once)
@@ -160,13 +187,26 @@ public class Match {
 		return list;
 	}
 	
+	/**
+	 * Ensure that the carryCard flag in the Alliance objects has been set before calling for Elims calculations
+	 * @param a
+	 * @return
+	 */
 	public String getScoreBreakdown(Alliance a) {
 		String res =  String.join(",", getScoreBreakdownNoPenalty(a))+", \"foulPoints\":\"";
 		Alliance opp = (a == red ? blue : red);
 		res += opp.getPenaltyPoints() + "\"";
 		res += ",\"minorPoints\":\"" + opp.getMinorPenaltyPoints() + "\"";
 		res += ",\"majorPoints\":\"" + opp.getMajorPenaltyPoints() + "\"";
-		res += ",\"score\":\"" + (a.lastCalculatedScoreNoPenalties + opp.getPenaltyPoints()) + "\"";
+		int score = (a.lastCalculatedScoreNoPenalties + opp.getPenaltyPoints());
+		if(this.isElims()) {
+			int card = Integer.parseInt(a.getScore("card1").toString());
+			if(card > 1 || (card == 1) && a.carriesCard()) {
+				score = Integer.parseInt(a.getScore("adjust").toString());
+				a.lastCalculatedScoreNoPenalties = score;
+			}
+		}
+		res += ",\"score\":\"" + score + "\"";
 		return "{" + res + "}";
 	}
 	
@@ -180,6 +220,7 @@ public class Match {
 		blueScoreBreakdown = gson.fromJson(blueBreakdown, type);
 		return "{\"red\":"+redBreakdown+",\"blue\":"+blueBreakdown+", \"ts\":"+lastChange+"}";
 	}
+	
 	
 	public String getFullScores() {
 		return "{\"red\":{"+String.join(",", red.getScores())+"},\"blue\":{"+String.join(",",blue.getScores())+"}, \"ts\":"+lastChange+"}";
@@ -202,6 +243,13 @@ public class Match {
 		synchronized(scoreLock) {
 			scoreLock.notifyAll();
 		}
+	}
+	
+	public boolean isElims() {
+		return name != null && name.indexOf('F') >= 0;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	
