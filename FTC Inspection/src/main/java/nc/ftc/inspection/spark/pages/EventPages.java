@@ -249,6 +249,29 @@ public class EventPages {
 		}
 	};
 	
+	public static Route servePitPage = (Request request, Response response) -> {
+		Map<String, Object> model = new HashMap<String, Object>();
+		String event = request.params("event");
+		String projString = request.queryParams("proj");
+		boolean proj = (projString == null) ? false : Boolean.parseBoolean(projString);
+		model.put("event", event);//TODO get the event name from db
+		Event e = Server.activeEvents.get(event);
+		if(e == null){
+			response.status(500);
+			return "Event not active.";
+		}
+	//	e.calculateRankings(); TODO make another endpoint to force recalc
+		model.put("rankings", e.getRankings());
+		model.put("event", e.getData().getName());
+		List<MatchResult> results = EventDAO.getMatchResults(event);
+		model.put("matches", results);
+		if (proj) {
+			return render(request, model, Path.Template.PIT_DISPLAY_PROJECTOR);
+		} else {
+			return render(request, model, Path.Template.PIT_DISPLAY);
+		}
+	};
+	
 	public static Route serveSchedulePage = (Request request, Response response) ->{
 		String event = request.params("event");
 		Map<String, Object> model = new HashMap<String, Object>();
@@ -1732,7 +1755,11 @@ public class EventPages {
 		};
 		
 		public static Route serveAddTeam = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.ADD_TEAM);
+			Map<String, Object> model = new HashMap<String, Object>();
+			String code = request.params("event");
+			List<Team> teamList = EventDAO.getTeams(code);
+			model.put("teamList", teamList);
+			return render(request, model, Path.Template.MANAGE_EVENT_TEAMS);
 		};
 		
 		public static Route handleAddTeam = (Request request, Response response) ->{
@@ -1746,6 +1773,29 @@ public class EventPages {
 			int team = Integer.parseInt(request.queryParams("team"));
 			if(EventDAO.addTeamToEvent(team, code)) {
 				return "OK"; 
+			}
+			response.status(400);
+			return "Team already in event";
+			}catch(Exception e) {
+				response.status(400);
+				return "Invalid team number";
+			}
+		};
+		
+		public static Route handleRemoveTeam = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			String[] teams = request.queryParams("teams").split(",");
+			if(data.getStatus() != 1) {
+				response.status(409);
+				return "Not in setup phase!";
+			}
+			try {
+			//TODO THOMAS PLZ DO
+			for (String team : teams) {
+				if(EventDAO.addTeamToEvent(Integer.parseInt(team), code)) {
+					return "OK"; 
+				}
 			}
 			response.status(400);
 			return "Team already in event";

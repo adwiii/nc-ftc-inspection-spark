@@ -55,21 +55,13 @@
 	</li><li>
 		<a href="../editmatch">Edit Match Scores</a>
 	</li><li>
-		<a href="../field/">Field Display 16:9</a>
-	</li><li>
-		<a href="../field/?43=true"><s>Field Display 4:3</s></a>
+		<a href="../field/">Field Display</a>
 	</li><li>
 		<a href="../field/?field=1"><s>Field Display 16:9 (Field 1 - Odd Matches Only)</s></a>
-	</li><li>
-		<a href="../field/?field=1&43=true"><s>Field Display 4:3 (Field 1 - Odd Matches Only)</s></a>
 	</li><li> 
 		<a href="../field/?field=2"><s>Field Display 16:9 (Field 2 - Even Matches Only)</s></a>
 	</li><li>
-		<a href="../field/?field=2&43=true"><s>Field Display 4:3 (Field 2 - Odd Matches Only</s></a>
-	</li><li>
 		<a href="../field/?ad=true&mute=true"><s>Audience Display 16:9</s></a>
-	</li><li>
-		<a href="../field/?ad=true&mute=true&43=true"><s>Audience Display 4:3</s></a>
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display 16:9</a>
 	</li><li>
