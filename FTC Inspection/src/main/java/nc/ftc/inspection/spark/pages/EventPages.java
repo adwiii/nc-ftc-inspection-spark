@@ -928,7 +928,9 @@ public class EventPages {
 							match.getBlue().updateScore(key, request.queryParams(key));
 						}
 					}
-					e.fillCardCarry(e.getCurrentMatch());
+					if(e.getCurrentMatch().isElims()) {
+						e.fillCardCarry(e.getCurrentMatch());
+					}
 					return e.getCurrentMatch().getScoreBreakdown();
 				//}
 			}
@@ -1525,21 +1527,27 @@ public class EventPages {
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
-			map.put("field", fieldStr == null ? null : Integer.parseInt(fieldStr));
+			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 
 		//TODO request could send what it thinks the last command was, 
 		//and this blocks if matches, and returns immediately if wrong.
 		public static Route handleGetTimerCommands = (Request request, Response response) ->{
+			
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null) {
 				response.status(400);
 				return "Event not active";
 			}
+			TimerCommand cmd = e.getTimer().blockForNextCommand();
+			int match = -1;
+			if(e.getCurrentMatch() != null) {
+				match = e.getCurrentMatch().getNumber() % 2;
+			}
 			//TODO add block=false param to retrieve last command.
-			return e.getTimer().blockForNextCommand();
+			return cmd+","+match;
 		};
 		public static Route handleGetDisplayCommands = (Request request, Response response) ->{
 			String event = request.params("event");
@@ -1549,7 +1557,12 @@ public class EventPages {
 				return "Event not active";
 			}
 			//TODO add block=false param to retrieve last command.
-			return e.getDisplay().blockForNextCommand();
+			DisplayCommand cmd = e.getDisplay().blockForNextCommand();
+			int match = -1;
+			if(e.getCurrentMatch() != null) {
+				match = e.getCurrentMatch().getNumber() % 2;
+			}
+			return cmd +","+match;
 		};
 		
 		public static Route handleShowPreviewCommand = (Request request, Response response) ->{

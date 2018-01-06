@@ -13,6 +13,7 @@ import java.util.Scanner;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
+import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.dao.EventDAO;
@@ -29,6 +30,7 @@ import nc.ftc.inspection.spark.pages.LoginPage;
 import nc.ftc.inspection.spark.pages.ServerPages;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
+import spark.Spark;
 
 public class Server {
 	public static final String DB_PATH;// = "src/main/resources/db/";
@@ -75,7 +77,7 @@ public class Server {
 				System.err.println("Cant calculate rankings for "+e.getKey());
 			}
 		}
-		
+	//	threadPool(100, 30, 0);
 		port(80);
 		String loc = System.getProperty("location");
 		if(loc != null && loc.equals("external")){
@@ -303,15 +305,18 @@ public class Server {
 		
 		after("*", Filters.addGzipHeader);
 		
+	
+		
 		/* TODO might want to record a snapshot of thread and ram count every 30 se or so
 		 * and keep like 20 minutes of data
 		 * have a page that shows the graph, the names of all the current threads & maybe their state?
 		 * need to do some timing on responses - those random ~8s times on updateScore is concerning.
-		Thread t = new Thread() {
+		
+		Thread t = new Thread("Resource Monitor") {
 			public void run() {
 				while(true) {
 					try {
-						Thread.sleep(60000);
+						Thread.sleep(5000);
 					}catch(Exception e) {
 						
 					}
@@ -322,6 +327,8 @@ public class Server {
 					long ram = total - free;
 					double perc = 100.0 * ((double)ram) / ((double)total);
 					System.out.println(threads +" threads");
+					
+					System.out.println(Spark.activeThreadCount() + " spark threads");
 					System.out.println("RAM: "+(ram / 1024 / 1024) + "/" + (total/1024/1024)+ " MB ("+perc+"%)");
 					System.out.println("****************");
 				}

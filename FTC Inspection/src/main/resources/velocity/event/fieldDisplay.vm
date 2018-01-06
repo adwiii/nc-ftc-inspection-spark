@@ -68,7 +68,7 @@
  		<div  class="result resultText resultSeed"><span class="resultSeedText" id="${a}${i}Seed">4</span></div>
  		<img id="${a}Bar${i}" src="/img/alliance${a}92.png" class="resultBarImg" alt="${a}${i}">
  		<div class="result resultText resultNumber" id=${a}${i}_resultNumber>
- 			#if($i == "head")&nbsp;99999&nbsp;99999&nbsp;99999#end
+ 			#if($i == "head")Team#end
  		</div>
  		<img src="" id="${a}${i}_card" alt="card"  class="result resultText resultCard" visible="false"> 		
  		<div class="result resultText resultRank" id=${a}${i}_resultRank>
@@ -185,6 +185,10 @@
 		color:black;
 	}
 	.resultNumber{
+		position:absolute;
+		width:250px;
+	}
+	div[elims="true"] > div > div > .resultNumber{
 		position:absolute;
 		left:70;
 		width:250px;
@@ -646,11 +650,18 @@
             		//weve been redirected to login page!
             		window.location.reload(true);
             	}
-            	if(data == 'START'){
+            	data = data.split(",");
+            	#if($field)
+            		if(data[1] != $field){
+            			getTimerCommand();
+            			return;
+            		}
+            	#end
+            	if(data[0] == 'START'){
             		start();
-            	} else if(data == 'PAUSE'){
+            	} else if(data[0] == 'PAUSE'){
             		pause();
-            	} else if(data == 'RESUME'){
+            	} else if(data[0] == 'RESUME'){
             		resume();
             	} 
             	getTimerCommand();
@@ -764,17 +775,24 @@
             		//weve been redirected to login page!
             		window.location.reload(true);
             	}
-            	if(data == 'SHOW_RANDOM'){
+            	data = data.split(",");
+            	#if($field)
+            		if(data[1] != $field){
+            			getDisplayCommand();
+            			return;
+            		}
+            	#end
+            	if(data[0] == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
             		#if(!$ad)getMatchInfo();#end
-            	} else if(data == 'SHOW_MATCH'){
+            	} else if(data[0] == 'SHOW_MATCH'){
             		showMatch();
-            	} else if(data == 'STOP_SCORE_UPDATES'){
+            	} else if(data[0] == 'STOP_SCORE_UPDATES'){
             		stopScores = true;
             	}
             	
-            		else if(data == 'SHOW_PREVIEW'){
+            		else if(data[0] == 'SHOW_PREVIEW'){
             			$.ajax({
 				  			url: "../match/",
 				  			type: "GET",
@@ -793,7 +811,7 @@
 				  			}});
             		} 
             		#if($ad)
-            		else if(data == 'SHOW_RESULT'){
+            		else if(data[0] == 'SHOW_RESULT'){
             			$.ajax({
 				  			url: "../display/resultdata/",
 				  			type: "GET",
@@ -1026,7 +1044,7 @@
 			document.getElementById("redhead_resultNumber").innerHTML = "&nbsp;"+data.red1+"&nbsp;"+data.red2+"&nbsp;"+data.red3;
 			document.getElementById("redheadSeed").innerHTML = data.redRank;
 		
-		document.getElementById("bluehead_resultNumber").innerHTML = "&nbsp;"+data.blue1+"&nbsp;"+data.blue2+"&nbsp;"+data.blue3;
+			document.getElementById("bluehead_resultNumber").innerHTML = "&nbsp;"+data.blue1+"&nbsp;"+data.blue2+"&nbsp;"+data.blue3;
 			document.getElementById("blueheadSeed").innerHTML = data.blueRank;
 		
 			var sr = "Series Tied";
@@ -1052,6 +1070,9 @@
 			document.getElementById("bluehead_card").setAttribute("visible", data.blue1Card == 0 ? "false" : "true");
 			if(data.blue1Card > 0) document.getElementById("bluehead_card").src=getCardImage(data.blue1Card);
 		
+		} else{
+			document.getElementById("redhead_resultNumber").innerHTML = "Team";
+			document.getElementById("bluehead_resultNumber").innerHTML = "Team";
 		}
 		
 		document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");

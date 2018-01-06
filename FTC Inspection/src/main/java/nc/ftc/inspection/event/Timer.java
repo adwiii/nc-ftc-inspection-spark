@@ -15,7 +15,7 @@ public class Timer {
 	
 	public Event event;
 	
-	private Thread eventDispatch = new Thread() {
+	private Thread eventDispatch = new Thread("Match Timer Thread") {
 		public void run() {
 			while(!destroyed) {
 				try {

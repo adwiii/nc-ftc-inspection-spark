@@ -57,17 +57,15 @@
 	</li><li>
 		<a href="../field/">Field Display</a>
 	</li><li>
-		<a href="../field/?field=1"><s>Field Display 16:9 (Field 1 - Odd Matches Only)</s></a>
+		<a href="../field/?field=1">Field Display 1 (Odd Matches Only)</a>
 	</li><li> 
-		<a href="../field/?field=2"><s>Field Display 16:9 (Field 2 - Even Matches Only)</s></a>
+		<a href="../field/?field=2">Field Display 2 (Even Matches Only)</a>
 	</li><li>
-		<a href="../field/?ad=true&mute=true"><s>Audience Display 16:9</s></a>
+		<a href="../field/?ad=true&mute=true">Audience Display</a>
 	</li><li>
-		<a href="../field/?ad=true">Field Display As Audience Display 16:9</a>
+		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li><li>
-		<a href="../field/?ad=true&43=true"><s>Field Display As Audience Display 4:3</s></a>
-	</li><li>
-		<a href="../pit"><s>Pit Display</s></a>
+		<a href="../pit">Pit Display</a>
 	</li>
 </ul>
 #end
