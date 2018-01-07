@@ -37,6 +37,7 @@ public class Path {
         public static final String INSPECT_OVERRIDE = "/event/:event/inspect/:form/override/";
         public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
+        public static final String TEAM_INFO = "/event/:event/teams/info/";
         
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         //TODO change so as to not have duplicate constants?
@@ -176,6 +177,7 @@ public class Path {
 		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
 		public static final String INSPECTION_OVERRIDE_PAGE = "/velocity/event/inspectOverride.vm";
 		public static final String INSPECT_TEAM_HOME = "/velocity/event/teamInspectHome.vm";
+		public static final String TEAM_INFO = "/velocity/event/teamInfo.vm";
 		public static final String FIELD_DISPLAY = "/velocity/event/fieldDisplay.vm";
 		public static final String EDIT_SCORE_HOME = "/velocity/event/editScoreHome.vm";
 		public static final String EDIT_MATCH_SCORE = "/velocity/event/editMatch.vm";

@@ -1498,6 +1498,15 @@ public class EventPages {
 			map.put("headerColor", "#E6B222");
 			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
 		};
+		
+		public static Route serveTeamInfo = (Request request, Response response) ->{
+			Map<String, Object> model = new HashMap<>();
+			String code = request.params("event");
+			List<Team> teamList = EventDAO.getTeams(code);
+			model.put("teamList", teamList);
+			model.put("eventCode", code);
+			return render(request, model, Path.Template.TEAM_INFO);
+		};
 
 		public static Route serveInspectionOverride = (Request request, Response response) ->{
 			System.out.println("OVER");;
@@ -1812,6 +1821,25 @@ public class EventPages {
 			}
 			response.status(400);
 			return "Team already in event";
+			}catch(Exception e) {
+				response.status(400);
+				return "Invalid team number";
+			}
+		};
+		
+		public static Route handleEditTeam = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			String team = request.queryParams("team");
+			String newName = request.queryParams("name");
+			if(data.getStatus() != 1) {
+				response.status(409);
+				return "Not in setup phase!";
+			}
+			try {
+			//TODO THOMAS DO THIS ONE TOO
+			response.status(400);
+			return "Error setting team name";
 			}catch(Exception e) {
 				response.status(400);
 				return "Invalid team number";
