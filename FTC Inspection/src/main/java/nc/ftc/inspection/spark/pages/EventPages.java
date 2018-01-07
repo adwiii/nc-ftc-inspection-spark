@@ -874,6 +874,35 @@ public class EventPages {
 			response.status(409);
 			return "Match not running!";
 		};
+		
+		public static Route handleTimeoutCommand = (Request request, Response response) ->{
+			String event = request.params("event");
+			String cmd = request.params("cmd");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			switch(cmd.toUpperCase()) {
+				case "FIELD":
+					e.getTimer().issueCommand(TimerCommand.FIELD_TO);
+					break;
+				case "TEAM":
+					e.getTimer().issueCommand(TimerCommand.TEAM_TO);
+					break;
+				case "END":
+					e.getTimer().issueCommand(TimerCommand.END_TO);
+					break;
+				case "SHOW":
+					e.getDisplay().issueCommand(DisplayCommand.SHOW_TO);
+					break;
+				default:
+					response.status(400);
+					return "Invalid command";
+			}
+			return "OK";
+		};
+		
 		public static Route handleResetMatch = (Request request, Response response) ->{
 			//TODO make sure waitForEnd handles this properly (return error)
 			//Same with waitForRefs

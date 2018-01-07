@@ -262,6 +262,8 @@ public class Server {
 		put(Path.Web.SCORE, EventPages.handleScoreUpdate);
 		put(Path.Web.EDIT_SCORE, EventPages.handleControlScoreEdit);
 		post(Path.Web.SET_STATUS, EventPages.handleSetStatus);
+		post(Path.Web.TIMEOUT_COMMAND,  EventPages.handleTimeoutCommand);
+		
 		post(Path.Web.RANKINGS, EventPages.handleRecalcRankings);
 		
 		//ref?

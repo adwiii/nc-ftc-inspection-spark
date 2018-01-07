@@ -477,6 +477,19 @@
 		height:100%;
 		position:absolute;
 	}
+	
+	.toBar{
+		position:absolute;
+		left:-506;
+		top:724;
+		width:1732;
+		height:93;
+		text-align:center;
+		font:61px "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	.toBar[visible="false"]{
+		display:none;
+	}
 	</style>
 
 <body>
@@ -530,6 +543,8 @@
 	  		<div id="redWing3" style="top:203;" class="wing redWing" card=false visible="false">
 	  		</div>
 	  	</div> 
+	  	<img id="timeoutBarImg" class="toBar" src="/img/alliancebar200.png" alt="toBar" visible="false">
+  		<div id="timeoutBar" class="toBar" visible="false">Alliance Timeout Window Expired</div>
   	</div>
   	<div id="random" visible="false">
   		<img id="randomImg" src="/img/random1_75.png" alt="Randomization" >
@@ -599,6 +614,10 @@
   	var endgameSound = document.getElementById("factwhistle");
   	var buzzerSound = document.getElementById("endmatch");
   	var foghornSound = document.getElementById("fogblast");
+  	var timeout = false;
+  	var timeoutLength = 300000; //Field timeout is 5 min. Alliance adds 3 min (180000)
+  	var allianceTimeoutLength = 180000;
+  	var allianceTO = 0;
   	var startTime = 0;
   	var pauseStart = 0;
   	var paused = false;
@@ -651,6 +670,14 @@
             		window.location.reload(true);
             	}
             	data = data.split(",");
+            
+        		if(data[0] == "FIELD_TO"){
+        			fieldTimeout();
+        		}
+        		if(data[0] == "TEAM_TO"){
+        			allianceTimeout();
+        		}
+            
             	#if($field)
             		if(data[1] != $field){
             			getTimerCommand();
@@ -674,6 +701,7 @@
 	}
 	
   	function start(){
+  		timeout = false;
   		stopScores = false;
   		startTime = new Date().getTime();
   		timerInstance = setInterval(tick, 50);
@@ -699,6 +727,39 @@
   		timerInstance = setInterval(tick, 50);
   		paused = false;
   	}
+  	function fieldTimeout(){
+  		allianceTO = 0;
+  		timeout = true;
+  		startTime = new Date().getTime();
+  		timerInstance = setInterval(tick, 50);
+  		#if(!$ad)
+  			showTimeout();
+  		#end
+  	}
+  	function allianceTimeout(){
+  		allianceTO++;
+ 		if(!timeout){
+ 			timeout = true;
+ 			startTime = new Date().getTime() - timeoutLength; //due to math in tick, pretend field timeout just expired
+  			timerInstance = setInterval(tick, 50);
+ 			#if(!$ad)
+  				showTimeout();
+  			#end
+ 		}
+  		
+  	}
+  	function endTimeout(){
+  	}
+  	function showTimeout(){
+  		showMatch();
+  		document.getElementById("top").innerHTML = "Timeout In Progress";
+  		//at bottom show "Alliance Timeout Window: 3:00" / "Alliance Timeout Called"/ "Alliance Timeout Window Expired"
+  		document.getElementById("scoreBar").setAttribute("visible", "false");
+  		document.getElementById("scoreRed").setAttribute("visible", "false");
+  		document.getElementById("scoreBlue").setAttribute("visible", "false");
+  		document.getElementById("timeoutBar").setAttribute("visible", "true");
+  		document.getElementById("timeoutBarImg").setAttribute("visible", "true");
+  	}
   	
   	
   	function display(sec, color){
@@ -715,8 +776,36 @@
   	}
   	function tick(){
   		var cur = new Date().getTime();
-  		//document.getElementById("ms").innerHTML = cur;
   		var elapsed = cur - startTime;
+  		
+  		if(timeout){
+  			var left = ( timeoutLength + (allianceTO * allianceTimeoutLength) -elapsed );
+  			display( left  / 1000 , "W");
+  			if(left <= 0){  				
+  				buzzerSound.play();
+  				display(0, "W");
+  				window.clearInterval(timerInstance);
+  			}
+  			//display alliance timeout window
+  			var x = "";
+  			if(allianceTO > 0){
+  				x = "Alliance Timeout Called";
+  			} else{
+  				if(left < 120000){
+  					x = "Alliance Timeout Window Expired";
+  				} else{
+  					x = "Alliance Timeout Window: ";
+  					var y = Math.ceil((left - 120000)/1000);
+  					x += Math.floor(y/60) + ":";
+  					var z = y % 60;
+  					if(z < 10) x+= "0";
+  					x += z;  					
+  				}
+  			}
+  			document.getElementById("timeoutBar").innerHTML = x;
+  			return;
+  		}
+  		
   		if (elapsed < 30000){
   			//autonomous
   			display(150 - (elapsed/1000), "W");
@@ -754,9 +843,10 @@
   			buzzerSound.play();
   			display(0, "W");
   			window.clearInterval(timerInstance);
+  			timeout = false;
+  			allianceTO = 0;
   			return;
   		}
-  		//trigger rerun in 50 ms
   	}
   	display(150, "W");
   	
@@ -782,6 +872,9 @@
             			return;
             		}
             	#end
+            	if(data[0] == "SHOW_TO"){
+            		showTimeout();
+            	}
             	if(data[0] == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
@@ -1124,6 +1217,10 @@
 		document.getElementById("scoreBlue").setAttribute("visible","true");
 		document.getElementById("scoreBar").setAttribute("visible","true");
 		document.getElementById("result").setAttribute("visible","false");
+		
+		
+  		document.getElementById("timeoutBar").setAttribute("visible", "false");
+  		document.getElementById("timeoutBarImg").setAttribute("visible", "false");
 	}
 	
 	

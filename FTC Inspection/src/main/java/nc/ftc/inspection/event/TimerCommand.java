@@ -4,5 +4,5 @@ public enum TimerCommand {
 	/**
 	 * This enum also covers non-timing commands for the FieldDisplay, but most are timing.
 	 */
-	START, PAUSE, RESUME, RESET, LOAD_MATCH
+	START, PAUSE, RESUME, RESET, LOAD_MATCH, FIELD_TO, TEAM_TO, END_TO
 }

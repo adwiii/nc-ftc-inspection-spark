@@ -574,6 +574,13 @@ function postOld(src){
     });
 }
 
+function timeoutCommand(cmd){
+	var postObj = {};
+	$.post("../timeout/"+cmd+"/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
 function openTab(event, tabName){
 	tabcontent = document.getElementsByClassName("tabContent");
 	for (i = 0; i < tabcontent.length; i++) {
@@ -633,10 +640,10 @@ function openTab(event, tabName){
 			</fieldset>
 			<fieldset>
 				<legend>Timeout Controls</legend>
-				<button class="matchControlButton" id="fieldTO">Field Timeout</button>
-				<button class="matchControlButton" id="teamTO">Team Timeout</button>
-				<button class="matchControlButton" id="endTO">End Timeout</button>
-				<button class="matchControlButton" id="showTO">Display Timeout</button>
+				<button class="matchControlButton" id="fieldTO" onclick="timeoutCommand('field')">Field Timeout</button>
+				<button class="matchControlButton" id="teamTO" onclick="timeoutCommand('team')">Team Timeout</button>
+				<button class="matchControlButton" id="endTO" onclick="timeoutCommand('end')">End Timeout</button>
+				<button class="matchControlButton" id="showTO" onclick="timeoutCommand('show')">Display Timeout</button>
 			</fieldset>
 			<fieldset>
 				<legend>Match Timer</legend>
