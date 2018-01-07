@@ -71,25 +71,34 @@ Match Results</H2></CENTER>
 		#end
 	#elseif($m.status == 0)
 	<TR ALIGN=CENTER>
-		<TD BGCOLOR=$c ROWSPAN=2>
-			#if($m.isElims())
-				$m.name
-			#else
-				Q-$m.number
-			#end
+		<TD BGCOLOR=$c ROWSPAN=#if($m.isElims()) 3 #else 2#end>
+		#if($m.isElims())
+			$m.name
+		#else
+			Q-$m.number
+		#end
 		</TD>
-		<TD BGCOLOR="$m.winColor" ROWSPAN=2>
+		<TD BGCOLOR="$c" ROWSPAN=#if($m.isElims()) 3 #else 2#end>
 			#if($m.status == 1)
 				${m.getRedTotal()}-${m.getBlueTotal()} $m.winChar
 			#end
 		</TD>
 		<TD BGCOLOR=$c> $m.red.team1#if($m.red.is1Surrogate())*#end</TD>
 		<TD BGCOLOR=$c> $m.blue.team1#if($m.blue.is1Surrogate())*#end</TD>
+		<td bgcolor=$c colspan="2"></td>
 	</TR>
 	<TR ALIGN=CENTER>
 		<TD BGCOLOR=$c>$m.red.team2#if($m.red.is2Surrogate())*#end</TD>
 		<TD BGCOLOR=$c>$m.blue.team2#if($m.blue.is2Surrogate())*#end</TD>
+		<td bgcolor=$c ROWSPAN=#if($m.isElims()) 2 #else 1#end></td>
+		<td bgcolor=$c ROWSPAN=#if($m.isElims()) 2 #else 1#end></td>
 	</TR>
+		#if($m.isElims())
+			<TR ALIGN=CENTER>
+				<TD BGCOLOR=$c><a href="../match/$n/scoresheet/red/" style="color:black">$m.red.team3</a></TD>
+				<TD BGCOLOR=$c><a href="../match/$n/scoresheet/blue/" style="color:black">$m.blue.team3</a></TD>
+			</TR>
+		#end
 	#end
 #end
 </TABLE></DIV>

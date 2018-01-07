@@ -2018,6 +2018,8 @@ public class EventPages {
 			boolean elims = ms.indexOf('-') >= 0;
 			m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
 			Match match = EventDAO.getMatchResultFull(event, m, elims);//.getFullScores();
+			match.getRed().initializeScores();
+			match.getBlue().initializeScores();
 			if (match == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
