@@ -305,7 +305,7 @@
 	}
 	.scheduleStatus{
 		text-align:center;
-		width: 150px;
+		width: 110px;
 		height : 100%;
 		float:left;
 	}
@@ -627,7 +627,21 @@ function openTab(event, tabName){
 			
 		</div>
 		<div class="tabContent" id="SettingsTab">
-			<button onclick="loadMatch(this)" id="match-1">Test Match</button>
+			<fieldset style="float:left;">
+				<legend>System Test</legend>
+				<button class="matchControlButton" onclick="loadMatch(this)" id="match-1">Test Match</button>
+			</fieldset>
+			<fieldset>
+				<legend>Timeout Controls</legend>
+				<button class="matchControlButton" id="fieldTO">Field Timeout</button>
+				<button class="matchControlButton" id="teamTO">Team Timeout</button>
+				<button class="matchControlButton" id="endTO">End Timeout</button>
+				<button class="matchControlButton" id="showTO">Display Timeout</button>
+			</fieldset>
+			<fieldset>
+				<legend>Match Timer</legend>
+			</fieldset>
+			
 		</div>
 	</body>
 </html>
