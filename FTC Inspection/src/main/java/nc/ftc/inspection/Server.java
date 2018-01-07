@@ -215,6 +215,7 @@ public class Server {
 		get(Path.Web.MANAGE_EVENT_TEAMS, EventPages.serveAddTeam);
 		post(Path.Web.MANAGE_EVENT_TEAMS, EventPages.handleAddTeam);
 		delete(Path.Web.MANAGE_EVENT_TEAMS, EventPages.handleRemoveTeam);
+		put(Path.Web.MANAGE_EVENT_TEAMS, EventPages.handleEditTeam);
 		
 		before(Path.Web.UPLOAD_SCHEDULE, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);

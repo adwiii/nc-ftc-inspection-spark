@@ -1817,6 +1817,25 @@ public class EventPages {
 				return "Invalid team number";
 			}
 		};
+		
+		public static Route handleEditTeam = (Request request, Response response) ->{
+			String code = request.params("event");
+			EventData data = EventDAO.getEvent(code);
+			String team = request.queryParams("team");
+			String newName = request.queryParams("name");
+			if(data.getStatus() != 1) {
+				response.status(409);
+				return "Not in setup phase!";
+			}
+			try {
+			//TODO THOMAS DO THIS ONE TOO
+			response.status(400);
+			return "Error setting team name";
+			}catch(Exception e) {
+				response.status(400);
+				return "Invalid team number";
+			}
+		};
 
 		public static Route serveUploadSchedulePage = (Request request, Response response) ->{
 			return render(request, new HashMap<String, Object>(), Path.Template.UPLOAD_SCHEDULE);
