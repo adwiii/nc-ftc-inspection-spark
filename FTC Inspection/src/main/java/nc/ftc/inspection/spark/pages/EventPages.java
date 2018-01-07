@@ -1813,17 +1813,16 @@ public class EventPages {
 				return "Not in setup phase!";
 			}
 			try {
-			//TODO THOMAS PLZ DO
-			for (String team : teams) {
-				if(EventDAO.addTeamToEvent(Integer.parseInt(team), code)) {
-					return "OK"; 
+				
+				for (String team : teams) {
+					if(EventDAO.removeTeamFromEvent(Integer.parseInt(team), code)) {
+					}
 				}
-			}
-			response.status(400);
-			return "Team already in event";
+				response.status(200);
+				return "OK";
 			}catch(Exception e) {
 				response.status(400);
-				return "Invalid team number";
+				return "ERROR";
 			}
 		};
 		
@@ -1837,9 +1836,10 @@ public class EventPages {
 				return "Not in setup phase!";
 			}
 			try {
-			//TODO THOMAS DO THIS ONE TOO
-			response.status(400);
-			return "Error setting team name";
+				GlobalDAO.editTeamName(Integer.parseInt(team), newName);
+				
+				response.status(200);
+				return "OK";
 			}catch(Exception e) {
 				response.status(400);
 				return "Invalid team number";

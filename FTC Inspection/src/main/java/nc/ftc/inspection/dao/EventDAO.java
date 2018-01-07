@@ -42,7 +42,7 @@ public class EventDAO {
 	private static final RemoteUpdater updater = RemoteUpdater.getInstance();
 	
 	
-	//MAX SQL = 14
+	//MAX SQL = 25
 	//TODO THis needs to be a command - NO, this should not be a thing! Must create an event locally.
 	static final SQL CREATE_EVENT_SQL = new SQL(1,"INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)");
 	static final String[] CREATE_EVENT_DB_SQL ={ 
@@ -81,6 +81,7 @@ public class EventDAO {
 											"INSERT INTO formSigs (team, formID, sigIndex) SELECT number, formID, i from teams LEFT JOIN (SELECT DISTINCT formID from formRows) LEFT JOIN (SELECT 0 AS i UNION SELECT 1 AS i);"
 	};
 	public static final SQL ADD_TEAM_SQL = new SQL(3, "INSERT INTO teams VALUES (?);");
+	public static final SQL REMOVE_TEAM_SQL = new SQL(25, "DELETE FROM teams WHERE number=?;");
 	static final String ADD_TEAM_LATE = "";
 	static final String GET_EVENT_LIST_SQL = "SELECT * FROM events;";
 	static final String GET_EVENT_SQL = "SELECT * FROM events WHERE code = ?;";
@@ -262,6 +263,22 @@ public class EventDAO {
 			return false;
 		}
 	}
+	
+	public static boolean removeTeamFromEvent(int team, String eventCode){
+		//TODO IF EVENT PAST SETUP, need to do ADD_TEAM_LATE_SQL
+		try(Connection conn = getLocalDB(eventCode)){
+			PreparedStatement ps = conn.prepareStatement(REMOVE_TEAM_SQL.sql);
+			ps.setInt(1, team);
+			int affected = ps.executeUpdate();
+			updater.enqueue(new Update(eventCode, 1, null,REMOVE_TEAM_SQL.id, team));
+			return affected == 1;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+
 	
 	public static boolean createEventDatabase(String code){
 		//if(getEvent(code) = null)return false;
@@ -544,6 +561,9 @@ public class EventDAO {
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_SCORES_SQL.id, m.getNumber(), 1));
 			}			
+			
+			//TODO calc rankings!
+			
 		} catch(Exception e){
 			e.printStackTrace();
 			return false;

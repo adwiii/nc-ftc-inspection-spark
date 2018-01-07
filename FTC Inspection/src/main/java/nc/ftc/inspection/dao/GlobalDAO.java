@@ -22,7 +22,7 @@ public class GlobalDAO {
 	
 	private static final String MASTER_TEAM_LIST_SQL = "SELECT * FROM teamInfo";
 	private static final SQL NEW_TEAM_SQL = new SQL(1,"INSERT INTO teamInfo VALUES (?, ?)");
-	private static final SQL EDIT_TEAM_SQL = new SQL(2,"UPDATE teamInfo SET name = ? WHERE number = ?"); 
+	private static final SQL EDIT_TEAM_SQL = new SQL(2,"INSERT OR REPLACE INTO teamInfo VALUES (?,?)"); 
 	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
@@ -97,8 +97,8 @@ public class GlobalDAO {
 	public static boolean editTeamName(int number, String name){
 		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = global.prepareStatement(EDIT_TEAM_SQL.sql);
-			ps.setString(1,  name);
-			ps.setInt(2,  number);
+			ps.setInt(1,  number);
+			ps.setString(2,  name);
 			int affected = ps.executeUpdate();
 			updater.enqueue(new Update(null, Update.GLOBAL_DB_UPDATE, null, EDIT_TEAM_SQL.id, name, number));
 			return affected == 1;

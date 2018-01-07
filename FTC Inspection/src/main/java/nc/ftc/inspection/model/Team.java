@@ -41,6 +41,9 @@ public class Team {
 		} else if (number < 1E6) {
 			numDigits = 6;
 		}
+		if(this.name == null) {
+			this.name = "";
+		}
 	}
 	
 	public void setStatus(String field, byte status){
