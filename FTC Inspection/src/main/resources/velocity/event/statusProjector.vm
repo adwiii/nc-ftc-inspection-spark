@@ -36,13 +36,18 @@
 .legend {
 	width:10%;
 }
+.outer {
+	padding:5px;
+	width:calc(100%/($numCols + 1));
+	vertical-align:top;
+}
 </style>
 <h1 align=center>$event</h1>
 <body>
 <table align=center >
 <tr>
 	#foreach($i in [0..$numCols])
-	<td style="padding:5px">
+	<td class="outer">
 		<table id="statusTable" align=center border=3>
     	<tr class="header">
 		#foreach ($h in $headers)
