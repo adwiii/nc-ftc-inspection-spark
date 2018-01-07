@@ -1,0 +1,14 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<style>
+td {
+	text-align:center;
+}
+</style>
+<table>
+<tr><th>Team #</th><th>Team Name</th><th>Link to Inspection Status</th></tr>
+#foreach($team in $teamList)
+<tr><td>$team.number</td><td>$team.name</td><td><a href="/event/$code/inspect/team/$team.number/">Status Page</a></td></tr>
+#end
+</table>
+#end

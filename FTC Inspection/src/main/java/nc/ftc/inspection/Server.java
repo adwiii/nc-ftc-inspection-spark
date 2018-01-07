@@ -150,6 +150,8 @@ public class Server {
 		before(Path.Web.INSPECT_TEAM_FORM, Filters.getAuthenticationFilter(User.TEAM));
 		get(Path.Web.INSPECT_TEAM_FORM, EventPages.serveInspectionPageReadOnly);
 		
+		//TODO we need to talk about the permissions here
+		get(Path.Web.TEAM_INFO, EventPages.serveTeamInfo);
 		//LRI Pages
 		before(Path.Web.EDIT_FORM, Filters.getAuthenticationFilter(User.LI));
 		get(Path.Web.EDIT_FORM, EventPages.serveFormEditPage);

@@ -1498,6 +1498,15 @@ public class EventPages {
 			map.put("headerColor", "#E6B222");
 			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
 		};
+		
+		public static Route serveTeamInfo = (Request request, Response response) ->{
+			Map<String, Object> model = new HashMap<>();
+			String code = request.params("event");
+			List<Team> teamList = EventDAO.getTeams(code);
+			model.put("teamList", teamList);
+			model.put("eventCode", code);
+			return render(request, model, Path.Template.TEAM_INFO);
+		};
 
 		public static Route serveInspectionOverride = (Request request, Response response) ->{
 			System.out.println("OVER");;
