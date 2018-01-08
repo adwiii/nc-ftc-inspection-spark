@@ -42,8 +42,9 @@ public class ViewUtil {
     	}
         model.put("currentPath", req.pathInfo());
         model.put("request", req);
-        //System.out.println(req.userAgent().toLowerCase().contains("mobile") + ": " + req.userAgent());
-        model.put("mobile", req.userAgent().toLowerCase().contains("mobile"));
+        boolean mobile = req.userAgent().toLowerCase().contains("mobile") || req.userAgent().toLowerCase().contains("android");
+        //System.out.println(mobile + ": " + req.userAgent());
+        model.put("mobile", mobile);
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
         model.put("time", System.currentTimeMillis());
         model.put("Math", Math.class);
