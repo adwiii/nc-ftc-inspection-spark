@@ -1823,7 +1823,7 @@ public class EventPages {
 			try {
 			int team = Integer.parseInt(request.queryParams("team"));
 			if(EventDAO.addTeamToEvent(team, code)) {
-				return "OK"; 
+				return "{\"team\":\"" + team + "\",\"name\":\"" + GlobalDAO.getTeamName(team) + "\"}"; 
 			}
 			response.status(400);
 			return "Team already in event";

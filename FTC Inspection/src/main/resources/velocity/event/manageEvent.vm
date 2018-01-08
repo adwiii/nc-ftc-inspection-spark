@@ -43,7 +43,7 @@
 	#elseif($status == 1)
 		Setup
 		<br>
-		This Step:Use <a href="./addteam/">this form</a> to add/remove teams from the event<br>
+		This Step:Use <a href="./teams/">this form</a> to add/remove teams from the event<br>
 		<br>
 		Next Step:After the team list is complete, setting the event to "inspection" 
 		populates the necessary info for inspection to begin. Make sure ALL teams are entered.

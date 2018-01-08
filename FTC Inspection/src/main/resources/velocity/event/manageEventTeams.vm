@@ -24,6 +24,12 @@
   			success: function(data){
   				document.getElementById("team").value = "";
   				document.getElementById("msg").innerHTML = "Team added";
+  				var dataMap = JSON.parse(data);
+  				var teamNum = dataMap.team;
+  				teamMap[teamNum] = dataMap.name;
+          		// https://paulund.co.uk/add-an-remove-options-in-select-using-jquery
+          		var disp = "&nbsp;".repeat(5 - teamNum.length) + teamNum + ": " + dataMap.name;
+          		$("#teamSelect").append('<option value="' + teamNum + '">' + disp + '</option>');
   			},
   			error:function(xhr, ajaxOptions, thrownError){  				
                 console.log(xhr);
@@ -41,7 +47,12 @@
   			data: {},
   			success: function(data){
   				document.getElementById("team").value = "";
-  				document.getElementById("msg").innerHTML = "Team added";
+  				document.getElementById("msg").innerHTML = "Team successfully removed";
+  				//https://paulund.co.uk/add-an-remove-options-in-select-using-jquery
+  				var i = 0;
+  				for (i = 0; i < arr.length; i++) {
+  					$("#teamSelect option[value='" + arr[i] + "']").remove();
+  				}
   			},
   			error:function(xhr, ajaxOptions, thrownError){  				
                 console.log(xhr);
@@ -58,7 +69,11 @@
   			data: {},
   			success: function(data){
   				document.getElementById("team").value = "";
-  				document.getElementById("msg").innerHTML = "Team added";
+  				document.getElementById("msg").innerHTML = "Team name updated";
+  				var teamNum = $("#teamSelect option:selected").val();
+  				teamMap[teamNum] = $("#selectedTeamName").val();
+  				var disp = "&nbsp;".repeat(5 - teamNum.length) + teamNum + ": " + $("#selectedTeamName").val();
+  				$("#teamSelect option[value='" + teamNum + "']").html(disp);
   			},
   			error:function(xhr, ajaxOptions, thrownError){  				
                 console.log(xhr);
@@ -86,6 +101,16 @@
 	$(document).ready(function(){
 ##        $("input[type='radio']").click(populateFields);
 				populateFields();        
+		$('#team').keydown(function (e){
+    		if(e.keyCode == 13){
+        		addTeam();
+    		}
+		});
+		$('#selectedTeamName').keydown(function (e){
+    		if(e.keyCode == 13){
+        		editTeamName();
+    		}
+		});
     });
     
 </script>
