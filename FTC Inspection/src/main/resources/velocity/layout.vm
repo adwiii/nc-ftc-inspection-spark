@@ -76,19 +76,40 @@ style="padding-top:3%;"
     	<!-- <a href="$WebPath.getInspection()">Inspection</a> -->
     	<!-- <a href="$WebPath.getConsole()">Console</a> -->
     	<ul id="menu" #if($mobile) style="margin-top:0px;" #end>
-    	    #if($sysEvent)
-    	    <li class="dropdown">
-    	    	#if($mobile)
-    	    		## Mobile needs for it to not be clickable
-    	    		<a class="dropbtn">Event</a>
-    	    	#else
-    	    	    <a class="dropbtn" href="/event/$sysEvent/home/">Event Home</a>
-    	    	#end
+    		#if($mobile)
+    		<li class="dropdown">
+    	    	<a class="dropbtn">Links</a>
     			<div class="dropdown-content">
     			<ul>
-    				#if($mobile)
-    					<li><a href="/event/$sysEvent/home">Home</a></li>
+    		    	    #if($sysEvent)
+    		    	<li><a href="/event/$sysEvent/home/">Event Home</a></li>
+    				<li><a href="/event/$sysEvent/status/">Inspection</a></li>
+    			    <li><a href="/event/$sysEvent/schedule">Schedule</a></li>
+    				<li><a href="/event/$sysEvent/results">Results</a></li>
+    				<li><a href="/event/$sysEvent/rankings">Rankings</a></li>
+    		#if($INSPECTOR)
+    			    <li><a href="/event/$sysEvent/inspect/ci">Check In</a></li>
+    				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
+    				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
+    				<li><a href="/event/$sysEvent/inspect/fd">Field</a></li>
+    		#end
+    		#end
+    		#if($ADMIN)
+    				<li><a href="/create/event/">Create&nbsp;Event</a></li>
+    				#if($sysEvent)
+    					<li><a href="/event/$sysEvent/manage/">Manage&nbsp;Event</a></li>
     				#end
+    			    <li><a href="/create/account/">Create&nbsp;Users</a></li>
+    				<li><a href="/users/manage/">Manage&nbsp;Users</a></li>
+    				<li><a href="/config/">Server&nbsp;Config</a></li>
+    		#end
+    		</div></li>
+    		#else ##We know we are not on mobile
+    	    #if($sysEvent)
+    	    <li class="dropdown">
+    	    	<a class="dropbtn" href="/event/$sysEvent/home/">Event Home</a>
+    			<div class="dropdown-content">
+    			<ul>
     				<li><a href="/event/$sysEvent/status/">Inspection</a></li>
     			    <li><a href="/event/$sysEvent/schedule">Schedule</a></li>
     				<li><a href="/event/$sysEvent/results">Results</a></li>
@@ -97,17 +118,9 @@ style="padding-top:3%;"
     		</li>
     		#if($INSPECTOR)
     		 <li class="dropdown">
-    			#if($mobile)
-    	    		## Mobile needs for it to not be clickable
-    	    		<a class="dropbtn">Inspection</a>
-    	    	#else
-    	    	    <a class="dropbtn" href="/event/$sysEvent/status/">Inspection</a>
-    	    	#end
+    	    	<a class="dropbtn" href="/event/$sysEvent/status/">Inspection</a>
     			<div class="dropdown-content">
     			<ul>
-    				#if($mobile)
-    					<li><a href="/event/$sysEvent/status">Status</a></li>	
-    				#end
     			    <li><a href="/event/$sysEvent/inspect/ci">Check In</a></li>
     				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
     				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
@@ -131,6 +144,7 @@ style="padding-top:3%;"
     			</div>
     		</li>
     		#end
+    		#end ##End mobile if
             #if($currentUser)
                 <li>
                     <a href="$WebPath.getUserPage()">
