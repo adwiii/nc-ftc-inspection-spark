@@ -364,6 +364,7 @@ public class EventPages {
 			scan.close();
 			EventDAO.createSchedule(event, matches);
 			response.status(200);
+			response.redirect("../");
 			return "OK";
 		};
 		
@@ -2202,6 +2203,7 @@ public class EventPages {
 				matches.add( new Match(4, alliances[1], alliances[2], "SF-2-2"));
 				EventDAO.createElimsMatches(event, matches);
 				response.status(200);
+				response.redirect("../");
 				return "OK";
 		};
 		
