@@ -1,5 +1,6 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+<a href="/index/"><< To Home</a>
 <h1>$event.code: $event.name</h1>
 <h2>
 	Event Info

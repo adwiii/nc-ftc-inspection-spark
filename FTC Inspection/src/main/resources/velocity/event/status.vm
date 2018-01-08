@@ -39,7 +39,7 @@
 		</tr>
 	#end
 </table>
-<table border="3" align=center class="legend">;
+<table border="3" align=center class="legend">
 		<tr><th>Symbol</th><th>Meaning</th><th>Symbol</th><th>Meaning</th></tr>
 		<tr><td class="legendLeft" bgcolor="#FFFFFF">&nbsp;</td><td>Uninspected</td>
 		<td class="legendLeft">CI</td><td>Check-In</td></tr>

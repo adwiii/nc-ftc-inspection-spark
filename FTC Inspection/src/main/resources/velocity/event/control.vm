@@ -2,6 +2,7 @@
 #parse("/velocity/event/scoreMacros.vm")
 
 <html>
+<title>Match Control</title>
 <body>
 <script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
@@ -234,7 +235,10 @@
 	#menuBar{
 		width:100%;
 		height:5%;
-		background:yellow;
+		background:#274555;
+		color:white;
+		text-align:center;
+		font:25px  "Arial Black", Arial, Helvetica, sans-serif;
 	}
 	#tabBar{
 		width:100%;
@@ -292,11 +296,11 @@
 	
 	.scheduleEntry{
 		height: 20px;
-		background:blue;
+		background:#44AAFF;
 	}
 	.scheduleEntry:hover{
 		cursor:pointer;
-		background:#4040FF
+		background:#4070FF;
 	}
 	.scheduleDescription{
 		width: 200px;
@@ -590,7 +594,7 @@ function openTab(event, tabName){
 }
 
 </script>
-		<div id="menuBar"></div>
+		<div id="menuBar">Match Control Page</div>
 		#topBar()
 		<div id="matchControl">
 			<button class="matchControlButton" id="previewBtn"onclick="showPreview()"state="ready">Match Preview</button>

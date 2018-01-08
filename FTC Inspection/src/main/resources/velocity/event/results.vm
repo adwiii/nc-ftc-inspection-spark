@@ -55,7 +55,7 @@ Match Results</H2></CENTER>
 		</TD>
 		<TD BGCOLOR=$c> <a href="../match/$n/scoresheet/red/" style="color:black">$m.red.team1#if($m.red.is1Surrogate())*#end</a></TD>
 		<TD BGCOLOR=$c> <a href="../match/$n/scoresheet/blue/" style="color:black">$m.blue.team1#if($m.blue.is1Surrogate())*#end</a></TD>
-		<td bgcolor=$c colspan="2"><a href="../match/$n/scoresheet">Scoresheet</a></td>
+		<td bgcolor=$c colspan="2"><a href="../match/$n/scoresheet">Scoresheet</a>#if($ADMIN)&emsp;-&emsp;<a href="../match/$n/edit">Edit</a>#end</td>
 	</TR>
 	<TR ALIGN=CENTER>
 		<TD BGCOLOR=$c><a href="../match/$n/scoresheet/red/" style="color:black">$m.red.team2#if($m.red.is2Surrogate())*#end</a></TD>

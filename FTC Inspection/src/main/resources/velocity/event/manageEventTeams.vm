@@ -30,6 +30,16 @@
           		// https://paulund.co.uk/add-an-remove-options-in-select-using-jquery
           		var disp = "&nbsp;".repeat(5 - teamNum.length) + teamNum + ": " + dataMap.name;
           		$("#teamSelect").append('<option value="' + teamNum + '">' + disp + '</option>');
+          		
+          		 //copied from: https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+ 		        var options = $('#teamSelect option');
+ 		        var arr = options.map(function(_, o) { return { t: $(o).text(), v: parseInt(o.value) }; }).get();
+ 				arr.sort(function(o1, o2) { return o1.v > o2.v ? 1 : o1.v < o2.v ? -1 : 0; });
+ 				options.each(function(i, o) {
+ 		  			o.value = arr[i].v;
+ 		  			$(o).text(arr[i].t);
+ 				});
+          		
   			},
   			error:function(xhr, ajaxOptions, thrownError){  				
                 console.log(xhr);

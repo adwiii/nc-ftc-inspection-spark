@@ -142,12 +142,13 @@
 	.teamSlotHeader{
 		width:100%;
 		height:10%;
-		background:red;
+		background:#274555;
+		color:#FFFFFF;
 	}
 	.teamSlot{
 		width:100%;
 		height:30%;
-		background:red;
+		background:#274555;
 		display: flex;
 		align-items: center;
 	}
@@ -203,7 +204,7 @@
 	#matchControl{
 		width:100%;
 		height: 10%;
-		background:orange;
+		background:#274555;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -238,13 +239,13 @@
    #leftScores{
 		width:50%;
 		height:100%;
-		background:red;
+		background:#FF4444;
 		float:left;
 	}
 	#rightScores{
 		width:50%;
 		height:100%;
-		background:blue;
+		background:#44AAFF;
 		float:left;
 	}
 	

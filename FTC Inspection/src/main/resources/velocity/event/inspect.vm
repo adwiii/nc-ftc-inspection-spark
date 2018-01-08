@@ -192,11 +192,13 @@ Appendix
 		#else
 			<tr height=30px>
 					#foreach($c in $f.items)					
-						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" onclick="update(this)" checked = $c.checked>
+						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" onclick="update(this)" style="width:15%;" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
 							#elseif(${c.required}==0)
 								NA
+							#else
+								&emsp;
 							#end
 						</td>
 					#end
