@@ -136,7 +136,7 @@
 <table>
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
-	<td class="right nowrap"><div style="width:150%">
+	<td class="right nowrap"><div>
 		<label style="width:33%"><input type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/>0</label>
 		<label style="width:33%"><input type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/>1</label>
 		<label style="width:33%"><input type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/>2</label>
@@ -155,7 +155,7 @@
 <div class="circle" id="j_2,1" onclick="jewelToggle(2,1)"></div></td><td><div class="circle" id="j_2,2" onclick="jewelToggle(2,2)"></div></html>
 </td></tr></table></td>
 </tr>
-<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div style="width:150%">
+<tr><td class="left"><label>Robots Parked:</label></td><td class="right nowrap"><div>
 	<label style="width:33%"><input type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end />0</label>
 	<label style="width:33%"><input type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end />1</label>
 	<label style="width:33%"><input type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/>2</label>

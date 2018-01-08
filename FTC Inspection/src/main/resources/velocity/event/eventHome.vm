@@ -36,7 +36,7 @@
 	#end
 </ul>
 
-#if($REFEREE)
+#if($REF)
 <h2>
 	Live Scoring Links
 </h2>
