@@ -52,7 +52,8 @@ function saveSig(src){
 	var t = src.getAttribute("team");
 	var person = src.getAttribute("person");
 	var field = document.getElementById(person+"_"+t);
-	var obj = {team:t, index:person=='insp'?0:1, sig:field.value};
+	var obj = {team:t, index:person=='insp'?0:1, sig:field.value}; 
+	src.setAttribute("agreed","true");
 	$.ajax({
         url: "./sig/",
         type: "PUT",
@@ -107,11 +108,26 @@ function pass(team){
 		document.getElementById("msg_"+team).innerHTML = "<font color='red'>"+bad+" Items Unchecked! <a href=#"+firstID+" onclick=onclick=highlightMissingFor("+team+")>Show</a></font>";
 		return;
 	}
+	
 	//check if sig empty, if so, reject, check for pending sig/note PUT
 	if(document.getElementById("insp_"+team).value == "" || document.getElementById("tsr_"+team).value == ""){
 		document.getElementById("msg_"+team).innerHTML = "<font color='red'>Missing signatures!</font>";
 		return;
 	}
+	if (document.getElementById("insp_"+team+"but").getAttribute("agreed") == "false" || document.getElementById("tsr_"+team+"but").getAttribute("agreed") == "false") {
+		document.getElementById("msg_"+team).innerHTML = "";
+		if (document.getElementById("insp_"+team+"but").getAttribute("agreed") == "false") {
+			document.getElementById("msg_"+team).innerHTML += "<font color='red'>Inspector did not click agree!</font>";
+		}
+		if (document.getElementById("insp_"+team+"but").getAttribute("agreed") == "false" && document.getElementById("tsr_"+team+"but").getAttribute("agreed") == "false") {
+			document.getElementById("msg_"+team).innerHTML += "<br>";		
+		}
+		if (document.getElementById("tsr_"+team+"but").getAttribute("agreed") == "false") {
+			document.getElementById("msg_"+team).innerHTML += "<font color='red'>Team did not click agree!</font>";
+		}
+		return;
+	}
+	
 	//if ok to pass, save note and sigs
 	//send pass POST (nclude note and sigs?)
 	var obj = {team:team, status:3, inspSig:"", tsrSig:"", note:""};
@@ -192,7 +208,7 @@ Appendix
 		#else
 			<tr height=30px>
 					#foreach($c in $f.items)					
-						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" onclick="update(this)" style="width:15%;" checked = $c.checked>
+						<td colspan=$x id=$c.id class="cb${c.required}_$c.getTeam()" align="center" #if(${c.required}!=0)onclick="update(this)"#end style="width:15%;" checked = $c.checked>
 							#if($c.checked)
 								&#x2713;
 							#elseif(${c.required}==0)
@@ -225,10 +241,10 @@ Appendix
 		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
 			<tr>
 				<td><input id="insp_$t" value="$sigs.get($i)" ></input>
-				<button team=$t person="insp" onclick="saveSig(this)">Agree</button></td>
+				<button id="insp_${t}but" team=$t person="insp" onclick="saveSig(this)" agreed=false>Agree</button></td>
 				#set($i = $i+1)
 				<td><input id="tsr_$t" value="$sigs.get($i)"></input>
-				<button team=$t person="tsr" onclick="saveSig(this)">Agree</button></td></tr>
+				<button id="tsr_${t}but" team=$t person="tsr" onclick="saveSig(this)" agreed=false>Agree</button></td></tr>
 			
 		</table>
 		<br><br>
@@ -261,11 +277,11 @@ Appendix
 		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
 		<tr><td><input id="insp_$t" value="$sigs.get(0)" #if($readOnly)disabled#end></input>
 			#if(!$readOnly)
-			<button team=$t person="insp" onclick="saveSig(this)" >Agree</button></td>
+			<button id="insp_${t}but" team=$t person="insp" onclick="saveSig(this)" agreed=false>Agree</button></td>
 			#end
 			<td><input id="tsr_$t" value="$sigs.get(1)"  #if($readOnly)disabled#end></input>
 			#if(!$readOnly)
-			<button team=$t person="tsr"  onclick="saveSig(this)">Agree</button></td></tr>
+			<button id="tsr_${t}but" team=$t person="tsr"  onclick="saveSig(this)" agreed=false>Agree</button></td></tr>
 			#end
 	</table>
 	<br><br>

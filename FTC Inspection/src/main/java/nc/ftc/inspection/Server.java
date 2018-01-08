@@ -86,9 +86,8 @@ public class Server {
 		} else {
 			staticFiles.location("/public");
 			System.out.println("Internal Static Files");
+			enableDebugScreen();
 		}
-			//TODO remove the debug screen for release?
-		enableDebugScreen();
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);		
 		
