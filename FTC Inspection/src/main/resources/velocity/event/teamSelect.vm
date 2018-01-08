@@ -1,5 +1,10 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+#if($LI)
+<div style="float:right">
+<a href="./override/">Override Page</a><br>
+</div>
+#end
 This is the $form inspection page for $eventName.
 <br>
 Select a team to inspect, or inspect multiple teams by checking the "select" column and then clicking the button at the bottom of the page.

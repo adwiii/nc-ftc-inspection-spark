@@ -84,13 +84,13 @@ style="padding-top:3%;"
     			<div class="dropdown-content">
     			<ul>
     		    	    #if($sysEvent)
-    		    	<li><a href="/event/$sysEvent/home/">Event Home</a></li>
+    		    	<li><a href="/event/$sysEvent/home/">Event&nbsp;Home</a></li>
     				<li><a href="/event/$sysEvent/status/">Inspection</a></li>
     			    <li><a href="/event/$sysEvent/schedule">Schedule</a></li>
     				<li><a href="/event/$sysEvent/results">Results</a></li>
     				<li><a href="/event/$sysEvent/rankings">Rankings</a></li>
     		#if($INSPECTOR)
-    			    <li><a href="/event/$sysEvent/inspect/ci">Check In</a></li>
+    			    <li><a href="/event/$sysEvent/inspect/ci">Check&nbsp;In</a></li>
     				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
     				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
     				<li><a href="/event/$sysEvent/inspect/fd">Field</a></li>
@@ -109,7 +109,7 @@ style="padding-top:3%;"
     		#else ##We know we are not on mobile
     	    #if($sysEvent)
     	    <li class="dropdown">
-    	    	<a class="dropbtn" href="/event/$sysEvent/home/">Event Home</a>
+    	    	<a class="dropbtn" href="/event/$sysEvent/home/">Event&nbsp;Home</a>
     			<div class="dropdown-content">
     			<ul>
     				<li><a href="/event/$sysEvent/status/">Inspection</a></li>
@@ -123,7 +123,7 @@ style="padding-top:3%;"
     	    	<a class="dropbtn" href="/event/$sysEvent/status/">Inspection</a>
     			<div class="dropdown-content">
     			<ul>
-    			    <li><a href="/event/$sysEvent/inspect/ci">Check In</a></li>
+    			    <li><a href="/event/$sysEvent/inspect/ci">Check&nbsp;In</a></li>
     				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
     				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
     				<li><a href="/event/$sysEvent/inspect/fd">Field</a></li>

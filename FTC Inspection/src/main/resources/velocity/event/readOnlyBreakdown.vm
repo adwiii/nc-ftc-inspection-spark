@@ -2,7 +2,7 @@
 #@mainLayout()
 #parse("/velocity/event/scoreMacros.vm")
 <!-- Red is:#EE1C29, Blue is 0268B3, Dark Gray is 6E6D72, light gray is E8E8E8 -->
-<!-- empty box is &#x2610; checked box is &#x2611; -->
+<!-- empty box is &#x25A1; checked box is &#x2713; -->
 <style>
 .scoresheet td {
 	width: 25%;
@@ -82,8 +82,8 @@ small {
 <tr><td class="dark center" colspan="4">Penalties</td></tr>
 <tr><td class="center"># Minor</td><td class="lightBorder"><div>&nbsp;$redScores.get("minor")</div></td><td class="center"># Major</td><td class="lightBorder"><div>&nbsp;$redScores.get("major")</div></td></tr>
 <tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">Red Card</td></tr>
-<tr><td class="center bottomBorder">$red.team1</td><td class="center">#if($redScores.get("dq1")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card1") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card1") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
-<tr><td class="center bottomBorder">$red.team2</td><td class="center">#if($redScores.get("dq2")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card2") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($redScores.get("card2") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
+<tr><td class="center bottomBorder">$red.team1</td><td class="center">#if($redScores.get("dq1")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($redScores.get("card1") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($redScores.get("card1") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
+<tr><td class="center bottomBorder">$red.team2</td><td class="center">#if($redScores.get("dq2")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($redScores.get("card2") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($redScores.get("card2") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
 </table>
 #end
 #if($blueAlliance == "true")
@@ -108,8 +108,8 @@ small {
 <tr><td class="dark center" colspan="4">Penalties</td></tr>
 <tr><td class="center"># Minor</td><td class="lightBorder"><div>&nbsp;$blueScores.get("minor")</div></td><td class="center"># Major</td><td class="lightBorder"><div>&nbsp;$blueScores.get("major")</div></td></tr>
 <tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">blue Card</td></tr>
-<tr><td class="center bottomBorder">$blue.team1</td><td class="center">#if($blueScores.get("dq1")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card1") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card1") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
-<tr><td class="center bottomBorder">$blue.team2</td><td class="center">#if($blueScores.get("dq2")=="true")&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card2") > 0)&#x2611;#{else}&#x2610;#end</td><td class="center">#if($blueScores.get("card2") > 1)&#x2611;#{else}&#x2610;#end</td></tr>
+<tr><td class="center bottomBorder">$blue.team1</td><td class="center">#if($blueScores.get("dq1")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card1") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card1") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
+<tr><td class="center bottomBorder">$blue.team2</td><td class="center">#if($blueScores.get("dq2")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card2") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card2") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
 </table>
 #end
 </td><td>

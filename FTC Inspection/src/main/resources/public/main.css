@@ -73,6 +73,7 @@ nav #menu {
 a {
     text-decoration: none;
     color: #ff7761;
+    line-height:150%;
 }
 
 #menu li {
