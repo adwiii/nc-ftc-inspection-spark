@@ -167,9 +167,9 @@ style="padding-top:3%;"
         $bodyContent
     </div>
 </main>
-<footer>
-    This is a footer.
-</footer>
+##<footer>
+##    This is a footer.
+##</footer>
 </body>
 </html>
 #end

@@ -23,9 +23,9 @@
     <p>Please enter your username and password.</p>
     <label>Username: </label>
     #if($username)
-    	<input type="text" name="username" value="$username" required>
+    	<input type="text" name="username" value="$username" required autofocus>
     #else
-    	<input type="text" name="username" required>
+    	<input type="text" name="username" required autofocus>
     #end
     #if($loginRedirect)
         <input type="hidden" name="loginRedirect" value="$loginRedirect">
