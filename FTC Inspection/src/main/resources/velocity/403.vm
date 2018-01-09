@@ -1,4 +1,5 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
     <h1>It seems you don't have sufficient privileges to view that page <small>(error 403)</small></h1>
+    <br>If your permissions have been edited, please leave the page and try again.
 #end
