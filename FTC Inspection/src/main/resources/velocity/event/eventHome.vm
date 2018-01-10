@@ -15,6 +15,8 @@
 		<a href="../results">Match Results</a>
 	</li><li>
 		<a href="../rankings">Rankings</a>
+	</li><li>
+		<a href="../pit">Pit Display</a>
 	</li>
 </ul>
 <h2>
@@ -68,8 +70,6 @@
 		<a href="../field/?ad=true&mute=true">Audience Display</a>
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
-	</li><li>
-		<a href="../pit">Pit Display</a>
 	</li>
 </ul>
 #end

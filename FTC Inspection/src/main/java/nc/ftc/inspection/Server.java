@@ -149,10 +149,8 @@ public class Server {
 		get(Path.Web.INSPECT_HOME, EventPages.serveInspectionHome);
 		
 		//Team Inspection Pages
-		before(Path.Web.INSPECT_TEAM_HOME, Filters.getAuthenticationFilter(User.TEAM));
 		get(Path.Web.INSPECT_TEAM_HOME, EventPages.serveTeamInspectionHome);
 		
-		before(Path.Web.INSPECT_TEAM_FORM, Filters.getAuthenticationFilter(User.TEAM));
 		get(Path.Web.INSPECT_TEAM_FORM, EventPages.serveInspectionPageReadOnly);
 		
 		//TODO we need to talk about the permissions here

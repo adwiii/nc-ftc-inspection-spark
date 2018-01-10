@@ -109,6 +109,7 @@ public class LoginPage {
 		if (getQueryLoginRedirect(request) != null) {
 			response.redirect(getQueryLoginRedirect(request));
 		}
+		response.redirect(Path.Web.INDEX);
 		return render(request, model, Path.Template.LOGIN);
 	};
 

@@ -120,11 +120,10 @@ public class EventPages {
 		Map<String, Object> map = new HashMap<>();
 		map.put("form", formID.toLowerCase());
 		map.put("eventCode", eventCode);
-		Event e = Server.activeEvents.get(eventCode);
+		EventData e = EventDAO.getEvent(eventCode);
 		String eventName = "Unknown Event";
 		if (e != null) {
-			eventName = e.getData().getName();
-		} else {
+			eventName = e.getName();
 			map.put("teams", EventDAO.getStatus(eventCode, formID));
 		}
 		map.put("eventName", eventName);
