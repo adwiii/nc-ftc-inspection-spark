@@ -86,14 +86,15 @@ public class Server {
 		String publicLoc;
 		if(loc != null && loc.equals("external")){
 			publicLoc = "src/main/resources/public";
+			staticFiles.externalLocation(publicLoc);
 			System.out.println("External Static Files");
 		} else {
-			publicLoc = "/public";
+			publicLoc = "public";
+			staticFiles.location(publicLoc);
 			System.out.println("Internal Static Files");
 			enableDebugScreen();
 		}
-		publicDir = new File(publicLoc);
-		staticFiles.externalLocation(publicLoc);
+		publicDir = new File("src/main/resources/public");
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);		
 		

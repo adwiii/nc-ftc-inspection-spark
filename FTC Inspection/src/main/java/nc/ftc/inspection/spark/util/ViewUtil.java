@@ -42,8 +42,8 @@ public class ViewUtil {
     	String sysEvent = req.params("event");
     	if (sysEvent != null) {
     		model.put("sysEvent", sysEvent);
-    		if((new File(Server.publicDir.getAbsolutePath() + "img/" + sysEvent + ".png")).exists()) {
-    			model.put("sysEventImage", "img/" + sysEvent + ".png");
+    		if((new File(Server.publicDir.getPath() + "/img/" + sysEvent + ".png")).exists()) {
+    			model.put("sysEventImage", "/img/" + sysEvent + ".png");
     		}
     	}
         model.put("currentPath", req.pathInfo());

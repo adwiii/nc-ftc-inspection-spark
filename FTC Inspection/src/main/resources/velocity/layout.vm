@@ -72,7 +72,11 @@ style="padding-top:3%;"
     <nav>
     	<a href="/index/"><img id="logo" src="/img/logo.png"></a>
     	#if($sysEvent)
-    		<a href="/event/$sysEvent/home/"><img id="logo" src="/img/${sysEvent}.png"></a>
+    		#if($sysEventImage)
+    			<a href="/event/$sysEvent/home/"><img id="logo" src="$sysEventImage"></a>
+    		#else
+    			<a href="/event/$sysEvent/home/"><img id="logo" src="/img/sponsor.png"></a>
+    		#end
     	#end
     	<!-- <a href="$WebPath.getInspection()">Inspection</a> -->
     	<!-- <a href="$WebPath.getConsole()">Console</a> -->
