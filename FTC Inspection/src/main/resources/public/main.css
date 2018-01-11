@@ -43,12 +43,19 @@ header {
       vertical-align:bottom;
     }
     
-table #cb1, #cb2 {
+.jewel {
+	width:100%;
+}
+    
+.glyph table {
 	table-layout: fixed;
-	width: 36vw;
-	height: 50vw;
+	/* width: 36vw;
+	height: 50vw; */
 	margin-left: auto;
 	margin-right: auto;
+}
+.glyph tr {
+	height:4em;
 }
 div #cb1L, #cb2L {
 	margin-left: auto;
@@ -124,16 +131,13 @@ a {
     opacity: 0.8;
 }
 
-main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 15px;
-}
 
 #content {
     padding: 15px;
     background: #fff;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+    max-width: 800px;
+    margin: 5 auto;
 }
 
 footer {
@@ -155,8 +159,8 @@ nav ul, nav li {
     list-style-type: none;
 }
 nav a {
-	padding-left:5%;
-	padding-right:5%;
+	padding-left:1%;
+	padding-right:1%;
 }
 
 /* Needlessly fancy menu hover effect */
@@ -262,17 +266,29 @@ input {
     margin: 2px 0 20px 0;
 }
 
+input[type="button"] {
+	border-radius:0;
+    -webkit-appearance:none;
+}
+
 input[type="submit"] {
     color: white;
     background: #274555;
     border: 0;
     cursor: pointer;
+    border-radius:0;
+    -webkit-appearance:none;
+}
+.counter {
+	
+	font-size:200%;
 }
 .counterButton {
     color: white;
     background: #274555;
     border: 0;
     cursor: pointer;
+    width:40%;
 }
 td {
 	padding: 5px;
@@ -304,6 +320,7 @@ table .absorbing-column {
 }
 .left {
 	text-align:right;
+	white-space:nowrap;
 }
 .right {
 	text-align:left;

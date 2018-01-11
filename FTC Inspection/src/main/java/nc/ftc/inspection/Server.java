@@ -3,6 +3,7 @@ package nc.ftc.inspection;
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +37,8 @@ public class Server {
 	public static final String DB_PATH;// = "src/main/resources/db/";
 	public static final String GLOBAL_DB;// = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 	public static final String CONFIG_DB;
+
+	public static File publicDir;
 
 	//maps event code to Event object for in-RAM cache of data.
 	//currently only for live-scoring. May need to add inspection in the future.
@@ -80,14 +83,18 @@ public class Server {
 	//	threadPool(100, 30, 0);
 		port(80);
 		String loc = System.getProperty("location");
+		String publicLoc;
 		if(loc != null && loc.equals("external")){
-			staticFiles.externalLocation("src/main/resources/public");
+			publicLoc = "src/main/resources/public";
+			staticFiles.externalLocation(publicLoc);
 			System.out.println("External Static Files");
 		} else {
-			staticFiles.location("/public");
+			publicLoc = "public";
+			staticFiles.location(publicLoc);
 			System.out.println("Internal Static Files");
 			enableDebugScreen();
 		}
+		publicDir = new File("src/main/resources/public");
 		
 		before("*", Filters.addTrailingSlashesAndLowercase);		
 		

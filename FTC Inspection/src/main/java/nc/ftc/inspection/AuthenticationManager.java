@@ -10,6 +10,7 @@ import spark.Request;
 public class AuthenticationManager {
 	static long DEFAULT_SESSION_LENGTH = 100 * 60 * 60 * 24; //24hr default session length
 	static Map<String, Session> sessions = new HashMap<>();
+	static Map<String, Session> sessionsUserMap = new HashMap<>();
 
 	public static boolean isLoggedIn(String sessionToken) {
 		if (sessionToken != null) {
@@ -28,7 +29,9 @@ public class AuthenticationManager {
 			//in theory this is universally unique, so we shouldn't even need to check if it contains
 			String token = UUID.randomUUID().toString(); 
 			if (!sessions.containsKey(token)) {
-				sessions.put(token, new Session(user, expirationTime));
+				Session session = new Session(user, expirationTime);
+				sessions.put(token, session);
+				sessionsUserMap.put(user.getUsername(), session);
 				return token;
 			}
 		}
@@ -63,6 +66,18 @@ public class AuthenticationManager {
 			return session.getUser().getType();
 		}
 		return User.NONE;
+	}
+	
+	public static void addUserPermission(String userString, int permission) {
+		Session session = sessionsUserMap.get(userString);
+		User user = session.getUser();
+		user.addPermission(permission);
+	}
+	
+	public static void removeUserPermission(String userString, int permission) {
+		Session session = sessionsUserMap.get(userString);
+		User user = session.getUser();
+		user.removePermission(permission);
 	}
 
 	public static int getCurrentType(Request request) {

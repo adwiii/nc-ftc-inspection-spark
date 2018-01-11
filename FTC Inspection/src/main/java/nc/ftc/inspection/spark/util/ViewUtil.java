@@ -3,9 +3,12 @@ package nc.ftc.inspection.spark.util;
 import org.apache.velocity.app.*;
 import org.apache.velocity.runtime.parser.node.MathUtils;
 
+import nc.ftc.inspection.Server;
 import nc.ftc.inspection.model.User;
 import spark.*;
 import spark.template.velocity.*;
+
+import java.io.File;
 import java.util.*;
 
 import static nc.ftc.inspection.spark.util.RequestUtil.*;
@@ -39,11 +42,14 @@ public class ViewUtil {
     	String sysEvent = req.params("event");
     	if (sysEvent != null) {
     		model.put("sysEvent", sysEvent);
+    		if((new File(Server.publicDir.getPath() + "/img/" + sysEvent + ".png")).exists()) {
+    			model.put("sysEventImage", "/img/" + sysEvent + ".png");
+    		}
     	}
         model.put("currentPath", req.pathInfo());
         model.put("request", req);
         boolean mobile = req.userAgent().toLowerCase().contains("mobile") || req.userAgent().toLowerCase().contains("android");
-        //System.out.println(mobile + ": " + req.userAgent());
+//        System.out.println(mobile + ": " + req.userAgent());
         model.put("mobile", mobile);
         model.put("WebPath", new Path.Web()); // Access application URLs from templates
         model.put("time", System.currentTimeMillis());

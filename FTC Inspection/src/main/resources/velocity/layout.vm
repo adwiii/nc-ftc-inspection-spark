@@ -66,14 +66,17 @@
 <body>
 <header 
 #if($mobile)
-style="padding-top:3%;"
+##style="padding-top:3%;"
 #end
 >
     <nav>
+    	<a href="/index/"><img id="logo" src="/img/logo.png"></a>
     	#if($sysEvent)
-    		<a href="/event/$sysEvent/home/"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
-    	#else
-    		<a href="/index/"><img id="logo" src="/img/logo.png" alt="FTC Inspection"></a>
+    		#if($sysEventImage)
+    			<a href="/event/$sysEvent/home/"><img id="logo" src="$sysEventImage"></a>
+    		#else
+    			<a href="/event/$sysEvent/home/"><img id="logo" src="/img/sponsor.png"></a>
+    		#end
     	#end
     	<!-- <a href="$WebPath.getInspection()">Inspection</a> -->
     	<!-- <a href="$WebPath.getConsole()">Console</a> -->
@@ -167,9 +170,9 @@ style="padding-top:3%;"
         $bodyContent
     </div>
 </main>
-<footer>
-    This is a footer.
-</footer>
+##<footer>
+##    This is a footer.
+##</footer>
 </body>
 </html>
 #end

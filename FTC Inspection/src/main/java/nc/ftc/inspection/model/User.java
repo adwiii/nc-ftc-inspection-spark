@@ -138,4 +138,12 @@ public class User {
 		return editableUsers;
 	}
 
+	public void addPermission(int permission) {
+		this.type |= permission;
+	}
+	
+	public void removePermission(int permission) {
+		this.type &= ~permission;
+	}
+
 }

@@ -5,6 +5,8 @@ td {
 	text-align:center;
 }
 </style>
+<a href=".."><< To Event Home</a>
+<center><h2>Inspection Status</h2></center>
 <table>
 <tr><th>Team #</th><th>Team Name</th><th>Link to Inspection Status</th></tr>
 #foreach($team in $teamList)

@@ -109,6 +109,7 @@ public class LoginPage {
 		if (getQueryLoginRedirect(request) != null) {
 			response.redirect(getQueryLoginRedirect(request));
 		}
+		response.redirect(Path.Web.INDEX);
 		return render(request, model, Path.Template.LOGIN);
 	};
 
@@ -182,10 +183,14 @@ public class LoginPage {
 			if (add) {
 				for (String username : changedUsers) {
 					UsersDAO.addRole(username, role);
+					//if the user is currently logged in, we want to make sure that we update their permissions
+					AuthenticationManager.addUserPermission(username, role);
 				}
 			} else {
 				for (String username : changedUsers) {
 					UsersDAO.removeRole(username, role);
+					//if the user is currently logged in, we want to make sure that we update their permissions
+					AuthenticationManager.removeUserPermission(username, role);
 				}
 			}
 			return "OK";

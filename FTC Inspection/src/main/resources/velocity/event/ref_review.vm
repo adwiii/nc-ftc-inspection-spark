@@ -9,25 +9,6 @@
 	var blue = '#0166B3'; 
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
 	$( document ).ready(function() {
-		if (rand < 4) {
-			document.getElementById("j_1,1").style.backgroundColor = ($jewelSet1 & 0b10) ? red : 'white';
-			document.getElementById("j_1,2").style.backgroundColor = ($jewelSet1 & 0b01) ? blue : 'white';
-			document.getElementById("j_2,1").style.backgroundColor = ($jewelSet2 & 0b10) ? red : 'white';
-			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? blue : 'white';
-			document.getElementById("j_1,1").style.borderColor = ($jewelSet1 & 0b10) ? 'black' : red;
-			document.getElementById("j_1,2").style.borderColor = ($jewelSet1 & 0b01) ? 'black' : blue;
-			document.getElementById("j_2,1").style.borderColor = ($jewelSet2 & 0b10) ? 'black' : red;
-			document.getElementById("j_2,2").style.borderColor = ($jewelSet2 & 0b01) ? 'black' : blue;
-		} else {
-			document.getElementById("j_1,1").style.backgroundColor = ($jewelSet1 & 0b10) ? blue : 'white';
-			document.getElementById("j_1,2").style.backgroundColor = ($jewelSet1 & 0b01) ? red : 'white';
-			document.getElementById("j_2,1").style.backgroundColor = ($jewelSet2 & 0b10) ? blue : 'white';
-			document.getElementById("j_2,2").style.backgroundColor = ($jewelSet2 & 0b01) ? red : 'white';
-			document.getElementById("j_1,1").style.borderColor = ($jewelSet1 & 0b10) ? 'black' : blue;
-			document.getElementById("j_1,2").style.borderColor = ($jewelSet1 & 0b01) ? 'black' : red;
-			document.getElementById("j_2,1").style.borderColor = ($jewelSet2 & 0b10) ? 'black' : blue;
-			document.getElementById("j_2,2").style.borderColor = ($jewelSet2 & 0b01) ? 'black' : red;
-		}
 		var keyloc = '';
 		switch (rand % 3) {
 		case 0: keyloc = 'Right';
@@ -85,8 +66,8 @@
 		});
 		
 		//init cryptobox
-		initCryptobox(1, $cryptobox1);
-		initCryptobox(2, $cryptobox2);
+		//initCryptobox(1, $cryptobox1);
+		//initCryptobox(2, $cryptobox2);
 		
 	});
 	function jewelToggle(set, id){
@@ -117,12 +98,12 @@
 		obj.minor = parseInt(document.getElementById('minor').textContent);
 		obj.cryptoboxKeys = keys;
 		obj.parkedAuto = parked;
-		addJewelScore(1, obj);
-		addJewelScore(2, obj);
+		//addJewelScore(1, obj);
+		//addJewelScore(2, obj);
 		//LOOK HERE
 		//I copied this from teleop but idk if its right
-		obj.cryptobox1 = getCryptoboxData(1);
-		obj.cryptobox2 = getCryptoboxData(2);
+		//obj.cryptobox1 = getCryptoboxData(1);
+		//obj.cryptobox2 = getCryptoboxData(2);
 		obj.relic1Zone = $('input[name=relic1]:checked').val();
 		obj.relic1Standing = document.getElementById('relic1Upright').checked;
 		obj.relic2Zone = $('input[name=relic2]:checked').val();
@@ -222,73 +203,15 @@
 <p class="${alliance}Alliance banner">Final Review</p>
 <table>
 <tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
-<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td><td class="right nowrap"><div style="width:150%"><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 0)checked#end />0</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 1)checked#end/>1</label><label style="width:33%"><input type="radio" name="glyph_keys" #if($cryptoboxKeys == 2)checked#end/>2</label></div></td></tr>
+<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
+	<td class="right nowrap absorbing-column">
+	<table style="width:100%"><tr>
+		<td class="nowrap" style="width:33%"><label for="gk1">0</label><input id="gk1" type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/></td>
+		<td class="nowrap" style="width:33%"><label for="gk2">1</label><input id="gk2" type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/></td>
+		<td class="nowrap" style="width:33%"><label for="gk3">2</label><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/></td>
+	</tr></table>
+	</td></tr>
 <tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels)jewel_count#end</td></tr>
-<tr>
-<td class ="left">Jewel Set 1:</td>
-<td>
-<table cellspacing = 5vw id="jewelset1" frame="box" rules="none"><tr><td>
-<div class="circle" id="j_1,1" onclick="jewelToggle(1,1)"></div></td><td><div class="circle" id="j_1,2" onclick="jewelToggle(1,2)"></div></html>
-</td></tr></table>
-</td>
-<tr>
-<td class="left">Jewel Set 2:</td>
-<td>
-<table cellspacing = 5vw id="jewelset2" frame="box" rules="none"><tr><td>
-<div class="circle" id="j_2,1" onclick="jewelToggle(2,1)"></div></td><td><div class="circle" id="j_2,2" onclick="jewelToggle(2,2)"></div></html>
-</td></tr></table></td>
-</tr>
-<tr><td> <!-- Begin CB1 -->
-	<table border=1 cellpadding=0 cellspacing=1 id="cb1">
-		<tr>
-			<td onclick="toggle(1,0,0)" id="cb_1,0,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,0,1)" id="cb_1,0,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,0,2)" id="cb_1,0,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-		<tr>
-			<td onclick="toggle(1,1,0)" id="cb_1,1,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,1,1)" id="cb_1,1,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,1,2)" id="cb_1,1,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-		<tr>
-			<td onclick="toggle(1,2,0)" id="cb_1,2,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,2,1)" id="cb_1,2,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,2,2)" id="cb_1,2,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-		<tr>
-			<td onclick="toggle(1,3,0)" id="cb_1,3,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,3,1)" id="cb_1,3,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(1,3,2)" id="cb_1,3,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-	</table>
-	<div id="cb1L"></div>
-</td> <!-- End CB1 -->
-<td> <!-- Begin CB2 -->
-<table border=1 cellpadding=0 cellspacing=1 id="cb2">
-		<tr>
-			<td onclick="toggle(2,0,0)" id="cb_2,0,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,0,1)" id="cb_2,0,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,0,2)" id="cb_2,0,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-		<tr>
-			<td onclick="toggle(2,1,0)" id="cb_2,1,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,1,1)" id="cb_2,1,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,1,2)" id="cb_2,1,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-		<tr>
-			<td onclick="toggle(2,2,0)" id="cb_2,2,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,2,1)" id="cb_2,2,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,2,2)" id="cb_2,2,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-		<tr>
-			<td onclick="toggle(2,3,0)" id="cb_2,3,0" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,3,1)" id="cb_2,3,1" bgcolor="#FFFFFF">&ensp;</td>
-			<td onclick="toggle(2,3,2)" id="cb_2,3,2" bgcolor="#FFFFFF">&ensp;</td>
-		</tr>
-	</table>
-	<div id="cb2L"></div>
-</td> <!-- End CB2 -->
-</tr>
 <tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap" style="width: -webkit-fill-available;"><table  style="white-space:nowrap;width:100%"><tr>
 	<td class="fifty"><label><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end/>0</label></td>
 	<td class="fifty"><label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label></td>
@@ -310,23 +233,28 @@
 	<input type="checkbox" id="relic2Upright" #if($relic2Standing == true)checked#end/></td><td><label for="relic2Upright">Upright?</label>
 	</td></tr></table></td></tr>
 	
-<tr><td class="left"><label>Robots Balanced:</label></td><td class="right nowrap"><div>
-	<label style="width:33%"><input type="radio" name="balanced" value="0" #if($balanced == 0)checked#end/>0</label>
-	<label style="width:33%"><input type="radio" name="balanced" value="1" #if($balanced == 1)checked#end/>1</label>
-	<label style="width:33%"><input type="radio" name="balanced" value="2" #if($balanced == 2)checked#end/>2</label>
-	</div></td></tr>
-<tr><td class="left"><label>Robots Parked (Auto):</label></td><td class="right nowrap"><div>
-	<label style="width:33%"><input type="radio" name="parked" value="0" #if($parkedAuto == 0)checked#end/>0</label>
-	<label style="width:33%"><input type="radio" name="parked" value="1" #if($parkedAuto == 1)checked#end/>1</label>
-	<label style="width:33%"><input type="radio" name="parked" value="2" #if($parkedAuto == 2)checked#end/>2</label>
-	</div></td></tr>
+<tr><td class="left"><label>Robots Parked (Auto):</label></td>
+	<td class="right nowrap absorbing-column">
+	<table style="width:100%"><tr>
+	<td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td>
+	<td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td>
+	<td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td>
+	</tr></table>
+</td></tr>
 
 <!-- TELEOP STUFF HERE-->
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($glyphs)glyphs#end</td></tr>
 <tr><td class="left"><label>Rows:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($rows)rows#end</td></tr>
 <tr><td class="left"><label>Columns:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($columns)columns#end</td></tr>
 <tr><td class="left"><label>Ciphers:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($ciphers)ciphers#end</td></tr>
-
+<tr><td class="left"><label>Robots Balanced:</label></td>
+<td class="right nowrap absorbing-column">
+<table style="width:100%"><tr>
+	<td class="nowrap" style="width:33%"><label for="bal1">0</label><input type="radio" id="bal1" name="balanced" value="0" #if($balanced == 0)checked#end/></td>
+	<td class="nowrap" style="width:33%"><label for="bal2">1</label><input type="radio" id="bal2" name="balanced" value="1" #if($balanced == 1)checked#end/></td>
+	<td class="nowrap" style="width:33%"><label for="bal3">2</label><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/></td>
+	</tr></table>	
+</td></tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
