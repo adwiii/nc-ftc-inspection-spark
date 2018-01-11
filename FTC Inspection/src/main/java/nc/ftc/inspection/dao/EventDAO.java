@@ -120,7 +120,7 @@ public class EventDAO {
 	
 	static final String GET_SCHEDULE_STATUS_QUALS = "SELECT q.match, red1, red2, blue1, blue2, status, redScore, blueScore FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match";
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match ORDER BY q.match";
-	static final String GET_CARDS_DQS_SQL = "SELECT match, alliance, card1, card2, dq1, dq2 from qualsScores; ";
+	static final String GET_CARDS_DQS_SQL = "SELECT qs.match, alliance, card1, card2, dq1, dq2 from qualsScores qs INNER JOIN qualsData qd ON qs.match=qd.match WHERE qd.status = 1; ";
 	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
 	
 	
@@ -859,14 +859,24 @@ public class EventDAO {
 				MatchResult mr = map.get(rs.getInt(1));
 				Alliance a = rs.getInt(2) == Alliance.RED ? mr.getRed() : mr.getBlue();
 				a.initializeScores();
-				a.updateScore("card1", rs.getInt("card1"));
-				a.updateScore("card2", rs.getInt("card2"));
-				a.updateScore("dq1", rs.getBoolean("dq1"));
-				a.updateScore("dq2", rs.getBoolean("dq2"));
+				a.updateScore("card1", rs.getInt(3));
+				a.updateScore("card2", rs.getInt(4));
+				a.updateScore("dq1",Boolean.parseBoolean(rs.getObject(5).toString()));
+				a.updateScore("dq2", Boolean.parseBoolean(rs.getObject(6).toString()));
+				//System.out.println(rs.getInt(1)+" "+rs.getInt(2)+":"+rs.getInt(3)+","+rs.getInt(4)+","+rs.getBoolean(5)+","+rs.getBoolean(6));
 			}
+//			ps = local.prepareStatement("SELECT match, alliance, dq1, dq2 FROM qualsScores;");
+//			rs = ps.executeQuery();
+//			while(rs.next()) {
+//				System.out.println(rs.getInt(1)+" "+rs.getInt(2)+": "+rs.getObject(3).+","+rs.getObject(4));
+//			}
 			return result;
 		}
 		catch(Exception e) {
+			if(e.getMessage() == null) {
+				e.printStackTrace();
+				return null;
+			}
 			if(e.getMessage().contains("no such column")) {
 				System.err.println("OLD DB ("+event+")"+e.getMessage());
 				return null;

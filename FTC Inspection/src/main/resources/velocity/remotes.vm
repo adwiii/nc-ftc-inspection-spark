@@ -39,7 +39,7 @@ td{
 	<legend>Add/Edit Remote Server</legend>
 	<label for="host">Host:</label><input type="text" id="host"></input>
 	<button onclick="test()">Test Connection</button><div id="testMsg"></div><br>
-	<label for="event">Event Code:</label> <input type="text" id="event" disabled></input>
+	<label for="event">Event Code:</label> <input type="text" id="event"></input>
 	<label for="key">Access Key:</label><input type="text" id="key"></input>
 	<button id="submit" onclick="submit()">Submit</button>
 	<div id="msg"></div>

@@ -70,6 +70,15 @@ public class Match {
 		blue.randomization = this.randomization;
 		return randomization;
 	}
+	public int randomize(int v) {
+		if(v == 0) {
+			return randomize();
+		}
+		randomization = v;
+		red.randomization = this.randomization;
+		blue.randomization = this.randomization;
+		return randomization;		
+	}
 	public boolean isRandomized(){
 		return randomization != 0;
 	}

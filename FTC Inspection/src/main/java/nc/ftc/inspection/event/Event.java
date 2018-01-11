@@ -128,7 +128,7 @@ public class Event {
 			if(mr.getStatus() == 1) { //match has been played
 				Alliance red = mr.getRed();
 				Alliance blue = mr.getBlue();
-				
+			//	System.out.println(mr.getNumber()+":"+red.getScore("dq1")+","+red.getScore("dq2")+","+blue.getScore("dq1")+","+blue.getScore("dq2"));
 				Rank red1 = map.get(red.getTeam1());
 				Rank red2 = map.get(red.getTeam2()); 
 				Rank blue1 = map.get(blue.getTeam1());

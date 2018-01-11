@@ -690,7 +690,9 @@
             		pause();
             	} else if(data[0] == 'RESUME'){
             		resume();
-            	} 
+            	} else if(data[0] == "RESET"){
+            		reset();
+            	}
             	getTimerCommand();
             },
             error: function () {
@@ -727,6 +729,13 @@
   		timerInstance = setInterval(tick, 50);
   		paused = false;
   	}
+  	function reset(){
+  		foghornSound.play();
+  		stopScores = true;
+  		window.clearInterval(timerInstance);
+  		display(150, 'W');
+  	}
+  	
   	function fieldTimeout(){
   		allianceTO = 0;
   		timeout = true;
@@ -785,6 +794,7 @@
   				buzzerSound.play();
   				display(0, "W");
   				window.clearInterval(timerInstance);
+  				return;
   			}
   			//display alliance timeout window
   			var x = "";
@@ -1066,7 +1076,7 @@
 		stat.setAttribute("visible", elims ? "true" : "false");
 		if(elims){
 			if(data.redWins == data.blueWins){
-				stat.innerHTML = "Series tied " + data.redWins + " - "+data.blueWins;
+				stat.innerHTML = "Series Tied " + data.redWins + " - "+data.blueWins;
 				statImg.src = "/img/alliancebar92.png";
 	
 			} else {

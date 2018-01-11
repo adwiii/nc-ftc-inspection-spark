@@ -332,9 +332,12 @@
 <script>
 
 
-
 function randomize(){
-	var postObj = {};
+	randomize(0);
+}
+	
+function randomize(r){
+	var postObj = {value:r};
 	$.post("../randomize/",postObj).done(function(data){
 		console.log(data);
 		//TODO listen for randomization by head ref
@@ -456,6 +459,10 @@ function start(){
 		commitBtn.innerHTML = "Edit Now";
 		commitBtn.setAttribute("onclick","lockout()");
 		commitBtn.setAttribute("state","off");
+		
+		var postBtn = document.getElementById("postBtn");
+		postBtn.setAttribute("state", "off");
+		postBtn.disabled = true;
 		waitForMatchEnd();
 		acceptScores = true;
   		getScoreUpdate(false);
@@ -475,7 +482,11 @@ function pause(){
 		startBtn.innerHTML = "Resume Match";
 		startBtn.setAttribute("onclick", "resume()");
 		
-		//TODO Make abort an option now
+		var show = document.getElementById("showBtn");
+		show.setAttribute("state", "warn");
+		show.disabled = false;
+		show.innerHTML = "Abort Match";
+		show.setAttribute("onclick", "abort()");
 		
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
@@ -491,8 +502,42 @@ function resume(){
 		startBtn.innerHTML = "Pause Match";
 		startBtn.setAttribute("onclick", "pause()");
 		
-		//TODO hide abort option		
+		//TODO hide abort option	
+		var show = document.getElementById("showBtn");
+		show.setAttribute("state", "off");
+		show.disabled = true;
+		show.innerHTML = "Set Display";
+		show.setAttribute("onclick", "setDisplay()");	
 		
+	}).fail( function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function abort(){
+
+	var postObj = {};
+	$.post("../time/reset/",postObj).done(function(data){
+	
+		acceptScores = false;
+	
+		var show = document.getElementById("showBtn");
+		show.setAttribute("state", "ready");
+		show.disabled = false;
+		show.innerHTML = "Set Display";
+		show.setAttribute("onclick", "setDisplay()");
+		//reenable match preview, start, and re-randomize.
+		
+		var preview = document.getElementById("previewBtn");
+		preview.setAttribute("state", "ready");
+		preview.disabled = false;
+		var rand = document.getElementById("randomBtn");
+		rand.setAttribute("state", "warn");
+		rand.disabled = false;
+		var startBtn = document.getElementById("startBtn");
+		startBtn.setAttribute("state","ready");
+		startBtn.innerHTML = "Start Match";
+		startBtn.setAttribute("onclick", "start()");
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
@@ -602,7 +647,7 @@ function openTab(event, tabName){
 			<button class="matchControlButton" id="showBtn"   onclick="setDisplay()" state = "off" disabled>Set Display</button>
 			<button class="matchControlButton" id="startBtn"  onclick="start()"      state = "off" disabled>Start Match</button>
 			<button class="matchControlButton" id="commitBtn" onclick="lockout()"     state = "off" disabled>Edit Now</button>
-			<button class="matchControlButton" id="postBtn"   onclick="post()"       state = "off" disabled>Post Results</button>
+			<button class="matchControlButton" id="postBtn"   onclick="post()"       state = "off" disabled>Show Results</button>
 			
 		</div>
 		<!-- TODO https://www.w3schools.com/howto/howto_js_tabs.asp -->
@@ -648,6 +693,15 @@ function openTab(event, tabName){
 				<button class="matchControlButton" id="teamTO" onclick="timeoutCommand('team')">Team Timeout</button>
 				<button class="matchControlButton" id="endTO" onclick="timeoutCommand('end')">End Timeout</button>
 				<button class="matchControlButton" id="showTO" onclick="timeoutCommand('show')">Display Timeout</button>
+			</fieldset>
+			<fieldset>
+				<legend>External Randomization</legend>
+				<button class="matchControlButton" id="rand1" onclick="randomize(1)">1</button>
+				<button class="matchControlButton" id="rand1" onclick="randomize(2)">2</button>
+				<button class="matchControlButton" id="rand1" onclick="randomize(3)">3</button>
+				<button class="matchControlButton" id="rand1" onclick="randomize(4)">4</button>
+				<button class="matchControlButton" id="rand1" onclick="randomize(5)">5</button>
+				<button class="matchControlButton" id="rand1" onclick="randomize(6)">6</button>
 			</fieldset>
 			<fieldset>
 				<legend>Match Timer</legend>

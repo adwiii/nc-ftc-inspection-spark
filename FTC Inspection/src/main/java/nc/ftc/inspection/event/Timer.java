@@ -120,6 +120,8 @@ public class Timer {
 	}
 	public void reset() {
 		//need to notify eait for end, waiting method's responsibility to check if it was reset and hadle it
+		eventDispatch.interrupt();
+		issueCommand(TimerCommand.RESET);
 	}
 	
 	public long elapsed() {

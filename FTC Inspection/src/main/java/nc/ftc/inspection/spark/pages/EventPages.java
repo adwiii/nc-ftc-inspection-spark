@@ -370,12 +370,23 @@ public class EventPages {
 		
 		public static Route handleRandomizePost = (Request request, Response response) ->{
 			String event = request.params("event");
-			Event e = Server.activeEvents.get(event);
+			Event e = Server.activeEvents.get(event);/*
 			if(e.getCurrentMatch().isRandomized()){
 				response.status(500);
 				return "Match already randomized!";
 			}
-			int r = e.getCurrentMatch().randomize();
+			*/
+			if(e.getCurrentMatch().getStatus() != MatchStatus.PRE_RANDOM && e.getCurrentMatch().getStatus() != MatchStatus.AUTO) {
+				response.status(500);
+				return "Invalid match phase.";
+			}
+			int val = 0;
+			try {
+				val = Integer.parseInt(request.queryParams("value"));
+			}catch(Exception e2) {
+				//no param
+			}
+			int r = e.getCurrentMatch().randomize(val);
 			synchronized(e.waitForRandomLock) {
 				e.waitForRandomLock.notifyAll();
 			}
@@ -774,7 +785,7 @@ public class EventPages {
 					} else if(event.getCurrentMatch().getStatus() == MatchStatus.REVIEW){
 					*/
 					
-						System.out.println("AUTO TIME!");
+//						System.out.println("AUTO TIME!");
 						//notify score listeners before ref-done listeners.
 						Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 						event.getCurrentMatch().setStatus(MatchStatus.PRE_COMMIT);
@@ -907,7 +918,33 @@ public class EventPages {
 		public static Route handleResetMatch = (Request request, Response response) ->{
 			//TODO make sure waitForEnd handles this properly (return error)
 			//Same with waitForRefs
-			return null;
+			//re-initialize scores!
+			//set match status to AUTO!
+			//stop timers
+			//stop livescore updates ~ send DisplayCOmmand.STOP_SCORING
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				response.status(400);
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				response.status(400);
+				return "No active match";
+			}
+			match.getRed().initializeScores();
+			match.getBlue().initializeScores();
+			e.getTimer().reset();
+			e.getDisplay().issueCommand(DisplayCommand.STOP_SCORE_UPDATES);
+			synchronized(match.getUpdateLock()) {//prevent duplication of score POSTs
+				match.getUpdateLock().notifyAll();
+			}
+			match.setStatus(MatchStatus.AUTO);
+			synchronized(e.getTimer().waitForEndLock) {
+				e.getTimer().waitForEndLock.notifyAll();
+			}
+			
+			return "OK";
 		};
 		
 		public static Route handleLockoutRefs = (Request request, Response response) ->{
@@ -1336,6 +1373,10 @@ public class EventPages {
 					e.getTimer().waitForEndLock.wait();
 				}
 				//TODO if reset, return error (Match status == AUTO? or pre-randomize?)
+				if(m.getStatus() == MatchStatus.AUTO) {
+					response.status(409);
+					return "ABORTED";
+				}
 			}
 			return "OK";
 		};
@@ -1562,7 +1603,7 @@ public class EventPages {
 			String is43Str = request.queryParams("43");
 			String fieldStr = request.queryParams("field");
 			String muteStr = request.queryParams("mute");
-			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+//			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));

@@ -250,6 +250,7 @@ public class Server {
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		post(Path.Web.PAUSE_MATCH, EventPages.handlePauseMatch);
 		post(Path.Web.RESUME_MATCH, EventPages.handleResumeMatch);
+		post(Path.Web.RESET_MATCH, EventPages.handleResetMatch);
 		post(Path.Web.SUBMIT_SCORE, EventPages.handleScoreSubmit);
 		post(Path.Web.COMMIT_SCORES, EventPages.handleScoreCommit);
 		post(Path.Web.SCORE, EventPages.handleTeleopSubmit);
