@@ -237,7 +237,7 @@ public class EventPages {
 		}
 		model.put("teamsPerCol", teamsPerCol);
 		model.put("event", event);//TODO get the event name from db
-		String[] columns = new String[]{"hw", "sw", "fd", "sc", "ci"};
+		String[] columns = new String[]{"ci", "hw", "sw", "fd"};//removed SC! hope it still works!
 		model.put("headers", columns);
 
 		model.put("teams", teams);
