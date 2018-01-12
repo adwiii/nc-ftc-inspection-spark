@@ -1,5 +1,7 @@
 package nc.ftc.inspection.spark.pages;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,9 @@ public class LoginPage {
 		} catch (Exception e) {
 			model.put("newUserCount", 1);
 		}
+		List<String> roles = new ArrayList<String>(User.editableRoles);
+		Collections.reverse(roles);
+		model.put("types", roles);
 		return render(request, model, Path.Template.CREATE_ACCOUNT);
 	}
 
@@ -122,19 +127,11 @@ public class LoginPage {
 				String realname = request.queryParams("realname" + i);
 				String typeString = request.queryParams("type" + i);
 				int type = User.NONE;
-				switch (typeString) {
-				case "team":
-					type = User.TEAM;
-					break;
-				case "volunteer":
-					type = User.VOLUNTEER;
-					break;
-				case "key":
-					type = User.KEY_VOLUNTEER;
-					break;
+				if (User.editableRoles.contains(typeString)) {
+					type = User.valMap.get(typeString);
 				}
 				//if the username was left blank this will fail
-				if (UsersDAO.addUser(username, username, realname, type)) {
+				if (UsersDAO.addUser(username.toLowerCase(), username.toLowerCase(), realname, type)) {
 					success++;
 				}
 				i++;

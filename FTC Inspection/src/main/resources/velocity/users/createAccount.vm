@@ -19,9 +19,9 @@
    		<input type="text" name="realname$i">
    		<label>Type:</label>
    		<select name="type$i">
-  			<option value="team">Team member</option>
-  			<option value="volunteer">Volunteer</option>
-  			<option value="key">Key volunteer</option>
+   			#foreach($type in $types)
+  				<option value="$type">$type</option>
+  			#end
 		</select>	
 		<br><br>
 	#end

@@ -62,6 +62,10 @@ public class UsersDAO {
 	 * @return The user object, or null if invalid.
 	 */
 	public static User authenticate(String username, String pw){
+		if (username == null || username.isEmpty()) {
+			return null;
+		}
+		username = username.toLowerCase();
 		User user = getUser(username);
 		if(user == null) return null;
 		String hashedPassword = BCrypt.hashpw(pw, user.getSalt());
@@ -81,6 +85,10 @@ public class UsersDAO {
 	 * @return True if successful, false if failed (due to either no username found or incorrect current username).
 	 */
 	public static boolean updatePassword(String username, String oldPw, String newPw){
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			User user = authenticate(username, oldPw);
 			if(user == null){
@@ -119,6 +127,7 @@ public class UsersDAO {
 		if (username == null || username.isEmpty()) {
 			return false;
 		}
+		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL.sql);
 			String salt = BCrypt.gensalt();
@@ -151,6 +160,7 @@ public class UsersDAO {
 		if (username == null || username.isEmpty()) {
 			return null;
 		}
+		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(PASSWORD_SQL);
 			ps.setString(1, username);
@@ -167,18 +177,30 @@ public class UsersDAO {
 	}
 	
 	public static boolean addRole(String username, int role) {
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		username = username.toLowerCase();
 		User user = getUser(username);
 		int newRole = user.getType() | role;
 		return updateRole(username, newRole);
 	}
 	
 	public static boolean removeRole(String username, int role) {
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		username = username.toLowerCase();
 		User user = getUser(username);
 		int newRole = user.getType() & ~role;
 		return updateRole(username, newRole);
 	}
 	
 	private static boolean updateRole(String username, int newRole) {
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(UPDATE_TYPE_SQL.sql);
 			ps.setString(2, username);
@@ -218,6 +240,10 @@ public class UsersDAO {
 	 * @return
 	 */
 	public static int getRoleAtEvent(String username, String eventCode){
+		if (username == null || username.isEmpty()) {
+			return 0;
+		}
+		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(EVENT_ROLE_SQL);
 			ps.setString(1, username);
@@ -236,18 +262,22 @@ public class UsersDAO {
 	/**
 	 * Assigns the given role to the specified usr for the specified event.
 	 * @param eventCode
-	 * @param user The username of the user to assign
+	 * @param username The username of the user to assign
 	 * @param role
 	 * @return
 	 */
-	public static boolean assignRole(String eventCode, String user, int role){
+	public static boolean assignRole(String eventCode, String username, int role){
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = conn.prepareStatement(ASSIGN_ROLE_SQL.sql);
-			ps.setString(1, user);
+			ps.setString(1, username);
 			ps.setString(2,  eventCode);
 			ps.setInt(3,  role);
 			int affected = ps.executeUpdate();
-			updater.enqueue(new Update(eventCode, Update.USER_DB_UPDATE, null, ASSIGN_ROLE_SQL.id, user, eventCode, role));
+			updater.enqueue(new Update(eventCode, Update.USER_DB_UPDATE, null, ASSIGN_ROLE_SQL.id, username, eventCode, role));
 			return affected == 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
