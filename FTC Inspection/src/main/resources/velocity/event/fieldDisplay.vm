@@ -1165,8 +1165,11 @@
 				sr = "BLUE leads series";
 				im = "blue";
 			} 
-			document.getElementById("seriesResult").innerHTML = sr;
-			document.getElementById("seriesResultImg").src = "/img/alliance"+im+"92.png";
+			document.getElementById("winnerField").innerHTML = sr;
+			document.getElementById("winnerImg").src = "/img/alliance"+im+"92.png";
+			
+			document.getElementById("seriesResult").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
+			document.getElementById("seriesResultImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
 			
 			document.getElementById("redhead_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
 			if(data.red1Card > 0) document.getElementById("redhead_card").src=getCardImage(data.red1Card);
@@ -1176,10 +1179,11 @@
 		} else{
 			document.getElementById("redhead_resultNumber").innerHTML = "Team";
 			document.getElementById("bluehead_resultNumber").innerHTML = "Team";
+			document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
+			document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
 		}
 		
-		document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
-		document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
+
 	
 		
 	}
