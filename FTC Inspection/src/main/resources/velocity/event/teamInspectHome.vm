@@ -73,6 +73,7 @@ width:40%;
 <head>
 <h1>Team $team.number Inspection Status</h1>
 </head>
+Click on an inspection category to see additional info.
 
 <button class="accordion"><div class="lab">Check In </div> #status($ci)</button>
 <div class="panel">

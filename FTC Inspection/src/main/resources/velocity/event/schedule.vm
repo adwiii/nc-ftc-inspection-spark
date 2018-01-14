@@ -1,5 +1,9 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+#if($fullPage)
+$fullPage
+#else
+<!-- BEGIN SCHEDULE PAGE -->
 <head>
 <style>
 @media print
@@ -13,7 +17,7 @@
 </style>
 <title>Match List</title>
 </head>
-<a href=".."><< To Event Home</a>
+<a href="/event/$sysEvent/home/"><< To Event Home</a>
 <center><h2>$event <br> Match List</h2></center>
 
 #if($elims.size() > 0)
@@ -63,4 +67,5 @@
 <P align=left><STRONG>Note:</STRONG> * Indicates a surrogate match.  Those matches do NOT count in the rankings</P>
 <CENTER><SMALL>MatchMaker Scheduling Software &copy; 2007 Idle Loop Software Design. LLC</SMALL></CENTER>
 <CENTER><SMALL>FTC Scoring Software &copy; 2017-2018 <i>FIRST&reg;</i></CENTER></SMALL>
+#end ## end cache if
 #end

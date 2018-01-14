@@ -1,5 +1,9 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+#if($fullPage)
+$fullPage
+#else
+<!-- BEGIN RESULTS PAGE -->
 <head>
 <style>
 @media print
@@ -14,7 +18,7 @@
 
 <TITLE>Match Results</TITLE>
 </head>
-<a href=".."><< To Event Home</a>
+<a href="/event/$sysEvent/home/"><< To Event Home</a>
 <CENTER><H2>$event<BR>
 Match Results</H2></CENTER>
 <HR>
@@ -107,5 +111,5 @@ Match Results</H2></CENTER>
 <P align=left><STRONG>Note:</STRONG> * Indicates a surrogate match.  Those matches do NOT count in the rankings</P>
 <CENTER><SMALL>MatchMaker Scheduling Software &copy; 2007 Idle Loop Software Design. LLC</SMALL></CENTER>
 
-
+#end ## end cache if
 #end

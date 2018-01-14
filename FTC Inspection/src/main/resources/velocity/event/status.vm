@@ -12,7 +12,7 @@
 	width:10%;
 }
 </style>
-<a href=".."><< To Event Home</a>
+<a href="/event/$sysEvent/home/"><< To Event Home</a>
 <div style="float:right">
 <a href="./?proj=true&cols=1">Projector friendly: 1 column</a><br>
 <a href="./?proj=true&cols=2">Projector friendly: 2 columns</a><br>
