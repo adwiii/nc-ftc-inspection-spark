@@ -60,7 +60,7 @@ public class RemoteUpdater extends Thread {
 				if(queue.isEmpty()) {
 					synchronized(instance) {
 						try {
-							this.wait(10000);
+							this.wait(60000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -91,7 +91,7 @@ public class RemoteUpdater extends Thread {
 				}
 				synchronized(instance) {
 					try {
-						this.wait(10000); //up this after testing
+						this.wait(60000); //up this after testing
 					} catch (InterruptedException e) {
 					}
 				}

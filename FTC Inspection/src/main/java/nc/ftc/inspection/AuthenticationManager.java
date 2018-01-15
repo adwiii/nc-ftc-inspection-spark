@@ -70,12 +70,18 @@ public class AuthenticationManager {
 	
 	public static void addUserPermission(String userString, int permission) {
 		Session session = sessionsUserMap.get(userString);
+		if(session == null) {
+			return;
+		}
 		User user = session.getUser();
 		user.addPermission(permission);
 	}
 	
 	public static void removeUserPermission(String userString, int permission) {
 		Session session = sessionsUserMap.get(userString);
+		if(session == null) {
+			return;
+		}
 		User user = session.getUser();
 		user.removePermission(permission);
 	}

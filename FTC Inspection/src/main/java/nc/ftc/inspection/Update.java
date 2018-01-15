@@ -11,9 +11,13 @@ import nc.ftc.inspection.dao.UsersDAO;
 
 
 public class Update {
-	//variable names intentionally vague
-	static int idcount = 1;
-	long id;
+	//variable names intentionally vague for json
+	long originId; //eventually this is how remote will inform local about status of update
+	static transient long idCount = 1;//need to set this at launch!
+	long c; //creation time
+	transient long receivedTS; //not sent to remote, but is stored in DB log
+	transient int status; //not sent to remote, but is stored in DB log
+	transient String exception;//exception msg if occurred?
 	public String e;
 	public int t;
 	Map<String,String> v;
@@ -32,6 +36,16 @@ public class Update {
 	public static final transient int ACTIVATE_EVENT = 4; //add event to active events
 	public static final transient int RECALCULATE_RANKINGS = 5;
 	
+	//For now, the remote does NOT send back success/failure data to local
+	public static final transient int QUEUED = 1;
+	public static final transient int SENT = 2;
+	public static final transient int PENDING = 3;
+	public static final transient int TX_FAILED = 4; //still in queue, but sending failed at least once
+	public static final transient int FAILED = 5;
+	public static final transient int SUCCESS = 6;
+	
+	
+	
 	//TODO IF A SERVER EVER HAS TO POST ABOUT 2 EVENTS, expand REMOTES TO HAVE A key[] 
 	//not two remotes so things dont get duplicated.
 	
@@ -41,7 +55,7 @@ public class Update {
 		this.t = type;
 		this.v = manualSQLVariables;
 		this.p = params;
-		id = idcount++;
+		originId = idCount++;
 	}
 	
 	public boolean execute(String key) {

@@ -133,6 +133,7 @@
 	}
 	.previewText{
 		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		color:white;
 		top:12;
 	}
 	.previewNumber{
@@ -173,6 +174,7 @@
 	.resultText{
 		font:45px "Arial Black", Arial, Helvetica, sans-serif;
 		top:12;
+		color: white;
 	}
 	.resultMidText{
 		font:45px "Arial Black", Arial, Helvetica, sans-serif;
@@ -182,7 +184,7 @@
 		position:relative;
 		font:75px "Arial Black", Arial, Helvetica, sans-serif;
 		top:-15;
-		color:black;
+		color:white;
 	}
 	.resultNumber{
 		position:absolute;
@@ -679,7 +681,7 @@
         		}
             
             	#if($field)
-            		if(data[1] != $field){
+            		if(data[1] != $field && data[1] != "-1"){
             			getTimerCommand();
             			return;
             		}
@@ -877,7 +879,7 @@
             	}
             	data = data.split(",");
             	#if($field)
-            		if(data[1] != $field){
+            		if(data[1] != $field && data[1] != "-1"){
             			getDisplayCommand();
             			return;
             		}

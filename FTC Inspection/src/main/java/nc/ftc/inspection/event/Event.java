@@ -20,6 +20,10 @@ public class Event {
 	Match currentMatch;
 	Match previousMatch;	
 	
+	public volatile String resultsPage;
+	public volatile String rankingsPage;
+	public volatile String schedulePage;
+	
 	//Monitors for messaging and long polls
 	public Object waitForRefLock = new Object();
 	public Object waitForPreviewLock = new Object();
@@ -114,6 +118,7 @@ public class Event {
 	
 	public void calculateRankings() {
 		rankings.clear();
+		rankingsPage = null;
 		List<Team> teams = EventDAO.getTeams(data.getCode());
 		HashMap<Integer, Rank> map = new HashMap<Integer, Rank>();
 		for(Team t : teams) {

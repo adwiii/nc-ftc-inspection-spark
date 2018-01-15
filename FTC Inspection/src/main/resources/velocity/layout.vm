@@ -1,7 +1,7 @@
 #macro(mainLayout $mainWidth)
 <html>
 <head>
-    <title>FTC Inspection App</title>
+    <title>FTC Live</title>
     <link rel="stylesheet" href="/main.css">
     <link rel="icon" href="/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -168,6 +168,7 @@
  >
     <div id="content">
         $bodyContent
+        <!-- END BODY CONTENT -->
     </div>
 </main>
 ##<footer>

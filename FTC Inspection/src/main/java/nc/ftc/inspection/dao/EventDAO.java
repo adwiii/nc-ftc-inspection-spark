@@ -568,6 +568,7 @@ public class EventDAO {
 			e.printStackTrace();
 			return false;
 		}
+		Server.activeEvents.get(event).schedulePage = null;
 		return true;
 	}
 	private static Match parseMatch(ResultSet rs) throws SQLException{
@@ -655,9 +656,11 @@ public class EventDAO {
 			ps.setInt(2, match.getRandomization());
 			ps.setInt(3,  match.getNumber());
 			int affected = ps.executeUpdate();
+			/*Don't do this, if we replay a match, there is a 1/6 chance this would break it!
 			if(affected != 1){
 				return false;
 			}
+			*/
 			
 			//TODO TEST THE MAP!
 			updater.enqueue(new Update(event, 1, map, COMMIT_MATCH_DATA.id, 1, match.getRandomization(), match.getNumber())); 
@@ -678,9 +681,11 @@ public class EventDAO {
 			ps.setInt(4,  blue.getPenaltyPoints());
 			ps.setInt(5,  match.getNumber());
 			affected = ps.executeUpdate();
+			/*
 			if(affected != 1){
 				return false;
 			}
+			*/
 			updater.enqueue(new Update(event, 1, map, COMMIT_MATCH_RESULTS.id, red.getLastScore(), blue.getLastScore(), red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getNumber()));
 			
 			commitAllianceScore(event, match.getNumber(), match.getBlue(), Alliance.BLUE, local, elims);
@@ -689,7 +694,8 @@ public class EventDAO {
 			if(!elims) {
 				updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_RANKINGS));
 			}
-			return affected == 1;
+			Server.activeEvents.get(event).resultsPage = null;
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -792,7 +798,7 @@ public class EventDAO {
 	public static Match getMatch(String event, int num, boolean elims) {
 		try(Connection local = getLocalDB(event)){
 			int status = getEvent(event).getStatus();
-			PreparedStatement ps = local.prepareStatement(status == EventData.ELIMS ?  GET_ELIMS_MATCH_SQL : GET_MATCH_SQL);
+			PreparedStatement ps = local.prepareStatement(elims ?  GET_ELIMS_MATCH_SQL : GET_MATCH_SQL);
 			ps.setInt(1,  num);
 			ResultSet rs = ps.executeQuery();
 			Match m = null;
@@ -920,7 +926,7 @@ public class EventDAO {
 		
 		try (Connection local = getLocalDB(eventCode)){
 			String s  =String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList()));
-			System.out.println(s);
+//			System.out.println(s);
 			PreparedStatement ps = local.prepareStatement(GET_COMMENT_SQL.replace(":in", s));
 			List<Integer> list = new ArrayList<>(teamList.length);
 			for(int i:teamList) {
@@ -929,10 +935,10 @@ public class EventDAO {
 			ps.setString(1, formID);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				System.out.println("Result:"+rs.getInt(1)+":"+rs.getString(2));
+//				System.out.println("Result:"+rs.getInt(1)+":"+rs.getString(2));
 				result[list.indexOf(rs.getInt(1))] = rs.getString(2);
 			}
-			System.out.println("All done!");
+//			System.out.println("All done!");
 			for(int i = 0; i < result.length; i++) {
 				result[i] = result[i] == null ? "" : result[i];
 			}
@@ -1038,6 +1044,12 @@ public class EventDAO {
 				ps.setObject(i, p[i]);
 			}
 			ps.execute();
+			Event e = Server.activeEvents.get(event);
+			if(e != null) {
+				e.rankingsPage = null;
+				e.resultsPage = null;
+				e.schedulePage = null;
+			}
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1057,7 +1069,7 @@ public class EventDAO {
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, SET_ALLIANCE_SQL.id,data[i].getRank(), data[i].getTeam1(), data[i].getTeam2(), data[i].getTeam3() ));
 			}
-			
+			Server.activeEvents.get(event).schedulePage = null;
 			return true;			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1102,6 +1114,7 @@ public class EventDAO {
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 1));
 			}
+			Server.activeEvents.get(event).schedulePage = null;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

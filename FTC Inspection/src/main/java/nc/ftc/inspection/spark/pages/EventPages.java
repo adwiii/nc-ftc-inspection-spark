@@ -274,21 +274,33 @@ public class EventPages {
 	public static Route serveSchedulePage = (Request request, Response response) ->{
 		String event = request.params("event");
 		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("event", event);//TODO get the event name from db
-		List<Match> schedule = EventDAO.getSchedule(event);
-		List<Match> quals = new ArrayList<>(schedule.size());
-		List<Match> elims = new ArrayList<>(10);
-		for(Match m : schedule) {
-			if(m.isElims()) {
-				elims.add(m);
-			} else {
-				quals.add(m);
-			}
+		Event e = Server.activeEvents.get(event);
+		if(e == null) {
+			response.status(400);
+			return "No Schedule data";
 		}
-		model.put("matches", quals);
-		model.put("elims", elims);
+		if (e.schedulePage == null) {
+			model.put("event", event);//TODO get the event name from db
+			List<Match> schedule = EventDAO.getSchedule(event);
+			List<Match> quals = new ArrayList<>(schedule.size());
+			List<Match> elims = new ArrayList<>(10);
+			for(Match m : schedule) {
+				if(m.isElims()) {
+					elims.add(m);
+				} else {
+					quals.add(m);
+				}
+			}
+			model.put("matches", quals);
+			model.put("elims", elims);
+			String page = render(request, model, Path.Template.SCHEDULE_PAGE);
+			e.schedulePage = page.substring(page.indexOf("<!-- BEGIN SCHEDULE PAGE -->"), page.lastIndexOf("<!-- END BODY CONTENT -->"));
+			return page;
+		} else {
+			model.put("fullPage", e.schedulePage);
+			return render(request, model, Path.Template.SCHEDULE_PAGE);
+		}
 		
-		return render(request, model, Path.Template.SCHEDULE_PAGE);
 	};
 	
 	
@@ -313,11 +325,17 @@ public class EventPages {
 		 	}
 			Part p = request.raw().getPart("file");
 			List<Match> matches = new ArrayList<>();
+			List<Match> playedQuals = new ArrayList<>();
+			List<Match> elims = new ArrayList<>();//for uploading complete event
+			List<Match> playedElims = new ArrayList<>();
+			List<Alliance> alliances = new ArrayList<>(4); // for uploading complete event
+			boolean started = false;
 			Set<Integer> teams = new HashSet<Integer>();
 			Scanner scan = new Scanner(p.getInputStream());
 			scan.useDelimiter("\\|");
 			try{
 			while(scan.hasNextLine()){
+				/*
 				scan.nextInt();
 				scan.nextInt();
 				int match = scan.nextInt();
@@ -347,13 +365,223 @@ public class EventPages {
 				int b1S = scan.nextInt();
 				int b2S = scan.nextInt();
 				scan.nextLine();
-				Alliance red = new Alliance(red1, r1S == 1, red2, r2S == 1);
-				Alliance blue = new Alliance(blue1, b1S == 1, blue2, b2S == 1);
-				matches.add(new Match(match, red, blue));
-				teams.add(red1);
-				teams.add(red2);
-				teams.add(blue1);
-				teams.add(blue2);
+				*/
+				scan.nextInt(); //always 1
+				int phase = scan.nextInt();
+				int number = scan.nextInt();
+				int TScount = scan.nextInt();
+				long[] ts = new long[TScount];
+				for(int i = 0; i < TScount; i++) {
+					ts[i] = scan.nextLong();
+				}
+				scan.next(); //always empty
+				int red1 = scan.nextInt();
+				int red2 = scan.nextInt();
+				int red3 = scan.nextInt();
+				int blue1 = scan.nextInt();
+				int blue2 = scan.nextInt();
+				int blue3 = scan.nextInt();
+				//1 if no-show, 2 if RED CARD
+				int red1DQ = scan.nextInt();
+				int red2DQ = scan.nextInt();
+				int red3DQ = scan.nextInt();
+				boolean red1yc = scan.nextBoolean();
+				boolean red2yc = scan.nextBoolean();
+				boolean red3yc = scan.nextBoolean();
+				int blue1DQ = scan.nextInt();
+				int blue2DQ = scan.nextInt();
+				int blue3DQ = scan.nextInt();
+				boolean blue1yc = scan.nextBoolean();
+				boolean blue2yc = scan.nextBoolean();
+				boolean blue3yc = scan.nextBoolean();
+				int r1S = scan.nextInt();
+				int r2S = scan.nextInt();
+				scan.nextInt(); //probably red3S? which should always be 0
+				int b1S = scan.nextInt();
+				int b2S = scan.nextInt();
+				scan.nextInt(); //probably blue3s which = 0 
+				int played = scan.nextInt();
+				int redJewels = scan.nextInt();
+				int redAutoGlyphs = scan.nextInt();
+				int redKeys = scan.nextInt();
+				int redParked = scan.nextInt();
+				int redGlyphs = scan.nextInt(); 
+				int redRows = scan.nextInt();
+				int redColumns = scan.nextInt();
+				int redCiphers = scan.nextInt();
+				int redZone1  = scan.nextInt();
+				int redZone2 = scan.nextInt();
+				int redZone3 = scan.nextInt();
+				int redUpright = scan.nextInt();
+				int redBalanced = scan.nextInt();
+
+				int redMinor = scan.nextInt();
+				int redMajor = scan.nextInt();
+				int blueMinor = scan.nextInt();
+				int blueMajor = scan.nextInt();
+				
+				int blueJewels = scan.nextInt();
+				int blueAutoGlyphs = scan.nextInt();
+				int blueKeys = scan.nextInt();
+				int blueParked = scan.nextInt();
+				int blueGlyphs = scan.nextInt(); 
+				int blueRows = scan.nextInt();
+				int blueColumns = scan.nextInt();
+				int blueCiphers = scan.nextInt();
+				int blueZone1  = scan.nextInt();
+				int blueZone2 = scan.nextInt();
+				int blueZone3 = scan.nextInt();
+				int blueUpright = scan.nextInt();
+				int blueBalanced = scan.nextInt();
+				scan.nextLine();//ignore repeat penalty entries
+				
+				Match match;
+				if(phase == 1) {
+					Alliance red = new Alliance(red1, r1S == 1, red2, r2S == 1);
+					Alliance blue = new Alliance(blue1, b1S == 1, blue2, b2S == 1);
+
+					match = new Match(number, red, blue);
+					matches.add(match);
+					teams.add(red1);
+					teams.add(red2);
+					teams.add(blue1);
+					teams.add(blue2);
+				} else {
+					started = true; //allow elims with no quals
+					//phase 2 match 11 and 21 need to set alliances
+					if(phase == 2) {
+						if(number == 11) { //SF1-1
+							alliances.add(new Alliance(1, red1, red2, red3));
+							alliances.add(new Alliance(4, blue1, blue2, blue3));
+						} 
+						if(number == 21) {//SF2-1
+							alliances.add(new Alliance(2, red1, red2, red3));
+							alliances.add(new Alliance(3, blue1, blue2, blue3));
+						}
+					}
+					
+					
+					
+					//These matches will use their numbering system! need t convert before saving.
+					String name = phase == 2 ? "SF-" : "F-";
+					if(phase == 2) {
+						name += (number/10)+"-"+(number % 10);
+					} else {
+						name += number;
+					}
+					//for now, alliance doesnt matter. after we create DB entry, get the alliance info before committing
+					Alliance red = new Alliance(0);
+					Alliance blue = new Alliance(0);
+					match = new Match(number,red,blue,name);
+					elims.add(match);
+				}
+				
+				if(played == 1) {
+					started = true;
+					Alliance red = match.getRed();
+					Alliance blue = match.getBlue();
+					red.initializeScores();
+					blue.initializeScores();
+					
+					//i have the number in each zone and the number standing
+					//convert to by relic scores
+					int red1Z = 0;
+					int red2Z = 0;
+					if(redZone1 > 0) {
+						red1Z = 1;
+						redZone1--;
+					} else if(redZone2 > 0) {
+						red1Z = 2;
+						redZone2--;
+					} else if(redZone3 > 0) {
+						red1Z = 3;
+						redZone3--;
+					}
+					if(redZone1 > 0) {
+						red2Z = 1;
+					} else if(redZone2 > 0) {
+						red2Z = 2;
+					} else if(redZone3 > 0) {
+						red2Z = 3;
+					}					
+					
+					boolean redDQ1 = red1DQ == 1;
+					boolean redDQ2 = red2DQ == 1;
+					int redCard1 = red1yc ?  1 : (red1DQ == 2 ? 2 : 0);
+					int redCard2 = red2yc ? 1 : (red2DQ == 2 ? 2 : 0);
+					red.updateScore("major", redMajor);
+					red.updateScore("minor", redMinor);
+					red.updateScore("autoGlyphs", redAutoGlyphs);
+					red.updateScore("cryptoboxKeys", redKeys);
+					red.updateScore("jewels", redJewels);
+					red.updateScore("parkedAuto", redParked);
+					red.updateScore("glyphs", redGlyphs);
+					red.updateScore("rows", redRows);
+					red.updateScore("columns", redColumns);
+					red.updateScore("ciphers", redCiphers);
+					red.updateScore("relic1Zone", red1Z);
+					red.updateScore("relic1Standing", redUpright > 1);
+					red.updateScore("relic2Zone", red2Z);
+					red.updateScore("relic2Standing", redUpright == 2);
+					red.updateScore("balanced", redBalanced);
+					red.updateScore("card1", redCard1);
+					red.updateScore("card2", redCard2);
+					red.updateScore("dq1", redDQ1);
+					red.updateScore("dq2", redDQ2);
+					
+					//repeat for blue
+					int blue1Z = 0;
+					int blue2Z = 0;
+					if(blueZone1 > 0) {
+						blue1Z = 1;
+						blueZone1--;
+					} else if(blueZone2 > 0) {
+						blue1Z = 2;
+						blueZone2--;
+					} else if(blueZone3 > 0) {
+						blue1Z = 3;
+						blueZone3--;
+					}
+					if(blueZone1 > 0) {
+						blue2Z = 1;
+					} else if(blueZone2 > 0) {
+						blue2Z = 2;
+					} else if(blueZone3 > 0) {
+						blue2Z = 3;
+					}					
+					
+					boolean blueDQ1 = blue1DQ == 1;
+					boolean blueDQ2 = blue2DQ == 1;
+					int blueCard1 = blue1yc ?  1 : (blue1DQ == 2 ? 2 : 0);
+					int blueCard2 = blue2yc ? 1 : (blue2DQ == 2 ? 2 : 0);
+					blue.updateScore("major", blueMajor);
+					blue.updateScore("minor", blueMinor);
+					blue.updateScore("autoGlyphs", blueAutoGlyphs);
+					blue.updateScore("cryptoboxKeys", blueKeys);
+					blue.updateScore("jewels", blueJewels);
+					blue.updateScore("parkedAuto", blueParked);
+					blue.updateScore("glyphs", blueGlyphs);
+					blue.updateScore("rows", blueRows);
+					blue.updateScore("columns", blueColumns);
+					blue.updateScore("ciphers", blueCiphers);
+					blue.updateScore("relic1Zone", blue1Z);
+					blue.updateScore("relic1Standing", blueUpright > 1);
+					blue.updateScore("relic2Zone", blue2Z);
+					blue.updateScore("relic2Standing", blueUpright == 2);
+					blue.updateScore("balanced", blueBalanced);
+					blue.updateScore("card1", blueCard1);
+					blue.updateScore("card2", blueCard2);
+					blue.updateScore("dq1", blueDQ1);
+					blue.updateScore("dq2", blueDQ2);	
+					
+					if(match.isElims()) {
+						playedElims.add(match);
+					} else {
+						playedQuals.add(match);
+					}
+					
+				}
+				
 			//	System.out.println(match+":"+red1+(r1S == 1 ? "*":"")+","+red2+(r2S == 1 ? "*":"")+","+blue1+(b1S == 1 ? "*":"")+","+blue2+(b2S == 1 ? "*":""));
 			}
 			}catch(Exception e){
@@ -362,10 +590,62 @@ public class EventPages {
 			//TODO add teams in Set to event if not in it, and display that occurance
 			scan.close();
 			EventDAO.createSchedule(event, matches);
+			if(started) {
+				//go through all matches that have been played and commit them
+				for(Match m : playedQuals) {
+					EventDAO.commitScores(event, m);
+				}
+				//then if alliances exist, create them
+				if(alliances.size() > 0) {
+					Alliance[] a = new Alliance[4];
+					alliances.sort(Comparator.comparingInt(Alliance::getRank));
+					a = alliances.toArray(a);
+					EventDAO.createAlliances(event, a);
+					//generate SF matches.
+					
+					List<Match> sf = new ArrayList<>(4);
+					//Red=1, Blue=4
+					sf.add( new Match(1, a[0], a[3], "SF-1-1"));
+					//Red=2, Blue=3
+					sf.add( new Match(2, a[1], a[2], "SF-2-1"));
+					sf.add( new Match(3, a[0], a[3], "SF-1-2"));
+					sf.add( new Match(4, a[1], a[2], "SF-2-2"));
+					EventDAO.createElimsMatches(event, sf);
+				}
+				//then if elims have been played, commit them
+				for(Match m : playedElims) {
+					
+					Alliance red = m.getRed();
+					Alliance blue = m.getBlue();
+					//convert to our numbering system.
+					m.setNumber( EventDAO.getElimsMatchNumber(event, m.getName()));
+					int[] ranks = EventDAO.getElimsMatchBasic(event,m.getNumber());
+					red.setRank(ranks[0]);
+					blue.setRank(ranks[1]);
+					
+					//commit scores should use match name to determine if elims
+					if(EventDAO.commitScores(event, m)) {
+						handleElimsUpdate(event,m);
+					}
+				}
+				
+			}
+			
+			//calculate rankings
+			Event e = Server.activeEvents.get(event);
+			if(e != null) {
+				e.calculateRankings();
+				e.rankingsPage = null;
+				e.resultsPage = null;
+				e.schedulePage = null;
+			}
+			
 			response.status(200);
 			response.redirect("../");
 			return "OK";
 		};
+		
+		
 		
 		public static Route handleRandomizePost = (Request request, Response response) ->{
 			String event = request.params("event");
@@ -1387,11 +1667,18 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-			List<MatchResult> results = EventDAO.getMatchResults(event);
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("matches", results);
-			map.put("event", event); //TODO get event name from DB
-			return render(request, map, Path.Template.MATCH_RESULT);
+			if (e.resultsPage == null) {
+				List<MatchResult> results = EventDAO.getMatchResults(event);
+				map.put("matches", results);
+				map.put("event", event); //TODO get event name from DB
+				String page = render(request, map, Path.Template.MATCH_RESULT);
+				e.resultsPage = page.substring(page.indexOf("<!-- BEGIN RESULTS PAGE -->"), page.lastIndexOf("<!-- END BODY CONTENT -->"));
+				return page;
+			} else {
+				map.put("fullPage", e.resultsPage);
+				return render(request, map, Path.Template.MATCH_RESULT);
+			}
 		};
 		
 		public static Route serveResultsSimplePage = (Request request, Response response) ->{
@@ -1805,9 +2092,17 @@ public class EventPages {
 			}
 		//	e.calculateRankings(); TODO make another endpoint to force recalc
 			Map<String, Object> map = new HashMap<>();
-			map.put("rankings", e.getRankings());
-			map.put("event", e.getData().getName());
-			return render(request, map, Path.Template.RANKINGS);
+			
+			if (e.rankingsPage == null) {
+				map.put("rankings", e.getRankings());
+				map.put("event", e.getData().getName());
+				String page = render(request, map, Path.Template.RANKINGS);
+				e.rankingsPage = page.substring(page.indexOf("<!-- BEGIN RANKING PAGE -->"), page.lastIndexOf("<!-- END BODY CONTENT -->"));
+				return page;
+			} else {
+				map.put("fullPage", e.rankingsPage);
+				return render(request, map, Path.Template.RANKINGS);
+			}
 		};
 		
 		public static Route serveManagePage = (Request request, Response response) ->{

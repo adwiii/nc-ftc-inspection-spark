@@ -81,8 +81,12 @@ public class Alliance {
 	public int getTeam3() {
 		return team3;
 	}
+
 	public int getRank() {
 		return rank;
+	}
+	public void setRank(int r) {
+		rank = r;
 	}
 	public boolean is1Surrogate(){
 		return surrogate1;

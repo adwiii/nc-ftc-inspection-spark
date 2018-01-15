@@ -260,6 +260,10 @@ public class Match {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public void setNumber(int number) {
+		this.number = number;
+		
+	}
 	
 	
 }

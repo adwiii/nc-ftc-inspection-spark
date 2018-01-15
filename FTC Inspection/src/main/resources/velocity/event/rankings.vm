@@ -1,5 +1,9 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+#if($fullPage)
+$fullPage
+#else
+<!-- BEGIN RANKING PAGE -->
 <head>
 <style>
 @media print
@@ -14,7 +18,7 @@
 
 <TITLE>Team Rankings</TITLE>
 </head>
-<a href=".."><< To Event Home</a>
+<a href="/event/$sysEvent/home/"><< To Event Home</a>
 <CENTER><H2>$event<BR>
 Team Rankings</H2></CENTER>
 <HR>
@@ -49,5 +53,5 @@ Team Rankings</H2></CENTER>
 <CENTER><SMALL>FTC Scoring Software &copy; 2017-2018 <i>FIRST&reg;</i></CENTER></SMALL>
 <CENTER><SMALL>Team Rankings generated at $time</SMALL></CENTER>
 
-
+#end ## End cache if
 #end
