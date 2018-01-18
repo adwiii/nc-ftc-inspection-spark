@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
+import nc.ftc.inspection.model.Feedback;
 import nc.ftc.inspection.model.Team;
 
 public class GlobalDAO {
@@ -24,6 +25,8 @@ public class GlobalDAO {
 	private static final SQL NEW_TEAM_SQL = new SQL(1,"INSERT INTO teamInfo VALUES (?, ?)");
 	private static final SQL EDIT_TEAM_SQL = new SQL(2,"INSERT OR REPLACE INTO teamInfo VALUES (?,?)"); 
 	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
+	private static final String ADD_FEEDBACK_SQL = "INSERT INTO feedback VALUES (?, ?);";
+	private static final String GET_FEEDBACK_SQL = "SELECT * FROM feedback;";
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
 	static {
@@ -106,6 +109,34 @@ public class GlobalDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public static boolean saveFeedback(String feedback) {
+		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = global.prepareStatement(ADD_FEEDBACK_SQL);
+			ps.setString(1,  feedback);
+			ps.setLong(2, System.currentTimeMillis());
+			int affected = ps.executeUpdate();
+			return affected == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static List<Feedback> getFeedback(){
+		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = global.prepareStatement(GET_FEEDBACK_SQL);
+			ResultSet rs = ps.executeQuery();
+			List<Feedback> list = new ArrayList<>();
+			while(rs.next()){
+				list.add(new Feedback(rs.getString(1), rs.getLong(2)));
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static boolean executeRemoteUpdate(Map<String, String> v, Object[] p) {

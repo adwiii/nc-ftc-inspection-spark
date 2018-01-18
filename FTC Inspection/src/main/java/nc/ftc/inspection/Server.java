@@ -308,9 +308,16 @@ public class Server {
 		post(Path.Web.DATA_DOWNLOAD_GLOBAL, ServerPages.handleDataDownloadGlobal);
 		post(Path.Web.DATA_DOWNLOAD_EVENT, ServerPages.handleDataDownloadEvent);
 		
-		
+		before(Path.Web.UPLOAD_ALLIANCES, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.UPLOAD_ALLIANCES, EventPages.serveAllianceUploadPage);
 		post(Path.Web.UPLOAD_ALLIANCES, EventPages.handleAllianceUpload);
+		
+		before("/event/:event/selection/*", Filters.getAuthenticationFilter(User.ADMIN));
+		post(Path.Web.SELECTION, EventPages.handleSelection);
+		post(Path.Web.START_SELECTION, EventPages.handleStartSelection);
+		post(Path.Web.CLEAR_SELECTION, EventPages.handleClearSelection);
+		post(Path.Web.UNDO_SELECTION, EventPages.handleUndoSelection);
+		post(Path.Web.SAVE_SELECTION, EventPages.handleSaveSelection);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);

@@ -13,6 +13,7 @@ public class Rank implements Comparable<Rank>{
 	boolean card;
 	int highest;
 	List<Integer> scores = new ArrayList<>();
+	int rank;
 	public Rank(Team t) {
 		this.team = t;
 	}
@@ -47,5 +48,11 @@ public class Rank implements Comparable<Rank>{
 	}
 	public int getPlays() {
 		return plays;
+	}
+	public void setRank(int r) {
+		this.rank = r;
+	}
+	public int getRank() {
+		return rank;
 	}
 }

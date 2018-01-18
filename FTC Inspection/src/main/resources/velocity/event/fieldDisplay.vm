@@ -223,8 +223,14 @@
 		width:800;
 		height:93;
 		text-align:center;
+		color:white;
 		font:61px "Arial Black", Arial, Helvetica, sans-serif;
 	}
+	.resultWinner[tie="true"]{
+		color:black;
+	}
+	
+	
 	.resultWinner[visible="false"]{
 		display:none;
 	}
@@ -260,6 +266,7 @@
 		left:-1;
 		width:50;
 		text-align:center;
+		color:black;
 		
 	}
 	div[elims="true"] > .seriesResult{
@@ -269,8 +276,13 @@
 		width:800;
 		height:93;
 		text-align:center;
+		color:white;
 		font:61px "Arial Black", Arial, Helvetica, sans-serif;
 	}
+	div[elims="true"] >  .seriesResult[tie="true"]{
+		color:black;
+	}
+	
 	div[elims="false"] > .seriesResult{
 		display:none;
 	}
@@ -1169,9 +1181,11 @@
 			} 
 			document.getElementById("winnerField").innerHTML = sr;
 			document.getElementById("winnerImg").src = "/img/alliance"+im+"92.png";
+			document.getElementById("winnerField").setAttribute("tie", sr.indexOf("Tied")>=0 ? "true" : "false");
 			
 			document.getElementById("seriesResult").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
 			document.getElementById("seriesResultImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
+			document.getElementById("seriesResult").setAttribute("tie", data.winChar == 'T' ? "true" : "false");
 			
 			document.getElementById("redhead_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
 			if(data.red1Card > 0) document.getElementById("redhead_card").src=getCardImage(data.red1Card);
@@ -1183,6 +1197,7 @@
 			document.getElementById("bluehead_resultNumber").innerHTML = "Team";
 			document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
 			document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
+			document.getElementById("winnerField").setAttribute("tie", data.winChar == 'T' ? "true" : "false");
 		}
 		
 

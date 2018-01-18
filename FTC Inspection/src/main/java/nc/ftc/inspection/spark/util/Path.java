@@ -100,6 +100,13 @@ public class Path {
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
         public static final String FIELD_DISPLAY  ="/event/:event/field/";
         
+        
+        public static final String SELECTION = "/event/:event/selection/select/";
+        public static final String START_SELECTION = "/event/:event/selection/start/";
+        public static final String CLEAR_SELECTION = "/event/:event/selection/clear/";
+        public static final String UNDO_SELECTION = "/event/:event/selection/undo/";
+        public static final String SAVE_SELECTION = "/event/:event/selection/save/";
+        
         public static final String REMOTE_POST = "/update/";
         public static final String SERVER_CONFIG = "/config/";
         public static final String VERIFY = "/config/verify/";

@@ -45,5 +45,10 @@ public class EventData implements Comparable<EventData> {
 		return comp;
 	}
 
+	public void setStatus(int stat) {
+		status = stat;
+		
+	}
+
 
 }

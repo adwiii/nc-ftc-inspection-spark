@@ -156,4 +156,11 @@ public class RemoteUpdater extends Thread {
 		}
 		
 	}
+
+	public void sendNow() {
+		//Force send now for high-priority traffic! (like alliance selection updates)
+		synchronized(instance) {
+			instance.notifyAll();
+		}
+	}
 }

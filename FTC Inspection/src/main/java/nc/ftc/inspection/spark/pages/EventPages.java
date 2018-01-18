@@ -15,6 +15,7 @@ import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.MatchStatus;
+import nc.ftc.inspection.model.Selection;
 import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.model.Team.FormIndex;
 import nc.ftc.inspection.spark.util.Path;
@@ -2540,6 +2541,70 @@ public class EventPages {
 				response.status(200);
 				response.redirect("../");
 				return "OK";
+		};
+		
+		public static Route handleStartSelection = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			if(EventDAO.getEvent(event).getStatus() < EventData.SELECTION) {
+				EventDAO.setEventStatus(event, EventData.SELECTION);
+				e.getData().setStatus(EventData.SELECTION);
+			}
+			e.getSelectionManager().init();
+			return e.getSelectionManager().getSelectionJSON();
+		};
+		public static Route handleSelection = (Request request, Response response) ->{
+			String event = request.params("event");
+			String team = request.queryParams("team");
+			String op = request.queryParams("op");
+			int opCode = 0;
+			switch(op) {
+			case "SELECT":opCode = Selection.ACCEPT;break;
+			case "DECLINE":opCode = Selection.DECLINE;break;
+			default:
+				response.status(400);
+				return "Invalid operation!";
+			}
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			if(e.getData().getStatus() < EventData.SELECTION) {
+				response.status(400);
+				return "Not in Aliance Selection!";
+			}
+			try {
+				e.getSelectionManager().createAndExecute(Integer.parseInt(team), opCode);
+			}catch(NumberFormatException e1) {
+				response.status(400);
+				return "Invalid team number!";
+			}
+			return e.getSelectionManager().getSelectionJSON();
+		};
+		public static Route handleUndoSelection = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			if(e.getData().getStatus() < EventData.SELECTION) {
+				response.status(400);
+				return "Not in Aliance Selection!";
+			}
+			e.getSelectionManager().undoSelection();
+			return e.getSelectionManager().getSelectionJSON();
+		};
+		public static Route handleClearSelection = (Request request, Response response) ->{
+			return "";
+		};
+		public static Route handleSaveSelection = (Request request, Response response) ->{
+			return "";
 		};
 		
 		

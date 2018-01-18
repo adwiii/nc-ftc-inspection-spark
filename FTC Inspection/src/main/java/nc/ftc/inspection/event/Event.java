@@ -32,6 +32,7 @@ public class Event {
 	
 	Timer timer = new Timer(this);
 	Display display = new Display();
+	SelectionManager selection = new SelectionManager(this);
 	
 	List<Rank> rankings = new ArrayList<Rank>();
 	
@@ -211,6 +212,9 @@ public class Event {
 			r.highest = r.scores.size() > 0 ? r.scores.get(0) : 0;
 		}
 		Collections.sort(rankings);
+		for(int i = 0; i < rankings.size(); i++) {
+			rankings.get(i).setRank(i);
+		}
 	}
 	
 	public List<Rank> getRankings(){
@@ -242,5 +246,8 @@ public class Event {
 		}
 	}
 	
+	public SelectionManager getSelectionManager() {
+		return selection;
+	}
 	
 }

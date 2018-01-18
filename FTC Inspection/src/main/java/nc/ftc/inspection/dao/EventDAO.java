@@ -33,6 +33,7 @@ import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchResult;
+import nc.ftc.inspection.model.Selection;
 import nc.ftc.inspection.model.Team;
 
 public class EventDAO {
@@ -42,7 +43,7 @@ public class EventDAO {
 	private static final RemoteUpdater updater = RemoteUpdater.getInstance();
 	
 	
-	//MAX SQL = 25
+	//MAX SQL = 30
 	//TODO THis needs to be a command - NO, this should not be a thing! Must create an event locally.
 	static final SQL CREATE_EVENT_SQL = new SQL(1,"INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)");
 	static final String[] CREATE_EVENT_DB_SQL ={ 
@@ -68,7 +69,8 @@ public class EventDAO {
 											"CREATE TABLE local.elims(match INTEGER PRIMARY KEY, red INTEGER REFERENCES alliances(rank), blue INTEGER REFERENCES alliances(rank));", //non-game specific info
 											"CREATE TABLE local.elimsData(match INTEGER REFERENCES elims(match), status INTEGER, randomization INTEGER, name VARCHAR, PRIMARY KEY (match)); ", //status and game-specific info necessary
 											"CREATE TABLE local.elimsResults(match INTEGER REFERENCES elims(match), redScore INTEGER, blueScore INTEGER, redPenalty INTEGER, bluePenalty INTEGER, PRIMARY KEY (match));", //penalties needed to sub out for RP ~non-game specific info
-											"CREATE TABLE local.elimsScores(match INTEGER REFERENCES elims(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, adjust INTEGER, card1 INTEGER, card2 INTEGER, dq1 BOOLEAN, dq2 BOOLEAN, PRIMARY KEY (match, alliance) );" //completely game specific (except penalties)
+											"CREATE TABLE local.elimsScores(match INTEGER REFERENCES elims(match), alliance TINYINT, autoGlyphs INTEGER, cryptoboxKeys INTEGER, jewels INTEGER, parkedAuto INTEGER, glyphs INTEGER, rows INTEGER, columns INTEGER, ciphers INTEGER, relic1Zone INTEGER, relic1Standing BOOLEAN, relic2Zone INTEGER, relic2Standing BOOLEAN, balanced INTEGER, major INTEGER, minor INTEGER, cryptobox1 INTEGER, cryptobox2 INTEGER, jewelSet1 TINYINT, jewelSet2 TINYINT, adjust INTEGER, card1 INTEGER, card2 INTEGER, dq1 BOOLEAN, dq2 BOOLEAN, PRIMARY KEY (match, alliance) );", //completely game specific (except penalties)
+											"CREATE TABLE local.selections(id INTEGER PRIMARY KEY AUTOINCREMENT, op INTEGER, alliance INTEGER, team INTEGER REFERENCES teams(number));"
 												
 											//TODO create trigger for adding item to row
 											};
@@ -155,6 +157,11 @@ public class EventDAO {
 	//This SQL requires post-processing
 	static final String GET_CARDS_FOR_TEAM_SQL =  "SELECT q.match, red1, red2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=0 WHERE red1=? OR red2=? UNION "
 												+ "SELECT q.match, blue1, blue2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=1 WHERE blue1=? OR blue2=? ORDER BY q.match";
+	
+	static final String GET_SELECTIONS = "SELECT * FROM selections ORDER BY id;";
+	static final SQL SELECTION_SQL = new SQL(26, "INSERT INTO selections(op, alliance, team) VALUES (?,?,?);");
+	static final SQL UNDO_SELECTION_SQL = new SQL(27, "DELETE FROM selections WHERE id IN (SELECT MAX(id) FROM selections);");
+	static final SQL CLEAR_SELECTION_SQL = new SQL(28, "DELETE FROM selections;");
 	
 	static {
 		Field[] fields = EventDAO.class.getDeclaredFields();
@@ -1211,5 +1218,74 @@ public class EventDAO {
 		}
 		return null;
 	}
+	
+	/*
+	 * static final String GET_SELECTIONS = "SELECT * FROM selections ORDER BY id;";
+	 
+	static final SQL SELECTION_SQL = new SQL(26, "INSERT INTO selections(op, alliance, team) VALUES (?,?,?);");
+	static final SQL UNDO_SELECTION_SQL = new SQL(27, "DELETE FROM selections WHERE id IN (SELECT MAX(id) FROM selections);");
+	static final SQL CLEAR_SELECTION_SQL = new SQL(28, "DELETE FROM selections;");
+	*/
+	
+	public static List<Selection> getSelections(String event){
+		try (Connection local = getLocalDB(event)){
+			List<Selection> list = new ArrayList<>();
+			PreparedStatement ps = local.prepareStatement(GET_SELECTIONS);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				list.add(new Selection(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4)));
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static boolean saveSelection(String event, int op, int alliance, int team) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SELECTION_SQL.sql);
+			ps.setInt(1, op);
+			ps.setInt(2, alliance);
+			ps.setInt(3,  team);
+			ps.executeUpdate();
+			
+			//TODO change these to updates that have the params so server can construct Selection object to execute in parallel with local?
+			updater.enqueue(new Update(event, SELECTION_SQL.id, null, op, alliance, team));
+			updater.sendNow();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static boolean undoSelection(String event) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(UNDO_SELECTION_SQL.sql);
+			ps.executeUpdate();
+			updater.enqueue(new Update(event, UNDO_SELECTION_SQL.id, null));
+			updater.sendNow();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static boolean clearSelections(String event) {
+		try (Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(CLEAR_SELECTION_SQL.sql);
+			ps.executeUpdate();
+			updater.enqueue(new Update(event, CLEAR_SELECTION_SQL.id, null));
+			updater.sendNow();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	
 	
 }
