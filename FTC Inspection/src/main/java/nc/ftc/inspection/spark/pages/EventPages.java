@@ -8,6 +8,7 @@ import nc.ftc.inspection.event.ADState;
 import nc.ftc.inspection.event.Display;
 import nc.ftc.inspection.event.DisplayCommand;
 import nc.ftc.inspection.event.Event;
+import nc.ftc.inspection.event.Rank;
 import nc.ftc.inspection.event.TimerCommand;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
@@ -280,27 +281,27 @@ public class EventPages {
 			response.status(400);
 			return "No Schedule data";
 		}
-		if (e.schedulePage == null) {
-			model.put("event", event);//TODO get the event name from db
-			List<Match> schedule = EventDAO.getSchedule(event);
-			List<Match> quals = new ArrayList<>(schedule.size());
-			List<Match> elims = new ArrayList<>(10);
-			for(Match m : schedule) {
-				if(m.isElims()) {
-					elims.add(m);
-				} else {
-					quals.add(m);
-				}
-			}
-			model.put("matches", quals);
-			model.put("elims", elims);
-			String page = render(request, model, Path.Template.SCHEDULE_PAGE);
-			e.schedulePage = page.substring(page.indexOf("<!-- BEGIN SCHEDULE PAGE -->"), page.lastIndexOf("<!-- END BODY CONTENT -->"));
-			return page;
-		} else {
-			model.put("fullPage", e.schedulePage);
-			return render(request, model, Path.Template.SCHEDULE_PAGE);
+		List<Match> schedule = e.scheduleCache.get();
+		if(schedule == null) {
+			schedule = EventDAO.getSchedule(event);
+			e.scheduleCache.set(schedule);
 		}
+		
+		model.put("event", event);//TODO get the event name from db
+		List<Match> quals = new ArrayList<>(schedule.size());
+		List<Match> elims = new ArrayList<>(10);
+		for(Match m : schedule) {
+			if(m.isElims()) {
+				elims.add(m);
+			} else {
+				quals.add(m);
+			}
+		}
+		model.put("matches", quals);
+		model.put("elims", elims);
+		String page = render(request, model, Path.Template.SCHEDULE_PAGE);
+		return page;
+		
 		
 	};
 	
@@ -636,9 +637,9 @@ public class EventPages {
 			Event e = Server.activeEvents.get(event);
 			if(e != null) {
 				e.calculateRankings();
-				e.rankingsPage = null;
-				e.resultsPage = null;
-				e.schedulePage = null;
+				e.rankingsCache.invalidate();;
+				e.resultsCache.invalidate();;
+				e.scheduleCache.invalidate();;
 			}
 			
 			response.status(200);
@@ -1669,17 +1670,14 @@ public class EventPages {
 				return "Event not active.";
 			}
 			Map<String, Object> map = new HashMap<String, Object>();
-			if (e.resultsPage == null) {
-				List<MatchResult> results = EventDAO.getMatchResults(event);
-				map.put("matches", results);
-				map.put("event", event); //TODO get event name from DB
-				String page = render(request, map, Path.Template.MATCH_RESULT);
-				e.resultsPage = page.substring(page.indexOf("<!-- BEGIN RESULTS PAGE -->"), page.lastIndexOf("<!-- END BODY CONTENT -->"));
-				return page;
-			} else {
-				map.put("fullPage", e.resultsPage);
-				return render(request, map, Path.Template.MATCH_RESULT);
+			List<MatchResult> results = e.resultsCache.get();
+			if (results == null) {
+				results = EventDAO.getMatchResults(event);
+				e.resultsCache.set(results);
 			}
+			map.put("matches", results);
+			map.put("event", event); //TODO get event name from DB
+			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
 		public static Route serveResultsSimplePage = (Request request, Response response) ->{
@@ -2091,19 +2089,16 @@ public class EventPages {
 				response.status(500);
 				return "Event not active.";
 			}
-		//	e.calculateRankings(); TODO make another endpoint to force recalc
 			Map<String, Object> map = new HashMap<>();
-			
-			if (e.rankingsPage == null) {
-				map.put("rankings", e.getRankings());
-				map.put("event", e.getData().getName());
-				String page = render(request, map, Path.Template.RANKINGS);
-				e.rankingsPage = page.substring(page.indexOf("<!-- BEGIN RANKING PAGE -->"), page.lastIndexOf("<!-- END BODY CONTENT -->"));
-				return page;
-			} else {
-				map.put("fullPage", e.rankingsPage);
-				return render(request, map, Path.Template.RANKINGS);
+			List<Rank> ranks = e.rankingsCache.get();
+			if(ranks == null) {
+				ranks = e.getRankings();
+				e.rankingsCache.set(ranks);
 			}
+			map.put("rankings", ranks);
+			map.put("event", e.getData().getName());
+			return render(request, map, Path.Template.RANKINGS);
+		
 		};
 		
 		public static Route serveManagePage = (Request request, Response response) ->{

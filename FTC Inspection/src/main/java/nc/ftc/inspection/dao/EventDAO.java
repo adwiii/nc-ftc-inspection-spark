@@ -575,7 +575,7 @@ public class EventDAO {
 			e.printStackTrace();
 			return false;
 		}
-		Server.activeEvents.get(event).schedulePage = null;
+		Server.activeEvents.get(event).scheduleCache.invalidate();
 		return true;
 	}
 	private static Match parseMatch(ResultSet rs) throws SQLException{
@@ -701,7 +701,7 @@ public class EventDAO {
 			if(!elims) {
 				updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_RANKINGS));
 			}
-			Server.activeEvents.get(event).resultsPage = null;
+			Server.activeEvents.get(event).resultsCache.invalidate();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1053,9 +1053,10 @@ public class EventDAO {
 			ps.execute();
 			Event e = Server.activeEvents.get(event);
 			if(e != null) {
-				e.rankingsPage = null;
-				e.resultsPage = null;
-				e.schedulePage = null;
+				//this is a little excessive
+				e.rankingsCache.invalidate();
+				e.resultsCache.invalidate();
+				e.scheduleCache.invalidate();
 			}
 			return true;
 		} catch (SQLException e) {
@@ -1076,7 +1077,7 @@ public class EventDAO {
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, SET_ALLIANCE_SQL.id,data[i].getRank(), data[i].getTeam1(), data[i].getTeam2(), data[i].getTeam3() ));
 			}
-			Server.activeEvents.get(event).schedulePage = null;
+			Server.activeEvents.get(event).scheduleCache.invalidate();
 			return true;			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1121,7 +1122,7 @@ public class EventDAO {
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 1));
 			}
-			Server.activeEvents.get(event).schedulePage = null;
+			Server.activeEvents.get(event).scheduleCache.invalidate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

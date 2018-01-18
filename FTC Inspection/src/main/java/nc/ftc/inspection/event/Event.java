@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nc.ftc.inspection.Cache;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
@@ -20,9 +21,10 @@ public class Event {
 	Match currentMatch;
 	Match previousMatch;	
 	
-	public volatile String resultsPage;
-	public volatile String rankingsPage;
-	public volatile String schedulePage;
+	
+	public Cache<List<MatchResult>> resultsCache = new Cache<>();
+	public Cache<List<Rank>> rankingsCache = new Cache<>();
+	public Cache<List<Match>> scheduleCache = new Cache<>(60000 * 60);//hour
 	
 	//Monitors for messaging and long polls
 	public Object waitForRefLock = new Object();
@@ -119,7 +121,7 @@ public class Event {
 	
 	public void calculateRankings() {
 		rankings.clear();
-		rankingsPage = null;
+		rankingsCache.invalidate();
 		List<Team> teams = EventDAO.getTeams(data.getCode());
 		HashMap<Integer, Rank> map = new HashMap<Integer, Rank>();
 		for(Team t : teams) {
