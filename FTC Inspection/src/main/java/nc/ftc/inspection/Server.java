@@ -318,6 +318,7 @@ public class Server {
 		post(Path.Web.CLEAR_SELECTION, EventPages.handleClearSelection);
 		post(Path.Web.UNDO_SELECTION, EventPages.handleUndoSelection);
 		post(Path.Web.SAVE_SELECTION, EventPages.handleSaveSelection);
+		get(Path.Web.GET_SELECTION_INFO, EventPages.handleGetSelectionData);
 		
 		
 		get(Path.Web.ALL, DefaultPages.notFound);

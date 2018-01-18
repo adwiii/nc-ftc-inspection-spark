@@ -54,6 +54,7 @@ public class SelectionManager {
 		for(Selection s : selections) {
 			executeSelection(s);
 		}
+		event.getDisplay().issueCommand(DisplayCommand.SHOW_SELECTION);
 	}
 	
 	/**
@@ -81,6 +82,7 @@ public class SelectionManager {
 		} catch(Exception e2) {
 			throw e2;
 		}
+		event.getDisplay().issueCommand(DisplayCommand.SHOW_SELECTION);
 	}
 	
 	public void undoSelection() {
@@ -137,6 +139,7 @@ public class SelectionManager {
 				available.sort(Comparator.comparingInt(Rank::getRank));
 				break;
 		}
+		event.getDisplay().issueCommand(DisplayCommand.SHOW_SELECTION);
 	}
 	
 	public void executeSelection(Selection s) {
@@ -233,6 +236,7 @@ public class SelectionManager {
 	public void clearSelection() {
 		EventDAO.clearSelections(event.getData().getCode());
 		this.init();
+		event.getDisplay().issueCommand(DisplayCommand.SHOW_SELECTION);
 	}
 	
 	public void saveSelection() {

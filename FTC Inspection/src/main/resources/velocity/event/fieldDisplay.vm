@@ -77,6 +77,17 @@
  	</div>
  #end
  
+ #macro (selectionBar $a)
+ 	<div class="selectionBar" id="selectionBar_$a">
+ 		<img src="/img/alliancebar92.png" id="selectionBarImg$a" class="selectionBarImg" alt="Alliance Bar">
+ 		<div class="selectionSeed" ><span class="selectionSeedText">$a</span></div>
+ 		<div class="selectionTeam selectionTeam1"><span class="selectionText" id="selection_${a}_1"></span></div>
+ 		<div class="selectionTeam selectionTeam2"><span class="selectionText" id="selection_${a}_2"></span></div>
+ 		<div class="selectionTeam selectionTeam3"><span class="selectionText" id="selection_${a}_3"></span></div>
+ 	</div>
+ 
+ #end
+ 
  #macro (resultField $lab $id)
  	<div style="position:relative; height:80;">
 		<div class="blueField"><span class="resultScoreText" id="blueField_${id}">0</span></div>
@@ -260,8 +271,8 @@
 		height:50;
 	}
 	.resultSeedText{
-	position:absolute;
-			font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		position:absolute;
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
 		top:-10;
 		left:-1;
 		width:50;
@@ -287,6 +298,62 @@
 		display:none;
 	}
 	
+	#selection{
+		position:absolute;
+		top:180px;
+		left:160px;
+	}
+	#selection[visible="false"]{
+		display:none;
+	}
+	.selectionBar{
+		position:relative;
+		height:130px;
+		top:60px;
+		left:-80;
+	}
+	.selectionBarImg{
+	}
+	.selectionSeed{
+		position:absolute;
+		border-color:black;
+		border-radius:50%;
+		border-style:solid;
+		top:16;
+		left:30;
+		width:50;
+		height:50;
+	}
+	.selectionSeedText{
+		position:absolute;
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		top:-10;
+		left:-1;
+		width:50;
+		text-align:center;
+		color:black;
+		
+	}
+	.selectionTeam{
+		position:absolute;
+		width:200;
+		height:60;
+		top:16;
+	}
+	.selectionTeam1{
+		left:100;
+	}
+	.selectionTeam2{
+		left:320;
+	}
+	.selectionTeam3{
+		left:540;
+	}
+	.selectionText{
+		position:relative;
+		font:55px "Arial Black", Arial, Helvetica, sans-serif;
+		top:-10;
+	}
 	
 	
 	.blueField{
@@ -601,6 +668,14 @@
   		<img id="winnerImg" class="resultWinner" src="/img/alliancebar92.png" alt="winner">
   		<div id="winnerField" class="resultWinner">Series Tied!</div>
   	</div>
+  	<div id="selection" visible="false">
+  		#selectionBar(1)
+  		#selectionBar(2)
+  		#selectionBar(3)
+  		#selectionBar(4)
+  	</div>
+  	
+  	
   	<div id="scoreBar" >
   		#grid("blue" "50" "1")
   		#grid("blue" "50" "2")
@@ -941,6 +1016,19 @@
 					                    console.log(ajaxOptions);
 					                    console.log(thrownError);
 				  			}});
+            		} else if(data[0] == 'SHOW_SELECTION'){
+            			$.ajax({
+				  			url: "../display/selectiondata/",
+				  			type: "GET",
+				  			dataType: 'json',
+				  			success: function(dat){
+				  				showSelection(dat);
+				  			},
+				  			error:function(xhr, ajaxOptions, thrownError){
+					                    console.log(xhr);
+					                    console.log(ajaxOptions);
+					                    console.log(thrownError);
+				  			}});
             		}
             	#end
             	getDisplayCommand();
@@ -1198,12 +1286,28 @@
 			document.getElementById("winnerField").innerHTML = data.winChar == 'T' ? "Tie!" : (data.winChar == 'R' ? "RED Wins!" : "BLUE Wins!");
 			document.getElementById("winnerImg").src = "/img/alliance"+(data.winChar == 'T' ? "bar" : (data.winChar == 'R' ? "red" : "blue")) + "92.png";
 			document.getElementById("winnerField").setAttribute("tie", data.winChar == 'T' ? "true" : "false");
-		}
-		
-
-	
-		
+		}	
 	}
+	
+	function showSelection(data){
+		document.getElementById("timer").setAttribute("visible","false");
+		document.getElementById("random").setAttribute("visible","false");
+		document.getElementById("preview").setAttribute("visible","false");
+		document.getElementById("result").setAttribute("visible","false");
+		document.getElementById("scoreRed").setAttribute("visible","false");
+		document.getElementById("scoreBlue").setAttribute("visible","false");
+		document.getElementById("scoreBar").setAttribute("visible","false");
+		document.getElementById("selection").setAttribute("visible","true");
+		
+		setTop("Alliance Selection");
+	
+		for(var a = 0; a < 4; a++){
+			for(var t = 0; t < 3; t++){
+				document.getElementById("selection_"+(a+1)+"_"+(t+1)).innerHTML = data.alliances[a][t] == null ? "" : data.alliances[a][t].number;
+			}
+		}
+	}	
+	
 	
 	function showRandom(){
 		//get random

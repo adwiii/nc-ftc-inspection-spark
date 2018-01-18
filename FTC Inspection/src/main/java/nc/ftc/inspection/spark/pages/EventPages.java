@@ -2628,6 +2628,19 @@ public class EventPages {
 			e.getSelectionManager().saveSelection();
 			return e.getSelectionManager().getSelectionJSON();
 		};
+		public static Route handleGetSelectionData = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			if(e.getData().getStatus() < EventData.SELECTION) {
+				response.status(400);
+				return "Not in Aliance Selection!";
+			}
+			return e.getSelectionManager().getSelectionJSON();
+		};
 		
 		
 		

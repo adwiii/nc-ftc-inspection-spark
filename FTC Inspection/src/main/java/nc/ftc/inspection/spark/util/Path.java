@@ -83,6 +83,7 @@ public class Path {
         public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
         public static final String TIMEOUT_COMMAND = "/event/:event/timeout/:cmd/";
         public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
+        public static final String GET_SELECTION_INFO = "/event/:event/display/selectiondata/";
         public static final String GET_FULL_SCORESHEET = "/event/:event/match/:match/scoresheet/";
         public static final String GET_ALLIANCE_BREAKDOWN = "/event/:event/match/:match/scoresheet/:alliance/";
         public static final String PIT_DISPLAY = "/event/:event/pit/";
