@@ -266,7 +266,13 @@
 		margin: 4px 10px;
 		cursor: pointer;
 	}
-	.matchControlButton:hover {
+	.matchControlButton:hover[state="warn"] {
+		background-color: pink;
+	}
+	.matchControlButton:hover[state="back"] {
+		background-color: orange;
+	}
+	.matchControlButton:hover[state="ready"] {
 		background-color: #3e8e41;
 	}
 	
@@ -637,6 +643,94 @@ function openTab(event, tabName){
     }
     document.getElementById(tabName).style.display = "block";
 }
+function startSelection(){
+	$.post("../selection/start/").done(function(data){
+		fillSelectionData(data);
+		document.getElementById("saveBtn").disabled = false;
+		document.getElementById("undoBtn").disabled = false;
+		document.getElementById("clearBtn").disabled = false;
+	}).fail(function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+function select(team){
+	$.post("../selection/select/",{team:team, op:"SELECT"}).done(function(data){
+		fillSelectionData(data);
+	}).fail(function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+function decline(team){
+	$.post("../selection/select/",{team:team, op:"DECLINE"}).done(function(data){
+		fillSelectionData(data);
+	}).fail(function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+function clearSelection(){
+	$.post("../selection/clear/").done(function(data){
+		fillSelectionData(data);
+	}).fail(function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+function undoSelection(){
+	$.post("../selection/undo/").done(function(data){
+		fillSelectionData(data);
+	}).fail(function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+function saveSelection(){
+	$.post("../selection/save/").done(function(data){
+		fillSelectionData(data);
+	}).fail(function(xhr, textStatus, errorThrown) {
+        console.log(textStatus);
+    });
+}
+
+function fillSelectionData(data){
+	var data = JSON.parse(data);
+	for(var a = 0; a < 4; a ++){
+		for(var t = 0; t < 3; t++){
+			document.getElementById("a"+(a+1)+"t"+(t+1)).innerHTML = data.alliances[a][t] != null ? data.alliances[a][t].number : "";
+		}
+	}	
+	var tab = document.getElementById("available");
+	var trs = tab.getElementsByTagName("tr");
+	while(trs.length > 1){
+		tab.removeChild(trs[1]);
+	}
+	for(var i = 0; i < data.available.length; i++){
+		var tr = document.createElement("tr");
+		var td1 = document.createElement("td");
+		var td2 = document.createElement("td");
+		var td3 = document.createElement("td");
+		var td4 = document.createElement("td");
+		var td5 = document.createElement("td");
+		var btn1 = document.createElement("button");
+		var btn2 = document.createElement("button");
+		
+		var t = data.available[i]
+		
+		td1.innerHTML = t.rank;
+		td2.innerHTML = t.team;
+		td3.innerHTML = t.name;
+		btn1.innerHTML = "Select";
+		btn2.innerHTML = "Decline";
+		btn1.setAttribute("onclick","select("+t.team+")");
+		btn2.setAttribute("onclick","decline("+t.team+")");
+		
+		td4.appendChild(btn1);
+		td5.appendChild(btn2);
+		tr.appendChild(td1);
+		tr.appendChild(td2);
+		tr.appendChild(td3);
+		tr.appendChild(td4);
+		tr.appendChild(td5);
+		tab.appendChild(tr);
+	}
+}
 
 </script>
 		<div id="menuBar">Match Control Page</div>
@@ -655,6 +749,7 @@ function openTab(event, tabName){
 			<button class="tabButton" onclick="openTab(event, 'ScheduleTab')">Schedule</button>
 			<button class="tabButton" onclick="openTab(event, 'ScoreTab')" id="scoreTabBtn">Scores</button>
 			<button class="tabButton" onclick="openTab(event, 'SettingsTab')">Settings</button>
+			<button class="tabButton" onclick="openTab(event, 'SelectionTab')">Alliance Selection</button>
 		</div>
 		<div class="tabContent" id="ScoreTab">
 			<div id="leftScores">
@@ -707,6 +802,29 @@ function openTab(event, tabName){
 				<legend>Match Timer</legend>
 			</fieldset>
 			
+		</div>
+		<div class="tabContent" id="SelectionTab">
+			<div style="height:10%;width:100%;display: flex;justify-content: center;">
+				<button class="matchControlButton" id="startSelection" onclick="startSelection()" >Start Alliance Selection</button>
+			</div>
+			<div style="height:90%; width:40%;float:left;">
+				<table border=3>
+					<tr><th>Alliance</th><th>Captain</th><th>Pick 1</th><th>Pick 2</th></tr>
+					<tr><td>1</td><td id="a1t1"></td><td id="a1t2"></td><td id="a1t3"></td></tr>
+					<tr><td>2</td><td id="a2t1"></td><td id="a2t2"></td><td id="a2t3"></td></tr>
+					<tr><td>3</td><td id="a3t1"></td><td id="a3t2"></td><td id="a3t3"></td></tr>
+					<tr><td>4</td><td id="a4t1"></td><td id="a4t2"></td><td id="a4t3"></td></tr>
+				</table>
+				<button class="matchControlButton" id="undoBtn" onclick="undoSelection()" disabled>Undo</button>
+				<button class="matchControlButton" id="clearBtn" onclick="clearSelection()" disabled>Clear Alliances</button>
+				<button class="matchControlButton" id="saveBtn" onclick="saveSelection()" disabled>Generate Matches</button>
+			</div>
+				
+			<div style="height:90%; width:60%;float:left;">
+				<table id="available">
+					<tr><th>Rank</th><th>Team</th><th>Name</th><th></th><th></th></tr>
+				</table>
+			</div>
 		</div>
 	</body>
 </html>

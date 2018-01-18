@@ -2601,10 +2601,32 @@ public class EventPages {
 			return e.getSelectionManager().getSelectionJSON();
 		};
 		public static Route handleClearSelection = (Request request, Response response) ->{
-			return "";
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			if(e.getData().getStatus() < EventData.SELECTION) {
+				response.status(400);
+				return "Not in Aliance Selection!";
+			}
+			e.getSelectionManager().clearSelection();
+			return e.getSelectionManager().getSelectionJSON();
 		};
 		public static Route handleSaveSelection = (Request request, Response response) ->{
-			return "";
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			if(e.getData().getStatus() < EventData.SELECTION) {
+				response.status(400);
+				return "Not in Aliance Selection!";
+			}
+			e.getSelectionManager().saveSelection();
+			return e.getSelectionManager().getSelectionJSON();
 		};
 		
 		

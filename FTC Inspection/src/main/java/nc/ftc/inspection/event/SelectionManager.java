@@ -2,6 +2,7 @@ package nc.ftc.inspection.event;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,8 +45,10 @@ public class SelectionManager {
 		this.event = e;
 	}
 	public void init() {
+		slot = 0;
 		event.calculateRankings();
-		available = event.rankings;
+		available = new ArrayList<Rank>(event.rankings);
+		alliances = new Team[4][3];
 		//if previously started, load state
 		selections = EventDAO.getSelections(event.getData().getCode());
 		for(Selection s : selections) {
@@ -69,10 +72,15 @@ public class SelectionManager {
 		} else { //decline.
 			alliance = slot < 8 ? (slot / 2) + 1 : slot - 7;
 		}
-		Selection s = new Selection(0, op, alliance, team);
-		selections.add(s);
-		EventDAO.saveSelection(event.getData().getCode(), op, alliance, team);
-		executeSelection(s);
+		
+		try {
+			Selection s = new Selection(0, op, alliance, team);
+			executeSelection(s);
+			selections.add(s);
+			EventDAO.saveSelection(event.getData().getCode(), op, alliance, team);
+		} catch(Exception e2) {
+			throw e2;
+		}
 	}
 	
 	public void undoSelection() {
@@ -106,6 +114,7 @@ public class SelectionManager {
 				//remove from alliances
 				slot--;
 				t = alliances[s.getAlliance() - 1][slot < 8 ? 1 : 2];
+				alliances[s.getAlliance() - 1][slot < 8 ? 1 : 2] = null;
 				if(t == null) {
 					slot++;//this should never happen
 				}
@@ -115,7 +124,7 @@ public class SelectionManager {
 				it = event.rankings.iterator();
 				while(it.hasNext()) {
 					r = it.next();
-					if(r.getTeam().getNumber() == t.getNumber()) {
+					if(r.getTeam().getNumber() == s.getTeam()) {
 						break;
 					}
 					r = null;
@@ -125,7 +134,7 @@ public class SelectionManager {
 					throw new IllegalArgumentException("Invalid Selection!");
 				}
 				available.add(r);
-				Collections.sort(available);
+				available.sort(Comparator.comparingInt(Rank::getRank));
 				break;
 		}
 	}
@@ -221,5 +230,13 @@ public class SelectionManager {
 		return new Gson().toJson(obj);
 	}
 	
+	public void clearSelection() {
+		EventDAO.clearSelections(event.getData().getCode());
+		this.init();
+	}
 	
+	public void saveSelection() {
+		//populate alliances table,
+		//generate SF matches
+	}
 }
