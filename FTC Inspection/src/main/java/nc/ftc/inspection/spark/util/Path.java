@@ -38,6 +38,7 @@ public class Path {
         public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
         public static final String TEAM_INFO = "/event/:event/teams/info/";
+        public static final String TEAM_MATCH_INFO = "/event/:event/teams/info/:team/matches/";
         
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         //TODO change so as to not have duplicate constants?
@@ -182,6 +183,7 @@ public class Path {
         public static final String MATCH_RESULT = "/velocity/event/results.vm";
         public static final String MATCH_RESULT_SIMPLE = "/velocity/event/resultsSimple.vm";
 		public static final String MATCH_RESULT_DETAIL = "/velocity/event/resultsDetail.vm";
+		public static final String TEAM_MATCH_RESULT = "/velocity/event/resultsTeam.vm";
 		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
 		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";
 		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";

@@ -110,6 +110,7 @@ public class Server {
 		get(Path.Web.PIT_DISPLAY, EventPages.servePitPage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		get(Path.Web.TEAM_MATCH_INFO, EventPages.serveTeamResultsPage);
 		get(Path.Web.MATCH_RESULTS_SIMPLE, EventPages.serveResultsSimplePage);
 		get(Path.Web.MATCH_RESULTS_DETAILS, EventPages.serveResultsDetailPage);
 		get(Path.Web.EVENT_HOME, EventPages.serveEventHomePage);
