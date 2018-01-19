@@ -1123,6 +1123,7 @@ public class EventDAO {
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 1));
 			}
 			Server.activeEvents.get(event).scheduleCache.invalidate();
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

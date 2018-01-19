@@ -857,6 +857,7 @@
   		document.getElementById("scoreBlue").setAttribute("visible", "false");
   		document.getElementById("timeoutBar").setAttribute("visible", "true");
   		document.getElementById("timeoutBarImg").setAttribute("visible", "true");
+  		document.getElementById("selection").setAttribute("visible","false");
   	}
   	
   	
@@ -1171,7 +1172,8 @@
 		document.getElementById("scoreRed").setAttribute("visible",elims ? "false" : "true");
 		document.getElementById("scoreBlue").setAttribute("visible",elims ? "false" : "true");
 		document.getElementById("scoreBar").setAttribute("visible",elims ? "false" : "true");
-	
+		document.getElementById("selection").setAttribute("visible","false");
+		
 		var statImg = document.getElementById("seriesStatusImg");
 		var stat = document.getElementById("seriesStatus");
 		statImg.setAttribute("visible",elims ? "true" : "false");
@@ -1214,6 +1216,7 @@
 		document.getElementById("random").setAttribute("visible","false");
 		document.getElementById("preview").setAttribute("visible","false");
 		document.getElementById("result").setAttribute("visible","true");
+		document.getElementById("selection").setAttribute("visible","false");
 	
 		document.getElementById("red1_resultNumber").innerHTML = data.red1;
 		document.getElementById("red2_resultNumber").innerHTML = data.red2;
@@ -1323,7 +1326,7 @@
 					document.getElementById("scoreBlue").setAttribute("visible","true");
 					document.getElementById("scoreBar").setAttribute("visible","true");
 					document.getElementById("result").setAttribute("visible","false");
-					
+					document.getElementById("selection").setAttribute("visible","false");
                     var r = document.getElementById("random");
                     r.setAttribute("visible", "true");
                     //TODO sizes?
@@ -1352,7 +1355,7 @@
 		document.getElementById("scoreBlue").setAttribute("visible","true");
 		document.getElementById("scoreBar").setAttribute("visible","true");
 		document.getElementById("result").setAttribute("visible","false");
-		
+		document.getElementById("selection").setAttribute("visible","false");
 		
   		document.getElementById("timeoutBar").setAttribute("visible", "false");
   		document.getElementById("timeoutBarImg").setAttribute("visible", "false");
