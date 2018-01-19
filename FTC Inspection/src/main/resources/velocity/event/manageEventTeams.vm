@@ -137,12 +137,12 @@
 <tr>
 <td> <!-- List of teams -->
 ##foreach($team in $teamList)
-##set($spaces = 5 - $team.numDigits)
+##set($spaces = 6 - $team.numDigits)
 ##<label><input class="rad" type="radio" name="teamList" value="$team.number">#foreach($x in [1..$spaces])&nbsp;#end$team.number: $team.name</label><br>
 ##end
 <select id="teamSelect" onchange="populateFields()">
 #foreach($team in $teamList)
-#set($spaces = 5 - $team.numDigits)
+#set($spaces = 6 - $team.numDigits)
 <option value="$team.number">#foreach($x in [1..$spaces])&nbsp;#end$team.number: $team.name</option>
 #end
 </select>
@@ -151,7 +151,7 @@
 <table>
 <tr>
 <td>
-Team Number:</td><td id="selectedTeamNumber"></td
+Team Number:</td><td id="selectedTeamNumber"></td>
 </tr><tr>
 <td style="padding-top:12px">Team Name:</td><td><input type="text" id="selectedTeamName"></input></td>
 </tr>

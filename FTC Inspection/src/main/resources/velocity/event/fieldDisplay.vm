@@ -355,7 +355,29 @@
 		top:-10;
 	}
 	
-	
+	#availableTeams {
+		position:absolute;
+		left:700;
+		top:12;
+		font:50px "Lucida Console", Monaco, monospace;
+		font-weight:bolder;
+		white-space:nowrap;
+	}
+	#availableTeams h3 {
+		margin:2px;
+	}
+	#available1 {
+		position:absolute;
+		left:-30;
+	}
+	#available2 {
+		position:absolute;
+		left:300;
+	}
+	#available3 {
+		position:absolute;
+		left:630;
+	}
 	.blueField{
 		position:absolute;
 		left:266; 
@@ -673,6 +695,11 @@
   		#selectionBar(2)
   		#selectionBar(3)
   		#selectionBar(4)
+  		<div id="availableTeams">
+			<div id="available1"></div>
+			<div id="available2"></div>
+			<div id="available3"></div>
+  		</div>
   	</div>
   	
   	
@@ -1307,6 +1334,24 @@
 		for(var a = 0; a < 4; a++){
 			for(var t = 0; t < 3; t++){
 				document.getElementById("selection_"+(a+1)+"_"+(t+1)).innerHTML = data.alliances[a][t] == null ? "" : data.alliances[a][t].number;
+			}
+		}
+		var count = 0;
+		var column = 1;
+		document.getElementById("available1").innerHTML = "";
+		document.getElementById("available2").innerHTML = "";
+		document.getElementById("available3").innerHTML = "";
+		for (var i = 0; i < data.available.length; i++) {
+			var team = data.available[i];
+			var rank = team.rank.toString();
+			var disp = "<h3>" + '&nbsp;'.repeat(3 - rank.length) + "<font color=\"#700\">" + rank + "</font>" + "&nbsp;" + team.team + '&nbsp;'.repeat(5 - team.numDigits) + "</h4>";
+			document.getElementById("available" + column).innerHTML += disp;
+			if (++count == 10) {
+				column++;
+				if (column == 4) {
+					break; //if we get to the 37th team just stop
+				}
+				count = 0;
 			}
 		}
 	}	

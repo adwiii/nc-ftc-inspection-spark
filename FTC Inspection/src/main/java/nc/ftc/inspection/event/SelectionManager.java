@@ -214,10 +214,12 @@ public class SelectionManager {
 		public int team;
 		public int rank;
 		public String name;
+		public int numDigits;
 		public Wrap1(Rank r) {
 			team = r.getTeam().getNumber();
 			name = r.getTeam().getName();
 			rank = r.getRank();
+			numDigits = r.getTeam().getNumDigits();
 		}
 	}
 	class Wrap2{

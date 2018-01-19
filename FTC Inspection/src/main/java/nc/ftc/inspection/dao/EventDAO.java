@@ -246,6 +246,10 @@ public class EventDAO {
 			if(status == EventData.QUALS) {
 				Server.activeEvents.put(code, new Event(getEvent(code)));
 			}
+			Event e = Server.activeEvents.get(code);
+			if (e != null) {
+				e.getData().setStatus(status);
+			}
 			updater.enqueue(new Update(code, Update.COMMAND, null, Update.SET_EVENT_STATUS_CMD, status));
 			return affected == 1;
 		}catch(Exception e){
