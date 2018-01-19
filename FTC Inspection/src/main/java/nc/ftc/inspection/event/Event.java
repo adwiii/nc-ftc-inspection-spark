@@ -215,7 +215,7 @@ public class Event {
 		}
 		Collections.sort(rankings);
 		for(int i = 0; i < rankings.size(); i++) {
-			rankings.get(i).setRank(i);
+			rankings.get(i).setRank(i + 1);
 		}
 	}
 	
