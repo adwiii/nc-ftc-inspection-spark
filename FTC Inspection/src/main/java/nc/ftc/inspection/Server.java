@@ -104,6 +104,8 @@ public class Server {
 		post(Path.Web.LOGIN, LoginPage.handleLoginPost);
 		post(Path.Web.LOGOUT, LoginPage.handleLogoutPost);
 		get(Path.Web.IP_PAGE, DefaultPages.ipPage);
+		get(Path.Web.FEEDBACK, GlobalPages.serveFeedbackForm);
+		post(Path.Web.FEEDBACK, GlobalPages.handleFeedback);
 		get(Path.Web.SCHEDULE, EventPages.serveSchedulePage);
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);

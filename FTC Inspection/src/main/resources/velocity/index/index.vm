@@ -1,5 +1,10 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
+<style>
+td{
+text-align:center;
+}
+</style>
 <table>
 #if($today)
 	<tr><td colspan="3" style="padding-top:20px"><h1>Events Happening Today</h1></td></tr>

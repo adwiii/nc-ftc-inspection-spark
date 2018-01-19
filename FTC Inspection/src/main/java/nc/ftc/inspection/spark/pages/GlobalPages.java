@@ -1,9 +1,12 @@
 package nc.ftc.inspection.spark.pages;
 
+import static nc.ftc.inspection.spark.util.ViewUtil.render;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import nc.ftc.inspection.dao.GlobalDAO;
+import nc.ftc.inspection.spark.util.Path;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -37,5 +40,15 @@ public class GlobalPages {
 		}
 		response.status(GlobalDAO.editTeamName(number, name) ? 201 : 500);
 		return "";
+	};
+
+	public static Route serveFeedbackForm =(Request request, Response response) -> {
+		return render(request, new HashMap<String, Object>(), Path.Template.FEEDBACK);
+	};
+
+	public static Route handleFeedback =(Request request, Response response) -> {
+		String feedback = request.queryParams("feedback");
+		GlobalDAO.saveFeedback(feedback);		
+		return render(request, new HashMap<String, Object>(), Path.Template.FEEDBACK_THANKS);
 	};
 }
