@@ -2676,6 +2676,19 @@ public class EventPages {
 			}
 			return e.getSelectionManager().getSelectionJSON();
 		};
+
+		public static Route serveStats = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				response.status(400);
+				return "Event not active!";
+			}
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("stats", e.getStats());
+			return render(request, map, Path.Template.STATS);
+		};
+
 		
 		
 		

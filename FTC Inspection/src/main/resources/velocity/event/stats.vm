@@ -1,0 +1,16 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<style>
+td {
+	text-align:center;
+}
+</style>
+<a href="/event/$sysEvent/home/"><< To Event Home</a>
+<center><h2>Statistics</h2></center>
+<table>
+<tr><th>Team #</th><th>Team Name</th><th>Rank</th><th>OPR (Quals-No Penalty)</th></tr>
+#foreach($stat in $stats)
+<tr><td>$stat.team.number</td><td>$stat.team.name</td><td>$stat.rank</td><td>$stat.oprString</td></tr>
+#end
+</table>
+#end

@@ -323,6 +323,7 @@ public class Server {
 		post(Path.Web.SAVE_SELECTION, EventPages.handleSaveSelection);
 		get(Path.Web.GET_SELECTION_INFO, EventPages.handleGetSelectionData);
 		
+		get(Path.Web.STATS, EventPages.serveStats);
 		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		

@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jblas.DoubleMatrix;
+import org.jblas.Solve;
+
 import nc.ftc.inspection.Cache;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Alliance;
@@ -37,6 +40,7 @@ public class Event {
 	SelectionManager selection = new SelectionManager(this);
 	
 	List<Rank> rankings = new ArrayList<Rank>();
+	List<Stat> stats = new ArrayList<Stat>();
 	
 	
 	
@@ -217,6 +221,42 @@ public class Event {
 		for(int i = 0; i < rankings.size(); i++) {
 			rankings.get(i).setRank(i + 1);
 		}
+		try {
+			double[][] A = new double[results.size() * 2][rankings.size()];//
+			double[][] B = new double[results.size() * 2][1];//column vector
+	/*		DoubleMatrix A = new DoubleMatrix(results.size() * 2,rankings.size());
+			DoubleMatrix B = new DoubleMatrix(results.size() * 2, 1);
+			*/
+			HashMap<Integer, Integer> ind = new HashMap<Integer, Integer>();
+			for(int i = 0; i < rankings.size(); i++) {
+				ind.put(rankings.get(i).getTeam().getNumber(), i);
+			}
+			for(int r = 0; r < A.length; r+=2) {
+				MatchResult mr = results.get(r / 2);
+				//index of red 1
+				A[r][ind.get(mr.getRed().getTeam1())] = 1;
+				A[r][ind.get(mr.getRed().getTeam2())] = 1;
+				//index of red2
+				A[r+1][ind.get(mr.getBlue().getTeam1())] = 1;
+				A[r+1][ind.get(mr.getBlue().getTeam2())] = 1;
+				
+				//TODO add team 3 for Elims
+				B[r][0] = mr.getRedScore();
+				B[r+1][0] = mr.getBlueScore();
+			}
+			DoubleMatrix OPR = Solve.solveLeastSquares(new DoubleMatrix(A),new DoubleMatrix(B));
+			stats.clear();
+			for(int i = 0; i < rankings.size(); i++) {
+				Stat s = new Stat(rankings.get(i).getTeam());
+				s.OPR = OPR.get(i);
+				s.rank = i + 1;
+				stats.add(s);
+			}
+			
+		}catch(Exception e) {
+			System.err.println("Err calculating OPR for "+data.getCode());
+			//e.printStackTrace();
+		}
 	}
 	
 	public List<Rank> getRankings(){
@@ -250,6 +290,9 @@ public class Event {
 	
 	public SelectionManager getSelectionManager() {
 		return selection;
+	}
+	public List<Stat> getStats() {
+		return stats;
 	}
 	
 }

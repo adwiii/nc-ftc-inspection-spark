@@ -119,6 +119,8 @@ public class Path {
         public static final String DATA_DOWNLOAD_EVENT = "/config/remotes/ddevent/";
         public static final String PING = "/ping/";
         
+        public static final String STATS = "/event/:event/stats/";
+        
         public static final String FEEDBACK = "/feedback/";
         
         public static final String UPLOAD_ALLIANCES = "/event/:event/manage/allianceupload/";
@@ -208,7 +210,7 @@ public class Path {
         public static final String UPLOAD_ALLIANCES = "/velocity/event/uploadAlliances.vm";
         public static final String FEEDBACK = "/velocity/feedback.vm";
 		public static final String FEEDBACK_THANKS = "/velocity/feedbackThanks.vm";
-        
+        public static final String STATS = "/velocity/event/stats.vm";
     }
 
 }
