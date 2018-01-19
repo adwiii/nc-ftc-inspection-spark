@@ -1680,6 +1680,46 @@ public class EventPages {
 			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
+		public static Route serveTeamResultsPage = (Request request, Response response) ->{
+			String event = request.params("event");
+			String team = request.params("team");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Match Information Unavailable";
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<MatchResult> results = e.resultsCache.get();
+			if (results == null) {
+				results = EventDAO.getMatchResults(event);
+				e.resultsCache.set(results);
+			}
+			List<MatchResult> r2 = new ArrayList<>(results);
+			int target;
+			try{
+				target = Integer.parseInt(team);
+			}catch(Exception e3) {
+				response.status(400);
+				return "Invalid Team";
+			}
+			r2.removeIf(mr->{
+				Alliance a = mr.getRed();
+				if(a.getTeam1() == target)return false;
+				if(a.getTeam2() == target) return false;
+				if(a.getTeam3() == target) return false;
+				a = mr.getBlue();
+				if(a.getTeam1() == target)return false;
+				if(a.getTeam2() == target) return false;
+				if(a.getTeam3() == target) return false;
+				return true;
+			});
+			map.put("matches", r2);
+			map.put("event", event);
+			map.put("target", team);
+			return render(request, map, Path.Template.TEAM_MATCH_RESULT);
+		};
+		
+		
 		public static Route serveResultsSimplePage = (Request request, Response response) ->{
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);

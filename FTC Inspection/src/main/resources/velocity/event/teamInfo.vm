@@ -6,11 +6,11 @@ td {
 }
 </style>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>
-<center><h2>Inspection Status</h2></center>
+<center><h2>Teams</h2></center>
 <table>
-<tr><th>Team #</th><th>Team Name</th><th>Link to Inspection Status</th></tr>
+<tr><th>Team #</th><th>Team Name</th><th>Link to Inspection Status</th><th>Link to Match Info</th></tr>
 #foreach($team in $teamList)
-<tr><td>$team.number</td><td>$team.name</td><td><a href="/event/$eventCode/inspect/team/$team.number/">Status Page</a></td></tr>
+<tr><td>$team.number</td><td>$team.name</td><td><a href="/event/$eventCode/inspect/team/$team.number/">Status Page</a></td><td><a href="$team.number/matches/">Matches</a></td></tr>
 #end
 </table>
 #end

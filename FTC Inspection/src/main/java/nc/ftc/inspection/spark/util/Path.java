@@ -38,6 +38,7 @@ public class Path {
         public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
         public static final String TEAM_INFO = "/event/:event/teams/info/";
+        public static final String TEAM_MATCH_INFO = "/event/:event/teams/info/:team/matches/";
         
         public static final String NEW_TEAM = "/teams/all/"; // POST to add new team
         //TODO change so as to not have duplicate constants?
@@ -118,6 +119,8 @@ public class Path {
         public static final String DATA_DOWNLOAD_EVENT = "/config/remotes/ddevent/";
         public static final String PING = "/ping/";
         
+        public static final String FEEDBACK = "/feedback/";
+        
         public static final String UPLOAD_ALLIANCES = "/event/:event/manage/allianceupload/";
         
         //restarting teleop vs restarting match??
@@ -182,6 +185,7 @@ public class Path {
         public static final String MATCH_RESULT = "/velocity/event/results.vm";
         public static final String MATCH_RESULT_SIMPLE = "/velocity/event/resultsSimple.vm";
 		public static final String MATCH_RESULT_DETAIL = "/velocity/event/resultsDetail.vm";
+		public static final String TEAM_MATCH_RESULT = "/velocity/event/resultsTeam.vm";
 		public static final String AUDIENCE_DISPLAY = "/velocity/event/audienceMatch.vm";
 		public static final String INSPECTION_TEAM_SELECT = "/velocity/event/teamSelect.vm";
 		public static final String BINARY_INSPECTION_PAGE = "/velocity/event/binaryInspection.vm";
@@ -202,6 +206,8 @@ public class Path {
         public static final String REMOTE_KEYS = "/velocity/remotes.vm";
         public static final String SERVER_CONFIG = "/velocity/serverConfig.vm";
         public static final String UPLOAD_ALLIANCES = "/velocity/event/uploadAlliances.vm";
+        public static final String FEEDBACK = "/velocity/feedback.vm";
+		public static final String FEEDBACK_THANKS = "/velocity/feedbackThanks.vm";
         
     }
 

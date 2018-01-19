@@ -1,0 +1,11 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<form id="feedbackForm" method="post">
+	<h2>Feedback</h2>
+	<label>
+		All feedback is greatly appreciated, postive or negative. Comments, Suggestions, Feature Requests, Bug Reports, and anything else you want to tell us. All comments are anonymous, unless you choose to include information in your comment.
+	</label>
+	<textarea rows=10 style="width:100%;" id="feedbackArea" name="feedback"></textarea>
+	<input type="submit"/>
+</form>
+#end
