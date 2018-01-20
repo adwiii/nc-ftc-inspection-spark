@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jblas.DoubleMatrix;
-import org.jblas.Solve;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import nc.ftc.inspection.Cache;
 import nc.ftc.inspection.dao.EventDAO;
@@ -244,18 +246,23 @@ public class Event {
 				B[r][0] = mr.getRedScore();
 				B[r+1][0] = mr.getBlueScore();
 			}
-			DoubleMatrix OPR = Solve.solveLeastSquares(new DoubleMatrix(A),new DoubleMatrix(B));
+			RealMatrix matchData = MatrixUtils.createRealMatrix(A);
+//	        CholeskyDecomposition decomp = new CholeskyDecomposition(matchData);
+	        SingularValueDecomposition svd = new SingularValueDecomposition(matchData);
+	        RealMatrix oprs = svd.getSolver().solve(MatrixUtils.createRealMatrix(B));
+//			DoubleMatrix OPR = Solve.solveLeastSquares(new DoubleMatrix(A),new DoubleMatrix(B));
 			stats.clear();
+
+//			System.out.println(oprs.toString());
 			for(int i = 0; i < rankings.size(); i++) {
 				Stat s = new Stat(rankings.get(i).getTeam());
-				s.OPR = OPR.get(i);
+				s.OPR = oprs.getEntry(i,0);
 				s.rank = i + 1;
 				stats.add(s);
 			}
 			
 		}catch(Exception e) {
 			System.err.println("Err calculating OPR for "+data.getCode());
-			//e.printStackTrace();
 		}
 	}
 	
