@@ -40,8 +40,8 @@ public class Filters {
     }
     
     public static Filter createSession = (Request request, Response response) -> {
-    	if (AuthenticationManager.getSession(request.session().attribute("sessionToken")) != null) {
-    		AuthenticationManager.getNewSession(null);
+    	if (AuthenticationManager.getSession(request) == null) {
+    		request.session().attribute("sessionToken", AuthenticationManager.getNewSession(null));
     	}
     };
     	
