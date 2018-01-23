@@ -1584,26 +1584,39 @@ public class EventPages {
 				}				
 				res += "\"redWins\":"+redWin+",";
 				res += "\"blueWins\":"+blueWin+",";
+				
+				//elims cards
+				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(event);
+				List<Integer> list = cardMap.get(red.getRank());
+				Integer t = list.size() > 0 ? list.get(0) : null;
+				res += "\"red1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+				res += "\"red2Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+				cardMap.get(blue.getRank());
+				t = list.size() > 0 ? list.get(0) : null;
+				res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+				res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
+			} else {
+				//quals cards
+				//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
+				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(event, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
+				
+				List<Integer> cardList = cardMap.get(red.getTeam1());			
+				Integer t = cardList.size() > 0 ? cardList.get(0) : null;
+				res += "\"red1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+				
+				cardList = cardMap.get(red.getTeam2()); 
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				res += "\"red2Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+				
+				cardList = cardMap.get(blue.getTeam1());
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
+				
+				cardList = cardMap.get(blue.getTeam2());
+				t = cardList.size() > 0 ? cardList.get(0) : null;
+				res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
+			
 			}
-			
-			//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
-			Map<Integer, List<Integer>> cardMap = EventDAO.getCardsForTeams(event, red.getTeam1(), red.getTeam2(), blue.getTeam1(), blue.getTeam2());
-			List<Integer> cardList = cardMap.get(red.getTeam1());			
-			Integer t = cardList.size() > 0 ? cardList.get(0) : null;
-			res += "\"red1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
-			
-			cardList = cardMap.get(red.getTeam2()); 
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			res += "\"red2Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
-			
-			cardList = cardMap.get(blue.getTeam1());
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
-			
-			cardList = cardMap.get(blue.getTeam2());
-			t = cardList.size() > 0 ? cardList.get(0) : null;
-			res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
-			
 			
 			res += "}";
 			return res;

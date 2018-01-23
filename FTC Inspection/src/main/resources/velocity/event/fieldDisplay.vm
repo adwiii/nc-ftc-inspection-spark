@@ -1020,6 +1020,7 @@
 				  			success: function(data){
 				  				#if($ad)
 				  					showPreview(data);
+				  					resetScores();
 				  				#else
 				  					fillWings(data);
 				  				#end
@@ -1208,11 +1209,14 @@
 		if(elims){
 			if(data.redWins == data.blueWins){
 				stat.innerHTML = "Series Tied " + data.redWins + " - "+data.blueWins;
+				stat.setAttribute("tie","true");
 				statImg.src = "/img/alliancebar92.png";
 	
 			} else {
 				stat.innerHTML = (data.redWins > data.blueWins ? "RED" : "BLUE") + " leads series "+ data.redWins + " - "+data.blueWins;
 				statImg.src = "/img/alliance"+(data.redWins > data.blueWins ? "red" : "blue") + "92.png";
+				
+				stat.setAttribute("tie","false");
 			}
 		} 
 	
