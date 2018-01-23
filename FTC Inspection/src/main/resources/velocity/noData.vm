@@ -1,0 +1,5 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<div style="width:100%;text-align:center;">$msg</div>
+<a href="../">Back</a>
+#end

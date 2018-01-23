@@ -211,6 +211,7 @@ public class Path {
         public static final String FEEDBACK = "/velocity/feedback.vm";
 		public static final String FEEDBACK_THANKS = "/velocity/feedbackThanks.vm";
         public static final String STATS = "/velocity/event/stats.vm";
+        public static final String NO_DATA = "/velocity/noData.vm";
     }
 
 }

@@ -218,6 +218,9 @@ public class EventPages {
 		int cols = (colsString == null) ? 1 : Integer.parseInt(colsString);
 		model.put("numCols", cols - 1);//velocity does things weird
 		List<Team> teams = EventDAO.getStatus(event);
+		if(teams == null) {
+			return noData(request, "Inspection");
+		}
 		int numTeamsPerCol = (int) Math.floor(teams.size() / (double) cols);
 		int numExtra = teams.size() - numTeamsPerCol * cols;
 		List<List<Team>> teamsPerCol = new ArrayList<List<Team>>();
@@ -278,8 +281,7 @@ public class EventPages {
 		Map<String, Object> model = new HashMap<String, Object>();
 		Event e = Server.activeEvents.get(event);
 		if(e == null) {
-			response.status(400);
-			return "No Schedule data";
+			return noData(request,"Schedule");
 		}
 		List<Match> schedule = e.scheduleCache.get();
 		if(schedule == null) {
@@ -1679,8 +1681,7 @@ public class EventPages {
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null){
-				response.status(500);
-				return "Event not active.";
+				return noData(request, "Match");
 			}
 			Map<String, Object> map = new HashMap<String, Object>();
 			List<MatchResult> results = e.resultsCache.get();
@@ -1698,8 +1699,7 @@ public class EventPages {
 			String team = request.params("team");
 			Event e = Server.activeEvents.get(event);
 			if(e == null){
-				response.status(500);
-				return "Match Information Unavailable";
+				return noData(request, "Match");
 			}
 			Map<String, Object> map = new HashMap<String, Object>();
 			List<MatchResult> results = e.resultsCache.get();
@@ -2139,8 +2139,7 @@ public class EventPages {
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null){
-				response.status(500);
-				return "Event not active.";
+				return noData(request, "Rankings");
 			}
 			Map<String, Object> map = new HashMap<>();
 			List<Rank> ranks = e.rankingsCache.get();
@@ -2694,8 +2693,7 @@ public class EventPages {
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null) {
-				response.status(400);
-				return "Event not active!";
+			return noData(request, "Stats");
 			}
 			HashMap<String, Object> map = new HashMap<>();
 			map.put("stats", e.getStats());
@@ -2704,6 +2702,10 @@ public class EventPages {
 		};
 
 		
-		
+		private static String noData(Request request, String dat) {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("msg", dat + " data not available at this time. Check back later!");
+			return render(request, map, Path.Template.NO_DATA);
+		}
 		
 }

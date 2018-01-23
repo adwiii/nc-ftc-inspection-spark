@@ -526,7 +526,7 @@ public class EventDAO {
 			}
 			return result;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println("SQL Error in getStatus()");
 		}
 		return null;
 	}
