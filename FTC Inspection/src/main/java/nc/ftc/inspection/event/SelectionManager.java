@@ -10,6 +10,9 @@ import com.google.gson.Gson;
 import com.google.gson.internal.Excluder;
 
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.model.Alliance;
+import nc.ftc.inspection.model.EventData;
+import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.Selection;
 import nc.ftc.inspection.model.Team;
 
@@ -244,5 +247,26 @@ public class SelectionManager {
 	public void saveSelection() {
 		//populate alliances table,
 		//generate SF matches
+		
+		Alliance[] alliances = new Alliance[4];
+		for(int i = 0; i < 4; i++) {
+			Team t1 = this.alliances[i][0];
+			Team t2 = this.alliances[i][1];
+			Team t3 = this.alliances[i][2];
+			alliances[i] = new Alliance(i+1,t1 == null ? 0 : t1.getNumber(), t2 == null ? 0 : t2.getNumber(),t3 == null ? 0 : t3.getNumber());
+		}
+		EventDAO.createAlliances(event.getData().getCode(), alliances);
+		//now, generate SF1-1,2-1,1-2,and 2-2.
+		List<Match> matches = new ArrayList<>(4);
+		//Red=1, Blue=4
+		matches.add( new Match(1, alliances[0], alliances[3], "SF-1-1"));
+		//Red=2, Blue=3
+		matches.add( new Match(2, alliances[1], alliances[2], "SF-2-1"));
+		matches.add( new Match(3, alliances[0], alliances[3], "SF-1-2"));
+		matches.add( new Match(4, alliances[1], alliances[2], "SF-2-2"));
+		EventDAO.createElimsMatches(event.getData().getCode(), matches);
+		event.getData().setStatus(EventData.ELIMS);
+		EventDAO.setEventStatus(event.getData().getCode(), EventData.ELIMS);
+		event.loadNextMatch();
 	}
 }

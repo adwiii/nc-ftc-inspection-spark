@@ -683,7 +683,8 @@ function undoSelection(){
 }
 function saveSelection(){
 	$.post("../selection/save/").done(function(data){
-		fillSelectionData(data);
+		getCurrentMatchData();
+		getScheduleStatus();
 	}).fail(function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });

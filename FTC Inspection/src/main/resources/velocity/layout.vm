@@ -97,19 +97,22 @@
     				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
     				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
     				<li><a href="/event/$sysEvent/inspect/fd">Field</a></li>
-    		#end
-    		#end
+    		#end ##end inspector if
+    		#end ##end sysEvent if
     		#if($ADMIN)
     				<li><a href="/create/event/">Create&nbsp;Event</a></li>
     				#if($sysEvent)
     					<li><a href="/event/$sysEvent/manage/">Manage&nbsp;Event</a></li>
-    				#end
+    				#end ##end sysEvent if
     			    <li><a href="/create/account/">Create&nbsp;Users</a></li>
     				<li><a href="/users/manage/">Manage&nbsp;Users</a></li>
     				<li><a href="/config/">Server&nbsp;Config</a></li>
-    		#end
+    		#end ## end admin if
+    		<li> <a href="/feedback/">Feedback </a></li>
     		</div></li>
+    		#########################################################################
     		#else ##We know we are not on mobile
+    		#########################################################################
     	    #if($sysEvent)
     	    <li class="dropdown">
     	    	<a class="dropbtn" href="/event/$sysEvent/home/">Event&nbsp;Home</a>
@@ -132,8 +135,8 @@
     				<li><a href="/event/$sysEvent/inspect/fd">Field</a></li>
     			</div>
     		</li>
-    		#end
-    		#end
+    		#end ##end inspector if
+    		#end ##end sysEvent if
     		#if($ADMIN)
     		<li class="dropdown">
     	    	<a class="dropbtn">Admin</a>
@@ -142,13 +145,14 @@
     				<li><a href="/create/event/">Create&nbsp;Event</a></li>
     				#if($sysEvent)
     					<li><a href="/event/$sysEvent/manage/">Manage&nbsp;Event</a></li>
-    				#end
+    				#end ## end sysEvent if
     			    <li><a href="/create/account/">Create&nbsp;Users</a></li>
     				<li><a href="/users/manage/">Manage&nbsp;Users</a></li>
     				<li><a href="/config/">Server&nbsp;Config</a></li>
     			</div>
     		</li>
-    		#end
+    		#end ## end admin if
+    		<li> <a href="/feedback/">Feedback </a></li>
     		#end ##End mobile if
             #if($currentUser)
                 <li>
