@@ -109,7 +109,12 @@ public class LoginPage {
 			return render(request, model, Path.Template.LOGIN);
 		}
 		model.put("authenticationSucceeded", true);
-		request.session().attribute("sessionToken", AuthenticationManager.getNewSession(user));
+		String currentSessionToken = request.session().attribute("sessionToken");
+		if (currentSessionToken != null) {
+			AuthenticationManager.setUser(currentSessionToken, user);
+		} else {
+			request.session().attribute("sessionToken", AuthenticationManager.getNewSession(user));
+		}
 		request.session().attribute("currentUser", user.getUsername());
 		if (getQueryLoginRedirect(request) != null) {
 			response.redirect(getQueryLoginRedirect(request));

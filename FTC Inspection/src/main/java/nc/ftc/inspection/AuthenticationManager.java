@@ -31,7 +31,9 @@ public class AuthenticationManager {
 			if (!sessions.containsKey(token)) {
 				Session session = new Session(user, expirationTime);
 				sessions.put(token, session);
-				sessionsUserMap.put(user.getUsername(), session);
+				if (user != null) {
+					sessionsUserMap.put(user.getUsername(), session);
+				}
 				return token;
 			}
 		}
@@ -58,14 +60,28 @@ public class AuthenticationManager {
 		public long getExpirationTime() {
 			return expirationTime;
 		}
+
+
+		private void setUser(User user) {
+			this.user = user;
+		}
 	}
 
 	public static int getUserType(String sessionToken) {
 		Session session = sessions.get(sessionToken);
-		if (session != null) {
+		if (session != null && session.getUser() != null) {
 			return session.getUser().getType();
 		}
 		return User.NONE;
+	}
+	
+	public static Session getSessionFromToken(String sessionToken) {
+		return sessions.get(sessionToken);
+	}
+	
+	
+	public static Session getSession(Request request) {
+		return sessions.get(request.session().attribute("sessionToken"));
 	}
 	
 	public static void addUserPermission(String userString, int permission) {
@@ -96,5 +112,11 @@ public class AuthenticationManager {
 			return session.getUser();
 		}
 		return null;
+	}
+
+	public static void setUser(String currentSessionToken, User user) {
+		Session session = getSessionFromToken(currentSessionToken);
+		session.setUser(user);
+		sessionsUserMap.put(user.getUsername(), session);
 	}
 }

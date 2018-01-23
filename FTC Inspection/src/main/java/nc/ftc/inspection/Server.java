@@ -96,7 +96,8 @@ public class Server {
 		}
 		publicDir = new File("src/main/resources/public");
 		
-		before("*", Filters.addTrailingSlashesAndLowercase);		
+		before("*", Filters.addTrailingSlashesAndLowercase);
+		before("*", Filters.createSession);		
 		
 		get(Path.Web.DEFAULT, DefaultPages.forwardTo(Path.Web.INDEX));
 		get(Path.Web.INDEX, DefaultPages.indexPage);
