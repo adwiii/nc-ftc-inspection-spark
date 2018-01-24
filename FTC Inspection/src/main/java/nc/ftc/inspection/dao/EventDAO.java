@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -124,6 +125,7 @@ public class EventDAO {
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match ORDER BY q.match";
 	static final String GET_CARDS_DQS_SQL = "SELECT qs.match, alliance, card1, card2, dq1, dq2 from qualsScores qs INNER JOIN qualsData qd ON qs.match=qd.match WHERE qd.status = 1; ";
 	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
+	static final String GET_MATCH_RESULTS_FOR_STATS_SQL = "SELECT s.*,randomization FROM qualsScores s LEFT JOIN qualsData d ON s.match=d.match;";
 	
 	
 	static final SQL SET_ALLIANCE_SQL = new SQL(15, "INSERT OR REPLACE INTO alliances VALUES (?,?,?,?);");
@@ -929,6 +931,35 @@ public class EventDAO {
 			return null;
 		}
 	}
+	public static List<MatchResult> getMatchResultsForStats(String code, boolean elims) {
+		List<MatchResult> results = getMatchResults(code);
+		if(elims) {
+			results.removeIf(((Predicate<MatchResult>)MatchResult::isElims).negate());
+		} else {
+			results.removeIf(MatchResult::isElims);
+		}
+		try (Connection local = getLocalDB(code)){
+			PreparedStatement ps = local.prepareStatement(elims ? GET_MATCH_RESULTS_FOR_STATS_SQL.replaceAll("qual", "elim") : GET_MATCH_RESULTS_FOR_STATS_SQL);
+			ResultSet rs = ps.executeQuery();			 
+			while(rs.next()) {
+				Alliance a = results.get(rs.getInt(1)-1).getAlliance(rs.getInt(2) == Alliance.RED ? "red" : "blue");
+				a.initializeScores();
+				Set<String> keys = a.getScoreFields();
+				keys.remove("card3");
+				keys.remove("dq3");
+				for(String key : keys) {
+					a.updateScore(key, rs.getObject(key));
+				}
+				a.randomization = rs.getInt("randomization");
+//				results.get(rs.getInt(1)-1).rand = rs.getInt("randomization");
+				
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
 	
 	public static final int INSPECTOR_SIG = 0;
 	public static final int TEAM_SIG = 1;
@@ -1291,6 +1322,7 @@ public class EventDAO {
 		}
 		return false;
 	}
+	
 	
 	
 	

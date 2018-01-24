@@ -18,7 +18,7 @@ public class Alliance {
 	transient boolean scoreSubmitted = false;
 	transient boolean autoSubmitted = false;
 	transient boolean inReview = false;
-	transient int randomization = 0;//set by match & stored in match.
+	public transient int randomization = 0;//set by match & stored in match.
 	//how they are stored in the db in the matchScores tables
 	public static transient final int RED = 0;
 	public static transient final int BLUE = 1;
@@ -219,6 +219,22 @@ public class Alliance {
 	}
 
 	//1,2,3 is red left, 4, 5, 6, is blue left
+	public boolean isRedLeft() {
+		return randomization < 4;
+	}
+	public boolean isKeyLeft() { //1,4
+		if(randomization == 0)return false;
+		return randomization % 3 == 1;
+	}
+	public boolean isKeyCenter() { //2,5
+		if(randomization == 0)return false;
+		return randomization % 3 == 2;
+	}
+	public boolean isKeyRight() { //3, 6
+		if(randomization == 0)return false;
+		return randomization % 3 == 0;
+	}
+	
 	public int getRedJewels() {
 		int count = 0;
 		if(randomization < 4) {
@@ -317,6 +333,26 @@ public class Alliance {
 	}
 	public boolean carriesCard() {
 		return this.carriesCard;
+	}
+	public double getAutoScore() {
+		// TODO Auto-generated method stub
+		int jewelPoints = Integer.parseInt(scores.get("jewels").toString());
+		jewelPoints *= 30;
+		int glyphAutoPoints = 15 * Integer.parseInt(scores.get("autoGlyphs").toString());
+		int keyBonus = 30 * Integer.parseInt(scores.get("cryptoboxKeys").toString());
+		int parkingPoints = 10 * Integer.parseInt( scores.get("parkedAuto").toString());
+		return jewelPoints + glyphAutoPoints + keyBonus + parkingPoints;
+	}
+	
+	public double getTeleopScore() {
+		int glyphPoints = 2 * Integer.parseInt(scores.get("glyphs").toString());
+		int rowPoints = 10 * Integer.parseInt(scores.get("rows").toString());
+		int columnPoints = 20 * Integer.parseInt(scores.get("columns").toString());
+		int cipherPoints = 30 * Integer.parseInt(scores.get("ciphers").toString());
+		int relicPoints = getRelicPoints();
+		int balancePoints = 20 * Integer.parseInt(scores.get("balanced").toString());
+		int teleopPoints = glyphPoints + rowPoints + columnPoints + cipherPoints + relicPoints + balancePoints; 
+		return teleopPoints;
 	}
 
 }

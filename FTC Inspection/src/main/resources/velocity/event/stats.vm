@@ -4,19 +4,141 @@
 td {
 	text-align:center;
 }
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
 </style>
 <script>
 //var stats = $jsonStats;
 //function sortOPR() {
 //	var rows = document.getElementsByName("data");
 //}
+
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+	$().ready(function(){
+  		document.getElementById("teamGeneralId").click();
+	});
 </script>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>
 <center><h2>Statistics</h2></center>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'teamGeneral')" id="teamGeneralId">General<br>(Quals)</button>
+  <button class="tablinks" onclick="openTab(event, 'teamSpecificAvg')">Game Specific <br>(Quals)</button>
+  <button class="tablinks" onclick="openTab(event, 'teamSpecificPR')">GS Power Ratings <br> (Quals)</button>
+  <button class="tablinks" onclick="openTab(event, 'eventGeneral')">Event</button>
+  <button class="tablinks" onclick="openTab(event, 'eventSpecific')">Event Game Specific</button>
+</div>
+
+<div id="teamGeneral" class="tabcontent">
 <table>
-<tr><th>Team #</th><th>Team Name</th><th>Rank</th><th>OPR (Quals-No Penalty)</th></tr>
+<tr><th>Team #</th>
+	<th>Team Name</th>
+	<th>Rank</th>
+	<th>OPR</th>
+	<th>OPR (NP)</th>
+	<th>Avg Score</th>
+	<th>Avg Score NP</th>
+	<th>Auto OPR</th>
+	<th>Teleop OPR</th>
+	<th>Avg Victory Margin</th>
+</tr>
 #foreach($stat in $stats)
-<tr class="data"><td>$stat.team.number</td><td>$stat.team.name</td><td>$stat.rank</td><td>$stat.oprString</td></tr>
+<tr class="data">
+	<td name="number">   $stat.team.number</td>
+	<td name="name">     $stat.team.name</td>
+	<td name="rank">     $stat.rank</td>
+	<td name="OPR">      $stat.getDoubleString("OPR")</td>
+	<td name="OPRNP">    $stat.getDoubleString("OPRNP")</td>
+	<td name="avgScore"> $stat.getDoubleString("avgScore")</td>
+	<td name="avgScoreNP">$stat.getDoubleString("avgScoreNP")</td>
+	<td name="autoOPR">  $stat.getDoubleString("autoOPR")</td>
+	<td name="teleopOPR">$stat.getDoubleString("teleopOPR")</td>
+	<td name="avgMargin">$stat.getDoubleString("avgMargin")</td>
+</tr>
 #end
 </table>
+</div>
+
+<div id="teamSpecificAvg" class="tabcontent">
+<table>
+<tr><th>Team #</th>
+	<th>Jewels</th>
+	<th>Jewels <br>(Red)</th>
+	<th>Jewels <br>(Blue)</th>
+	<th>Jewels <br>(Red Left)</th>
+	<th>Relic Score</th>
+</tr>
+#foreach($stat in $stats)
+<tr class="data">
+	<td name="number">  $stat.team.number</td>
+	<td name="jewelAvg">$stat.getDoubleString("jewelAvg")</td>
+	<td name="jewelRedAvg">$stat.getDoubleString("jewelRedAvg")</td>
+	<td name="jewelBlueAvg">$stat.getDoubleString("jewelBlueAvg")</td>
+	<td name="jewelBlueAvg">$stat.getDoubleString("jewelLeftAvg")</td>
+	<td name="relicAvg">$stat.getDoubleString("relicAvg")</td>
+</tr>
+#end
+</table>
+</div>
+
+<div id="teamSpecificPR" class="tabcontent">
+Coming Soon!
+</div>
+
+<div id="eventGeneral" class="tabcontent">
+Coming Soon!
+</div>
+
+<div id="eventSpecific" class="tabcontent">
+Coming Soon!
+</div>
+
 #end

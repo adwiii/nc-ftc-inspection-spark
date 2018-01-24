@@ -1,6 +1,7 @@
 package nc.ftc.inspection.model;
 
 public class MatchResult {
+//	public int rand;
 	Alliance red;
 	Alliance blue;
 	int redScore;
@@ -91,5 +92,8 @@ public class MatchResult {
 	}
 	public boolean isElims() {
 		return getName().indexOf('-') >= 0;
+	}
+	public Alliance getAlliance(String a) {
+		return a.equals("red") ? red : (a.equals("blue") ? blue : null);
 	}
 }
