@@ -1,5 +1,5 @@
 #parse("/velocity/layout.vm")
-#@mainLayout()
+#@mainLayout("1000px")
 <style>
 td {
 	text-align:center;
@@ -71,8 +71,8 @@ function openTab(evt, tabName) {
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'teamGeneral')" id="teamGeneralId">General<br>(Quals)</button>
-  <button class="tablinks" onclick="openTab(event, 'teamSpecificAvg')">Game Specific <br>(Quals)</button>
-  <button class="tablinks" onclick="openTab(event, 'teamSpecificPR')">GS Power Ratings <br> (Quals)</button>
+  <button class="tablinks" onclick="openTab(event, 'teamSpecificAvg')">Game Specific Avgs<br>(Quals)</button>
+  <button class="tablinks" onclick="openTab(event, 'teamSpecificPR')">Game Specific PRs<br> (Quals)</button>
   <button class="tablinks" onclick="openTab(event, 'eventGeneral')">Event</button>
   <button class="tablinks" onclick="openTab(event, 'eventSpecific')">Event Game Specific</button>
 </div>
@@ -106,32 +106,49 @@ function openTab(evt, tabName) {
 #end
 </table>
 </div>
-
-<div id="teamSpecificAvg" class="tabcontent">
+#foreach($tab in ["Avg","PR"])
+<div id="teamSpecific$tab" class="tabcontent">
 <table>
 <tr><th>Team #</th>
+	<th>Parking</th>
 	<th>Jewels</th>
 	<th>Jewels <br>(Red)</th>
 	<th>Jewels <br>(Blue)</th>
-	<th>Jewels <br>(Red Left)</th>
+	<th>Jewels <br>(<font color='red'>R</font><font color='blue'>B</font>)</th>
+	<th>Jewels <br>(<font color='blue'>B</font><font color='red'>R</font>)</th>
+	<th>Keys</th>
+	<th>Keys <br>(Left)</th>
+	<th>Keys <br>(Center)</th>
+	<th>Keys <br>(Right)</th>	
+	<th>Glyph</th>
+	<th>Row</th>
+	<th>Column</th>
+	<th>Cipher</th>
 	<th>Relic Score</th>
 </tr>
 #foreach($stat in $stats)
 <tr class="data">
-	<td name="number">  $stat.team.number</td>
-	<td name="jewelAvg">$stat.getDoubleString("jewelAvg")</td>
-	<td name="jewelRedAvg">$stat.getDoubleString("jewelRedAvg")</td>
-	<td name="jewelBlueAvg">$stat.getDoubleString("jewelBlueAvg")</td>
-	<td name="jewelBlueAvg">$stat.getDoubleString("jewelLeftAvg")</td>
-	<td name="relicAvg">$stat.getDoubleString("relicAvg")</td>
+	<td name="number">  $stat.team.number</td>	
+	<td name="parking$tab">$stat.getDoubleString("parking$tab")</td>
+	<td name="jewel$tab">$stat.getDoubleString("jewel$tab")</td>
+	<td name="jewelRed$tab">$stat.getDoubleString("jewelRed$tab")</td>
+	<td name="jewelBlue$tab">$stat.getDoubleString("jewelBlue$tab")</td>
+	<td name="jewelLeft$tab">$stat.getDoubleString("jewelLeft$tab")</td>
+	<td name="jewelRight$tab">$stat.getDoubleString("jewelRight$tab")</td>
+	<td name="keys$tab">$stat.getDoubleString("key$tab")</td>
+	<td name="keysLeft$tab">$stat.getDoubleString("keyLeft$tab")</td>
+	<td name="keysCenter$tab">$stat.getDoubleString("keyCenter$tab")</td>
+	<td name="keysRight$tab">$stat.getDoubleString("keyRight$tab")</td>
+	<td name="glyph$tab">$stat.getDoubleString("glyph$tab")</td>
+	<td name="row$tab">$stat.getDoubleString("row$tab")</td>
+	<td name="column$tab">$stat.getDoubleString("column$tab")</td>
+	<td name="cipher$tab">$stat.getDoubleString("cipher$tab")</td>
+	<td name="relic$tab">$stat.getDoubleString("relic$tab")</td>
 </tr>
 #end
 </table>
 </div>
-
-<div id="teamSpecificPR" class="tabcontent">
-Coming Soon!
-</div>
+#end
 
 <div id="eventGeneral" class="tabcontent">
 Coming Soon!

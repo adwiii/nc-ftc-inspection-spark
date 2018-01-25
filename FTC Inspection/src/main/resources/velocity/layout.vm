@@ -165,12 +165,12 @@
         </ul>
     </nav>
 </header>
-<main
- #if($mainWidth)
+<main>
+    <div id="content"
+    #if($mainWidth)
  style="max-width:$mainWidth"
  #end
- >
-    <div id="content">
+    >
         $bodyContent
         <!-- END BODY CONTENT -->
     </div>

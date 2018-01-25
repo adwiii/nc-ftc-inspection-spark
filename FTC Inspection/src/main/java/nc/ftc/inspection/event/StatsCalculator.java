@@ -2,6 +2,7 @@ package nc.ftc.inspection.event;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,6 +70,7 @@ public class StatsCalculator extends Thread{
 					calculateStats(job);
 				}catch(Exception e) {
 					System.err.println("Error calculating stats: "+job.event.getData().getCode()+", "+job.phase);
+					e.printStackTrace();
 				}
 			}				
 		}
@@ -162,18 +164,28 @@ public class StatsCalculator extends Thread{
 				B[r][0] = 0;
 				B[r+1][0] = 0;
 			} else {
+				try {
 				B[r][0] = red.applyAsDouble(mr);
 				B[r+1][0] = blue.applyAsDouble(mr);
+				}catch(Exception e) {
+					B[r][0] = 0;
+					B[r+1][0] = 0;
+				}
 			}
 		}
 	}
 	
 	private List<GeneralTeamStat> calculateGeneralTeamStats(double[][] A, double[][] B, List<MatchResult> results, List<Rank> rankings, double[][] playArrays) {
+		
+//		System.out.println("A:"+Arrays.toString(A));
 		double[] plays = playArrays[0];
 		double[] redPlays = playArrays[1];
 		double[] bluePlays = playArrays[2];
 		double[] jewelRLPlays = playArrays[3];
 		double[] jewelRRPlays = playArrays[4];
+		double[] leftPlays = playArrays[5];
+		double[] centerPlays = playArrays[6];
+		double[] rightPlays = playArrays[7];
 		
 		List<GeneralTeamStat> stats = new ArrayList<>();
 		for(Rank r : rankings) {
@@ -218,18 +230,64 @@ public class StatsCalculator extends Thread{
 			return red.isRedLeft() ? red.getRedJewels() : 0;
 		}, mr->{
 			Alliance blue = mr.getBlue();
-			return blue.isRedLeft() ? 0 : blue.getBlueJewels();
+			return blue.isRedLeft() ? blue.getBlueJewels() : 0;
 		});
-		System.out.println(plays.length);
-		System.out.println(MatrixUtils.createRealMatrix(B).toString());
 		fillGeneralTeamStats(stats, "jewelLeftAvg", calculateAverage(A,B,jewelRLPlays));
 		fillGeneralTeamStats(stats, "jewelLeftPR", calculatePR(A,B));	
 		
+		populateBMatrix(B, results, mr->{
+			Alliance red = mr.getRed();
+			return red.isRedLeft() ? 0 : red.getRedJewels();
+		}, mr->{
+			Alliance blue = mr.getBlue();
+			return blue.isRedLeft() ?  0 : blue.getBlueJewels();
+		});
+		fillGeneralTeamStats(stats, "jewelRightAvg", calculateAverage(A,B,jewelRRPlays));
+		fillGeneralTeamStats(stats, "jewelRightPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("cryptoboxKeys").toString()), mr->Double.parseDouble(mr.getBlue().getScore("cryptoboxKeys").toString()));
+		fillGeneralTeamStats(stats, "keyAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "keyPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->mr.getRed().isKeyLeft() ? Double.parseDouble(mr.getRed().getScore("cryptoboxKeys").toString()) : 0, mr->mr.getBlue().isKeyLeft() ? Double.parseDouble(mr.getBlue().getScore("cryptoboxKeys").toString()) : 0);
+		fillGeneralTeamStats(stats, "keyLeftAvg", calculateAverage(A,B,leftPlays));
+		fillGeneralTeamStats(stats, "keyLeftPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->mr.getRed().isKeyCenter() ? Double.parseDouble(mr.getRed().getScore("cryptoboxKeys").toString()) : 0, mr->mr.getBlue().isKeyCenter() ? Double.parseDouble(mr.getBlue().getScore("cryptoboxKeys").toString()) : 0);
+		fillGeneralTeamStats(stats, "keyCenterAvg", calculateAverage(A,B,centerPlays));
+		fillGeneralTeamStats(stats, "keyCenterPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->mr.getRed().isKeyRight() ? Double.parseDouble(mr.getRed().getScore("cryptoboxKeys").toString()) : 0, mr->mr.getBlue().isKeyRight() ? Double.parseDouble(mr.getBlue().getScore("cryptoboxKeys").toString()) : 0);
+		fillGeneralTeamStats(stats, "keyRightAvg", calculateAverage(A,B,rightPlays));
+		fillGeneralTeamStats(stats, "keyRightPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("parkedAuto").toString()),mr->Double.parseDouble(mr.getBlue().getScore("parkedAuto").toString()));
+		fillGeneralTeamStats(stats, "parkingAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "parkingPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("balanced").toString()),mr->Double.parseDouble(mr.getBlue().getScore("balanced").toString()));
+		fillGeneralTeamStats(stats, "balancedAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "balancedPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("glyphs").toString()),mr->Double.parseDouble(mr.getBlue().getScore("glyphs").toString()));
+		fillGeneralTeamStats(stats, "glyphAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "glyphPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("rows").toString()),mr->Double.parseDouble(mr.getBlue().getScore("rows").toString()));
+		fillGeneralTeamStats(stats, "rowAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "rowPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("columns").toString()),mr->Double.parseDouble(mr.getBlue().getScore("columns").toString()));
+		fillGeneralTeamStats(stats, "columnAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "columnPR", calculatePR(A,B));
+		
+		populateBMatrix(B, results, mr->Double.parseDouble(mr.getRed().getScore("ciphers").toString()),mr->Double.parseDouble(mr.getBlue().getScore("ciphers").toString()));
+		fillGeneralTeamStats(stats, "cipherAvg", calculateAverage(A,B,plays));
+		fillGeneralTeamStats(stats, "cipherPR", calculatePR(A,B));
 		
 		populateBMatrix(B, results, mr->mr.getRed().getRelicPoints(), mr->mr.getBlue().getRelicPoints());
 		fillGeneralTeamStats(stats, "relicAvg", calculateAverage(A,B,plays));
-		fillGeneralTeamStats(stats, "relicPR", calculatePR(A,B));
-		
+		fillGeneralTeamStats(stats, "relicPR", calculatePR(A,B));		
 		return stats;
 		
 	}
@@ -241,41 +299,5 @@ public class StatsCalculator extends Thread{
 		}
 	}
 
-	//calculate quals stats or elim stats
-	/*
-	public void run2() {
-		//make copy of rankings
-		rankings = new ArrayList<Rank>(e.rankings);
-		double[][] A = new double[results.size() * 2][rankings.size()];//
-		double[][] B = new double[results.size() * 2][1];//column vector
 
-		HashMap<Integer, Integer> ind = new HashMap<Integer, Integer>();
-		for(int i = 0; i < e.rankings.size(); i++) {
-			ind.put(e.rankings.get(i).getTeam().getNumber(), i);
-		}
-		for(int r = 0; r < A.length; r+=2) {
-			MatchResult mr = results.get(r / 2);
-			//index of red 1
-			A[r][ind.get(mr.getRed().getTeam1())] = 1;
-			A[r][ind.get(mr.getRed().getTeam2())] = 1;
-			//index of red2
-			A[r+1][ind.get(mr.getBlue().getTeam1())] = 1;
-			A[r+1][ind.get(mr.getBlue().getTeam2())] = 1;
-			
-			//TODO add team 3 for Elims
-			B[r][0] = mr.getRedScore();
-			B[r+1][0] = mr.getBlueScore();
-		}
-		RealMatrix matchData = MatrixUtils.createRealMatrix(A);
-        SingularValueDecomposition svd = new SingularValueDecomposition(matchData);
-        RealMatrix oprs = svd.getSolver().solve(MatrixUtils.createRealMatrix(B));
-		stats.clear();
-		for(int i = 0; i < rankings.size(); i++) {
-			Stat s = new Stat(rankings.get(i).getTeam());
-			s.OPR = oprs.getEntry(i,0);
-			s.rank = i + 1;
-			stats.add(s);
-		}
-	}
-	*/
 }

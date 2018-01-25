@@ -2065,6 +2065,8 @@ public class EventPages {
 						break;
 				}
 			}
+			
+			EventDAO.fillRandomizationData(request.params("event"),match);
 			return match;
 		}
 		

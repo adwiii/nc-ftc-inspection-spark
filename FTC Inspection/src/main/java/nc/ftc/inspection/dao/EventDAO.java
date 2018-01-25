@@ -160,6 +160,8 @@ public class EventDAO {
 	static final String GET_CARDS_FOR_TEAM_SQL =  "SELECT q.match, red1, red2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=0 WHERE red1=? OR red2=? UNION "
 												+ "SELECT q.match, blue1, blue2, card1, card2 FROM quals q INNER JOIN qualsScores qs ON qs.match=q.match AND qs.alliance=1 WHERE blue1=? OR blue2=? ORDER BY q.match";
 	
+	static final String GET_RANDOM_SQL = "SELECT randomization FROM qualsData WHERE match = ?;";
+	
 	static final String GET_SELECTIONS = "SELECT * FROM selections ORDER BY id;";
 	static final SQL SELECTION_SQL = new SQL(26, "INSERT INTO selections(op, alliance, team) VALUES (?,?,?);");
 	static final SQL UNDO_SELECTION_SQL = new SQL(27, "DELETE FROM selections WHERE id IN (SELECT MAX(id) FROM selections);");
@@ -1321,6 +1323,19 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	public static void fillRandomizationData(String event, Match match) {
+		try(Connection local = getLocalDB(event)){
+			boolean elims = match.isElims();
+			PreparedStatement ps = local.prepareStatement(elims ? GET_RANDOM_SQL.replaceAll("qual", "elim") : GET_RANDOM_SQL);
+			ps.setInt(1, match.getNumber());
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				match.randomize(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
