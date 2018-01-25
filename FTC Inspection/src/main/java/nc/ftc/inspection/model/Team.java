@@ -7,6 +7,7 @@ import java.util.Map;
 public class Team {
 	private int number;
 	private String name;	
+	private String location;
 	private int numDigits;
 	//TODO if need to keep status in RAM, add a byte[] and final ints HW, SW, etc for index
 	byte[] status = new byte[5];
@@ -46,6 +47,11 @@ public class Team {
 		}
 	}
 	
+	public Team(int int1, String string, String string2) {
+		this(int1, string);
+		this.location = string2;
+	}
+
 	public void setStatus(String field, byte status){
 		setStatus(FormIndex.valueOf(field.toUpperCase()).index, status);
 	}
@@ -64,6 +70,9 @@ public class Team {
 	
 	public String getName(){
 		return name;
+	}
+	public String getLocation() {
+		return location;
 	}
 	public int getNumber(){
 		return number;

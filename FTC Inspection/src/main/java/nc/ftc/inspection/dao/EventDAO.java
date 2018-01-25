@@ -101,7 +101,7 @@ public class EventDAO {
 	public static final String ATTACH_GLOBAL = "ATTACH DATABASE ':pathglobal.db' AS global;";
 	static final String GET_STATUS_SQL = "SELECT stat.team, ti.name, :columns FROM inspectionStatus stat LEFT JOIN global.teamInfo ti ON ti.number = stat.team;";
 	static final String GET_TEAMSTATUS_SQL = "SELECT * FROM inspectionStatus WHERE team=?;";
-	static final String GET_TEAMS_SQL = "SELECT a.number, ti.name FROM teams a LEFT JOIN global.teamInfo ti ON ti.number = a.number ORDER BY a.number;";
+	static final String GET_TEAMS_SQL = "SELECT a.number, ti.name, ti.location FROM teams a LEFT JOIN global.teamInfo ti ON ti.number = a.number ORDER BY a.number;";
 	static final String GET_SINGLE_STATUS = "SELECT * FROM inspectionStatus WHERE team = ?";
 	static final SQL SET_STATUS_SQL = new SQL(14,"UPDATE inspectionStatus SET :column = ? WHERE team = ?");
 	static final String GET_COMMENT_SQL = "SELECT team,comment FROM formComments WHERE team IN (:in) AND formID = ?";
@@ -468,7 +468,7 @@ public class EventDAO {
 			ResultSet rs = stmt.getResultSet();
 			List<Team> result = new ArrayList<Team>();
 			while(rs.next()){			
-				Team team = new Team(rs.getInt("number"), rs.getString("name"));
+				Team team = new Team(rs.getInt("number"), rs.getString("name"), rs.getString("location"));
 				result.add(team);
 			}
 			return result;
