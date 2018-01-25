@@ -29,7 +29,6 @@ public class Filters {
     		int user = AuthenticationManager.getUserType(request.session().attribute("sessionToken"));
     		//if the user is none then we need to login
     		if (user == User.NONE) {
-            	request.session().attribute("sessionToken", null); //ensure there is no sessionToken going in
                 request.session().attribute("loginRedirect", request.pathInfo());
                 response.redirect(Path.Web.LOGIN);
     		}
@@ -39,6 +38,13 @@ public class Filters {
     		}
     	};
     }
+    
+    public static Filter createSession = (Request request, Response response) -> {
+    	if (AuthenticationManager.getSession(request) == null) {
+    		request.session().attribute("sessionToken", AuthenticationManager.getNewSession(null));
+    	}
+    };
+    	
     
     /**
      * This returns a filter that checks that the user is logged in
