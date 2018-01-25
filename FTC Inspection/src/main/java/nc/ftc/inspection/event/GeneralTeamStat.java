@@ -43,6 +43,7 @@ public class GeneralTeamStat {
 		if(n == null) {
 			return Double.NaN;
 		}
+		if(Double.isInfinite(n.doubleValue()))return Double.NaN;
 		return n;
 	}
 	public String getDoubleString(String key) {

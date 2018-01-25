@@ -1691,6 +1691,8 @@ public class EventPages {
 			}
 			map.put("matches", results);
 			map.put("event", event); //TODO get event name from DB
+			map.put("eventName", e.getData().getName());
+			map.put("teams", EventDAO.getTeams(event));
 			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
