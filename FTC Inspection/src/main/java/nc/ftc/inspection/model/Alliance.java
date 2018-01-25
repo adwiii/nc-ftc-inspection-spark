@@ -274,6 +274,43 @@ public class Alliance {
 		points += Boolean.parseBoolean(scores.get("relic2Standing").toString()) ? 15 : 0;
 		return points;
 	}
+	
+	public int calcCiphers() {
+		int cb = 0;
+		int cbInv = 0;
+		int ciphers = 0;
+		if(cb == 6710886 || cbInv == 6710886 || cb == 6908265 || cbInv == 6908265 || cb == 10065510 || cbInv == 10065510) {
+			ciphers++;
+		}
+		return ciphers;
+	}
+	/**
+	 * 0 - ciphers
+	 * 1 - frogs
+	 * 2 - birds
+	 * 3 - snakes
+	 * @return
+	 */
+	public int[] getCipherCount() {
+		int[] count = new int[4];//ciphers, frogs, birds, snakes
+		for(int i = 1 ; i < 3; i++) {
+			int cb = Integer.parseInt(scores.get("cryptobox"+i).toString());
+			int cbInv = ((~cb) & 0xFFFFFF);
+			if(cb == 6710886 || cbInv == 6710886) { //frog
+				count[1]++;
+				count[0]++;
+			}
+			if(cb == 6908265 || cbInv == 6908265) {//snake
+				count[3]++;
+				count[0]++;
+			}
+			if(cb == 10065510 || cbInv == 10065510) {//bird
+				count[2]++;
+				count[0]++;
+			}
+		}
+		return count;
+	}
 	/**
 	 * DO NOT CALL FROM REVIEW PAGE
 	 */

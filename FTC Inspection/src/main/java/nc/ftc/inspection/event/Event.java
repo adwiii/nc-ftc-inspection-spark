@@ -44,6 +44,8 @@ public class Event {
 	
 	List<Rank> rankings = new ArrayList<Rank>();
 	List<GeneralTeamStat> teamStats = new ArrayList<>();//TODO kill
+	Map<String,EventStat> qualsStats = new HashMap<>();
+	Map<String, EventStat> elimsStats = new HashMap<>();
 //	List<Stat> teamStats = new ArrayList<Stat>(); //Only Quals
 //	List<Stat> qualsEventStats = new ArrayList<Stat>();
 //	List<Stat> elimsEventStats = new ArrayList<Stat>();
@@ -229,38 +231,6 @@ public class Event {
 		}
 		try {
 			StatsCalculator.enqueue(new StatsCalculatorJob(this, StatsCalculatorJob.QUALS));
-			/*
-			double[][] A = new double[results.size() * 2][rankings.size()];//
-			double[][] B = new double[results.size() * 2][1];//column vector
-	
-			HashMap<Integer, Integer> ind = new HashMap<Integer, Integer>();
-			for(int i = 0; i < rankings.size(); i++) {
-				ind.put(rankings.get(i).getTeam().getNumber(), i);
-			}
-			for(int r = 0; r < A.length; r+=2) {
-				MatchResult mr = results.get(r / 2);
-				//index of red 1
-				A[r][ind.get(mr.getRed().getTeam1())] = 1;
-				A[r][ind.get(mr.getRed().getTeam2())] = 1;
-				//index of red2
-				A[r+1][ind.get(mr.getBlue().getTeam1())] = 1;
-				A[r+1][ind.get(mr.getBlue().getTeam2())] = 1;
-				
-				//TODO add team 3 for Elims
-				B[r][0] = mr.getRedScore();
-				B[r+1][0] = mr.getBlueScore();
-			}
-			RealMatrix matchData = MatrixUtils.createRealMatrix(A);
-	        SingularValueDecomposition svd = new SingularValueDecomposition(matchData);
-	        RealMatrix oprs = svd.getSolver().solve(MatrixUtils.createRealMatrix(B));
-			stats.clear();
-			for(int i = 0; i < rankings.size(); i++) {
-				Stat s = new Stat(rankings.get(i).getTeam());
-				s.OPR = oprs.getEntry(i,0);
-				s.rank = i + 1;
-				stats.add(s);
-			}
-			*/
 			
 		}catch(Exception e) {
 			System.err.println("Err calculating OPR for "+data.getCode());
@@ -301,6 +271,12 @@ public class Event {
 	}
 	public List<GeneralTeamStat> getTeamStats() {
 		return teamStats;
+	}
+	public Map<String, EventStat> getQualsStats() {
+		return qualsStats;
+	}
+	public  Map<String, EventStat> getElimsStats() {
+		return elimsStats;
 	}
 	
 }

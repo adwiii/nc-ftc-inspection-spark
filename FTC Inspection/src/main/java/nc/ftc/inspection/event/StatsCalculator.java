@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -21,7 +22,7 @@ import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.Team;
 
 public class StatsCalculator extends Thread{
-	static class StatsCalculatorJob {
+	public static class StatsCalculatorJob {
 		Event event;
 		int phase;
 		public static final int ELIMS = 2;
@@ -90,6 +91,9 @@ public class StatsCalculator extends Thread{
 			//Event GS stats Quals (needs full)
 			//Event general stats Quals (needs only results)
 			job.event.teamStats = calculateGeneralTeamStats(A, B, results, rankings, plays);
+			job.event.qualsStats = calculateEventStats(results);
+		} else {
+			job.event.elimsStats = calculateEventStats(results);
 		}
 	}
 	
@@ -213,15 +217,15 @@ public class StatsCalculator extends Thread{
 		//Game specific, both OPR and avg for each
 		//avg jewels scored by this alliance, ignores other alliance mess ups
 		//TODO make getJewelStats method, if field info is known, do this, and add negative for wrong jewel, if field info not know, use jewels score entry.
-		populateBMatrix(B, results, mr->mr.getRed().getRedJewels(), mr->mr.getBlue().getBlueJewels());
+		populateBMatrix(B, results, mr->getScore(mr.getRed(), "jewels"), mr->getScore(mr.getBlue(),"jewels"));
 		fillGeneralTeamStats(stats, "jewelAvg", calculateAverage(A,B,plays));
 		fillGeneralTeamStats(stats, "jewelPR", calculatePR(A,B));
 		
-		populateBMatrix(B, results, mr->mr.getRed().getRedJewels(), mr->0);
+		populateBMatrix(B, results, mr->getScore(mr.getRed(), "jewels"), mr->0);
 		fillGeneralTeamStats(stats, "jewelRedAvg", calculateAverage(A,B,redPlays));
 		fillGeneralTeamStats(stats, "jewelRedPR", calculatePR(A,B));
 		
-		populateBMatrix(B, results, mr->0, mr->mr.getBlue().getBlueJewels());
+		populateBMatrix(B, results, mr->0, mr->getScore(mr.getBlue(),"jewels"));
 		fillGeneralTeamStats(stats, "jewelBlueAvg", calculateAverage(A,B,bluePlays));
 		fillGeneralTeamStats(stats, "jewelBluePR", calculatePR(A,B));		
 		
@@ -290,6 +294,72 @@ public class StatsCalculator extends Thread{
 		fillGeneralTeamStats(stats, "relicPR", calculatePR(A,B));		
 		return stats;
 		
+	}
+	
+	private double getScore(Alliance a, String f) {
+		return Double.parseDouble(a.getScore(f).toString());
+	}
+	
+	//This method can be used for both Quals & Elims
+	private Map<String, EventStat> calculateEventStats(List<MatchResult> results) {
+		Map<String, EventStat> stats = new HashMap<>();
+		stats.put("score", new EventStat());
+		stats.put("scoreNP", new EventStat());
+		stats.put("margin", new EventStat());
+		stats.put("combined", new EventStat());
+		stats.put("combinedNP", new EventStat());
+		stats.put("winningScore", new EventStat());
+		stats.put("parked", new EventStat());
+		stats.put("jewels", new EventStat());
+		stats.put("keys", new EventStat());
+		stats.put("glyphs", new EventStat());
+		stats.put("rows", new EventStat());
+		stats.put("columns", new EventStat());
+		stats.put("ciphers", new EventStat());
+		stats.put("frogs", new EventStat());
+		stats.put("snakes", new EventStat());
+		stats.put("birds", new EventStat());
+		stats.put("relics", new EventStat());
+		stats.put("standing", new EventStat());
+		stats.put("balanced", new EventStat());
+		
+		for(MatchResult mr : results) {
+			if(mr.getStatus() != 1)continue;
+			
+			stats.get("score").sample(mr.getRedTotal()).sample(mr.getBlueTotal());
+			stats.get("scoreNP").sample(mr.getRedScore()).sample(mr.getBlueScore());
+			stats.get("margin").sample(mr.getMargin());
+			stats.get("combined").sample(mr.getRedTotal()+mr.getBlueTotal());
+			stats.get("combinedNP").sample(mr.getRedScore()+mr.getBlueScore());
+			stats.get("winningScore").sample(Math.max(mr.getBlueTotal(), mr.getRedTotal()));
+		
+			stats.get("parked").sample(getScore(mr.getRed(), "parkedAuto")+getScore(mr.getBlue(), "parkedAuto"), 4);
+			stats.get("jewels").sample(getScore(mr.getRed(), "jewels")+getScore(mr.getBlue(), "jewels"), 4);
+			stats.get("keys").sample(getScore(mr.getRed(), "cryptoboxKeys")+getScore(mr.getBlue(), "cryptoboxKeys"), 4);
+			stats.get("glyphs").sample(getScore(mr.getRed(), "glyphs")+getScore(mr.getBlue(), "glyphs"), 48);
+			stats.get("rows").sample(getScore(mr.getRed(), "rows")+getScore(mr.getBlue(), "rows"), 16);
+			stats.get("columns").sample(getScore(mr.getRed(), "columns")+getScore(mr.getBlue(), "columns"), 12);
+			stats.get("ciphers").sample(getScore(mr.getRed(), "ciphers")+getScore(mr.getBlue(), "ciphers"), 4);
+			if(getScore(mr.getRed(), "ciphers") > 0) {
+				int[] count = mr.getRed().getCipherCount();
+				if(count[0] > 0) {
+					stats.get("birds").sample(count[2], count[0]);
+					stats.get("snakes").sample(count[3], count[0]);
+					stats.get("frogs").sample(count[1], count[0]);					
+				}				
+			}
+			if(getScore(mr.getBlue(), "ciphers") > 0) {
+				int[] count = mr.getBlue().getCipherCount();
+				if(count[0] > 0) {
+					stats.get("birds").sample(count[2], count[0]);
+					stats.get("snakes").sample(count[3], count[0]);
+					stats.get("frogs").sample(count[1], count[0]);					
+				}				
+			}
+			
+		}
+		
+		return stats;
 	}
 	
 	

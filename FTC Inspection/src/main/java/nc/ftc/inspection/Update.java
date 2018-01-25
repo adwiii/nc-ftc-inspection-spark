@@ -8,6 +8,8 @@ import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
 import nc.ftc.inspection.dao.UsersDAO;
+import nc.ftc.inspection.event.StatsCalculator;
+import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
 
 
 public class Update {
@@ -43,6 +45,7 @@ public class Update {
 	public static final transient int TX_FAILED = 4; //still in queue, but sending failed at least once
 	public static final transient int FAILED = 5;
 	public static final transient int SUCCESS = 6;
+	public static final transient int RECALCULATE_ELIMS_STATS = 7;
 	
 	
 	
@@ -90,6 +93,8 @@ public class Update {
 		case POPULATE_STATUS_TABLES_CMD: return EventDAO.populateStatusTables(e);
 		case RECALCULATE_RANKINGS:       Server.activeEvents.get(e).calculateRankings();
 										 return true;
+		case RECALCULATE_ELIMS_STATS: StatsCalculator.enqueue(new StatsCalculatorJob(Server.activeEvents.get(e), StatsCalculatorJob.ELIMS));
+										return true;
 		}
 		return false;
 	}

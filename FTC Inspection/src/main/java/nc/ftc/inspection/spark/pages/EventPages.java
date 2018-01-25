@@ -2699,6 +2699,8 @@ public class EventPages {
 			}
 			HashMap<String, Object> map = new HashMap<>();
 			map.put("stats", e.getTeamStats());
+			map.put("quals", e.getQualsStats());
+			map.put("elims", e.getElimsStats());
 //			map.put("jsonStats", new Gson().toJson(map));
 			return render(request, map, Path.Template.STATS);
 		};

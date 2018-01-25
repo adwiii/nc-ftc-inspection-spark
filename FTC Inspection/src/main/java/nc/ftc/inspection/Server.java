@@ -19,6 +19,8 @@ import javax.swing.plaf.synth.SynthSpinnerUI;
 import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.event.Event;
+import nc.ftc.inspection.event.StatsCalculator;
+import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.FormRow;
 import nc.ftc.inspection.model.Match;
@@ -76,8 +78,14 @@ public class Server {
 		for(Entry<String, Event> e : activeEvents.entrySet()) {
 			try {
 				e.getValue().calculateRankings();
+				
 			}catch(Exception e1) {
 				System.err.println("Cant calculate rankings for "+e.getKey());
+			}
+			try {
+				StatsCalculator.enqueue(new StatsCalculatorJob(e.getValue(), StatsCalculatorJob.ELIMS));
+			}catch(Exception e2) {
+				System.err.println("Error calculating elims stats!");
 			}
 		}
 	//	threadPool(100, 30, 0);

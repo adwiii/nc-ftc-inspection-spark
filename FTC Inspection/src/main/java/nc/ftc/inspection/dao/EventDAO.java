@@ -29,6 +29,8 @@ import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
 import nc.ftc.inspection.event.Event;
+import nc.ftc.inspection.event.StatsCalculator;
+import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
@@ -125,7 +127,7 @@ public class EventDAO {
 	static final String GET_RESULTS_QUALS = "SELECT q.match, red1, red1S, red2, red2S, blue1, blue1S, blue2, blue2S, redScore, blueScore, status, redPenalty, bluePenalty FROM quals q LEFT JOIN qualsData qd ON q.match = qd.match LEFT JOIN qualsResults qr ON q.match = qr.match ORDER BY q.match";
 	static final String GET_CARDS_DQS_SQL = "SELECT qs.match, alliance, card1, card2, dq1, dq2 from qualsScores qs INNER JOIN qualsData qd ON qs.match=qd.match WHERE qd.status = 1; ";
 	static final String GET_MATCH_RESULTS_FULL_SQL = "SELECT * FROM qualsScores s WHERE match=?;";
-	static final String GET_MATCH_RESULTS_FOR_STATS_SQL = "SELECT s.*,randomization FROM qualsScores s LEFT JOIN qualsData d ON s.match=d.match;";
+	static final String GET_MATCH_RESULTS_FOR_STATS_SQL = "SELECT s.*,randomization FROM qualsScores s LEFT JOIN qualsData d ON s.match=d.match ORDER BY s.match;";
 	
 	
 	static final SQL SET_ALLIANCE_SQL = new SQL(15, "INSERT OR REPLACE INTO alliances VALUES (?,?,?,?);");
@@ -708,6 +710,9 @@ public class EventDAO {
 			
 			if(!elims) {
 				updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_RANKINGS));
+			} else {
+				StatsCalculator.enqueue(new StatsCalculatorJob(Server.activeEvents.get(event), StatsCalculatorJob.ELIMS));
+				updater.enqueue(new Update(event, Update.COMMAND, null, Update.RECALCULATE_ELIMS_STATS));
 			}
 			Server.activeEvents.get(event).resultsCache.invalidate();
 			return true;
@@ -942,9 +947,10 @@ public class EventDAO {
 		}
 		try (Connection local = getLocalDB(code)){
 			PreparedStatement ps = local.prepareStatement(elims ? GET_MATCH_RESULTS_FOR_STATS_SQL.replaceAll("qual", "elim") : GET_MATCH_RESULTS_FOR_STATS_SQL);
-			ResultSet rs = ps.executeQuery();			 
-			while(rs.next()) {
-				Alliance a = results.get(rs.getInt(1)-1).getAlliance(rs.getInt(2) == Alliance.RED ? "red" : "blue");
+			ResultSet rs = ps.executeQuery();
+			
+			for(int i = 0;rs.next(); i++) {
+				Alliance a = results.get(i/2).getAlliance(rs.getInt(2) == Alliance.RED ? "red" : "blue");
 				a.initializeScores();
 				Set<String> keys = a.getScoreFields();
 				keys.remove("card3");

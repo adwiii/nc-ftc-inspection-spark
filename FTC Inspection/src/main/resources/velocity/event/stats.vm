@@ -1,3 +1,49 @@
+#macro (esr $s)
+<td>$s.avg</td><td>$s.sum</td><td>$s.opp</td><td>$s.pct</td>
+#end
+#macro (matchStats $phase)
+<table>
+<tr><th>Stat</th><th>Value</th></tr>
+#if($phase)
+<tr><td>High Score</td><td>$phase.get("score").max</td></tr>
+<tr><td>High Score No Penalty</td><td>$phase.get("scoreNP").max</td></tr>
+<tr><td>Average Score</td><td>$phase.get("score").avg</td></tr>
+<tr><td>Average Score No Penalty</td><td>$phase.get("scoreNP").avg</td></tr>
+<tr><td>High Score Combined</td><td>$phase.get("combined").max</td></tr>
+<tr><td>Average Winning Score</td><td>$phase.get("winningScore").avg</td></tr>
+<tr><td>Largest Margin</td><td>$phase.get("margin").max</td></tr>
+<tr><td>Average Margin</td><td>$phase.get("margin").avg</td></tr>
+#end
+</table>
+<hr>
+<table>
+<tr><th>Objective</th><th>Per Match Avg</th><th>Total</th><th>Opportunities</th><th>Percent</th></tr>
+#if($phase)
+#set($s = $phase.get("parked"))
+<tr><td>Safe Zone parking</td>#esr($s)</tr>
+#set($s = $phase.get("jewels"))
+<tr><td>Jewels</td>#esr($s)</tr>
+#set($s = $phase.get("keys"))
+<tr><td>Keys</td>#esr($s)</tr>
+#set($s = $phase.get("glyphs"))
+<tr><td>Glyphs</td>#esr($s)</tr>
+#set($s = $phase.get("rows"))
+<tr><td>Rows</td>#esr($s)</tr>
+#set($s = $phase.get("columns"))
+<tr><td>Columns</td>#esr($s)</tr>
+#set($s = $phase.get("ciphers"))
+<tr><td>Ciphers</td>#esr($s)</tr>
+#set($s = $phase.get("birds"))
+<tr><td>Birds</td><td>--</td><td>$s.sum</td><td>$s.opp</td><td>$s.pct</td></tr>
+#set($s = $phase.get("frogs"))
+<tr><td>Frogs</td><td>--</td><td>$s.sum</td><td>$s.opp</td><td>$s.pct</td></tr>
+#set($s = $phase.get("snakes"))
+<tr><td>Snakes</td><td>--</td><td>$s.sum</td><td>$s.opp</td><td>$s.pct</td></tr>
+#end
+</table>
+#end
+
+
 #parse("/velocity/layout.vm")
 #@mainLayout("1000px")
 <style>
@@ -67,14 +113,13 @@ function openTab(evt, tabName) {
 	});
 </script>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>
-<center><h2>Statistics</h2></center>
+<center><h2>Statistics (Beta)</h2></center>
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'teamGeneral')" id="teamGeneralId">General<br>(Quals)</button>
   <button class="tablinks" onclick="openTab(event, 'teamSpecificAvg')">Game Specific Avgs<br>(Quals)</button>
   <button class="tablinks" onclick="openTab(event, 'teamSpecificPR')">Game Specific PRs<br> (Quals)</button>
   <button class="tablinks" onclick="openTab(event, 'eventGeneral')">Event</button>
-  <button class="tablinks" onclick="openTab(event, 'eventSpecific')">Event Game Specific</button>
 </div>
 
 <div id="teamGeneral" class="tabcontent">
@@ -151,11 +196,15 @@ function openTab(evt, tabName) {
 #end
 
 <div id="eventGeneral" class="tabcontent">
-Coming Soon!
+	<div style="float:left; width:50%;">
+	<center><h2>Quals</h2></center>
+	#matchStats($quals)
+	</div>
+	<div style="float:left; width:50%;">
+	<center><h2>Elims</h2></center>
+	#matchStats($elims)
+	</div>
 </div>
 
-<div id="eventSpecific" class="tabcontent">
-Coming Soon!
-</div>
 
 #end

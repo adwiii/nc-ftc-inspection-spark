@@ -96,4 +96,7 @@ public class MatchResult {
 	public Alliance getAlliance(String a) {
 		return a.equals("red") ? red : (a.equals("blue") ? blue : null);
 	}
+	public double getMargin() {
+		return Math.abs(getRedTotal()-getBlueTotal());
+	}
 }
