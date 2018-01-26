@@ -19,7 +19,7 @@ $fullPage
 <TITLE>Match Results</TITLE>
 </head>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>
-<CENTER><H2>$event<BR>
+<CENTER><H2>$eventName<BR>
 Match Results</H2></CENTER>
 <HR>
 <DIV ALIGN=CENTER><TABLE BORDER=2 CELLPADDING=5 CELLSPACING=1 WIDTH=75%>
