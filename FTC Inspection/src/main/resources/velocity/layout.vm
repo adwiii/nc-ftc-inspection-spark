@@ -10,6 +10,8 @@
 	<script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
+  	<script src="/js/jquery.fixedheadertable.min.js"></script>
+  	<script src="/js/jquery.fixedheadertable.js"></script>
   	<script>
   		Role = {
   			SYSADMIN : 1<<31,

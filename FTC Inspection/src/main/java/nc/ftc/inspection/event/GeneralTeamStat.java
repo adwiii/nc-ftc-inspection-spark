@@ -45,9 +45,16 @@ public class GeneralTeamStat {
 		}
 		return n;
 	}
+	private static final DecimalFormat df = new DecimalFormat("#.00");
 	public String getDoubleString(String key) {
-		DecimalFormat df = new DecimalFormat("#.00"); 
-		return df.format(getStat(key));
+		Number stat = getStat(key);
+		if (stat == null || !Double.isFinite(stat.doubleValue())) {
+			return "--";
+		}
+		if (Math.abs(stat.doubleValue()) < .01) { //if it is less than 2 decimal places then just show 0
+			return "0";
+		}
+		return df.format(stat);
 	}
 	public int getInt(String key) {
 		return getStat(key).intValue();

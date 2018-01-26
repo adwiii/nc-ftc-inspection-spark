@@ -5,6 +5,7 @@
 <table>
 <tr><th>Stat</th><th>Value</th></tr>
 #if($phase)
+<tbody>
 <tr><td>High Score</td><td>$phase.get("score").max</td></tr>
 <tr><td>High Score No Penalty</td><td>$phase.get("scoreNP").max</td></tr>
 <tr><td>Average Score</td><td>$phase.get("score").avg</td></tr>
@@ -13,6 +14,7 @@
 <tr><td>Average Winning Score</td><td>$phase.get("winningScore").avg</td></tr>
 <tr><td>Largest Margin</td><td>$phase.get("margin").max</td></tr>
 <tr><td>Average Margin</td><td>$phase.get("margin").avg</td></tr>
+</tbody>
 #end
 </table>
 <hr>
@@ -47,9 +49,23 @@
 #parse("/velocity/layout.vm")
 #@mainLayout("1000px")
 <style>
-td {
+td, th {
 	text-align:center;
+	min-width:80px;
 }
+#general, #Avg, #PR {
+	width:100%;
+}
+#general td, #general th, #Avg td, #Avg th, #PR td, #PR th {
+	border: 1px solid black;
+}
+th {
+	background-color: #dddddd;
+}
+tr:nth-child(even){
+  background-color: #dddddd;
+}
+
 /* Style the tab */
 .tab {
     overflow: hidden;
@@ -67,6 +83,8 @@ td {
     padding: 14px 16px;
     transition: 0.3s;
     font-size: 17px;
+    height:90px;
+    min-height:10%;
 }
 
 /* Change background color of buttons on hover */
@@ -85,6 +103,7 @@ td {
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
+    overflow:auto;
 }
 
 </style>
@@ -110,6 +129,9 @@ function openTab(evt, tabName) {
 
 	$().ready(function(){
   		document.getElementById("teamGeneralId").click();
+  		//$('#general').fixedHeaderTable({ footer: false, cloneHeadToFoot: true, fixedColumn: true });
+  		//$('#Avg').fixedHeaderTable({ footer: false, cloneHeadToFoot: true, fixedColumn: true });
+  		//$('#PR').fixedHeaderTable({ footer: false, cloneHeadToFoot: true, fixedColumn: true });
 	});
 </script>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>
@@ -123,8 +145,9 @@ function openTab(evt, tabName) {
 </div>
 
 <div id="teamGeneral" class="tabcontent">
-<table>
-<tr><th>Team #</th>
+<table id="general">
+<thead>
+<tr><th name="number">Team #</th>
 	<th>Team Name</th>
 	<th>Rank</th>
 	<th>OPR</th>
@@ -135,6 +158,9 @@ function openTab(evt, tabName) {
 	<th>Teleop OPR</th>
 	<th>Avg Victory Margin</th>
 </tr>
+</thead>
+  
+<tbody>
 #foreach($stat in $stats)
 <tr class="data">
 	<td name="number">   $stat.team.number</td>
@@ -149,12 +175,14 @@ function openTab(evt, tabName) {
 	<td name="avgMargin">$stat.getDoubleString("avgMargin")</td>
 </tr>
 #end
+</tbody>
 </table>
 </div>
 #foreach($tab in ["Avg","PR"])
 <div id="teamSpecific$tab" class="tabcontent">
-<table>
-<tr><th>Team #</th>
+<table id="$tab">
+<thead>
+<tr><th name="number">Team #</th>
 	<th>Parking</th>
 	<th>Jewels</th>
 	<th>Jewels <br>(Red)</th>
@@ -171,6 +199,8 @@ function openTab(evt, tabName) {
 	<th>Cipher</th>
 	<th>Relic Score</th>
 </tr>
+</thead>
+<tbody>
 #foreach($stat in $stats)
 <tr class="data">
 	<td name="number">  $stat.team.number</td>	
@@ -191,20 +221,16 @@ function openTab(evt, tabName) {
 	<td name="relic$tab">$stat.getDoubleString("relic$tab")</td>
 </tr>
 #end
+</tbody>
 </table>
 </div>
 #end
-
 <div id="eventGeneral" class="tabcontent">
-	<div style="float:left; width:50%;">
-	<center><h2>Quals</h2></center>
+<!-- THIS IS BROKEN -->
+	<center><h1>Quals</h1></center>
 	#matchStats($quals)
-	</div>
-	<div style="float:left; width:50%;">
-	<center><h2>Elims</h2></center>
+	<center><h1>Elims</h1></center>
 	#matchStats($elims)
-	</div>
 </div>
-
 
 #end
