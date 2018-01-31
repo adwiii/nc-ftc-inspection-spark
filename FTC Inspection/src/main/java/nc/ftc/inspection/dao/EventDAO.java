@@ -281,6 +281,12 @@ public class EventDAO {
 		}
 	}
 	
+	public static boolean addTeamLate(int team, String code) {
+		// TODO Auto-generated method stub
+		//TODO add inspection data insertion SQL
+		return addTeamToEvent(team, code);
+	}
+	
 	public static boolean removeTeamFromEvent(int team, String eventCode){
 		//TODO IF EVENT PAST SETUP, need to do ADD_TEAM_LATE_SQL
 		try(Connection conn = getLocalDB(eventCode)){
@@ -1343,6 +1349,7 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	
 	

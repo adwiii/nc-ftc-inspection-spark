@@ -2217,13 +2217,13 @@ public class EventPages {
 		public static Route handleAddTeam = (Request request, Response response) ->{
 			String code = request.params("event");
 			EventData data = EventDAO.getEvent(code);
-			if(data.getStatus() != 1) {
+			if(data.getStatus() < 1 || data.getStatus() > 2) {
 				response.status(409);
-				return "Not in setup phase!";
+				return "Not in setup/inspection phase!";
 			}
 			try {
 			int team = Integer.parseInt(request.queryParams("team"));
-			if(EventDAO.addTeamToEvent(team, code)) {
+			if(data.getStatus() == 1 ? EventDAO.addTeamToEvent(team, code) : EventDAO.addTeamLate(team, code)) {
 				return "{\"team\":\"" + team + "\",\"name\":\"" + GlobalDAO.getTeamName(team) + "\"}"; 
 			}
 			response.status(400);
@@ -2238,9 +2238,9 @@ public class EventPages {
 			String code = request.params("event");
 			EventData data = EventDAO.getEvent(code);
 			String[] teams = request.queryParams("teams").split(",");
-			if(data.getStatus() != 1) {
+			if(data.getStatus() < 1) {
 				response.status(409);
-				return "Not in setup phase!";
+				return "Not yet in setup phase!";
 			}
 			try {
 				
@@ -2261,9 +2261,9 @@ public class EventPages {
 			EventData data = EventDAO.getEvent(code);
 			String team = request.queryParams("team");
 			String newName = request.queryParams("name");
-			if(data.getStatus() != 1) {
+			if(data.getStatus() < 1) {
 				response.status(409);
-				return "Not in setup phase!";
+				return "Not yet in setup phase!";
 			}
 			try {
 				GlobalDAO.editTeamName(Integer.parseInt(team), newName);
