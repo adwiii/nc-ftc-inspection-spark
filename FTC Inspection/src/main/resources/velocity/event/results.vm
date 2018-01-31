@@ -57,20 +57,20 @@ Match Results</H2></CENTER>
 				${m.getRedTotal()}-${m.getBlueTotal()} $m.winChar
 			#end
 		</TD>
-		<TD BGCOLOR=$c> <a href="../teams/info/${m.red.team1}/matches/" style="color:black">$m.red.team1#if($m.red.is1Surrogate())*#end</a></TD>
-		<TD BGCOLOR=$c> <a href="../teams/info/${m.blue.team1}/matches/" style="color:black">$m.blue.team1#if($m.blue.is1Surrogate())*#end</a></TD>
+		<TD BGCOLOR=$c> <a href="../teams/info/${m.red.team1}/matches/" style="">$m.red.team1#if($m.red.is1Surrogate())*#end</a></TD>
+		<TD BGCOLOR=$c> <a href="../teams/info/${m.blue.team1}/matches/" style="">$m.blue.team1#if($m.blue.is1Surrogate())*#end</a></TD>
 		<td bgcolor=$c colspan="2"><a href="../match/$n/scoresheet">Scoresheet</a>#if($ADMIN)&emsp;-&emsp;<a href="../match/$n/edit">Edit</a>#end</td>
 	</TR>
 	<TR ALIGN=CENTER>
-		<TD BGCOLOR=$c><a href="../teams/info/${m.red.team2}/matches/" style="color:black">$m.red.team2#if($m.red.is2Surrogate())*#end</a></TD>
-		<TD BGCOLOR=$c><a href="../teams/info/${m.blue.team2}/matches/" style="color:black">$m.blue.team2#if($m.blue.is2Surrogate())*#end</a></TD>
+		<TD BGCOLOR=$c><a href="../teams/info/${m.red.team2}/matches/" style="">$m.red.team2#if($m.red.is2Surrogate())*#end</a></TD>
+		<TD BGCOLOR=$c><a href="../teams/info/${m.blue.team2}/matches/" style="">$m.blue.team2#if($m.blue.is2Surrogate())*#end</a></TD>
 		<td bgcolor=$c ROWSPAN=#if($m.isElims()) 2 #else 1#end><a href="../match/$n/scoresheet/red/">Red</a></td>
 		<td bgcolor=$c ROWSPAN=#if($m.isElims()) 2 #else 1#end><a href="../match/$n/scoresheet/blue/">Blue</a></td>
 	</TR>
 		#if($m.isElims())
 			<TR ALIGN=CENTER>
-				<TD BGCOLOR=$c><a href="../teams/info/${m.red.team3}/matches/" style="color:black">$m.red.team3</a></TD>
-				<TD BGCOLOR=$c><a href="../teams/info/${m.blue.team3}/matches/" style="color:black">$m.blue.team3</a></TD>
+				<TD BGCOLOR=$c><a href="../teams/info/${m.red.team3}/matches/" style="">$m.red.team3</a></TD>
+				<TD BGCOLOR=$c><a href="../teams/info/${m.blue.team3}/matches/" style="">$m.blue.team3</a></TD>
 			</TR>
 		#end
 	#elseif($m.status == 0)

@@ -49,6 +49,7 @@ public class StatsCalculator extends Thread{
 	public static void enqueue(StatsCalculatorJob update) {
 		synchronized(calculator) {
 			calculator.queue.offer(update);
+			calculator.notifyAll();
 		}
 	}
 	

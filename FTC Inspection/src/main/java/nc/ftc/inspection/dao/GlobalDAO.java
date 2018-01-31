@@ -22,8 +22,8 @@ import nc.ftc.inspection.model.Team;
 public class GlobalDAO {
 	
 	private static final String MASTER_TEAM_LIST_SQL = "SELECT * FROM teamInfo";
-	private static final SQL NEW_TEAM_SQL = new SQL(1,"INSERT INTO teamInfo VALUES (?, ?)");
-	private static final SQL EDIT_TEAM_SQL = new SQL(2,"INSERT OR REPLACE INTO teamInfo VALUES (?,?)"); 
+	private static final SQL NEW_TEAM_SQL = new SQL(1,"INSERT INTO teamInfo VALUES (?, ?, NULL)");
+	private static final SQL EDIT_TEAM_SQL = new SQL(2,"INSERT OR REPLACE INTO teamInfo VALUES (?,?, NULL)"); 
 	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
 	private static final String ADD_FEEDBACK_SQL = "INSERT INTO feedback VALUES (?, ?);";
 	private static final String GET_FEEDBACK_SQL = "SELECT * FROM feedback;";

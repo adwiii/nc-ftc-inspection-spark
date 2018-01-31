@@ -592,6 +592,17 @@ public class EventPages {
 				e.printStackTrace();
 			}
 			//TODO add teams in Set to event if not in it, and display that occurance
+			List<Team> teams2 = EventDAO.getTeams(event);
+			for(Team t : teams2) {
+				teams.remove(t.getNumber());
+			}
+			for(Integer t : teams) {
+				EventDAO.addTeamToEvent(t, event);
+				System.err.println("MISSING TEAM "+t+". AUTOMATICALLY ADDED TO EVENT!");
+			}
+			
+			
+			
 			scan.close();
 			EventDAO.createSchedule(event, matches);
 			if(started) {
