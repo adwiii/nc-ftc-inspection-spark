@@ -90,6 +90,9 @@ public class MatchResult {
 	public String getName() {
 		return name == null ? "Qualification Match "+getNumber() : name;
 	}
+	public String getShortName() {
+		return name == null ? "Match "+getNumber() : name;
+	}
 	public boolean isElims() {
 		return getName().indexOf('-') >= 0;
 	}

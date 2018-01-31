@@ -27,9 +27,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -2708,7 +2710,7 @@ public class EventPages {
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
 			if(e == null) {
-			return noData(request, "Stats");
+				return noData(request, "Stats");
 			}
 			HashMap<String, Object> map = new HashMap<>();
 			map.put("stats", e.getTeamStats());
@@ -2724,5 +2726,56 @@ public class EventPages {
 			map.put("msg", dat + " data not available at this time. Check back later!");
 			return render(request, map, Path.Template.NO_DATA);
 		}
+		
+		public static Route serveQueuePage = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				return noData(request, "Queue");
+			}
+			List<MatchResult> cachePointer = e.resultsCache.get();
+			if(cachePointer == null) {
+				cachePointer = EventDAO.getMatchResults(event);
+				e.resultsCache.set(cachePointer);
+			}
+			List<MatchResult> results = new ArrayList<>(cachePointer);
+			results.removeIf(mr->mr.getStatus() > 0);
+			int num = 3;
+			int fields = 2;
+			String numS = request.queryParams("num");
+			String fieldS = request.queryParams("fields");
+			if(numS != null) {
+				try {
+					num = Integer.parseInt(numS) + 2; //num in queue + on field + up nxt
+				} catch(Exception e2) {}
+			}
+			if(fieldS != null) {
+				try {
+					fields= Integer.parseInt(fieldS);
+				} catch(Exception e2) {}
+			}
+			
+			List<ArrayList<MatchResult>> queues = new ArrayList<>(fields);
+			for(int i = 0; i < fields; i++) {
+				queues.add(new ArrayList<MatchResult>());
+			}
+			//this is inefficient, but n should always be very small.
+			final int numC = num;
+			for(int i = 0; queues.stream().mapToInt(q->{return q.size()<numC?1:0;}).sum() > 0 && i < results.size();i++) {
+				MatchResult mr = results.get(i);
+				queues.get((mr.getNumber() + 1) % fields).add(mr);
+			}
+			
+			
+//			for(int i = 0; i < fields * (num + 1) && i < results.size(); i++) {
+//				MatchResult
+//				queue[i % fields][i / fields] = results.get(i);
+//			}
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("queues", queues);
+			map.put("num", num);
+			return render(request, map, Path.Template.QUEUE_DISPLAY);
+		};
 		
 }

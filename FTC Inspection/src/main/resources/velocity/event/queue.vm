@@ -1,0 +1,125 @@
+<html>
+<style>
+/* This is all common to the field display */
+	#top{
+		position:absolute;
+		top:30px;
+		left:400;
+		width:1120;
+		font:60px  "Arial Black", Arial, Helvetica, sans-serif;
+		text-align:center;
+	}
+	body {
+		overflow:hidden;
+		max-width:100%;
+		max-height:100%;
+		margin:0;
+		padding:0;
+		background:black;
+	}
+	#body {
+		background-repeat:no-repeat;
+		background-image:url('/img/DisplayBackgroundHD_expanded.png');
+		width:100%;
+		height:100%;
+		position:absolute;
+	}
+	#bottomCover {
+		background-repeat:no-repeat;
+		background-image:url('/img/DisplayBackgroundBOTTOMHD.png');
+		width:100%;
+		height:100%;
+		position:absolute;
+	}
+	/* begin things not common with the field display */
+	#rankTable {
+		position: absolute;
+		left: 392.5px;
+		top: 200px;
+		width:485px;
+	}
+	#queueTable{
+		align:center;
+		position:relative;
+		top:170;
+		width:1600;
+	}
+	th, td {
+		padding: 10px;
+		font:60px  "Arial Black", Arial, Helvetica, sans-serif;
+		text-align:center;
+	}
+	.sec{
+		font:50px  "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	td {
+		font:40px  "Arial", Arial, Helvetica, sans-serif;
+	}
+	#matchTable td,
+	#matchTable th {
+		width:50%;
+	}
+</style>
+
+<body>
+<div align=center id="body">
+<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
+<div id="top">
+Queueing Display
+</div>
+<table id="queueTable">
+<tr>
+	#set($i = 1)
+	#foreach($field in $queues)
+		<th>Field $i</th>
+		#set($i= $i + 1)
+	#end
+</tr>
+
+<tr>
+	#foreach($field in $queues)
+		<td>
+			<font class="sec">On Field</font><br>
+			#if($field.size() > 0)
+				$field.get(0).getShortName()<br>
+				#set($r = $field.get(0).getRed())
+				#set($b = $field.get(0).getBlue())
+				$r.team1 $r.team2 #if($r.team3 !=0) $r.team3#end <br>
+				$b.team1 $b.team2 #if($b.team3 !=0) $b.team3#end <br>
+			#end
+		</td>
+	#end
+</tr>
+
+#set($qs = $num - 2)
+
+<tr>
+#foreach($field in $queues)
+	<td><font class="sec">In Queue</font><br>
+	#foreach($i in [1..$qs])
+		#if($field.size() > $i)
+				$field.get($i).getShortName()<br>
+				#set($r = $field.get($i).getRed())
+				#set($b = $field.get($i).getBlue())
+				$r.team1 $r.team2 #if($r.team3 !=0) $r.team3#end <br>
+				$b.team1 $b.team2 #if($b.team3 !=0) $b.team3#end <br>
+			#end
+	#end
+	</td>
+#end
+</table>
+<script>
+  	$().ready(function () {
+  		var zoom = $("#body").width() / 1920;
+  		$("#body").css("zoom", zoom);
+  		//$("#body").css("top", ($("body").height() - zoom * $("body").height()) / 2);
+  		window.setTimeout(function(){window.location.reload(true);}, 120000);
+	});
+</script>
+</body>
+<div id="preload" style="display:none;">
+
+</div>
+</html>

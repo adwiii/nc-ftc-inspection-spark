@@ -119,6 +119,7 @@ public class Server {
 		get(Path.Web.ERROR_403, DefaultPages.error403);
 		get(Path.Web.EVENT_STATUS_PAGE, EventPages.serveStatusPage);
 		get(Path.Web.PIT_DISPLAY, EventPages.servePitPage);
+		get(Path.Web.QUEUE_DISPLAY, EventPages.serveQueuePage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
 		get(Path.Web.TEAM_MATCH_INFO, EventPages.serveTeamResultsPage);

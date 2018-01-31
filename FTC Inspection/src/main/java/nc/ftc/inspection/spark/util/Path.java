@@ -101,6 +101,7 @@ public class Path {
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
         public static final String FIELD_DISPLAY  ="/event/:event/field/";
+        public static final String QUEUE_DISPLAY = "/event/:event/queue/";
         
         
         public static final String SELECTION = "/event/:event/selection/select/";
@@ -212,6 +213,7 @@ public class Path {
 		public static final String FEEDBACK_THANKS = "/velocity/feedbackThanks.vm";
         public static final String STATS = "/velocity/event/stats.vm";
         public static final String NO_DATA = "/velocity/noData.vm";
+		public static final String QUEUE_DISPLAY = "/velocity/event/queue.vm";
     }
 
 }
