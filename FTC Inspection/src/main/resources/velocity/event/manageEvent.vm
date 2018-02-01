@@ -54,7 +54,8 @@
 	#elseif($status == 2)
 		Inspection
 		<br>
-		This Step: Inspect teams!
+		This Step: Inspect teams!<br>
+		If you need to edit teams, do so <a href="./teams/">here</a>.
 		<br>
 		Next Step: Make sure all non-competing teams are removed from the system. Use the FIRST official scoring software to generate matches.
 		 <button onclick="setStatus(3)">Start Qualification</button>
@@ -63,6 +64,8 @@
 		<br>
 		This Step: Upload Quals schedule <a href="./scheduleupload/">here.</a>
 		Then the event is ready! <br>
+		
+		If you need to edit team names or remove teams, do so <a href="./teams/">here</a>.<br>
 		Next Step:After Finishing Quals, begin the alliance selection:
 		<button onclick="setStatus(4)">Alliance Selection</button>
 	#elseif($status == 4)
