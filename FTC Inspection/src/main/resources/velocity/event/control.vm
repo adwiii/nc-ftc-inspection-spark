@@ -628,10 +628,27 @@ function postOld(src){
         console.log(textStatus);
     });
 }
-
+var enableTeamTimeoutID;
 function timeoutCommand(cmd){
 	var postObj = {};
-	$.post("../timeout/"+cmd+"/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+	$.post("../timeout/"+cmd+"/",postObj).done(
+	function(data){
+		//we successfully called timout (kinda, the server doesn't really know, but it _thinks_ we did, and that is good enough for us)
+		if (cmd == 'team') {
+			$("#teamTO").attr("disabled", "disabled");
+			$("#teamTO").html("Timeout called");
+			enableTeamTimeoutID = window.setTimeout(function() {
+				$("#teamTO").removeAttr("disabled");
+				$("#teamTO").html("Team Timeout");	
+			}, 3*60*1000);//set to re-enable in 3 minutes
+		} else if (cmd == 'end') {
+			// if we were in a team timeout then we need to make sure we re-enable it
+			$("#teamTO").removeAttr("disabled");
+			$("#teamTO").html("Team Timeout");
+			//cancel the timer if it exists
+			window.clearTimout(enableTeamTimeoutID);
+		}
+	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
 }

@@ -1500,12 +1500,20 @@ public class EventPages {
 					int blue1 = e.getRank(blue.getTeam1());
 					int blue2  = e.getRank(blue.getTeam2());;
 					
-					e.calculateRankings();
-					//if unranked, show as improvement.
-					d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
-					d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
-					d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
-					d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());;
+					try {
+						e.calculateRankings();
+						//if unranked, show as improvement.
+						d.red1Dif = red1 == -1 ? 1 : red1 - e.getRank(red.getTeam1());
+						d.red2Dif = red2 == -1 ? 1 : red2 - e.getRank(red.getTeam2());
+						d.blue1Dif = blue1 == -1 ? 1: blue1 - e.getRank(blue.getTeam1());
+						d.blue2Dif = blue2 == -1 ? 1:blue2 -e.getRank(blue.getTeam2());
+					} catch(Exception exc) {
+						//something went wrong calculating rankings, so we don't know how they changed
+						d.red1Dif = 0;
+						d.red2Dif = 0;
+						d.blue1Dif = 0;
+						d.blue2Dif = 0;
+					}
 				}
 				
 				e.loadNextMatch();
