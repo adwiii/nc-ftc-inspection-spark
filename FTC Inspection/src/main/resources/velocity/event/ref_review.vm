@@ -109,7 +109,7 @@
 		obj.relic2Zone = $('input[name=relic2]:checked').val();
 		obj.relic2Standing = document.getElementById('relic2Upright').checked;
 		obj.balanced = $('input[name=balanced]:checked').val();
-		
+		obj.jewels = parseInt(document.getElementById('jewel_count').textContent);
 		obj.glyphs = parseInt(document.getElementById('glyphs').textContent);
 		obj.rows = parseInt(document.getElementById('rows').textContent);
 		obj.columns = parseInt(document.getElementById('columns').textContent);

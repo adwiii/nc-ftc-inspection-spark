@@ -1890,6 +1890,7 @@ public class EventPages {
 		};
 
 		public static Route serveTeamInspectionHome = (Request request, Response response) ->{
+			try {
 			Map<String, Object> map = new HashMap<>();
 			String event = request.params("event");
 			//TODO time this method and see how long it takes. If its taking too long, make one DAO call that returns all this data 
@@ -1921,6 +1922,9 @@ public class EventPages {
 
 			map.put("headerColor", "#E6B222");
 			return render(request, map, Path.Template.INSPECT_TEAM_HOME);
+			}catch(Exception e) {
+				return noData(request, "Inspection");
+			}
 		};
 		
 		public static Route serveTeamInfo = (Request request, Response response) ->{
