@@ -23,7 +23,7 @@ public class GlobalDAO {
 	
 	private static final String MASTER_TEAM_LIST_SQL = "SELECT * FROM teamInfo";
 	private static final SQL NEW_TEAM_SQL = new SQL(1,"INSERT INTO teamInfo VALUES (?, ?, NULL)");
-	private static final SQL EDIT_TEAM_SQL = new SQL(2,"INSERT OR REPLACE INTO teamInfo VALUES (?,?, NULL)"); 
+	private static final SQL EDIT_TEAM_SQL = new SQL(2,"INSERT OR REPLACE INTO teamInfo VALUES (?,?,?)"); 
 	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
 	private static final String ADD_FEEDBACK_SQL = "INSERT INTO feedback VALUES (?, ?);";
 	private static final String GET_FEEDBACK_SQL = "SELECT * FROM feedback;";
@@ -97,11 +97,12 @@ public class GlobalDAO {
 		return false;
 	}
 	
-	public static boolean editTeamName(int number, String name){
+	public static boolean editTeamName(int number, String name, String location){
 		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
 			PreparedStatement ps = global.prepareStatement(EDIT_TEAM_SQL.sql);
 			ps.setInt(1,  number);
 			ps.setString(2,  name);
+			ps.setString(3,  location);
 			int affected = ps.executeUpdate();
 			updater.enqueue(new Update(null, Update.GLOBAL_DB_UPDATE, null, EDIT_TEAM_SQL.id, name, number));
 			return affected == 1;

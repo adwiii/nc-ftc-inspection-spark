@@ -27,6 +27,7 @@
   				var dataMap = JSON.parse(data);
   				var teamNum = dataMap.team;
   				teamMap[teamNum] = dataMap.name;
+  				locationMap[teamNum] = dataMap.location;
           		// https://paulund.co.uk/add-an-remove-options-in-select-using-jquery
           		var disp = "&nbsp;".repeat(5 - teamNum.length) + teamNum + ": " + dataMap.name;
           		$("#teamSelect").append('<option value="' + teamNum + '">' + disp + '</option>');
@@ -74,14 +75,15 @@
 	
 	function editTeamName() {
 				$.ajax({
-			url: "?team="+$("#teamSelect option:selected").val()+"&name="+$("#selectedTeamName").val(),
+			url: "?team="+$("#teamSelect option:selected").val()+"&name="+$("#selectedTeamName").val() + "&location=" + $("#selectedTeamLocation").val(),
   			type: "PUT",
   			data: {},
   			success: function(data){
   				document.getElementById("team").value = "";
-  				document.getElementById("msg").innerHTML = "Team name updated";
+  				document.getElementById("msg").innerHTML = "Team details updated";
   				var teamNum = $("#teamSelect option:selected").val();
   				teamMap[teamNum] = $("#selectedTeamName").val();
+  				location[teamNum] = $("#selectedTeamLocation").val();
   				var disp = "&nbsp;".repeat(5 - teamNum.length) + teamNum + ": " + $("#selectedTeamName").val();
   				$("#teamSelect option[value='" + teamNum + "']").html(disp);
   			},
@@ -97,15 +99,22 @@
 	"$team.number":"$team.name",
 	#end
 	};
+	var locationMap = {
+	#foreach($team in $teamList)
+	"$team.number":"$team.location",
+	#end
+	};
 			function populateFields() {
 ##			var radioValue = $("input[name='teamList']:checked").val();
 			var radioValue = $("#teamSelect option:selected").val();
             if(radioValue){
                 $("#selectedTeamNumber").html(radioValue);
                 $("#selectedTeamName").val(teamMap[radioValue]); 
+                $("#selectedTeamLocation").val(locationMap[radioValue]);
             } else {
             	$("#selectedTeamName").html('');
             	$("#selectedTeamNumber").val("");
+            	$("#selectedTeamLocation").val("");
             }
 		}
 	$(document).ready(function(){
@@ -156,7 +165,10 @@ Team Number:</td><td id="selectedTeamNumber"></td>
 <td style="padding-top:12px">Team Name:</td><td><input type="text" id="selectedTeamName"></input></td>
 </tr>
 <tr>
-<td colspan="2"><input type="button" onclick="editTeamName()" class="good notification" value="Edit Team Name"></td>
+<td style="padding-top:12px">Team Location:</td><td><input type="text" id="selectedTeamLocation"></input></td>
+</tr>
+<tr>
+<td colspan="2"><input type="button" onclick="editTeamName()" class="good notification" value="Edit Team Details"></td>
 </tr><tr>
 <td colspan="2"><input type="button" onclick="removeTeams()" class="bad notification" value="Remove Team from Event"></td>
 </tr>

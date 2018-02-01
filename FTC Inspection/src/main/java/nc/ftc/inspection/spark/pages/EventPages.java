@@ -2265,12 +2265,13 @@ public class EventPages {
 			EventData data = EventDAO.getEvent(code);
 			String team = request.queryParams("team");
 			String newName = request.queryParams("name");
+			String newLocation = request.queryParams("location");
 			if(data.getStatus() < 1) {
 				response.status(409);
 				return "Not yet in setup phase!";
 			}
 			try {
-				GlobalDAO.editTeamName(Integer.parseInt(team), newName);
+				GlobalDAO.editTeamName(Integer.parseInt(team), newName, newLocation);
 				
 				response.status(200);
 				return "OK";

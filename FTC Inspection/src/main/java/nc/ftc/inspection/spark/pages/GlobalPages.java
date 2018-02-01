@@ -29,18 +29,18 @@ public class GlobalPages {
 		return "";
 	};
 	
-	public static Route handleEditTeamPut = (Request request, Response response) -> {
-		String name = request.queryParams("name");
-		int number;
-		try{
-			number = Integer.parseInt(request.queryParams("number"));
-		}catch(NumberFormatException e){
-			response.status(400);
-			return "";
-		}
-		response.status(GlobalDAO.editTeamName(number, name) ? 201 : 500);
-		return "";
-	};
+//	public static Route handleEditTeamPut = (Request request, Response response) -> {
+//		String name = request.queryParams("name");
+//		int number;
+//		try{
+//			number = Integer.parseInt(request.queryParams("number"));
+//		}catch(NumberFormatException e){
+//			response.status(400);
+//			return "";
+//		}
+//		response.status(GlobalDAO.editTeamName(number, name) ? 201 : 500);
+//		return "";
+//	};
 
 	public static Route serveFeedbackForm =(Request request, Response response) -> {
 		return render(request, new HashMap<String, Object>(), Path.Template.FEEDBACK);
