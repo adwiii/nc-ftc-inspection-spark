@@ -162,6 +162,9 @@ public class Server {
 		before(Path.Web.INSPECT_HOME, Filters.getAuthenticationFilter(User.INSPECTOR));
 		get(Path.Web.INSPECT_HOME, EventPages.serveInspectionHome);
 		
+		before(Path.Web.INSPECT_ITEM, Filters.getAuthenticationFilter(User.INSPECTOR));
+		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
+		
 		//Team Inspection Pages
 		//before(Path.Web.INSPECT_TEAM_HOME, Filters.getAuthenticationFilter(User.TEAM));
 		get(Path.Web.INSPECT_TEAM_HOME, EventPages.serveTeamInspectionHome);
@@ -188,8 +191,7 @@ public class Server {
 		//Ref Pages
 		before(Path.Web.REF, Filters.getAuthenticationFilter(User.REF));
 		get(Path.Web.REF, EventPages.serveRef);
-		before(Path.Web.INSPECT_ITEM, Filters.getAuthenticationFilter(User.REF));
-		post(Path.Web.INSPECT_ITEM, EventPages.handleInspectionItemPost);
+		
 
 		//ADMIN Pages
 		before(Path.Web.EDIT_PERMISSIONS, Filters.getAuthenticationFilter(User.ADMIN));
