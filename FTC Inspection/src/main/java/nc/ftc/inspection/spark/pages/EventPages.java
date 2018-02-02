@@ -1480,7 +1480,8 @@ public class EventPages {
 					handleElimsUpdate(event, e.getCurrentMatch());	
 					Alliance red = match.getRed();
 					Alliance blue = match.getBlue();
-					MatchResult res = new MatchResult(match.getNumber(), red, blue, red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints(), match.getName());
+					System.out.println("");
+					MatchResult res = new MatchResult(match.getNumber(), red, blue,  red.getLastScore(),blue.getLastScore(), 1,blue.isAllianceRedCard() ? 0 : red.getPenaltyPoints(),  red.isAllianceRedCard() ? 0 : blue.getPenaltyPoints(), match.getName());
 					Display d = e.getDisplay();
 					d.lastResult = res;
 					//No change in rankings
@@ -1830,7 +1831,9 @@ public class EventPages {
 				e.fillCardCarry(m);
 			}
 			m.getScoreBreakdown();//force score calc
-			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, red.getPenaltyPoints(), blue.getPenaltyPoints(), m.getName()  );
+			int redPen = m.isElims() && blue.isAllianceRedCard() ? 0 : red.getPenaltyPoints();
+			int bluePen = m.isElims() && red.isAllianceRedCard() ? 0 : blue.getPenaltyPoints();
+			MatchResult mr = new MatchResult(m.getNumber(), red, blue,red.getLastScore(), blue.getLastScore(), 1, redPen, bluePen, m.getName()  );
 			
 			Display d = e.getDisplay();
 			//do not show change in rank for reposting old matches 

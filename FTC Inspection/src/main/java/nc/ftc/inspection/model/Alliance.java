@@ -189,6 +189,18 @@ public class Alliance {
 	public int getPenaltyPoints(){
 		return getMinorPenaltyPoints() + getMajorPenaltyPoints();
 	}
+	
+	/**
+	 * Only call this during Elims! If called during quals, this will throw an exception!
+	 * @return
+	 */
+	public boolean isAllianceRedCard() {
+		int card = Integer.parseInt(getScore("card1").toString());
+		if(card > 1 || (card == 1) && carriesCard()) {
+			return true;
+		} 
+		return false;
+	}
 
 	public int getMinorPenaltyPoints() {
 		return 10 * Integer.parseInt(scores.get("minor").toString());

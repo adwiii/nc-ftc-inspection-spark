@@ -696,12 +696,17 @@ public class EventDAO {
 			}
 			match.getScoreBreakdown();//Force score calc			
 			
+			
+
 			Alliance blue = match.getBlue();
 			Alliance red = match.getRed();
+			//ignore red pen if blue has red card, vice  versa
+			int redPen = elims && blue.isAllianceRedCard() ? 0 : red.getPenaltyPoints();
+			int bluePen = elims && red.isAllianceRedCard() ? 0 : blue.getPenaltyPoints();
 			ps.setInt(1, red.getLastScore() );
 			ps.setInt(2,  blue.getLastScore());
-			ps.setInt(3, red.getPenaltyPoints());
-			ps.setInt(4,  blue.getPenaltyPoints());
+			ps.setInt(3, redPen);
+			ps.setInt(4, bluePen );
 			ps.setInt(5,  match.getNumber());
 			affected = ps.executeUpdate();
 			/*

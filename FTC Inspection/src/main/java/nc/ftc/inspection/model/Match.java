@@ -205,6 +205,7 @@ public class Match {
 		String res =  String.join(",", getScoreBreakdownNoPenalty(a))+", \"foulPoints\":\"";
 		Alliance opp = (a == red ? blue : red);
 		res += opp.getPenaltyPoints() + "\"";
+		int pen = 0;
 		res += ",\"minorPoints\":\"" + opp.getMinorPenaltyPoints() + "\"";
 		res += ",\"majorPoints\":\"" + opp.getMajorPenaltyPoints() + "\"";
 		int score = (a.lastCalculatedScoreNoPenalties + opp.getPenaltyPoints());
@@ -213,7 +214,7 @@ public class Match {
 			if(card > 1 || (card == 1) && a.carriesCard()) {
 				score = Integer.parseInt(a.getScore("adjust").toString());
 				a.lastCalculatedScoreNoPenalties = score;
-			}
+			} 
 		}
 		res += ",\"score\":\"" + score + "\"";
 		return "{" + res + "}";
