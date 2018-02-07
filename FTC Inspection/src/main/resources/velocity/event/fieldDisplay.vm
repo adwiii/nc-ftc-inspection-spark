@@ -1,9 +1,21 @@
+#if($ad2)
+  			#set($cbSize = 100)
+  			#set($jSize = 42)
+  			#set($bSize = 35)
+  			#set($pSize = 40)
+  		#else
+  			#set($cbSize = 50)
+  			#set($jSize = 25)
+  			#set($pSize = 20)
+  			#set($bSize = 18)
+  		#end
+
 #macro (grid $alliance $size $index)
 	<div id="grid${alliance}" class="grid">
 		#if($ad2)
 			#set($top1 = 15)
-  			#set($top2 = 96)
-  			#set($top3 = 174)
+  			#set($top2 = 94)
+  			#set($top3 = 172)
   			#set($top4 = 250)
   			#set($left1 = 7)
   			#set($left2 = 90)
@@ -19,7 +31,7 @@
   		#end
   		<img id="background${alliance}${index}" class="gridBackground" src="/img/empty-grid-${alliance}${size}.png"alt="Cryptobox1"> 		
   		<img id="gridOverlay${alliance}${index}" class="gridOverlay" src="/img/grid_blank${size}.png" alt="grid">
-  		<img id="gridCipher_${alliance}_${index}" src="/img/bird-grid-blue${size}.png" visible="false" class="gridCipher" alt="cipher">	
+  		<img id="gridCipher_${alliance}_${index}" src="/img/froggy-grid-blue${size}.png" visible="false" class="gridCipher" alt="cipher">	
   		<img id="${alliance}_${index}_0_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:$left1; top:$top1;">
   		<img id="${alliance}_${index}_0_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
@@ -509,8 +521,13 @@
 	}
 	.gridCipher{
 		position:absolute;
+		#if($ad2)
+		top:1;
+		left:-2;
+		#else
 		top:0;
 		left:-1;
+		#end
 		z-index:3;
 	}
 	.gridCipher[visible="false"]{
@@ -791,17 +808,7 @@
   	
   	
   	<div id="scoreBar" >
-  		#if($ad2)
-  			#set($cbSize = 100)
-  			#set($jSize = 42)
-  			#set($bSize = 35)
-  			#set($pSize = 40)
-  		#else
-  			#set($cbSize = 50)
-  			#set($jSize = 25)
-  			#set($pSize = 20)
-  			#set($bSize = 18)
-  		#end
+  		
   		#if($ad2)
   		<div style="float:left; width: 750px;height:1000px;">
 	  	#end
@@ -1504,7 +1511,7 @@
                 }});
 	}
 	function initJewels(r){
-		var src = r < 4 ? "/img/ball-split-flip25.png": "/img/ball-split25.png";
+		var src = r < 4 ? "/img/ball-split-flip${jSize}.png": "/img/ball-split${jSize}.png";
 		blueJewel1.src = src;
 		blueJewel2.src = src;
 		redJewel1.src = src;
@@ -1550,16 +1557,30 @@
   				}
   			}});
   	}
+  	
+  	#if($ad2)
+  		function getJewelImage(val, flip){
+  		//empty
+  		if(val == 0) return "/img/ball_black${jSize}.png";
+  		//full
+  		if(val == 3) return "/img/ball-split" + (flip ? "-flip" : "") + "${jSize}.png";
+  		//left missing
+  		if(val == 1) return "/img/ball_" + (flip ? "blue" : "red") + "${jSize}.png";
+  		//right missing
+  		if(val == 2) return "/img/ball_" + (flip ? "red" : "blue") + "${jSize}.png";
+  	}
+  	#else
   	function getJewelImage(val, flip){
   		//empty
-  		if(val == 0) return "/img/ball-split_black25.png";
+  		if(val == 0) return "/img/ball-split_black${jSize}.png";
   		//full
-  		if(val == 3) return "/img/ball-split" + (flip ? "-flip" : "") + "25.png";
+  		if(val == 3) return "/img/ball-split" + (flip ? "-flip" : "") + "${jSize}.png";
   		//left missing
-  		if(val == 1) return "/img/ball-split" + (flip ? "-flip_blue" : "_red") + "25.png";
+  		if(val == 1) return "/img/ball-split" + (flip ? "-flip_blue" : "_red") + "${jSize}.png";
   		//right missing
-  		if(val == 2) return "/img/ball-split" + (flip ? "-flip_red" : "_blue") + "25.png";
+  		if(val == 2) return "/img/ball-split" + (flip ? "-flip_red" : "_blue") + "${jSize}.png";
   	}
+  	#end
   	
   	function setCryptobox(alliance, index, val){
   		for(var r = 0; r < 4; r++){
@@ -1567,7 +1588,7 @@
 				var cell = document.getElementById(alliance+"_"+index+"_"+r+"_"+c);
 				var enc = (val >> ((6 * r) + (2*c))) & 3;
 				cell.setAttribute("visible", enc == 0 ? "false" : "true");
-				cell.src = enc == 1 ? "/img/brown-square50.png" : "/img/grey-square50.png";
+				cell.src = enc == 1 ? "/img/brown-square${cbSize}.png" : "/img/grey-square${cbSize}.png";
 			}
 		} 
 		var ciph = ""; 	
@@ -1581,22 +1602,22 @@
 		var cipher = document.getElementById("gridCipher_"+alliance+"_"+index);
 		cipher.setAttribute("visible", ciph == "" ? "false" : "true");
 		if(ciph != ""){
-			cipher.src = "/img/"+ciph+"-grid-"+alliance+"50.png"
+			cipher.src = "/img/"+ciph+"-grid-"+alliance+"${cbSize}.png"
 		}
   	}
   	
   	function updateScores(obj){
   		var flip = rand < 4;  	
   	
-  		blueParking1.src = obj.blue.parkingPoints > 0 ? "/img/parking_blue20.png" : "/img/parking_black20.png" ;
-  		blueParking2.src = obj.blue.parkingPoints == 20 ? "/img/parking_blue20.png" : "/img/parking_black20.png" ;
-  		redParking1.src = obj.red.parkingPoints > 0 ? "/img/parking_red20.png" : "/img/parking_black20.png" ;
-  		redParking2.src = obj.red.parkingPoints == 20 ? "/img/parking_red20.png" : "/img/parking_black20.png" ;
+  		blueParking1.src = obj.blue.parkingPoints > 0 ? "/img/parking_blue${pSize}.png" : "/img/parking_black${pSize}.png" ;
+  		blueParking2.src = obj.blue.parkingPoints == 20 ? "/img/parking_blue${pSize}.png" : "/img/parking_black${pSize}.png" ;
+  		redParking1.src = obj.red.parkingPoints > 0 ? "/img/parking_red${pSize}.png" : "/img/parking_black${pSize}.png" ;
+  		redParking2.src = obj.red.parkingPoints == 20 ? "/img/parking_red${pSize}.png" : "/img/parking_black${pSize}.png" ;
   		
-  		redBalance1.src = obj.red.balancePoints > 0 ? "/img/tt_red18.png" : "/img/tt_black18.png";
-  		redBalance2.src = obj.red.balancePoints > 20 ? "/img/tt_red18.png" : "/img/tt_black18.png";
-  		blueBalance1.src = obj.blue.balancePoints > 0 ? "/img/tt_blue18.png" : "/img/tt_black18.png";
-  		blueBalance2.src = obj.blue.balancePoints > 20 ? "/img/tt_blue18.png" : "/img/tt_black18.png";
+  		redBalance1.src = obj.red.balancePoints > 0 ? "/img/tt_red${bSize}.png" : "/img/tt_black${bSize}.png";
+  		redBalance2.src = obj.red.balancePoints > 20 ? "/img/tt_red${bSize}.png" : "/img/tt_black${bSize}.png";
+  		blueBalance1.src = obj.blue.balancePoints > 0 ? "/img/tt_blue${bSize}.png" : "/img/tt_black${bSize}.png";
+  		blueBalance2.src = obj.blue.balancePoints > 20 ? "/img/tt_blue${bSize}.png" : "/img/tt_black${bSize}.png";
   		
   		blueJewel1.src = getJewelImage(obj.blue.jewelSet1, flip);
   		blueJewel2.src = getJewelImage(obj.blue.jewelSet2, flip);
