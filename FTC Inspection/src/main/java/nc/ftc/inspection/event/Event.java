@@ -31,6 +31,8 @@ public class Event {
 	public Cache<List<MatchResult>> resultsCache = new Cache<>();
 	public Cache<List<Rank>> rankingsCache = new Cache<>();
 	public Cache<List<Match>> scheduleCache = new Cache<>(60000 * 60);//hour
+	public Cache<Map<Integer, Team>> teamNameCache = new Cache<>(60000 * 10);
+	
 	
 	//Monitors for messaging and long polls
 	public Object waitForRefLock = new Object();

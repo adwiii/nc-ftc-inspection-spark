@@ -1,55 +1,73 @@
 #macro (grid $alliance $size $index)
 	<div id="grid${alliance}" class="grid">
-  		<img id="background${alliance}${index}" class="gridBackground" src="/img/empty-grid-${alliance}50.png" alt="Cryptobox1"> 		
-  		<img id="gridOverlay${alliance}${index}" class="gridOverlay" src="/img/grid_blank50.png" alt="grid">
-  		<img id="gridCipher_${alliance}_${index}" src="/img/bird-grid-blue50.png" visible="false" class="gridCipher" alt="cipher">	
-  		<img id="${alliance}_${index}_0_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="background${alliance}${index}" class="gridBackground" src="/img/empty-grid-${alliance}${size}.png"alt="Cryptobox1"> 		
+  		<img id="gridOverlay${alliance}${index}" class="gridOverlay" src="/img/grid_blank${size}.png" alt="grid">
+  		<img id="gridCipher_${alliance}_${index}" src="/img/bird-grid-blue${size}.png" visible="false" class="gridCipher" alt="cipher">	
+  		<img id="${alliance}_${index}_0_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:5; top:8;">
-  		<img id="${alliance}_${index}_0_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_0_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
   		style="position:absolute;left:45; top:8;">
-  		<img id="${alliance}_${index}_0_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_0_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:85; top:8;">
-  		<img id="${alliance}_${index}_1_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_1_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:5; top:46;">
-  		<img id="${alliance}_${index}_1_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_1_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
   		style="position:absolute;left:45; top:46;">
-  		<img id="${alliance}_${index}_1_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_1_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:85; top:46;">
-  		<img id="${alliance}_${index}_2_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_2_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:5; top:86;">
-  		<img id="${alliance}_${index}_2_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_2_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
   		style="position:absolute;left:45; top:86;">
-  		<img id="${alliance}_${index}_2_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_2_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:85; top:86;">
-  		<img id="${alliance}_${index}_3_0" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_3_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:5; top:124;">
-  		<img id="${alliance}_${index}_3_1" visible="false" class="cell" src="/img/brown-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_3_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
   		style="position:absolute;left:45; top:124;">
-  		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square50.png" alt="brown" 
+  		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:85; top:124;">
   	</div>
 #end
 #macro (parking $alliance $size)
 	<div id="parking$alliance" class="parking">
+  			#if($ad2)<div style="float:left; width:200;">#end
   			<img id="parking${alliance}1" src="/img/parking_black${size}.png" alt="Parking">
+  			#if($ad2)
+  			</div>
+  			<div style=" float:left;position:relative;width:480px;"></div>
+  			#else
   			<br>
+  			#end
   			<img id="parking${alliance}2" src="/img/parking_black${size}.png" alt="Parking">
   		</div>
 #end
 #macro (ball $alliance $size)
 	<div id="ball$alliance" class="ball">
+			#if($ad2)<div style="float:left;width:420;">#end
   			<img id="jewel${alliance}1" src="/img/ball-split${size}.png" alt="Balance Stone" >
+  			#if($ad2)
+  			</div>
+  			<div style="float:left; position:relative; width:480px;heigh:100px;"></div>
+  			#else
   			<br>
+  			#end
+  			
   			<img id="jewel${alliance}2" src="/img/ball-split${size}.png" alt="Balance Stone" >
+  			
   		</div>
 #end
 #macro (balance $alliance $size)
 	<div id="balance$alliance" class="balance">
 	<br>
   			<img id="balance${alliance}1" src="/img/tt_black${size}.png" alt="Balance Stone">
+  			#if($ad2)
+  			#else
+  			
   			<br>
   			<br>
   			<br>
+  			#end
   			<img id="balance${alliance}2" src="/img/tt_black${size}.png" alt="Balance Stone">
   		</div>
  #end
@@ -403,8 +421,13 @@
 		position:absolute;
 		height:180px;
 		width: 1920px;
-		left:0px;
-		top:900px;
+		#if($ad2)
+			left:130px;
+			top:180px;
+		#else
+			left:0px;
+			top:900px;
+		#end
 	}
 	#scoreBar[visible="false"]{
 		display:none;
@@ -431,12 +454,23 @@
 		left: 960px;
 		float:right;
 	}
+	.relics{
+		height:340px;
+		width:150px;
+		float:left;
+	}
 	.grid{
 		position:relative;
-		height:180px;
-		width: 140px;
-		top:7px;
-		left:10;
+		#if($ad2)
+			height:340px;
+			width: 260px;
+			left:50px;
+		#else
+			height:180px;
+			width: 140px;
+			top:7px;
+			left:10;
+		#end
 	}
 	.gridOverlay{
 		position:absolute;
@@ -464,13 +498,25 @@
 		float:left;
 	}
 	#gridRed{
+	#if($ad2)
+	float:left;
+	#else
 		float:right;
+		#end
 	}
 	.parking{
+		#if($ad2)
+			position:absolute;
+			top: 340;
+			left:-30;
+			width:848;
+			
+		#else
 		position:relative;
 		height:180px;
 		width: 100px;
-		top:4px;	
+		top:4px;
+		#end	
 	}
 	#parkingBlue{	
 		float:left;	
@@ -479,10 +525,17 @@
 		float:right;
 	}
 	.balance{
-		position:relative;
-		height:180px;
-		width: 220px;
-		top:5px;
+		#if($ad2)
+			position:absolute;
+			top:480;
+			left:-40;
+			width:844;
+		#else
+			position:relative;
+			height:180px;
+			width: 220px;
+			top:5px;
+		#end	
 	}
 	#balanceBlue{
 		float:left;
@@ -491,12 +544,21 @@
 		float: right;
 	}
 	.ball{
-		position:relative;
-		height:180px;
-		width: 100px;
-		top:5px;
-		left:10px;
-		align:center;
+		#if($ad2)
+			position:absolute;
+			height:180px;
+			text-align:left;
+			top:340;
+			left:180;
+			width:800;
+		#else
+			position:relative;
+			height:180px;
+			width: 100px;
+			top:5px;
+			left:10px;
+			align:center;
+		#end
 	}
 	#ballBlue{
 		float:left;
@@ -625,7 +687,7 @@
   	<div id="top">
   		Match 1
   	</div>
-  	<div id="timer" >
+  	<div id="timer" visible="false">
 	  	<img class="timerImage" id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
@@ -704,17 +766,45 @@
   	
   	
   	<div id="scoreBar" >
-  		#grid("blue" "50" "1")
-  		#grid("blue" "50" "2")
-  		#ball("blue" "25")
-  		#parking("blue" "20")
-  		#balance("blue" "18")
-  		  		
-  		#grid("red" "50" "2")
-  		#grid("red" "50" "1")
-  		#ball("red" "25") 	
-  		#parking("red" "20")
-  		#balance("red" "18")   		
+  		#if($ad2)
+  			#set($cbSize = 100)
+  			#set($jSize = 42)
+  			#set($bSize = 35)
+  			#set($pSize = 40)
+  		#else
+  			#set($cbSize = 50)
+  			#set($jSize = 25)
+  			#set($pSize = 20)
+  			#set($bSize = 18)
+  		#end
+  		#if($ad2)
+  		<div style="float:left; width: 750px;height:1000px;">
+	  	#end
+	  		#grid("blue" $cbSize "1")
+	  		#if($ad2)
+	  		<div class="relics"></div>
+	  		#end
+	  		#grid("blue" $cbSize "2")
+	  		#ball("blue" $jSize)
+	  		#parking("blue" $pSize)
+	  		#balance("blue" $bSize)	
+	  	#if($ad2)  		  		
+  			</div>
+  			<div style="float:left; position:relative;left:150;width:750px;">  		
+  		#end
+  		#grid("red" $cbSize "2")
+  		#if($ad2)
+  		<div class="relics"></div>
+  		#end
+  		#grid("red" $cbSize "1")
+  		#ball("red" $jSize) 	
+  		#parking("red" $pSize)
+  		#balance("red" $bSize)   		
+  		
+  		#if($ad2)
+  		
+  		</div>
+  		#end
   			
   	</div>
   	
@@ -1213,7 +1303,7 @@
 				statImg.src = "/img/alliancebar92.png";
 	
 			} else {
-				stat.innerHTML = (data.redWins > data.blueWins ? "RED" : "BLUE") + " leads series "+ data.redWins + " - "+data.blueWins;
+				stat.innerHTML = (data.redWins > data.blueWins ? "RED" : "BLUE") + " leads series";
 				statImg.src = "/img/alliance"+(data.redWins > data.blueWins ? "red" : "blue") + "92.png";
 				
 				stat.setAttribute("tie","false");

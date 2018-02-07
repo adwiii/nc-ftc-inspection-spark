@@ -1718,6 +1718,35 @@ public class EventPages {
 			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
+		public static Route serveResultsNamePage = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				return noData(request, "Match");
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<MatchResult> results = e.resultsCache.get();
+			if (results == null) {
+				results = EventDAO.getMatchResults(event);
+				e.resultsCache.set(results);
+			}
+			map.put("matches", results);
+			map.put("event", event); //TODO get event name from DB
+			map.put("eventName", e.getData().getName());
+			Map<Integer,Team> teams;
+			if((teams = e.teamNameCache.get()) == null) {
+				List<Team> list = EventDAO.getTeams(event);
+				teams = new HashMap<>();
+				for(Team t : list) {
+					teams.put(t.getNumber(), t);
+				}
+				e.teamNameCache.set(teams);
+			}
+			map.put("teams", teams);
+			return render(request, map, Path.Template.MATCH_RESULT_NAME);
+		};
+		
+		
 		public static Route serveTeamResultsPage = (Request request, Response response) ->{
 			String event = request.params("event");
 			String team = request.params("team");
@@ -1971,8 +2000,10 @@ public class EventPages {
 			String is43Str = request.queryParams("43");
 			String fieldStr = request.queryParams("field");
 			String muteStr = request.queryParams("mute");
+			String ad2Str = request.queryParams("ad2");
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
+			map.put("ad2", ad2Str == null ? false : Boolean.parseBoolean(ad2Str));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
 			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
@@ -2793,5 +2824,6 @@ public class EventPages {
 			map.put("num", num);
 			return render(request, map, Path.Template.QUEUE_DISPLAY);
 		};
+
 		
 }
