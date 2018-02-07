@@ -10,6 +10,7 @@
 	var blue = '/img/ball_blue.png'; 
 	var noBall = '/img/ball_black.png';
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
+	var keylocNum = -1;
 	$( document ).ready(function() {
 		if (rand < 4) {
 			document.getElementById("j_1,1").src = ($jewelSet1 & 2) ? red : noBall;
@@ -25,13 +26,49 @@
 		var keyloc = '';
 		switch (rand % 3) {
 		case 0: keyloc = 'Right';
+			keylocNum = 0;
 			break;
 		case 1: keyloc = 'Left';
+			keylocNum = 1;
 			break;
 		case 2: keyloc = 'Center';
+			keylocNum = 2;
 			break;
 		}
-		document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
+		
+		document.getElementById("cb_1,0,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_1,1,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_1,2,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_1,3,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_2,0,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_2,1,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_2,2,"+keylocNum).style.borderWidth = "thick";
+		document.getElementById("cb_2,3,"+keylocNum).style.borderWidth = "thick";
+		
+		
+		//document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
+		//init cryptobox
+		initCryptobox(1, $cryptobox1);
+		initCryptobox(2, $cryptobox2);
+		
+		var keyCopy = keys;
+		var r = 3;
+		var cb = 1;
+		var slot;
+		var bg;
+		while (keyCopy > 0) {
+			slot = document.getElementById("cb_"+cb+","+r+","+keylocNum);
+			bg = slot.getAttribute("bgcolor");
+			if (bg != "#FFFFFF") {
+				slot.style.borderColor = "#FFD700";
+				keyCopy--;
+			}
+			cb++;
+			if (cb == 3) {
+				cb = 1;
+				r--;
+			}
+		}
 	});
 	function radioParked(value){
 		parked = value;
@@ -122,18 +159,179 @@
 	                }
                 }});
 	}
+	
+	//COPIED CRYPTOBOX CODE HERE
+		function initCryptobox(cb, val){
+		//console.log(val.toString(2));
+		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				var cell = document.getElementById("cb_"+cb+","+r+","+c);
+				var enc = (val >> ((6 * r) + (2*c))) & 3;
+				cell.setAttribute("bgcolor", enc == 0 ? "#FFFFFF" : (enc == 1 ? "#565C05" : "#D6D6CB"));
+			}
+		}
+	
+	}	
+	
+	function getCell(bg){
+		if(bg == "#FFFFFF")return 0;
+		if(bg == "#565C05")return 1;
+		if(bg == "#D6D6CB")return 2;
+	}
+	function getCryptoboxData(cb){
+		var data = 0;
+		for(var r = 0; r < 4; r++){
+			for(var c = 0; c < 3; c++){
+				data += getCell(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor")) << ((r * 6) + (2 * c));
+			}
+		}
+		return data;
+	}
+	//taken from https://stackoverflow.com/questions/1740700/how-to-get-hex-color-value-rather-than-rgb-value
+var hexDigits = new Array
+        ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"); 
+
+//Function to convert rgb color to hex format
+function rgb2hex(rgb) {
+ rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+ if (rgb == null) {
+ 	return "";
+ }	
+ return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
+
+function hex(x) {
+  return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+ }
+	function toggle(cb,r,c){
+		var slot = document.getElementById("cb_"+cb+","+r+","+c);
+		bg = slot.getAttribute("bgcolor");
+		border = rgb2hex(slot.style.borderColor);
+		if (border == "") {
+			border = "#000000";
+		}
+		if(bg == "#FFFFFF" && border == "#000000"){//white to brown
+			slot.setAttribute("bgcolor","#565C05");
+			slot.style.borderColor = "#000000";
+		} else if(bg == "#565C05" && border == "#000000"){//brown to gray
+			slot.setAttribute("bgcolor","#D6D6CB");
+			slot.style.borderColor = "#000000";
+		} else if (bg == "#D6D6CB" && border == "#000000" && keylocNum == c) {//gray to brown key
+			slot.setAttribute("bgcolor","#565C05");
+			slot.style.borderColor = "#FFD700";
+			keys++;
+			scoreUpdate({cryptoboxKeys:keys});
+		} else if (bg == "#565C05" && border == "#FFD700" && keylocNum == c) {//brown key to gray key
+			slot.setAttribute("bgcolor","#D6D6CB");
+			slot.style.borderColor = "#FFD700";
+		} else {//gray key to white
+			slot.setAttribute("bgcolor","#FFFFFF");
+			slot.style.borderColor = "#000000";
+			keys--;
+			scoreUpdate({cryptoboxKeys:keys});
+		}
+		var cbVal = getCryptoboxData(cb);
+		//TODO Send update
+		if(cbVal == 6710886 || ((~cbVal) & 0xFFFFFF) == 6710886){
+			document.getElementById("cb" + cb + "L").innerHTML = "Frog";
+		} else if(cbVal == 6908265 || ((~cbVal) & 0xFFFFFF) == 6908265){
+			document.getElementById("cb" + cb + "L").innerHTML = "Snake";
+		} else if(cbVal == 10065510 || ((~cbVal) & 0xFFFFFF) == 10065510){
+			document.getElementById("cb" + cb + "L").innerHTML = "Bird";
+		}
+		else{
+			document.getElementById("cb" + cb + "L").innerHTML = "";
+		}
+		var obj={};
+		obj["cryptobox"+cb] = cbVal;
+		scoreUpdate(obj);
+	}
 </script>
+<style>
+.fifty {
+	width:50%;
+}
+.glyph {
+	border-color: #000000;
+	border-style: solid;
+	border-collapse: separate;
+	border-spacing: 0px;	
+}
+</style>
 <p class="${alliance}Alliance banner">Autonomous</p>
 <table>
-<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
-<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
-	<td class="right nowrap absorbing-column">
-	<table style="width:100%"><tr>
-		<td class="nowrap" style="width:33%"><label for="gk1">0</label><input id="gk1" type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/></td>
-		<td class="nowrap" style="width:33%"><label for="gk2">1</label><input id="gk2" type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/></td>
-		<td class="nowrap" style="width:33%"><label for="gk3">2</label><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/></td>
-	</tr></table>
-	</td></tr>
+<tr><td class="left fifty"> <!-- Begin CB1 -->
+	<table class="glyph" border=1 cellpadding=0 cellspacing=1 id="cb1">
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(1,0,0)" id="cb_1,0,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,0,1)" id="cb_1,0,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,0,2)" id="cb_1,0,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(1,1,0)" id="cb_1,1,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,1,1)" id="cb_1,1,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,1,2)" id="cb_1,1,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(1,2,0)" id="cb_1,2,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,2,1)" id="cb_1,2,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,2,2)" id="cb_1,2,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(1,3,0)" id="cb_1,3,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,3,1)" id="cb_1,3,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(1,3,2)" id="cb_1,3,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td style="border:none;text-align:center">L</td>
+			<td style="border:none;text-align:center">C</td>
+			<td style="border:none;text-align:center">R</td>
+		</tr>
+	</table>
+	<div id="cb1L"></div>
+</td> <!-- End CB1 -->
+<td class="right fifty"> <!-- Begin CB2 -->
+<table class="glyph"  border=1 cellpadding=0 cellspacing=1 id="cb2">
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(2,0,0)" id="cb_2,0,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,0,1)" id="cb_2,0,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,0,2)" id="cb_2,0,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(2,1,0)" id="cb_2,1,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,1,1)" id="cb_2,1,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,1,2)" id="cb_2,1,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(2,2,0)" id="cb_2,2,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,2,1)" id="cb_2,2,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,2,2)" id="cb_2,2,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr class="glyph">
+			<td class="glyph" onclick="toggle(2,3,0)" id="cb_2,3,0" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,3,1)" id="cb_2,3,1" bgcolor="#FFFFFF">&ensp;</td>
+			<td class="glyph" onclick="toggle(2,3,2)" id="cb_2,3,2" bgcolor="#FFFFFF">&ensp;</td>
+		</tr>
+		<tr>
+			<td style="border:none;text-align:center">L</td>
+			<td style="border:none;text-align:center">C</td>
+			<td style="border:none;text-align:center">R</td>
+		</tr>
+	</table>
+	<div id="cb2L"></div>
+</td> <!-- End CB2 -->
+</tr>
+<tr><td colspan=2>NOTE: The column for the key is as viewed from INSIDE the field. If you are facing the audience, then the cryptobox in front of you is reversed from your perspective.</td></tr>
+##<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
+##<tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
+##	<td class="right nowrap absorbing-column">
+##	<table style="width:100%"><tr>
+##		<td class="nowrap" style="width:33%"><label for="gk1">0</label><input id="gk1" type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/></td>
+##		<td class="nowrap" style="width:33%"><label for="gk2">1</label><input id="gk2" type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/></td>
+##		<td class="nowrap" style="width:33%"><label for="gk3">2</label><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/></td>
+##	</tr></table>
+##	</td></tr>
+
 <tr>
 <td class ="left">Jewel Set 1:</td>
 <td>

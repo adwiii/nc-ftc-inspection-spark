@@ -142,6 +142,7 @@ public class EventPages {
 	
 	private static String inspectionPage(Request request, Response response, boolean readOnly) {
 		Map<String, Object> model = new HashMap<>();
+		boolean plain = request.pathInfo().endsWith("plain/");
 		String eventCode = request.params("event");
 		String formID = request.params("form").toUpperCase();
 		String team = request.queryParams("team");
@@ -180,7 +181,11 @@ public class EventPages {
 		model.put("notes", notes);
 		model.put("sigs", sigs);
 		model.put("headerColor", "#F57E25");
-		return render(request, model, Path.Template.INSPECT);
+		if (plain) {
+			return render(request, model, Path.Template.INSPECT_PLAIN);
+		} else {
+			return render(request, model, Path.Template.INSPECT);
+		}
 	}
 	
 	public static Route serveInspectionPage = (Request request, Response response) ->{
@@ -2485,7 +2490,8 @@ public class EventPages {
 		 */
 		public static Route handleGetFullScoresheet = (Request request, Response response) -> {
 			Map<String, Object> map = new HashMap<String, Object>();
-			String event = request.params("event");
+			String event = request.params("event");			
+			boolean plain = request.pathInfo().endsWith("plain/");
 			Event e = Server.activeEvents.get(event);
 			if(e == null) {
 				return DefaultPages.notFound.handle(request, response);
@@ -2528,7 +2534,11 @@ public class EventPages {
 			map.put("blueZone3", ((blueRelic1Zone == 3) ? 1 : 0) + ((blueRelic2Zone == 3) ? 1 : 0));
 			map.put("blueStanding", (blueRelic1Standing && blueRelic2Standing) ? 2 : (blueRelic1Standing || blueRelic2Standing) ? 1 : 0);
 			map.put("blueScores", match.getBlue().getRawScores());
-			return render(request, map, Path.Template.FULL_SCORESHEET);
+			if (plain) {
+				return render(request, map, Path.Template.FULL_SCORESHEET_PLAIN);
+			} else {
+				return render(request, map, Path.Template.FULL_SCORESHEET);
+			}
 		};
 		
 		public static Route handleGetAllianceBreakdown = (Request request, Response response) -> {
