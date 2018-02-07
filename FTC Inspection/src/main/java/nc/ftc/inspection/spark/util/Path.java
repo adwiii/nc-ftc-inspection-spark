@@ -37,6 +37,7 @@ public class Path {
         public static final String INSPECT_OVERRIDE = "/event/:event/inspect/:form/override/";
         public static final String INSPECT_TEAM_HOME = "/event/:event/inspect/team/:team/";
         public static final String INSPECT_TEAM_FORM = "/event/:event/inspect/team/:team/:form/";
+        public static final String INSPECT_TEAM_FORM_PLAIN = "/event/:event/inspect/team/:team/:form/plain/";
         public static final String TEAM_INFO = "/event/:event/teams/info/";
         public static final String TEAM_MATCH_INFO = "/event/:event/teams/info/:team/matches/";
         
@@ -86,6 +87,7 @@ public class Path {
         public static final String GET_POST_RESULTS_INFO = "/event/:event/display/resultdata/";
         public static final String GET_SELECTION_INFO = "/event/:event/display/selectiondata/";
         public static final String GET_FULL_SCORESHEET = "/event/:event/match/:match/scoresheet/";
+        public static final String GET_FULL_SCORESHEET_PLAIN = "/event/:event/match/:match/scoresheet/plain/";
         public static final String GET_ALLIANCE_BREAKDOWN = "/event/:event/match/:match/scoresheet/:alliance/";
         public static final String PIT_DISPLAY = "/event/:event/pit/";
         
@@ -172,6 +174,7 @@ public class Path {
         public static final String EDIT_FORM = "/velocity/event/editForm.vm";//just renders form for now
         public static final String INSPECT_HOME = "/velocity/event/inspect_index.vm";
         public static final String INSPECT = "/velocity/event/inspect.vm";
+        public static final String INSPECT_PLAIN = "/velocity/event/inspectPlain.vm";
         public static final String STATUS_PAGE = "/velocity/event/status.vm";
         public static final String STATUS_PAGE_PROJECTOR = "/velocity/event/statusProjector.vm";
         public static final String PIT_DISPLAY = "/velocity/event/pit.vm";
@@ -204,6 +207,7 @@ public class Path {
 		public static final String EVENT_HOME= "/velocity/event/eventHome.vm";
         public static final String EDIT_PERMISSIONS = "/velocity/users/managePermissions.vm";
         public static final String FULL_SCORESHEET = "/velocity/event/readOnlyScore.vm";
+        public static final String FULL_SCORESHEET_PLAIN = "/velocity/event/readOnlyScorePlain.vm";
         public static final String ALLIANCE_BREAKDOWN = "/velocity/event/readOnlyBreakdown.vm";
         public static final String CLIENT_KEYS = "/velocity/keys.vm";
         public static final String REMOTE_KEYS = "/velocity/remotes.vm";

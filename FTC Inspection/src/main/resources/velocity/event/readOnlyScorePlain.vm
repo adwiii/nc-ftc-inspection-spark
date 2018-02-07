@@ -1,7 +1,16 @@
-#parse("/velocity/layout.vm")
-#@mainLayout()
 <!-- Red is:#EE1C29, Blue is 0268B3, Dark Gray is 6E6D72, light gray is E8E8E8 -->
 <!-- empty box is &#x25A1; checked box is &#x2713; -->
+<html>
+<head>
+    <title>FTC Live</title>
+    <link rel="stylesheet" href="/main.css">
+    <link rel="icon" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+  	<link rel="stylesheet" href="/js/jquery-ui.css">
+	<script src="/js/jquery-1.12.4.js"></script>
+  	<script src="/js/jquery-ui.js"></script>
+  	<script src="/js/general.js"></script>
 <style>
 .scoresheet td {
 	width: 25%;
@@ -55,25 +64,9 @@ small {
 	color: #292929;
 }
 </style>
-<script>
-	$( document ).ready(function() {
-       $("td#redHeader").bind("click",function() {
-      		location = "./red";
-   		});
-   		$("td#blueHeader").bind("click",function() {
-      		location = "./blue";
-   		});
-	});
-</script>
-<a href="../../../results"><< To Results Page</a>
+</head>
+<body style="background:white;max-width:800px">
 <table>
-#if($redScore > $blueScore) 
-<tr><td colspan="2" class="center" style="font-size:200%"><b>$redScore</b> - $blueScore</td></tr>
-#elseif($redScore < $blueScore)
-<tr><td colspan="2" class="center" style="font-size:200%">$redScore - <b>$blueScore</b></td></tr>
-#else
-<tr><td colspan="2" class="center" style="font-size:200%">$redScore - $blueScore</td></tr>
-#end
 <tr>
 <td style="width:50%;">
 <table class="scoresheet">
@@ -127,4 +120,5 @@ small {
 </table>
 </td></tr>
 </table>
-#end
+</body>
+</html>

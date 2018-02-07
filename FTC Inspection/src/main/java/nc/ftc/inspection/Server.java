@@ -132,6 +132,7 @@ public class Server {
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
 		get(Path.Web.WAIT_FOR_MATCH_END, EventPages.handleWaitForEnd);
 		get(Path.Web.GET_FULL_SCORESHEET, EventPages.handleGetFullScoresheet);
+		get(Path.Web.GET_FULL_SCORESHEET_PLAIN, EventPages.handleGetFullScoresheet);
 		get(Path.Web.GET_ALLIANCE_BREAKDOWN, EventPages.handleGetAllianceBreakdown);
 
 		//THESE ARE GENERAL USERS BUT NO ONE SHOULD EVER SEE THEM DIRECTLY BC THEY ARE REST
@@ -171,6 +172,7 @@ public class Server {
 		
 		//before(Path.Web.INSPECT_TEAM_FORM, Filters.getAuthenticationFilter(User.TEAM));
 		get(Path.Web.INSPECT_TEAM_FORM, EventPages.serveInspectionPageReadOnly);
+		get(Path.Web.INSPECT_TEAM_FORM_PLAIN, EventPages.serveInspectionPageReadOnly);
 		
 		//TODO we need to talk about the permissions here
 		get(Path.Web.TEAM_INFO, EventPages.serveTeamInfo);
