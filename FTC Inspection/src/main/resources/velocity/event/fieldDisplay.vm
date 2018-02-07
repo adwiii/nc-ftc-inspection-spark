@@ -1,32 +1,49 @@
 #macro (grid $alliance $size $index)
 	<div id="grid${alliance}" class="grid">
+		#if($ad2)
+			#set($top1 = 15)
+  			#set($top2 = 96)
+  			#set($top3 = 174)
+  			#set($top4 = 250)
+  			#set($left1 = 7)
+  			#set($left2 = 90)
+  			#set($left3 = 165)
+  		#else
+  			#set($top1 = 8)
+  			#set($top2 = 46)
+  			#set($top3 = 86)
+  			#set($top4 = 124)
+  			#set($left1 = 5)
+  			#set($left2 = 45)
+  			#set($left3 = 85)
+  		#end
   		<img id="background${alliance}${index}" class="gridBackground" src="/img/empty-grid-${alliance}${size}.png"alt="Cryptobox1"> 		
   		<img id="gridOverlay${alliance}${index}" class="gridOverlay" src="/img/grid_blank${size}.png" alt="grid">
   		<img id="gridCipher_${alliance}_${index}" src="/img/bird-grid-blue${size}.png" visible="false" class="gridCipher" alt="cipher">	
   		<img id="${alliance}_${index}_0_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:5; top:8;">
+  		style="position:absolute;left:$left1; top:$top1;">
   		<img id="${alliance}_${index}_0_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
-  		style="position:absolute;left:45; top:8;">
+  		style="position:absolute;left:$left2; top:$top1;">
   		<img id="${alliance}_${index}_0_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:85; top:8;">
+  		style="position:absolute;left:$left3; top:$top1;">
   		<img id="${alliance}_${index}_1_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:5; top:46;">
+  		style="position:absolute;left:$left1; top:$top2;">
   		<img id="${alliance}_${index}_1_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
-  		style="position:absolute;left:45; top:46;">
+  		style="position:absolute;left:$left2; top:$top2;">
   		<img id="${alliance}_${index}_1_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:85; top:46;">
+  		style="position:absolute;left:$left3; top:$top2;">
   		<img id="${alliance}_${index}_2_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:5; top:86;">
+  		style="position:absolute;left:$left1; top:$top3;">
   		<img id="${alliance}_${index}_2_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
-  		style="position:absolute;left:45; top:86;">
+  		style="position:absolute;left:$left2; top:$top3;">
   		<img id="${alliance}_${index}_2_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:85; top:86;">
+  		style="position:absolute;left:$left3; top:$top3;">
   		<img id="${alliance}_${index}_3_0" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:5; top:124;">
+  		style="position:absolute;left:$left1; top:$top4;">
   		<img id="${alliance}_${index}_3_1" visible="false" class="cell" src="/img/brown-square${size}.png" alt="brown" 
-  		style="position:absolute;left:45; top:124;">
+  		style="position:absolute;left:$left2; top:$top4;">
   		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
-  		style="position:absolute;left:85; top:124;">
+  		style="position:absolute;left:$left3; top:$top4;">
   	</div>
 #end
 #macro (parking $alliance $size)
@@ -473,10 +490,18 @@
 		#end
 	}
 	.gridOverlay{
+		
+		#if($ad2)
+		position:absolute;
+		top:-23;
+		left:-18;
+		#else
 		position:absolute;
 		top:-14;
 		left:-9;
+		#end
 		z-index:2;
+		
 	}
 	.gridBackground {
 		position:absolute;
