@@ -128,6 +128,7 @@ public class Server {
 		get(Path.Web.QUEUE_DISPLAY, EventPages.serveQueuePage);
 		get(Path.Web.RANKINGS, EventPages.handleGetRankings);
 		get(Path.Web.MATCH_RESULTS, EventPages.serveResultsPage);
+		get(Path.Web.RESULTS_NAME, EventPages.serveResultsNamePage);
 		get(Path.Web.TEAM_MATCH_INFO, EventPages.serveTeamResultsPage);
 		get(Path.Web.MATCH_RESULTS_SIMPLE, EventPages.serveResultsSimplePage);
 		get(Path.Web.MATCH_RESULTS_DETAILS, EventPages.serveResultsDetailPage);
