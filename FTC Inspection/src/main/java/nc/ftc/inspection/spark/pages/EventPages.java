@@ -40,10 +40,13 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
+import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.Date;
 
@@ -140,20 +143,15 @@ public class EventPages {
 		return render(request, map, Path.Template.INSPECTION_TEAM_SELECT);
 	}
 	
-	private static String inspectionPage(Request request, Response response, boolean readOnly) {
+	private static String inspectionPage(Request request, Response response, boolean readOnly, String eventCode, String formID, String team, String teams, boolean plain) {
 		Map<String, Object> model = new HashMap<>();
-		boolean plain = request.pathInfo().endsWith("plain/");
-		String eventCode = request.params("event");
-		String formID = request.params("form").toUpperCase();
-		String team = request.queryParams("team");
-		String teams = request.queryParams("teams");
 		//if both provided, use the "teams" param.
 		if(teams == null && team != null){
 			teams = team;
 		}
 		//check for team read-only page
 		if(teams == null) {
-			teams = request.params("team");
+			teams = team;
 		}
 		if(teams == null){
 			//render the team select page for the specified form
@@ -172,7 +170,7 @@ public class EventPages {
 		String[] notes = EventDAO.getFormComments(eventCode, formID, teamList);
 		String[] sigs = EventDAO.getSigs(eventCode, formID, teamList);
 		
-		System.out.println(Arrays.toString(notes));
+//		System.out.println(Arrays.toString(notes));
 		model.put("readOnly", readOnly);
 		model.put("max", max);
 		model.put("form", form);
@@ -189,10 +187,20 @@ public class EventPages {
 	}
 	
 	public static Route serveInspectionPage = (Request request, Response response) ->{
-		return inspectionPage(request, response, false);
+		boolean plain = request.pathInfo().endsWith("plain/");
+		String eventCode = request.params("event");
+		String formID = request.params("form").toUpperCase();
+		String team = request.queryParams("team");
+		String teams = request.queryParams("teams");
+		return inspectionPage(request, response, false, eventCode, formID, team, teams, plain);
 	};
 	public static Route serveInspectionPageReadOnly = (Request request, Response response) ->{
-		return inspectionPage(request, response, true);
+		boolean plain = request.pathInfo().endsWith("plain/");
+		String eventCode = request.params("event");
+		String formID = request.params("form").toUpperCase();
+		String team = request.params("team");
+		String teams = request.queryParams("teams");
+		return inspectionPage(request, response, true, eventCode, formID, team, teams, plain);
 	};
 	
 	public static Route handleInspectionItemPost = (Request request, Response response) ->{
@@ -2220,6 +2228,13 @@ public class EventPages {
 			case 3:				
 				System.out.println(code + " added to active events.");
 				break;
+			case 6:
+				String event = request.params("event");
+				File dir = new File(Server.ARCHIVE_PATH + event + "/");
+				if (!dir.exists()) {
+					generateArchiveFiles(event, dir);
+				}
+				break;
 			}
 
 			EventDAO.setEventStatus(code, newStatus);
@@ -2458,20 +2473,29 @@ public class EventPages {
 		 * match param is match name if elims
 		 */
 		public static Route handleGetFullScoresheet = (Request request, Response response) -> {
-			Map<String, Object> map = new HashMap<String, Object>();
 			String event = request.params("event");
 			boolean plain = request.pathInfo().endsWith("plain/");
-			Event e = Server.activeEvents.get(event);
-			if(e == null) {
+			String ms = request.params("match");
+			String page = getFullScoresheet(request, event, ms, plain);
+			if (page == null) {
 				return DefaultPages.notFound.handle(request, response);
 			}
-			String ms = request.params("match");
+			return page;
+		};
+		
+		public static String getFullScoresheet(Request request, String event, String ms, boolean plain) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			Event e = Server.activeEvents.get(event);
+			if(e == null) {
+				return null;
+			}
+
 			int m = 0;
 			boolean elims = ms.indexOf('-') >= 0;
 			m = elims ? EventDAO.getElimsMatchNumber(event, ms) : Integer.parseInt(ms);
 			Match match = EventDAO.getMatchResultFull(event, m, elims);//.getFullScores();
 			if (match == null) {
-				return DefaultPages.notFound.handle(request, response);
+				return null;
 			}
 			if(elims) {
 				e.fillCardCarry(match);
@@ -2508,7 +2532,7 @@ public class EventPages {
 			} else {
 				return render(request, map, Path.Template.FULL_SCORESHEET);
 			}
-		};
+		}
 		
 		public static Route handleGetAllianceBreakdown = (Request request, Response response) -> {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -2803,5 +2827,70 @@ public class EventPages {
 			map.put("num", num);
 			return render(request, map, Path.Template.QUEUE_DISPLAY);
 		};
+
+		public static Route serveZipFile = (Request request, Response response) -> {
+			String event = request.params("event");
+			File dir = new File(Server.ARCHIVE_PATH + event + "/");
+			if (!dir.exists()) {
+				generateArchiveFiles(event, dir);
+			}
+			ServerPages.zipDirectory(dir, response);
+			return "";
+		};
 		
+		public static void generateArchiveFiles(String event, File dir) throws IOException {
+			FileUtils.forceMkdir(dir);
+			File scoreDir = new File(dir.getPath() + "/scoresheets/");
+			FileUtils.forceMkdir(scoreDir);
+			File inspectDir = new File(dir.getPath() + "/inspectionForms/");
+			FileUtils.forceMkdir(inspectDir);
+			File hwDir = new File(inspectDir.getPath() + "/hw/");
+			FileUtils.forceMkdir(hwDir);
+			File swDir = new File(inspectDir.getPath() + "/sw/");
+			FileUtils.forceMkdir(swDir);
+			File fdDir = new File(inspectDir.getPath() + "/fd/");
+			FileUtils.forceMkdir(fdDir);
+			
+			List<Team> teams = EventDAO.getTeams(event);
+			for (Team team : teams) {
+				File hw = new File(hwDir.getPath() + "/"  + team.getNumber() + "-hw.html");
+				hw.createNewFile();
+				System.out.println(hw.getPath());
+				FileUtils.writeStringToFile(hw, inspectionPage(null, null, true, event, "HW", String.valueOf(team.getNumber()), null, true));
+				File sw = new File(swDir.getPath() + "/"  + team.getNumber() + "-sw.html");
+				sw.createNewFile();
+				System.out.println(sw.getPath());
+				FileUtils.writeStringToFile(sw, inspectionPage(null, null, true, event, "SW", String.valueOf(team.getNumber()), null, true));
+				File fd = new File(fdDir.getPath() + "/" + team.getNumber() + "-fd.html");
+				fd.createNewFile();
+				System.out.println(fd.getPath());
+				FileUtils.writeStringToFile(fd, inspectionPage(null, null, true, event, "FD", String.valueOf(team.getNumber()), null, true));
+			}
+			//super fake work around bc we need the event to be "active" to pull scoresheets
+			Server.activeEvents.put(event, new Event(EventDAO.getEvent(event)));
+			List<MatchResult> results = EventDAO.getMatchResults(event);
+			for (MatchResult match : results) {
+				String name;
+				if (match.isElims()) {
+					name = match.getName();
+				} else {
+					name = String.valueOf(match.getNumber());
+				}
+				File scoresheet = new File(scoreDir.getPath() + "/" + name + ".html");
+				scoresheet.createNewFile();
+				System.out.println(scoresheet.getPath());
+				FileUtils.writeStringToFile(scoresheet, getFullScoresheet(null, event, name, true));
+			}
+			File img = new File(scoreDir.getPath() + "/img");
+			img.mkdir();
+			img = new File(scoreDir.getPath() + "/img/logo.png");
+			img.createNewFile();
+			File imgOrig = new File(Server.publicDir + "/img/logo.png");
+			FileUtils.copyFile(imgOrig, img);
+			img = new File(scoreDir.getPath() + "/img/game-logo.png");
+			img.createNewFile();
+			imgOrig = new File(Server.publicDir + "/img/game-logo.png");
+			FileUtils.copyFile(imgOrig, img);
+			Server.activeEvents.remove(event);
+		}
 }
