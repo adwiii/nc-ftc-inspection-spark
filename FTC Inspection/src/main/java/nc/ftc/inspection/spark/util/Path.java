@@ -19,9 +19,9 @@ public class Path {
         public static final String CREATE_ACCOUNT = CREATE_ACCOUNT_SIMPLE + ":id/";
         public static final String CREATE_EVENT = "/create/event/";
         public static final String MANAGE_EVENT = "/event/:event/manage/";
-        public static final String ZIP_EVENT = "/event/:event/manage/zip/";
         public static final String MANAGE_EVENT_TEAMS = "/event/:event/manage/teams/";
         public static final String SET_STATUS = "/event/:event/manage/status/";
+        public static final String ZIP_EVENT = "/event/:event/manage/zip/";
         public static final String EVENT_HOME = "/event/:event/home/";
         public static final String EVENT_SIMPLE = "/event/:event/";
         public static final String EDIT_PERMISSIONS = "/users/manage/";

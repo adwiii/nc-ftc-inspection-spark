@@ -1731,34 +1731,6 @@ public class EventPages {
 			return render(request, map, Path.Template.MATCH_RESULT);
 		};
 		
-		public static Route serveResultsNamePage = (Request request, Response response) ->{
-			String event = request.params("event");
-			Event e = Server.activeEvents.get(event);
-			if(e == null){
-				return noData(request, "Match");
-			}
-			Map<String, Object> map = new HashMap<String, Object>();
-			List<MatchResult> results = e.resultsCache.get();
-			if (results == null) {
-				results = EventDAO.getMatchResults(event);
-				e.resultsCache.set(results);
-			}
-			map.put("matches", results);
-			map.put("event", event); //TODO get event name from DB
-			map.put("eventName", e.getData().getName());
-			Map<Integer,Team> teams;
-			if((teams = e.teamNameCache.get()) == null) {
-				List<Team> list = EventDAO.getTeams(event);
-				teams = new HashMap<>();
-				for(Team t : list) {
-					teams.put(t.getNumber(), t);
-				}
-				e.teamNameCache.set(teams);
-			}
-			map.put("teams", teams);
-			return render(request, map, Path.Template.MATCH_RESULT_NAME);
-		};
-		
 		public static Route serveTeamResultsPage = (Request request, Response response) ->{
 			String event = request.params("event");
 			String team = request.params("team");
@@ -2921,4 +2893,31 @@ public class EventPages {
 			FileUtils.copyFile(imgOrig, img);
 			Server.activeEvents.remove(event);
 		}
+		public static Route serveResultsNamePage = (Request request, Response response) ->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				return noData(request, "Match");
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<MatchResult> results = e.resultsCache.get();
+			if (results == null) {
+				results = EventDAO.getMatchResults(event);
+				e.resultsCache.set(results);
+			}
+			map.put("matches", results);
+			map.put("event", event); //TODO get event name from DB
+			map.put("eventName", e.getData().getName());
+			Map<Integer,Team> teams;
+			if((teams = e.teamNameCache.get()) == null) {
+				List<Team> list = EventDAO.getTeams(event);
+				teams = new HashMap<>();
+				for(Team t : list) {
+					teams.put(t.getNumber(), t);
+				}
+				e.teamNameCache.set(teams);
+			}
+			map.put("teams", teams);
+			return render(request, map, Path.Template.MATCH_RESULT_NAME);
+		};
 }
