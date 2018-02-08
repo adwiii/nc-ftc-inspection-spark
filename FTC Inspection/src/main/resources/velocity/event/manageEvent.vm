@@ -16,6 +16,9 @@
                 console.log(thrownError);
   			}});  	
 	}
+	function saveZip() {
+		window.open("./zip/", "");
+	}
 </script>
 
 
@@ -84,6 +87,8 @@
 		<button onclick="setStatus(6)">Complete</button>
 	#elseif($status == 6)
 		Complete!
+		<br>
+		<button onclick="saveZip()">Save Inspection Forms and Score Sheets</button>
 	#end
 	<!--
 	<select name="eventStage">

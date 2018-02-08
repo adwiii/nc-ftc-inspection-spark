@@ -22,9 +22,7 @@
     <h1>Login</h1>
     <p>Please enter your username and password.</p>
     <label>Username: </label>
-    #if($currentUser)
-    	<input type="text" name="username" value="$currentUser" required autofocus>
-    #elseif($username)
+    #if($username)
     	<input type="text" name="username" value="$username" required autofocus>
     #else
     	<input type="text" name="username" required autofocus>

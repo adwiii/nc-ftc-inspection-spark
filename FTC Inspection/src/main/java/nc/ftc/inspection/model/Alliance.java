@@ -116,6 +116,7 @@ public class Alliance {
 		//Field-status 
 		scores.put("cryptobox1", 0);
 		scores.put("cryptobox2", 0);
+		scores.put("cbKeys", 0);
 		scores.put("jewelSet1", 0b11);
 		scores.put("jewelSet2", 0b11);
 

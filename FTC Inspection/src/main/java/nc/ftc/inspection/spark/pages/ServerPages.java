@@ -2,15 +2,21 @@ package nc.ftc.inspection.spark.pages;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +26,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -75,34 +84,34 @@ public class ServerPages {
 		thread.start();
 		return "OK";
 	};
-	
+
 	public static Route serveConfigPage = (Request request, Response response)->{
 		//links to remote key and client key page
 		Map<String, Object> map = new HashMap<String, Object>();
 		return render(request, map, Path.Template.SERVER_CONFIG);
 	};
-	
+
 	public static Route serveRemoteKeyPage = (Request request, Response response)->{
 		//only show the host and the event. dont show 
 		Map<String, Object> map = new HashMap<>();
 		map.put("hosts", ConfigDAO.getRemotes());
 		return render(request, map, Path.Template.REMOTE_KEYS);
 	};
-	
+
 	public static Route serveClientKeyPage = (Request request, Response response)->{
 		Map<String, Object> map = new HashMap<>();
 		map.put("keys", ConfigDAO.getKeys());
 		return render(request, map, Path.Template.CLIENT_KEYS);
 	};
-	
+
 	private static String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()";
 	public static Route handleGenerateKey = (Request request, Response response)->{
 		String event = request.queryParams("event");
 		SecureRandom rand = SecureRandom.getInstanceStrong();
-        String key = "";
-        for ( int i = 0; i < 10; i++ ) {
-            key += chars.charAt( rand.nextInt( chars.length() ) );
-        }
+		String key = "";
+		for ( int i = 0; i < 10; i++ ) {
+			key += chars.charAt( rand.nextInt( chars.length() ) );
+		}
 		if(ConfigDAO.saveKey(event, key)) {
 			return key;
 		}
@@ -183,7 +192,7 @@ public class ServerPages {
 		response.status(500);
 		return "Error";
 	};
-	
+
 	public static Route handleVerify = (Request request, Response response)->{
 		String event = request.queryParams("event");
 		String key = request.queryParams("key");
@@ -191,35 +200,88 @@ public class ServerPages {
 		response.status(res.equals("OK") ? 200 : 400);
 		return res;
 	};
-	
+
 	public static Route handlePing = (Request request, Response response) ->{
 		return "OK";
 	};
-	
+
 	private static String serveFile(String name, Response response) {
 		File file = new File(Server.DB_PATH+name+".db");
-	    response.raw().setContentType("application/octet-stream");
-	    response.raw().setHeader("Content-Disposition","attachment; filename="+file.getName()+".zip");
-	    try {
+		response.raw().setContentType("application/octet-stream");
+		response.raw().setHeader("Content-Disposition","attachment; filename="+file.getName()+".zip");
+		try {
 
-	        try(ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.raw().getOutputStream()));
-	        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file)))
-	        {
-	            ZipEntry zipEntry = new ZipEntry(file.getName());
+			try(ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.raw().getOutputStream()));
+					BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file)))
+			{
+				ZipEntry zipEntry = new ZipEntry(file.getName());
 
-	            zipOutputStream.putNextEntry(zipEntry);
-	            byte[] buffer = new byte[1024];
-	            int len;
-	            while ((len = bufferedInputStream.read(buffer)) > 0) {
-	                zipOutputStream.write(buffer,0,len);
-	            }
-	        }
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    }
+				zipOutputStream.putNextEntry(zipEntry);
+				byte[] buffer = new byte[1024];
+				int len;
+				while ((len = bufferedInputStream.read(buffer)) > 0) {
+					zipOutputStream.write(buffer,0,len);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return "";
 	}
-	
+
+	public static String zipDirectory(File dir, Response response) {
+		response.raw().setContentType("application/octet-stream");
+		response.raw().setHeader("Content-Disposition","attachment; filename="+dir.getName()+".zip");
+		//		Collection<File> files = FileUtils.listFiles(dir, new String[] {"html"}, true);
+		String path = dir.getPath() + "\\";
+		try {
+			try(ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.raw().getOutputStream()));
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(zipOutputStream, Charset.forName("ISO-8859-1")));){
+				addDir(path, dir, zipOutputStream, writer);
+				writer.close();
+				zipOutputStream.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	static void addDir(String path, File dirObj, ZipOutputStream out, BufferedWriter writer) throws IOException {
+		File[] files = dirObj.listFiles();
+		String line;
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isDirectory()) {
+				out.putNextEntry(new ZipEntry(files[i].getPath().replace(path, "") + "/"));
+				addDir(path, files[i], out, writer);
+				continue;
+			}
+			//		      System.out.println(files[i].getPath());
+			//		      System.out.println(path);
+			System.out.println(" Adding: " + files[i].getPath().replace(path, ""));
+			out.putNextEntry(new ZipEntry(files[i].getPath().replace(path, "")));
+			if (files[i].getName().endsWith(".png")) {
+				BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(files[i]));
+				byte[] buffer = new byte[1024];
+				int len;
+				while ((len = bufferedInputStream.read(buffer)) > 0) {
+					out.write(buffer,0,len);
+				}
+				out.flush();
+				bufferedInputStream.close();
+			} else {
+				BufferedReader reader = new BufferedReader(new FileReader(files[i].getPath()));
+				while ((line = reader.readLine()) != null) {
+					writer.append(line).append("\n");
+				}
+				writer.flush();
+				reader.close();
+			}
+
+			out.closeEntry();
+		}
+	}
+
 	/**
 	 * Sends global.db to the requester
 	 */
@@ -232,18 +294,18 @@ public class ServerPages {
 		response.status(403);
 		return "Invalid Key";
 	};
-	
+
 	public static Route handleDataDownloadEvent = (Request request, Response response) ->{
 		String event = request.queryParams("e");
 		String key = request.queryParams("k");
-		
+
 		if(ConfigDAO.checkKey(event, key)) {
 			return serveFile(event, response);
 		}
 		response.status(403);
 		return "Invalid Key";
 	};
-	
+
 	private static String getDB(String host, String event, String key, String db) {	
 		List<NameValuePair> form = new ArrayList<NameValuePair>(2);
 		form.add(new BasicNameValuePair("k", key));
@@ -266,38 +328,38 @@ public class ServerPages {
 				BufferedInputStream in = new BufferedInputStream(resp.getEntity().getContent());
 				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+filename)); 
 				byte[] buffer = new byte[1024];
-	            int len;
-	            while ((len = in.read(buffer)) > 0) {
-	                out.write(buffer,0,len);
-	            }
-	            in.close();
-	            out.flush();
-	            out.close();
-	            //We have the file, now delete the existing db and unzip this one.
-	            String name = filename.substring(0, filename.length()-4);//cut of the "-.zip"
-	            try {
-		            Files.deleteIfExists(new File(Server.DB_PATH+name).toPath());
-		            try {
-		            	 ZipInputStream zip = new ZipInputStream(new FileInputStream(Server.DB_PATH+filename));
-		            	 zip.getNextEntry();
-		            	 out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+name));
-		                 byte[] buf = new byte[1024];
-		                 int read = 0;
-		                 while ((read = zip.read(buf)) != -1) {
-		                     out.write(buf, 0, read);
-		                 }
-		                 out.flush();
-		                 out.close();
-		                 zip.close();
-		                 return "OK";
-	            	}catch(IOException e) {
-	            		//error unzipping db.
-	            		return "Error unzipping "+name;
-	            	}
-	            }catch(IOException e) {
-            		return "Error deleting existing "+name;
-            	}
-	           
+				int len;
+				while ((len = in.read(buffer)) > 0) {
+					out.write(buffer,0,len);
+				}
+				in.close();
+				out.flush();
+				out.close();
+				//We have the file, now delete the existing db and unzip this one.
+				String name = filename.substring(0, filename.length()-4);//cut of the "-.zip"
+				try {
+					Files.deleteIfExists(new File(Server.DB_PATH+name).toPath());
+					try {
+						ZipInputStream zip = new ZipInputStream(new FileInputStream(Server.DB_PATH+filename));
+						zip.getNextEntry();
+						out = new BufferedOutputStream(new FileOutputStream(Server.DB_PATH+name));
+						byte[] buf = new byte[1024];
+						int read = 0;
+						while ((read = zip.read(buf)) != -1) {
+							out.write(buf, 0, read);
+						}
+						out.flush();
+						out.close();
+						zip.close();
+						return "OK";
+					}catch(IOException e) {
+						//error unzipping db.
+						return "Error unzipping "+name;
+					}
+				}catch(IOException e) {
+					return "Error deleting existing "+name;
+				}
+
 			}
 			if(resp.getStatusLine().getStatusCode() == 403) {
 				return "Invalid Key";
@@ -307,7 +369,7 @@ public class ServerPages {
 			e.printStackTrace();
 			return "Error connecting to server";
 		}	
-		
+
 	}
 	public static Route handleDataDownloadPost = (Request request, Response response) ->{
 		String host = request.queryParams("host");
@@ -328,5 +390,5 @@ public class ServerPages {
 		}
 		return resp1+";"+resp2;
 	};
-	
+
 }

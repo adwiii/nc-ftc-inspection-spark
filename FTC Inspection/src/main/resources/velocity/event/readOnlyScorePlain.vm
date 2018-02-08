@@ -71,7 +71,7 @@ small {
 <td style="width:50%;">
 <table class="scoresheet">
 <!-- Red Scoresheet -->
-<tr colspan="2"><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#EE1C25;color:#F5FEFD;text-align:center;font-size:130%" id="redHeader">Red<br>Alliance</a></td><td><img id="logo" src="/img/game-logo.png"></td></tr>
+<tr colspan="2"><td><object data="./img/logo.png" type="image/png"><img id="logo" src="/img/logo.png"></object></td><td colspan="2" style="background:#EE1C25;color:#F5FEFD;text-align:center;font-size:130%" id="redHeader">Red<br>Alliance</a></td><td><object data="./img/game-logo.png" type="image/png"><img id="logo" src="/img/game-logo.png"></object></td></tr>
 <tr><td></td><td class="right">Match:$matchNumber</td><td class="left">Field:$fieldNumber</td><td></td></tr>
 <tr><td class="dark center" colspan="4">Autonomous Period</td></tr>
 <tr><td class="right" colspan="3">Single Jewel Remaining</td><td class="lightBorder"><div>&nbsp;$redScores.get("jewels")</div></td></tr>
@@ -96,7 +96,7 @@ small {
 </td><td style="width:50%;">
 <table class="scoresheet">
 <!-- Blue Scoresheet -->
-<tr colspan="2" ><td><img id="logo" src="/img/logo.png"></td><td colspan="2" style="background:#0268B3;color:#F5FEFD;text-align:center;font-size:130%" id="blueHeader">Blue<br>Alliance</td><td><img id="logo" src="/img/game-logo.png"></td></tr>
+<tr colspan="2" ><td><object data="./img/logo.png" type="image/png"><img id="logo" src="/img/logo.png"></object></td><td colspan="2" style="background:#0268B3;color:#F5FEFD;text-align:center;font-size:130%" id="blueHeader">Blue<br>Alliance</td><td><object data="./img/game-logo.png" type="image/png"><img id="logo" src="/img/game-logo.png"></object></td></tr>
 <tr><td></td><td class="right">Match:$matchNumber</td><td class="left">Field:$fieldNumber</td><td></td></tr>
 <tr><td class="dark center" colspan="4">Autonomous Period</td></tr>
 <tr><td class="right" colspan="3">Single Jewel Remaining</td><td class="lightBorder"><div>&nbsp;$blueScores.get("jewels")</div></td></tr>
@@ -114,7 +114,7 @@ small {
 <tr><td colspan="2"></td><td class="right">Robots Balanced</td><td class="lightBorder"><div>&nbsp;$blueScores.get("balanced")</div></td></tr>
 <tr><td class="dark center" colspan="4">Penalties</td></tr>
 <tr><td class="center"># Minor</td><td class="lightBorder"><div>&nbsp;$blueScores.get("minor")</div></td><td class="center"># Major</td><td class="lightBorder"><div>&nbsp;$blueScores.get("major")</div></td></tr>
-<tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">blue Card</td></tr>
+<tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">Red Card</td></tr>
 <tr><td class="center bottomBorder">$blue.team1</td><td class="center">#if($blueScores.get("dq1")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card1") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card1") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
 <tr><td class="center bottomBorder">$blue.team2</td><td class="center">#if($blueScores.get("dq2")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card2") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card2") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
 </table>

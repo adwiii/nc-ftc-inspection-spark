@@ -33,7 +33,6 @@ public class Event {
 	public Cache<List<Match>> scheduleCache = new Cache<>(60000 * 60);//hour
 	public Cache<Map<Integer, Team>> teamNameCache = new Cache<>(60000 * 10);
 	
-	
 	//Monitors for messaging and long polls
 	public Object waitForRefLock = new Object();
 	public Object waitForPreviewLock = new Object();

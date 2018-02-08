@@ -37,6 +37,7 @@ import spark.Spark;
 
 public class Server {
 	public static final String DB_PATH;// = "src/main/resources/db/";
+	public static final String ARCHIVE_PATH;
 	public static final String GLOBAL_DB;// = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 	public static final String CONFIG_DB;
 
@@ -51,7 +52,12 @@ public class Server {
 	static{ //TODO check if were in eclipse. If not, change DB path to lib folder?
 		String db = System.getProperty("db");
 		DB_PATH = db == null ? "src/main/resources/db/" : db;
+		String archive = DB_PATH;
+		archive = archive.substring(0, archive.length() - 2);
+		archive = archive.substring(0, archive.lastIndexOf('/'));
+		ARCHIVE_PATH = archive + "/archive/";
 		System.out.println("DB Path set to: "+DB_PATH);
+		System.out.println("Archive Path set to: " + ARCHIVE_PATH);
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 		CONFIG_DB = "jdbc:sqlite:"+DB_PATH+"config.db";
 	}
@@ -236,6 +242,9 @@ public class Server {
 		
 		before(Path.Web.MANAGE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
+		
+		before(Path.Web.ZIP_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.ZIP_EVENT, EventPages.serveZipFile);
 		
 		before(Path.Web.MANAGE_EVENT_TEAMS, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MANAGE_EVENT_TEAMS, EventPages.serveAddTeam);

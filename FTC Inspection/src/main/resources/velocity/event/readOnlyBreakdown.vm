@@ -107,7 +107,7 @@ small {
 <tr><td colspan="2"></td><td class="right">Robots Balanced</td><td class="lightBorder"><div>&nbsp;$blueScores.get("balanced")</div></td></tr>
 <tr><td class="dark center" colspan="4">Penalties</td></tr>
 <tr><td class="center"># Minor</td><td class="lightBorder"><div>&nbsp;$blueScores.get("minor")</div></td><td class="center"># Major</td><td class="lightBorder"><div>&nbsp;$blueScores.get("major")</div></td></tr>
-<tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">blue Card</td></tr>
+<tr class="dark"><td class="center noborder">Teams</td><td class="center noborder">No Show</td><td class="center noborder">Yellow Card</td><td class="center noborder">Red Card</td></tr>
 <tr><td class="center bottomBorder">$blue.team1</td><td class="center">#if($blueScores.get("dq1")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card1") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card1") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
 <tr><td class="center bottomBorder">$blue.team2</td><td class="center">#if($blueScores.get("dq2")=="true")&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card2") > 0)&#x2713;#{else}&#x25A1;#end</td><td class="center">#if($blueScores.get("card2") > 1)&#x2713;#{else}&#x25A1;#end</td></tr>
 </table>
