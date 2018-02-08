@@ -966,6 +966,7 @@ public class EventDAO {
 				Set<String> keys = a.getScoreFields();
 				keys.remove("card3");
 				keys.remove("dq3");
+				keys.remove("cbKeys");
 				for(String key : keys) {
 					a.updateScore(key, rs.getObject(key));
 				}

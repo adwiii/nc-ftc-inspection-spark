@@ -1230,8 +1230,9 @@
   			return;
   		}
   		
+  		#if($ad2)
   		document.getElementById("progress").style.width = (elapsed * 100 / 158000)+'%';
-  		
+  		#end
   		if (elapsed < 30000){
   			//autonomous
   			display(150 - (elapsed/1000), "W");
@@ -1689,8 +1690,9 @@
                     var r = document.getElementById("random");
                     r.setAttribute("visible", "true");
                     //TODO sizes?
-                    r.children[0].src = "/img/random"+rand+"_75.png"
-                    initJewels(rand)
+                    r.children[0].src = "/img/random"+rand+"_75.png";
+                    initJewels(rand);
+                    showKeyColumn(rand);
                 },
                 error: function () {
                     //ERROR HANDLING
@@ -1705,6 +1707,25 @@
 		redJewel1.src = src;
 		redJewel2.src = src;
 	} 
+	
+	function showKeyColumn(r){
+		var col = (r-1) % 3;
+		for(var index = 1; index <= 2; index++){
+			for(var r = 0; r < 4; r++){			
+				var cell = document.getElementById("red_"+index+"_"+r+"_"+col);
+				cell.setAttribute("visible", "true");
+				cell.src = "/img/pink-square${cbSize}.png";				
+			} 
+		}
+		for(var index = 1; index <= 2; index++){
+			for(var r = 0; r < 4; r++){			
+				var cell = document.getElementById("blue_"+index+"_"+r+"_"+col);
+				cell.setAttribute("visible", "true");
+				cell.src = "/img/cyan-square${cbSize}.png";				
+			} 
+		}
+		
+	}
 	
 	function showMatch(){
 		document.getElementById("timer").setAttribute("visible","true");
@@ -1770,13 +1791,29 @@
   	}
   	#end
   	
-  	function setCryptobox(alliance, index, val){
+  	function setCryptobox(alliance, index, val, keys){
   		for(var r = 0; r < 4; r++){
 			for(var c = 0; c < 3; c++){
 				var cell = document.getElementById(alliance+"_"+index+"_"+r+"_"+c);
 				var enc = (val >> ((6 * r) + (2*c))) & 3;
-				cell.setAttribute("visible", enc == 0 ? "false" : "true");
-				cell.src = enc == 1 ? "/img/brown-square${cbSize}.png" : "/img/grey-square${cbSize}.png";
+				if((keys >> ((6 * r) + (2*c) + (index - 1))) & 1 == 1){
+					cell.setAttribute("visible", "true");
+					if(enc ==0){
+						cell.src = "/img/yellow-empty-square${cbSize}.png"
+					} else if(enc == 1){
+						cell.src = "/img/yellow-brown-square${cbSize}.png";
+					} else {
+						cell.src = "/img/yellow-grey-square${cbSize}.png";
+					}
+					
+				} else{
+					cell.setAttribute("visible", ((rand-1) % 3 == c ? "true" : enc == 0 ? "false" : "true"));
+					if(enc == 0){
+						cell.src = alliance=='red' ? "/img/pink-square${cbSize}.png" : "/img/cyan-square${cbSize}.png"; 
+					} else{
+						cell.src = enc == 1 ? "/img/brown-square${cbSize}.png" : "/img/grey-square${cbSize}.png";
+					}
+				}
 			}
 		} 
 		var ciph = ""; 	
@@ -1790,7 +1827,7 @@
 		var cipher = document.getElementById("gridCipher_"+alliance+"_"+index);
 		cipher.setAttribute("visible", ciph == "" ? "false" : "true");
 		if(ciph != ""){
-			cipher.src = "/img/"+ciph+"-grid-"+alliance+"${cbSize}.png"
+			cipher.src = "/img/"+ciph+"-grid-"+alliance+"${cbSize}.png";
 		}
   	}
   	
@@ -1812,10 +1849,10 @@
   		redJewel1.src = getJewelImage(obj.red.jewelSet1, flip);
   		redJewel2.src = getJewelImage(obj.red.jewelSet2, flip);
   		
-  		setCryptobox('blue', 1, obj.blue.cryptobox1);
-  		setCryptobox('blue', 2, obj.blue.cryptobox2);
-  		setCryptobox('red', 1, obj.red.cryptobox1);
-  		setCryptobox('red', 2, obj.red.cryptobox2);
+  		setCryptobox('blue', 1, obj.blue.cryptobox1, obj.blue.cbKeys);
+  		setCryptobox('blue', 2, obj.blue.cryptobox2, obj.blue.cbKeys);
+  		setCryptobox('red', 1, obj.red.cryptobox1, obj.red.cbKeys);
+  		setCryptobox('red', 2, obj.red.cryptobox2, obj.red.cbKeys);
   		
   		
   		document.getElementById("scoreRed").innerHTML = parseInt(obj.red.teleopPoints) + parseInt(obj.red.autoPoints) + parseInt(obj.red.foulPoints);
