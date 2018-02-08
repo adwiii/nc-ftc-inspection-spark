@@ -161,7 +161,7 @@
 		width:765px;
 		background-color:black;
 	}
-	#timer[ad2="true"]{
+	#timer[ad2="true"][timeout="false"]{
 		position: absolute;
 		top: 850px;
 		left:800px;
@@ -172,6 +172,9 @@
 	.timerImage{
 		max-width:33%;
 		max-height:100%;
+	}
+	div[timeout="true"] > #progressBar{
+		display:none;
 	}
 	#progressBar{
 		position:absolute;
@@ -189,7 +192,7 @@
 		border-radius: 0px 15px 15px 0px;
 		align:left;
 	}
-	div[ad2="true"] > .timerImage{
+	div[ad2="true"][timeout="false"] > .timerImage{
 		height:180;
 	}
 	
@@ -663,13 +666,16 @@
 	div[ad2="false"] > div > div > .wingName{
 		display:none;
 	}
-	div[ad2="true"] > div > div > .wingNumber{
+	div[ad2="true"][timeout="true"] > div > div > .wingName{
+		display:none;
+	}
+	div[ad2="true"][timeout="false"] > div > div > .wingNumber{
 		height:100%;
 		width:45%;
 		float:left;
 		
 	}
-	div[ad2="true"] > div > div > .wingName{
+	div[ad2="true"][timeout="false"] > div > div > .wingName{
 		float:left;
 		width:55%;
 		height:100%;
@@ -682,7 +688,7 @@
 		display:none;
 	}
 	
-	div[ad2="true"] > div > .wing{
+	div[ad2="true"][timeout="false"] > div > .wing{
 		width:457; 
 		height:75;
 		left:3;
@@ -694,7 +700,7 @@
 		background-color:blue;
 		color:white;
 	}
-	div[ad2="true"] > div > .blueWing[card=false]{
+	div[ad2="true"][timeout="false"] > div > .blueWing[card=false]{
 		background-color:white;
 		color:black;
 		text-align:right;
@@ -703,7 +709,7 @@
 		background-color:yellow;
 		color:blue;
 	}
-	div[ad2="true"] > div > .blueWing[card=true]{
+	div[ad2="true"][timeout="false"] > div > .blueWing[card=true]{
 		background-color:yellow;
 		color:black;
 		text-align:right;
@@ -712,7 +718,7 @@
 		background-color:red;
 		color:white;
 	}
-	div[ad2="true"] > div > .redWing[card=false]{
+	div[ad2="true"][timeout="false"] > div > .redWing[card=false]{
 		background-color:white;
 		color:black;
 		text-align:left;
@@ -721,12 +727,43 @@
 		background-color:yellow;
 		color:red;
 	}
-	div[ad2="true"] > div > .redWing[card=true]{
+	div[ad2="true"][timeout="false"] > div > .redWing[card=true]{
 		background-color:yellow;
 		color:black;
 		text-align:right;
 	}	
-	#redWing{
+	#redWing{	
+		position:absolute;
+		background-color:red;
+		width:300;
+		height:200;
+		top:162;
+		left:765;
+	}
+	#redWing[teams="3"]{
+		position:absolute;
+		background-color:red;
+		width:300;
+		height:300;
+		top:112;
+		left:765;
+	}
+	div[ad2="true"][timeout="false"] > #redWing{
+		position:absolute; 
+		background-color:transparent;
+		width:460;
+		height:250;
+		top:-70;
+		left:578;
+	}
+	div[ad2="true"][timeout="false"] > #redWing[teams="3"]{
+		background-color:transparent;
+		width:460;
+		height:250;
+		top:-70;
+		left:578;
+	}
+	/*
 		position:absolute; 
 		#if($ad2)
 			width:460;
@@ -740,7 +777,9 @@
 			top:162;
 			left:765;
 		#end
-	}
+	
+	*/
+	/*
 	#redWing[teams="3"]{
 		position:absolute;
 		#if($ad2)
@@ -756,6 +795,41 @@
 			left:765;
 		#end
 	}
+	*/
+	
+	#blueWing{
+		position:absolute;
+		background-color:blue;
+		width:300;
+		height:200;
+		top:162;
+		left:-300;
+	}
+	#blueWing[teams="3"]{
+		position:absolute;
+		background-color:blue;
+		width:300;
+		height:300;
+		top:112;
+		left:-300;
+	}
+	div[ad2="true"][timeout="false"] > #blueWing{
+		background-color:blue;
+		background-color:transparent;
+		width:460;
+		height:250;
+		top:-70;
+		left:-721
+	}
+	div[ad2="true"][timeout="false"] > #blueWing[teams="3"]{
+		position:absolute;
+		background-color:transparent;
+		width:460;
+		height:250;
+		top:-70;
+		left:-721
+	}
+	/*
 	#blueWing{
 		position:absolute; 
 		#if($ad2)
@@ -786,26 +860,27 @@
 			left:-300;
 		#end
 	}
+	*/
 	
 	.wing1{
 		top:3;
 	}
 	
-	div[ad2="true"] > div[teams="2"] >.wing1{
+	div[ad2="true"][timeout="false"] > div[teams="2"] >.wing1{
 		top:40;
 	}
 	
-	div[ad2="true"]> div > .wing2{
+	div[ad2="true"][timeout="false"]> div > .wing2{
 		top:88;
 	}
-	div[ad2="true"] > div[teams="2"] >.wing2{
+	div[ad2="true"][timeout="false"] > div[teams="2"] >.wing2{
 		top:150;
 	}
 	
 	.wing2{
 		top:103;
 	}
-	div[ad2="true"]> div > .wing3{
+	div[ad2="true"][timeout="false"]> div > .wing3{
 		top:173;
 	}
 	
@@ -873,7 +948,7 @@
   	<div id="top">
   		Match 1
   	</div>
-  	<div id="timer" visible="true" ad2="$ad2">
+  	<div id="timer" visible="true" ad2="$ad2" timeout="false">
 	  	<img class="timerImage" id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
@@ -1173,6 +1248,7 @@
   	}
   	function showTimeout(){
   		showMatch();
+  		document.getElementById("timer").setAttribute("timeout", "true");
   		document.getElementById("top").innerHTML = "Timeout In Progress";
   		//at bottom show "Alliance Timeout Window: 3:00" / "Alliance Timeout Called"/ "Alliance Timeout Window Expired"
   		document.getElementById("scoreBar").setAttribute("visible", "false");
@@ -1503,7 +1579,7 @@
 		}
 		setTop(data.name);
 	
-		
+		document.getElementById("timer").setAttribute("timeout", "false");
 		document.getElementById("timer").setAttribute("visible", #if($ad2)elims ? "false" : "true"#else"false"#end);
 		document.getElementById("random").setAttribute("visible","false");
 		document.getElementById("preview").setAttribute("visible","true");
@@ -1551,6 +1627,7 @@
 		
 		document.getElementById("result").setAttribute("elims", elims ? "true" : "false");
 	
+		document.getElementById("timer").setAttribute("timeout", "false");
 		document.getElementById("scoreRed").setAttribute("visible","false");
 		document.getElementById("scoreBlue").setAttribute("visible","false");
 		document.getElementById("scoreBar").setAttribute("visible","false");
@@ -1680,6 +1757,7 @@
                 dataType: 'json',
                 success: function (data) {
                     rand=data.rand;
+                    document.getElementById("timer").setAttribute("timeout", "false");
                     document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
                    	document.getElementById("preview").setAttribute("visible","false");
                    	document.getElementById("scoreRed").setAttribute("visible","true");
@@ -1728,6 +1806,7 @@
 	}
 	
 	function showMatch(){
+		document.getElementById("timer").setAttribute("timeout", "false");
 		document.getElementById("timer").setAttribute("visible","true");
 		document.getElementById("random").setAttribute("visible","false");
 		document.getElementById("preview").setAttribute("visible","false");
