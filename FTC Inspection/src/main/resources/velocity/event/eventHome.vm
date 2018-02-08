@@ -71,7 +71,7 @@
 	</li><li> 
 		<a href="../field/?field=2">Field Display 2 (Even Matches Only)</a>
 	</li><li>
-		<a href="../field/?ad=true&mute=true">Audience Display</a>
+		<a href="../field/?ad=true&mute=true&ad2=true">Audience Display</a>
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li>

@@ -161,12 +161,40 @@
 		width:765px;
 		background-color:black;
 	}
-	.timerImage {
+	#timer[ad2="true"]{
+		position: absolute;
+		top: 850px;
+		left:800px;
+		width:320px;
+		z-index:2;
+		background-color:black;
+	}
+	.timerImage{
 		max-width:33%;
 		max-height:100%;
 	}
+	#progressBar{
+		position:absolute;
+		text-align:left;
+		width:840px;
+		height:70px;
+		background-color:#b3b3b3;
+		top:-70;
+		left:-260;
+		float:left;
+	}
+	#progress{
+		height:100%;
+		background-color:green;
+		border-radius: 0px 15px 15px 0px;
+		align:left;
+	}
+	div[ad2="true"] > .timerImage{
+		height:180;
+	}
+	
 	#timer[visible="false"]{
-	display:none;
+		display:none;
 	}
 	#random{
 		position: absolute;
@@ -465,7 +493,11 @@
 		position:absolute;
 		height:180px;
 		width: 260px;
-		top: 900px;		
+		#if($ad2)
+		top:850px;
+		#else
+		top: 900px;
+		#end		
 		font-size: 160px;
 		text-align:center;
 		color:white;
@@ -475,12 +507,20 @@
 	}
 	#scoreBlue{
 		background-color:blue;
+		#if($ad2)
+		left:540;
+		#else
 		left: 700px;
+		#end
 		float:left;
 	}
 	#scoreRed{
 		background-color:red;
+		#if($ad2)
+		left:1120;
+		#else
 		left: 960px;
+		#end
 		float:right;
 	}
 	.relics{
@@ -609,66 +649,170 @@
 		float:right;
 	}
 	.wing{
-		position:absolute; 
+		position:absolute;
+		 
 		width:294; 
-		height:94;
+		height:90;
 		left:3;
 		font:80px "Arial Black", Arial, Helvetica, sans-serif;
-		text-align:center;
 		line-height:90px;
+			
+		text-align:center;
 		vertical-align:top;
 	}
+	div[ad2="false"] > div > div > .wingName{
+		display:none;
+	}
+	div[ad2="true"] > div > div > .wingNumber{
+		height:100%;
+		width:45%;
+		float:left;
+		
+	}
+	div[ad2="true"] > div > div > .wingName{
+		float:left;
+		width:55%;
+		height:100%;
+		font:30px "Arial Black", Arial, Helvetica, sans-serif;
+		line-height:35px;
+		text-align:left;
+	}
+	
 	.wing[visible="false"]{
 		display:none;
 	}
+	
+	div[ad2="true"] > div > .wing{
+		width:457; 
+		height:75;
+		left:3;
+		font:60px "Arial Black", Arial, Helvetica, sans-serif;
+		line-height:75px;
+	}
+	
 	.blueWing[card=false]{
 		background-color:blue;
 		color:white;
 	}
+	div[ad2="true"] > div > .blueWing[card=false]{
+		background-color:white;
+		color:black;
+		text-align:right;
+	}	
 	.blueWing[card=true]{
 		background-color:yellow;
 		color:blue;
+	}
+	div[ad2="true"] > div > .blueWing[card=true]{
+		background-color:yellow;
+		color:black;
+		text-align:right;
 	}
 	.redWing[card=false]{
 		background-color:red;
 		color:white;
 	}
+	div[ad2="true"] > div > .redWing[card=false]{
+		background-color:white;
+		color:black;
+		text-align:left;
+	}	
 	.redWing[card=true]{
 		background-color:yellow;
 		color:red;
 	}
+	div[ad2="true"] > div > .redWing[card=true]{
+		background-color:yellow;
+		color:black;
+		text-align:right;
+	}	
 	#redWing{
 		position:absolute; 
-		background-color:red;
-		width:300;
-		height:200;
-		top:162;
-		left:765;
+		#if($ad2)
+			width:460;
+			height:250;
+			top:-70;
+			left:578;
+		#else
+			background-color:red;
+			width:300;
+			height:200;
+			top:162;
+			left:765;
+		#end
 	}
 	#redWing[teams="3"]{
-		position:absolute; 
-		background-color:red;
-		width:300;
-		height:300;
-		top:112;
-		left:765;
+		position:absolute;
+		#if($ad2)
+			width:460;
+			height:250;
+			top:-70;
+			left:578;
+		#else 
+			background-color:red;
+			width:300;
+			height:300;
+			top:112;
+			left:765;
+		#end
 	}
 	#blueWing{
 		position:absolute; 
-		background-color:blue;
-		width:300;
-		height:200;
-		top:162;
-		left:-300;
+		#if($ad2)
+			width:460;
+			height:250;
+			top:-70;
+			left:-721
+		#else
+			background-color:blue;
+			width:300;
+			height:200;
+			top:162;
+			left:-300;
+		#end
 	}
 	#blueWing[teams="3"]{
 		position:absolute; 
-		background-color:blue;
-		width:300;
-		height:300;
-		top:112;
-		left:-300;
+		#if($ad2)
+			width:460;
+			height:250;
+			top:-70;
+			left:-721
+		#else
+			background-color:blue;
+			width:300;
+			height:300;
+			top:112;
+			left:-300;
+		#end
 	}
+	
+	.wing1{
+		top:3;
+	}
+	
+	div[ad2="true"] > div[teams="2"] >.wing1{
+		top:40;
+	}
+	
+	div[ad2="true"]> div > .wing2{
+		top:88;
+	}
+	div[ad2="true"] > div[teams="2"] >.wing2{
+		top:150;
+	}
+	
+	.wing2{
+		top:103;
+	}
+	div[ad2="true"]> div > .wing3{
+		top:173;
+	}
+	
+	.wing3{
+		top:203;
+	}
+	
 	body {
 		overflow:hidden;
 		max-width:100%;
@@ -679,7 +823,7 @@
 	}
 	#body {
 		background-repeat:no-repeat;
-		background-image:url('/img/BackgroundHD.png');
+		background-image:url(#if($ad2 == "true")'/img/DisplayBackgroundHD_expanded.png'#else'/img/BackgroundHD.png'#end);
 		width:100%;
 		height:100%;
 		position:absolute;
@@ -729,29 +873,59 @@
   	<div id="top">
   		Match 1
   	</div>
-  	<div id="timer" visible="false">
+  	<div id="timer" visible="true" ad2="$ad2">
 	  	<img class="timerImage" id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
 	  	<div id="blueWing" teams="2">
-	  		<div id="blueWing1" style="top:3;" class="wing blueWing" card=false>
+	  		<div id="blueWing1" class="wing blueWing wing1" card=false>
+	  			<div class="wingName">
+	  			</div>
+	  			<div class="wingNumber">
+	  			</div>
 	  		</div>
-	  		<div id="blueWing2" style="top:103;" class="wing blueWing" card=false>
+	  		<div id="blueWing2"  class="wing blueWing wing2" card=false>
+	  			<div class="wingName">
+	  			</div>
+	  			<div class="wingNumber">
+	  			</div>
 	  		</div>
-	  		<div id="blueWing3" style="top:203;" class="wing blueWing" card=false visible="false">
+	  		<div id="blueWing3"  class="wing blueWing wing3" card=false visible="false">
+	  			<div class="wingName">
+	  			</div>
+	  			<div class="wingNumber">
+	  			</div>
 	  		</div>
 	  	</div> 	
 	  	<div id="redWing" teams="2">
-	  		<div id="redWing1" style="top:3;" class="wing redWing" card=false>
+	  		<div id="redWing1" class="wing redWing wing1" card=false>
+	  			<div class="wingNumber">
+	  			</div>
+	  			<div class="wingName">
+	  			</div>
 	  		</div>
-	  		<div id="redWing2" style="top:103;" class="wing redWing" card=false>
+	  		<div id="redWing2" class="wing redWing wing2" card=false>
+	  			<div class="wingNumber">
+	  			</div>
+	  			<div class="wingName">
+	  			</div>
 	  		</div>
-	  		<div id="redWing3" style="top:203;" class="wing redWing" card=false visible="false">
+	  		<div id="redWing3" class="wing redWing wing3" card=false visible="false">
+	  			<div class="wingNumber">
+	  			</div>
+	  			<div class="wingName">
+	  			</div>
 	  		</div>
 	  	</div> 
 	  	<img id="timeoutBarImg" class="toBar" src="/img/alliancebar200.png" alt="toBar" visible="false">
+  		#if($ad2)
+  		<div id="progressBar">
+    		<div id="progress" style="width:0%"></div>
+  		</div>
+  		#end
   		<div id="timeoutBar" class="toBar" visible="false">Alliance Timeout Window Expired</div>
+  	
   	</div>
   	<div id="random" visible="false">
   		<img id="randomImg" src="/img/random1_75.png" alt="Randomization" >
@@ -1052,8 +1226,11 @@
   				}
   			}
   			document.getElementById("timeoutBar").innerHTML = x;
+  			document.getElementById("progress").style.width = '0%';
   			return;
   		}
+  		
+  		document.getElementById("progress").style.width = (elapsed * 100 / 158000)+'%';
   		
   		if (elapsed < 30000){
   			//autonomous
@@ -1221,29 +1398,40 @@
 	}
 	function fillWings(data){
 		var wing = document.getElementById("blueWing1");
-		wing.innerHTML = data.blue1;
+		wing.getElementsByClassName("wingNumber")[0].innerHTML = data.blue1;
+		wing.getElementsByClassName("wingName")[0].innerHTML = data.blue1Name;
 		wing.setAttribute("card", data.blue1Card);
 		
 		wing = document.getElementById("blueWing2");
-		wing.innerHTML = data.blue2;
+		
+		wing.getElementsByClassName("wingNumber")[0].innerHTML = data.blue2;
+		wing.getElementsByClassName("wingName")[0].innerHTML = data.blue2Name;
+		
 		wing.setAttribute("card", data.blue2Card);
 		
 		wing = document.getElementById("redWing1");
-		wing.innerHTML = data.red1;
+		wing.getElementsByClassName("wingNumber")[0].innerHTML = data.red1;
+		wing.getElementsByClassName("wingName")[0].innerHTML = data.red1Name;
 		wing.setAttribute("card", data.red1Card);
 		
 		wing = document.getElementById("redWing2");
-		wing.innerHTML = data.red2;
+		wing.getElementsByClassName("wingNumber")[0].innerHTML = data.red2;
+		wing.getElementsByClassName("wingName")[0].innerHTML = data.red2Name;
 		wing.setAttribute("card", data.red2Card);
 		
 		if(typeof data.red3 !== 'undefined' && data.red3 > 0){
 			wing = document.getElementById("redWing3");
-			wing.innerHTML = data.red3;
+			wing.getElementsByClassName("wingNumber")[0].innerHTML = data.red3;
+			wing.getElementsByClassName("wingName")[0].innerHTML = data.red3Name;
+		
 			wing.setAttribute("card", data.red1Card);
 			wing.setAttribute("visible", "true");
 			
 			wing = document.getElementById("blueWing3");
-			wing.innerHTML = data.blue3;
+			
+			wing.getElementsByClassName("wingNumber")[0].innerHTML = data.blue3;
+			wing.getElementsByClassName("wingName")[0].innerHTML = data.blue3Name;
+		
 			wing.setAttribute("card", data.blue1Card);
 			wing.setAttribute("visible", "true");
 			
@@ -1491,11 +1679,11 @@
                 dataType: 'json',
                 success: function (data) {
                     rand=data.rand;
-                    document.getElementById("timer").setAttribute("visible","false");
+                    document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
                    	document.getElementById("preview").setAttribute("visible","false");
                    	document.getElementById("scoreRed").setAttribute("visible","true");
 					document.getElementById("scoreBlue").setAttribute("visible","true");
-					document.getElementById("scoreBar").setAttribute("visible","true");
+					document.getElementById("scoreBar").setAttribute("visible",#if($ad2)"false"#else"true"#end);
 					document.getElementById("result").setAttribute("visible","false");
 					document.getElementById("selection").setAttribute("visible","false");
                     var r = document.getElementById("random");
