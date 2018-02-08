@@ -1504,13 +1504,13 @@
 		setTop(data.name);
 	
 		
-		document.getElementById("timer").setAttribute("visible","false");
+		document.getElementById("timer").setAttribute("visible", #if($ad2)elims ? "false" : "true"#else"false"#end);
 		document.getElementById("random").setAttribute("visible","false");
 		document.getElementById("preview").setAttribute("visible","true");
 		document.getElementById("result").setAttribute("visible","false");
 		document.getElementById("scoreRed").setAttribute("visible",elims ? "false" : "true");
 		document.getElementById("scoreBlue").setAttribute("visible",elims ? "false" : "true");
-		document.getElementById("scoreBar").setAttribute("visible",elims ? "false" : "true");
+		document.getElementById("scoreBar").setAttribute("visible", #if($ad2) "false" #else elims ? "false" : "true"#end);
 		document.getElementById("selection").setAttribute("visible","false");
 		
 		var statImg = document.getElementById("seriesStatusImg");

@@ -191,7 +191,7 @@ public class Match {
 		
 		list.add(json("cryptobox1", a.scores.get("cryptobox1")));
 		list.add(json("cryptobox2", a.scores.get("cryptobox2")));
-		list.add(json("cbKeys", a.scores.get("cbKeys")));
+		list.add(json("cbKeys", a.scores.get("cbKeys") == null ? "0" : a.scores.get("cbKeys")));
 		list.add(json("jewelSet1", a.scores.get("jewelSet1")));
 		list.add(json("jewelSet2", a.scores.get("jewelSet2")));
 		return list;
