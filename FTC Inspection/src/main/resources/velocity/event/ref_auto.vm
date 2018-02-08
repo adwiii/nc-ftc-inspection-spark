@@ -5,6 +5,7 @@
 // Blue - #0166B3
 	var parked = $parkedAuto; 
 	var keys = $cryptoboxKeys;
+	var autoGlyphs = $autoGlyphs;
 	
 	var red  = '/img/ball_red.png';
 	var blue = '/img/ball_blue.png'; 
@@ -120,8 +121,8 @@
 	function getScoreObject(){
 		obj = {};
 		//TODO make these parse calls inside the macro?
-		//TODO SUPER FIX THIS TREY- Count the number of glyphs in the two cbs
 		//obj.autoGlyphs = parseInt(document.getElementById('autoGlyphs').textContent);
+		obj.autoGlyphs = autoGlyphs;
 		obj.major = parseInt(document.getElementById('major').textContent);
 		obj.minor = parseInt(document.getElementById('minor').textContent);
 		obj.cryptoboxKeys = keys;
@@ -236,6 +237,8 @@ function hex(x) {
 		if(bg == "#FFFFFF" && border == "#000000"){//white to brown
 			slot.setAttribute("bgcolor","#565C05");
 			slot.style.borderColor = "#000000";
+			autoGlyphs++;
+			scoreUpdate({autoGlyphs:autoGlyphs});
 		} else if(bg == "#565C05" && border == "#000000"){//brown to gray
 			slot.setAttribute("bgcolor","#D6D6CB");
 			slot.style.borderColor = "#000000";
@@ -250,8 +253,11 @@ function hex(x) {
 		} else {//gray key to white
 			slot.setAttribute("bgcolor","#FFFFFF");
 			slot.style.borderColor = "#000000";
-			keys--;
-			scoreUpdate({cryptoboxKeys:keys});
+			if (keylocNum == c) { //we removed a key
+				keys--;
+			}
+			autoGlyphs--;
+			scoreUpdate({cryptoboxKeys:keys,autoGlyphs:autoGlyphs});
 		}
 		var cbVal = getCryptoboxData(cb);
 		var cbKeys = getCryptoboxKeyEncoding();
