@@ -938,6 +938,7 @@ public class EventDAO {
 				//TODO URGENT FIX THIS
 				keys.remove("card3");
 				keys.remove("dq3");
+				keys.remove("cbKeys");
 				for(String key : keys) {
 					a.updateScore(key, rs.getObject(key));
 				}
