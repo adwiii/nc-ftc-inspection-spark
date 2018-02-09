@@ -50,10 +50,28 @@
 		text-align:center;
 	}
 	.sec{
-		font:50px  "Arial Black", Arial, Helvetica, sans-serif;
+		font:60px  "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	.sec2, .team{
+		font:55px  "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	.team {
+		width:5em;
+		text-shadow: 2px 2px 2px #000000;
+		/* text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white; */
 	}
 	td {
 		font:40px  "Arial", Arial, Helvetica, sans-serif;
+	}
+	.red {
+		color:red;
+		text-shadow: 2px 2px 2px #FFFFFF;
+		/* text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black; */
+	}
+	.blue {
+		color:blue;
+		text-shadow: 2px 2px 2px #FFFFFF;
+		/* text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white; */
 	}
 	#matchTable td,
 	#matchTable th {
@@ -83,11 +101,19 @@ Queueing Display
 		<td>
 			<font class="sec">On Field</font><br>
 			#if($field.size() > 0)
-				$field.get(0).getShortName()<br>
+				<font class="sec2">
+					$field.get(0).getShortName()<br>
+				</font>
 				#set($r = $field.get(0).getRed())
 				#set($b = $field.get(0).getBlue())
-				$r.team1 $r.team2 #if($r.team3 !=0) $r.team3#end <br>
-				$b.team1 $b.team2 #if($b.team3 !=0) $b.team3#end <br>
+				<table style="margin:0 auto;">
+				<tr>
+					<td class="team red">$r.team1</td><td class="team red">$r.team2</td>#if($r.team3 !=0)<td class="team red">$r.team3</td>#end
+				</tr>
+				<tr>
+					<td class="team blue">$b.team1</td><td class="team blue">$b.team2</td>#if($b.team3 !=0)<td class="team blue">$b.team3</td>#end
+				</tr>
+				</table>
 			#end
 		</td>
 	#end
@@ -100,11 +126,19 @@ Queueing Display
 	<td><font class="sec">In Queue</font><br>
 	#foreach($i in [1..$qs])
 		#if($field.size() > $i)
-				$field.get($i).getShortName()<br>
+<font class="sec2">
+					$field.get($i).getShortName()<br>
+				</font>
 				#set($r = $field.get($i).getRed())
 				#set($b = $field.get($i).getBlue())
-				$r.team1 $r.team2 #if($r.team3 !=0) $r.team3#end <br>
-				$b.team1 $b.team2 #if($b.team3 !=0) $b.team3#end <br>
+				<table style="margin:0 auto;">
+				<tr>
+					<td class="team red">$r.team1</td><td class="team red">$r.team2</td>#if($r.team3 !=0)<td class="team red">$r.team3</td>#end
+				</tr>
+				<tr>
+					<td class="team blue">$b.team1</td><td class="team blue">$b.team2</td>#if($b.team3 !=0)<td class="team blue">$b.team3</td>#end
+				</tr>
+				</table>
 			#end
 	#end
 	</td>
