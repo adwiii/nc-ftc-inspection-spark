@@ -49,9 +49,10 @@
 		
 		//document.getElementById("glyphKeysLabel").textContent = "Glyph Keys (" + keyloc + "):";
 		//init cryptobox
-		initCryptobox(1, $cryptobox1);
-		initCryptobox(2, $cryptobox2);
+		initCryptobox(1, $cryptobox1, $cbKeys);
+		initCryptobox(2, $cryptobox2, $cbKeys);
 		
+		/*
 		var keyCopy = keys;
 		var r = 3;
 		var cb = 1;
@@ -70,6 +71,7 @@
 				r--;
 			}
 		}
+		*/
 	});
 	function radioParked(value){
 		parked = value;
@@ -164,10 +166,13 @@
 	}
 	
 	//COPIED CRYPTOBOX CODE HERE
-		function initCryptobox(cb, val){
+		function initCryptobox(cb, val, keys){
 		//console.log(val.toString(2));
 		for(var r = 0; r < 4; r++){
 			for(var c = 0; c < 3; c++){
+				if((keys >> ((6 * r) + (2*c) + (cb - 1))) & 1 == 1){
+					document.getElementById("cb_"+cb+","+r+","+keylocNum).style.borderColor = "#FFD700";
+				}
 				var cell = document.getElementById("cb_"+cb+","+r+","+c);
 				var enc = (val >> ((6 * r) + (2*c))) & 3;
 				cell.setAttribute("bgcolor", enc == 0 ? "#FFFFFF" : (enc == 1 ? "#565C05" : "#D6D6CB"));

@@ -56,6 +56,10 @@
 		initCryptobox(1, $cryptobox1);
 		initCryptobox(2, $cryptobox2);
 		
+	  		for(var i = 0; i < 8; i++){
+	  			document.getElementById("cb_"+(Math.floor(i/4)+1)+"_row_"+(i % 4)).setAttribute("selected", (($cbRows >> i) & 1 )> 0 ? "true" : "false");
+	  		}
+		
 	});
 	
 	function initCryptobox(cb, val){
