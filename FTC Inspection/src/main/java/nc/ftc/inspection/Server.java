@@ -54,7 +54,8 @@ public class Server {
 		DB_PATH = db == null ? "src/main/resources/db/" : db;
 		String archive = DB_PATH;
 		archive = archive.substring(0, archive.length() - 2);
-		archive = archive.substring(0, archive.lastIndexOf('/'));
+		int ind = archive.lastIndexOf('/');
+		if(ind >= 0)archive = archive.substring(0, ind);
 		ARCHIVE_PATH = archive + "/archive/";
 		System.out.println("DB Path set to: "+DB_PATH);
 		System.out.println("Archive Path set to: " + ARCHIVE_PATH);

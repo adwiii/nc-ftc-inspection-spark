@@ -182,12 +182,17 @@
 	}
 	#timer[ad2="true"][timeout="false"]{
 		position: absolute;
+		#if($flip)
+		top:250px;
+		#else
 		top: 850px;
+		#end
 		left:800px;
 		width:320px;
 		z-index:2;
 		background-color:black;
 	}
+	
 	.timerImage{
 		max-width:33%;
 		max-height:100%;
@@ -220,7 +225,11 @@
 	}
 	#random{
 		position: absolute;
+		#if($flip)
+		top:430px;
+		#else
 		top: 180px;
+		#end
 		left:762px;
 		background-color:white;
 	}
@@ -232,6 +241,12 @@
 		top:180px;
 		left:160px;
 	}
+	#if($flip)
+		#preview[elims="false"]{
+			top:430px;
+		}
+	#end
+	
 	#preview[visible="false"]{
 	display:none;
 	}
@@ -533,7 +548,11 @@
 		width: 1920px;
 		#if($ad2)
 			left:130px;
+			#if($flip)
+			top:438px;
+			#else
 			top:180px;
+			#end
 		#else
 			left:0px;
 			top:900px;
@@ -547,7 +566,11 @@
 		height:180px;
 		width: 260px;
 		#if($ad2)
-		top:850px;
+			#if($flip)
+			top:250px;
+			#else
+			top:850px;
+			#end
 		#else
 		top: 900px;
 		#end		
@@ -560,7 +583,7 @@
 	}
 	#scoreBlue{
 		background-color:blue;
-		#if($ad2)
+		#if($ad2)			
 		left:540;
 		#else
 		left: 700px;
@@ -803,7 +826,7 @@
 	div[ad2="true"][timeout="false"] > div > .redWing[card=true]{
 		background-color:yellow;
 		color:black;
-		text-align:right;
+		text-align:left;
 		
 		border-radius:0px 15px 15px 0px;
 		border-color:black;
@@ -1603,6 +1626,13 @@
 	function showPreview(data){
 		
 		var elims = typeof data.red3 !== 'undefined';
+		
+		document.getElementById("preview").setAttribute("elims", elims ? "true" : "false");
+		
+  		display( 150  , "W");
+  		#if($ad2)
+  		document.getElementById("progress").style.width = '0%';
+  		#end
 
 		document.getElementById("red1_number").innerHTML = data.red1;
 		document.getElementById("red1_name").innerHTML = data.red1Name;
@@ -1944,10 +1974,12 @@
   	#end
   	
   	function setCryptobox(alliance, index, val, keys){
-  		for(var r = 0; r < 4; r++){
-			for(var c = 0; c < 3; c++){
+  		for(var c = 0; c < 3; c++){
+  			var colCount = 0;
+			for(var r = 0; r < 4; r++){
 				var cell = document.getElementById(alliance+"_"+index+"_"+r+"_"+c);
 				var enc = (val >> ((6 * r) + (2*c))) & 3;
+				if(enc != 0) colCount++;
 				if((keys >> ((6 * r) + (2*c) + (index - 1))) & 1 == 1){
 					cell.setAttribute("visible", "true");
 					if(enc ==0){
@@ -1967,6 +1999,9 @@
 					}
 				}
 			}
+			#if($ad2)
+			document.getElementById(alliance+"_"+index+"_chevron_c"+c).setAttribute("visible", colCount == 4 ? "true" : "false");
+			#end
 		} 
 		var ciph = ""; 	
 		if(val == 6710886 || ((~val) & 0xFFFFFF) == 6710886){

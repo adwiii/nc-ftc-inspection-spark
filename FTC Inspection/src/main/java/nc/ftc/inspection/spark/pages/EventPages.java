@@ -1785,7 +1785,17 @@ public class EventPages {
 		};
 		
 		public static Route serveAudienceDisplay = (Request request, Response response) ->{
-			return render(request, new HashMap<String, Object>(), Path.Template.AUDIENCE_DISPLAY);
+			Map<String, Object> map = new HashMap<>();
+			String is43Str = request.queryParams("43");
+			String muteStr = request.queryParams("mute");
+			String isFlip = request.queryParams("flip");
+//			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+			map.put("ad", true);
+			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
+			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
+			map.put("ad2", true);
+			map.put("flip", isFlip == null ? false : Boolean.parseBoolean(isFlip));
+			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 		
 		public static Route handleWaitForPreview = (Request request, Response response) ->{

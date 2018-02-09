@@ -61,7 +61,7 @@
 	<li>
 		<a href="../control">Match Control Page</a>
 	</li><li>
-		<a href="../editmatch">Edit Match Scores</a>
+		<a href="../results">Edit Match Scores</a>
 	</li><li>
 		<a href="../field/">Field Display</a>
 	</li><li>
@@ -69,7 +69,9 @@
 	</li><li> 
 		<a href="../field/?field=2">Field Display 2 (Even Matches Only)</a>
 	</li><li>
-		<a href="../field/?ad=true&mute=true&ad2=true">Audience Display</a>
+		<a href="../audience/">Audience Display</a>
+	</li><li>
+		<a href="../audience/?flip=true">Audience Display (Flipped)</a>
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li>
