@@ -1628,7 +1628,7 @@ public class EventPages {
 				Integer t = list.size() > 0 ? list.get(0) : null;
 				res += "\"red1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
 				res += "\"red2Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
-				cardMap.get(blue.getRank());
+				list = cardMap.get(blue.getRank());
 				t = list.size() > 0 ? list.get(0) : null;
 				res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
 				res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
