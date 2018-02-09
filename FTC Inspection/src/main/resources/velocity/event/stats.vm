@@ -135,7 +135,7 @@ function openTab(evt, tabName) {
 	});
 </script>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>
-<center><h2>Statistics (Beta)</h2></center>
+<center><h2>$sysEvent <br> Statistics (Beta)</h2></center>
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'teamGeneral')" id="teamGeneralId">General<br>(Quals)</button>
