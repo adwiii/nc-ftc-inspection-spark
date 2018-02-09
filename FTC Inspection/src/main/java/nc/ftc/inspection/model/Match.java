@@ -200,6 +200,8 @@ public class Match {
 		if(o != null)list.add(json("relic1Standing", o));
 		o = a.scores.get("relic2Standing");
 		if(o != null)list.add(json("relic2Standing", o));
+		o = a.scores.get("cbRows");
+		if(o !=null)list.add(json("cbRows", o));
 		list.add(json("jewelSet1", a.scores.get("jewelSet1")));
 		list.add(json("jewelSet2", a.scores.get("jewelSet2")));
 		return list;

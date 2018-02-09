@@ -939,6 +939,7 @@ public class EventDAO {
 				keys.remove("card3");
 				keys.remove("dq3");
 				keys.remove("cbKeys");
+				keys.remove("cbRows");
 				for(String key : keys) {
 					a.updateScore(key, rs.getObject(key));
 				}
@@ -968,6 +969,7 @@ public class EventDAO {
 				keys.remove("card3");
 				keys.remove("dq3");
 				keys.remove("cbKeys");
+				keys.remove("cbRows");
 				for(String key : keys) {
 					a.updateScore(key, rs.getObject(key));
 				}

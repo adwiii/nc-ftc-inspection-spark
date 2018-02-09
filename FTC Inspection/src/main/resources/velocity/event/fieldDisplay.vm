@@ -57,20 +57,20 @@
   		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:$left3; top:$top4;">
   		#if($ad2)
-  		<img id="${alliance}_${index}_chevron_r0" visible="true" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r0" visible="false" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
   		style="top:30;">
-  		<img id="${alliance}_${index}_chevron_r1" visible="true" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r1" visible="false" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
   		style="top:110;">
-  		<img id="${alliance}_${index}_chevron_r2" visible="true" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r2" visible="false" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
   		style="top:188;z-index:2;">
-  		<img id="${alliance}_${index}_chevron_r3" visible="true" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r3" visible="false" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
   		style="top:265;">
   		
-  		<img id="${alliance}_${index}_chevron_c0" visible="true" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		<img id="${alliance}_${index}_chevron_c0" visible="false" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
   		style="left:26;">
-  		<img id="${alliance}_${index}_chevron_c1" visible="true" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		<img id="${alliance}_${index}_chevron_c1" visible="false" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
   		style="left:105;">
-  		<img id="${alliance}_${index}_chevron_c2" visible="true" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		<img id="${alliance}_${index}_chevron_c2" visible="false" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
   		style="left:182;">
   		
   		#end
@@ -894,10 +894,14 @@
 		display:none;
 	}
 	
-	.chevron{
+	.chevron[visible="true"]{
 		position:absolute;
 		z-index:2;
 	}
+	.chevron[visible="false"]{
+		display:none;
+	}
+	
 	
 	.chevronR{
 		left:-23;
@@ -1939,9 +1943,10 @@
   		setCryptobox('red', 1, obj.red.cryptobox1, obj.red.cbKeys);
   		setCryptobox('red', 2, obj.red.cryptobox2, obj.red.cbKeys);
   		
+  		console.log(obj.red.cbRows);
   		if(obj.red.cbRows !== undefined){
   			for(var i = 0; i < 8; i++){
-  				document.getElementById("red_"+(Math.floor(i/4) + 1)+"_chevron_r"+(i % 4)).setAttribute("visible", ((obj.red.cbRows >> i) & 1 )> 0 ? "true" : "false");
+  				document.getElementById("red_"+(Math.floor(i/4)+1)+"_chevron_r"+(i % 4)).setAttribute("visible", ((obj.red.cbRows >> i) & 1 )> 0 ? "true" : "false");
   			}
   		
   		}

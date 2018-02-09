@@ -111,10 +111,22 @@
 		}
 		var obj={};
 		obj["cryptobox"+cb] = cbVal;
+		obj["cbRows"] = getRows();
 		scoreUpdate(obj);
+	}
+	function getRows(){
+	var rows = 0;
+		for(var i = 0; i < 8; i++){
+			var sel = document.getElementById("cb_" + (Math.floor(i/4)+1) + "_row_" + (i % 4)).getAttribute("selected");
+			if(sel == "true"){
+				rows += (1 << i);
+			}
+		}
+		return rows;
 	}
 	
 	function chevron(cb, r) {
+		console.log("cb_" + cb + "_row_" + r);
 		var slot = document.getElementById("cb_" + cb + "_row_" + r);
 		var selected = slot.getAttribute("selected");
 		if (selected == "false") {
@@ -122,6 +134,9 @@
 		} else {
 			slot.setAttribute("selected", false);
 		}
+		var obj = {};
+		obj["cbRows"] = getRows();
+		scoreUpdate(obj);
 	}
 	
 	function radioRelic(rel, value){
