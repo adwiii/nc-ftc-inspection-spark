@@ -2372,10 +2372,26 @@ public class EventPages {
 			list.add(json("blueTotal", mr.getBlueTotal()));
 			list.add(json("winChar", mr.getWinChar()));
 			
+			Map<Integer, Team> teams = e.teamNameCache.get();
+			if(teams == null) {
+				List<Team> l= EventDAO.getTeams(code);
+				teams = new HashMap<>();
+				for(Team t : l) {
+					teams.put(t.getNumber(), t);
+				}
+				e.teamNameCache.set(teams);
+			}
+			list.add(json("red1Name", teams.get(red.getTeam1()).getName()));
+			list.add(json("red2Name", teams.get(red.getTeam2()).getName()));
+			list.add(json("blue1Name", teams.get(blue.getTeam1()).getName()));
+			list.add(json("blue2Name", teams.get(blue.getTeam2()).getName()));
+			
 			list.add(json("red1", red.getTeam1()));
 			list.add(json("red2", red.getTeam2()));
 			list.add(json("blue1", blue.getTeam1()));
 			list.add(json("blue2", blue.getTeam2()));
+			
+			
 			
 			
 			
@@ -2384,10 +2400,15 @@ public class EventPages {
 			int blueCard1 = Integer.parseInt(blue.getScore("card1").toString());
 			int blueCard2 = Integer.parseInt(blue.getScore("card2").toString());
 			
-			if(e.getData().getStatus() == EventData.ELIMS) {
+			if(mr.isElims()) {
 				//team3
 				list.add(json("red3", red.getTeam3()));
 				list.add(json("blue3", blue.getTeam3()));
+				
+
+				//TODO check 2-team alliances?
+				list.add(json("red3Name", teams.get(red.getTeam3()).getName()));
+				list.add(json("blue3Name", teams.get(blue.getTeam3()).getName()));
 				
 				//put seeds here
 				list.add(json("redRank", mr.getRed().getRank()));
