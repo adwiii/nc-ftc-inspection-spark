@@ -405,7 +405,18 @@ function waitForRefReview(){
 				commitBtn.setAttribute("onclick","commit()");
 				acceptScores = false;
 				updateScoreControl(data);
-				setControlState(false);
+				$.ajax({
+	                url: "../score/edit/red/",
+	                type: "PUT",
+	                dataType: 'json',
+	                data: {},
+	                success: function (data) {                    
+	  					updateScoreBreakdown(data);	  					
+						setControlState(false);
+	                },
+	                error: function () {
+	                    console.log("Error");
+                }});
   			},
   			error: function(){
   				//TODO

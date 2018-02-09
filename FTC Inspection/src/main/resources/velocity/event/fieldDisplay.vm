@@ -298,10 +298,15 @@
 		position:absolute;
 		width:250px;
 	}
-	div[elims="true"] > div > div > .resultNumber{
+	div[elims="true"][ad2="false"] > div > div > .resultNumber{
 		position:absolute;
 		left:70;
 		width:250px;
+	}
+	div[elims="true"][ad2="true"] > div > div > .resultNumber{
+		position:absolute;
+		left:50;
+		width:230px;
 	}
 	
 	.resultCard{
@@ -311,7 +316,7 @@
 	}
 	div[elims="true"] > div > div > .resultCard{
 		position:absolute; 
-		left:675;
+		left:640;
 		top:19;
 	}
 	.resultCard[visible="false"]{
@@ -335,6 +340,9 @@
 		width:300;
 		left:300;
 	}
+	div[elims="true"][ad2="true"] > div > div > .resultName{
+		left:300;
+	}
 	
 	.resultWinner{
 		position:absolute;
@@ -346,7 +354,7 @@
 		color:white;
 		font:61px "Arial Black", Arial, Helvetica, sans-serif;
 	}
-	div[ad2="true"] > .resultWinner{
+	div[ad2="true"][elims="false"] > .resultWinner{
 		top:665;
 	}
 	.resultWinner[tie="true"]{
@@ -358,10 +366,10 @@
 	.resultBar{
 		position:relative;
 	}
-	div[elims="true"] > div > .resultBar{
+	div[elims="true"][ad2="false"] > div > .resultBar{
 		display:none;
 	}
-	div[elims="true"] > div > .resultBarhead{
+	div[elims="true"][ad2="false"] > div > .resultBarhead{
 		position:relative;
 		display:block;
 	}
@@ -390,10 +398,20 @@
 		color:black;
 		
 	}
-	div[elims="true"] > .seriesResult{
+	div[elims="true"][ad2="false"] > .seriesResult{
 		position:absolute;
 		left:400;
 		top:460;
+		width:800;
+		height:93;
+		text-align:center;
+		color:white;
+		font:61px "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	div[elims="true"][ad2="true"] > .seriesResult{
+		position:absolute;
+		left:400;
+		top:620;
 		width:800;
 		height:93;
 		text-align:center;
@@ -758,6 +776,11 @@
 		background-color:yellow;
 		color:black;
 		text-align:right;
+		
+		border-radius:15px 0px 0px 15px;
+		border-color:black;
+		border-style:solid;
+		border-width:3px 0px 3px 3px;
 		
 	}
 	.redWing[card=false]{
@@ -1674,13 +1697,12 @@
 		document.getElementById("blue1_resultRank").innerHTML = data.blue1Rank + getArrow(data.blue1Dif);
 		document.getElementById("blue2_resultRank").innerHTML = data.blue2Rank + getArrow(data.blue2Dif);
 		
-		if(!elims){
 			document.getElementById("red1_resultName").innerHTML = data.red1Name;
 			document.getElementById("red2_resultName").innerHTML = data.red2Name;
 			document.getElementById("blue1_resultName").innerHTML = data.blue1Name;
 			document.getElementById("blue2_resultName").innerHTML = data.blue2Name;
 		
-		}
+		
 		
 		document.getElementById("red1_card").setAttribute("visible", data.red1Card == 0 ? "false" : "true");
 		if(data.red1Card > 0) document.getElementById("red1_card").src= getCardImage(data.red1Card);
@@ -1699,10 +1721,30 @@
 		document.getElementById("blueField_total").innerHTML = data.blueTotal;
 		
 		if(elims){
-			document.getElementById("redhead_resultNumber").innerHTML = "&nbsp;"+data.red1+"&nbsp;"+data.red2+"&nbsp;"+data.red3;
-			document.getElementById("redheadSeed").innerHTML = data.redRank;
+			#if($ad2)
+			document.getElementById("redhead_resultNumber").innerHTML = data.red1;
+			document.getElementById("red1_resultNumber").innerHTML = data.red2;
+			document.getElementById("red2_resultNumber").innerHTML = data.red3;
+			document.getElementById("bluehead_resultNumber").innerHTML = data.blue1;
+			document.getElementById("blue1_resultNumber").innerHTML = data.blue2;
+			document.getElementById("blue2_resultNumber").innerHTML = data.blue3;
+			document.getElementById("redhead_resultName").innerHTML = data.red1Name;
+			document.getElementById("red1_resultName").innerHTML = data.red2Name;
+			document.getElementById("red2_resultName").innerHTML = data.red3Name;
+			document.getElementById("bluehead_resultName").innerHTML = data.blue1Name;
+			document.getElementById("blue1_resultName").innerHTML = data.blue2Name;
+			document.getElementById("blue2_resultName").innerHTML = data.blue3Name;
+			document.getElementById("red1Seed").innerHTML = data.redRank;		
+			document.getElementById("blue1Seed").innerHTML = data.blueRank;
+			document.getElementById("red2Seed").innerHTML = data.redRank;		
+			document.getElementById("blue2Seed").innerHTML = data.blueRank;
 		
+			#else
+			document.getElementById("redhead_resultNumber").innerHTML = "&nbsp;"+data.red1+"&nbsp;"+data.red2+"&nbsp;"+data.red3;
 			document.getElementById("bluehead_resultNumber").innerHTML = "&nbsp;"+data.blue1+"&nbsp;"+data.blue2+"&nbsp;"+data.blue3;
+			
+			#end
+			document.getElementById("redheadSeed").innerHTML = data.redRank;		
 			document.getElementById("blueheadSeed").innerHTML = data.blueRank;
 		
 			var sr = "Series Tied";

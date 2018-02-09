@@ -70,6 +70,14 @@
 		//initCryptobox(2, $cryptobox2);
 		
 	});
+	function radioParked(value){
+		parked = value;
+		scoreUpdate({parkedAuto:value});
+	}
+	function radioKeys(value){
+		keys = value;
+		scoreUpdate({cryptoboxKeys:value});
+	}
 	function jewelToggle(set, id){
 		var j = document.getElementById("j_"+set+","+id);
 		if(j.style.backgroundColor != 'white'){

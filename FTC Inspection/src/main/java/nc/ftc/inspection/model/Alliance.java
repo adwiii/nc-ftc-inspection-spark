@@ -349,9 +349,11 @@ public class Alliance {
 					t = t & (t-1);
 				}
 				glyphs += thisRow;
+				/*
 				if(thisRow == 3) {
 					rows++;
 				}
+				*/
 			}
 
 			final int COLUMN_MASK = 0b11000011000011000011;
@@ -368,6 +370,7 @@ public class Alliance {
 				}
 			}			
 		}
+		rows = Long.bitCount(Long.parseLong(scores.get("cbRows").toString()));
 		// each glyph counted twice.
 		glyphs /= 2;
 		scores.put("glyphs", glyphs);
