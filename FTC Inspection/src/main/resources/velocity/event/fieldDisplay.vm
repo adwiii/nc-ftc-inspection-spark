@@ -56,6 +56,24 @@
   		style="position:absolute;left:$left2; top:$top4;">
   		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:$left3; top:$top4;">
+  		#if($ad2)
+  		<img id="${alliance}_${index}_chevron_r0" visible="true" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		style="top:30;">
+  		<img id="${alliance}_${index}_chevron_r1" visible="true" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		style="top:110;">
+  		<img id="${alliance}_${index}_chevron_r2" visible="true" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		style="top:188;z-index:2;">
+  		<img id="${alliance}_${index}_chevron_r3" visible="true" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		style="top:265;">
+  		
+  		<img id="${alliance}_${index}_chevron_c0" visible="true" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		style="left:26;">
+  		<img id="${alliance}_${index}_chevron_c1" visible="true" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		style="left:105;">
+  		<img id="${alliance}_${index}_chevron_c2" visible="true" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		style="left:182;">
+  		
+  		#end
   	</div>
 #end
 #macro (parking $alliance $size)
@@ -531,6 +549,14 @@
 		width:150px;
 		float:left;
 	}
+	.relic{
+		position:relative;
+		left:40; 
+		top:5;
+	}
+	.relic[visible="false"]{
+		display:none;
+	}
 	.grid{
 		position:relative;
 		#if($ad2)
@@ -704,6 +730,11 @@
 		background-color:white;
 		color:black;
 		text-align:right;
+		
+		border-radius:15px 0px 0px 15px;
+		border-color:black;
+		border-style:solid;
+		border-width:3px 0px 3px 3px;
 	}	
 	.blueWing[card=true]{
 		background-color:yellow;
@@ -713,6 +744,7 @@
 		background-color:yellow;
 		color:black;
 		text-align:right;
+		
 	}
 	.redWing[card=false]{
 		background-color:red;
@@ -721,7 +753,11 @@
 	div[ad2="true"][timeout="false"] > div > .redWing[card=false]{
 		background-color:white;
 		color:black;
-		text-align:left;
+		text-align:left;		
+		border-radius:0px 15px 15px 0px;
+		border-color:black;
+		border-style:solid;
+		border-width:3px 3px 3px 0px;
 	}	
 	.redWing[card=true]{
 		background-color:yellow;
@@ -731,6 +767,11 @@
 		background-color:yellow;
 		color:black;
 		text-align:right;
+		
+		border-radius:0px 15px 15px 0px;
+		border-color:black;
+		border-style:solid;
+		border-width:3px 3px 3px 0px;
 	}	
 	#redWing{	
 		position:absolute;
@@ -763,39 +804,7 @@
 		top:-70;
 		left:578;
 	}
-	/*
-		position:absolute; 
-		#if($ad2)
-			width:460;
-			height:250;
-			top:-70;
-			left:578;
-		#else
-			background-color:red;
-			width:300;
-			height:200;
-			top:162;
-			left:765;
-		#end
-	
-	*/
-	/*
-	#redWing[teams="3"]{
-		position:absolute;
-		#if($ad2)
-			width:460;
-			height:250;
-			top:-70;
-			left:578;
-		#else 
-			background-color:red;
-			width:300;
-			height:300;
-			top:112;
-			left:765;
-		#end
-	}
-	*/
+
 	
 	#blueWing{
 		position:absolute;
@@ -819,7 +828,7 @@
 		width:460;
 		height:250;
 		top:-70;
-		left:-721
+		left:-723;
 	}
 	div[ad2="true"][timeout="false"] > #blueWing[teams="3"]{
 		position:absolute;
@@ -827,40 +836,8 @@
 		width:460;
 		height:250;
 		top:-70;
-		left:-721
+		left:-723;
 	}
-	/*
-	#blueWing{
-		position:absolute; 
-		#if($ad2)
-			width:460;
-			height:250;
-			top:-70;
-			left:-721
-		#else
-			background-color:blue;
-			width:300;
-			height:200;
-			top:162;
-			left:-300;
-		#end
-	}
-	#blueWing[teams="3"]{
-		position:absolute; 
-		#if($ad2)
-			width:460;
-			height:250;
-			top:-70;
-			left:-721
-		#else
-			background-color:blue;
-			width:300;
-			height:300;
-			top:112;
-			left:-300;
-		#end
-	}
-	*/
 	
 	.wing1{
 		top:3;
@@ -916,6 +893,25 @@
 	.toBar[visible="false"]{
 		display:none;
 	}
+	
+	.chevron{
+		position:absolute;
+		z-index:2;
+	}
+	
+	.chevronR{
+		left:-23;
+	}
+	.chevronR[flip="true"]{
+		left:237;
+	}
+	
+	.chevronC{
+		top:-19;
+	}
+	
+	
+	
 	</style>
 
 <body>
@@ -1063,7 +1059,12 @@
 	  	#end
 	  		#grid("blue" $cbSize "1")
 	  		#if($ad2)
-	  		<div class="relics"></div>
+	  		<div class="relics">
+	  		
+	  			<img class="relic" id="blueRelic1" src="/img/relic_blue_1.png" alt="relic" visible="false" >
+	  			<img class="relic" id="blueRelic2" src="/img/relic_blue_3_side.png" alt="relic" visible="false">
+	  		
+	  		</div>
 	  		#end
 	  		#grid("blue" $cbSize "2")
 	  		#ball("blue" $jSize)
@@ -1073,11 +1074,16 @@
   			</div>
   			<div style="float:left; position:relative;left:150;width:750px;">  		
   		#end
-  		#grid("red" $cbSize "2")
-  		#if($ad2)
-  		<div class="relics"></div>
-  		#end
   		#grid("red" $cbSize "1")
+  		#if($ad2)
+  			<div class="relics">
+	  		
+	  			<img class="relic" id="redRelic1" src="/img/relic_red_3_side.png" alt="relic" visible="false" >
+	  			<img class="relic" id="redRelic2" src="/img/relic_red_3_side.png" alt="relic" visible="false" >
+	  		
+	  		</div>
+  		#end
+  		#grid("red" $cbSize "2")
   		#ball("red" $jSize) 	
   		#parking("red" $pSize)
   		#balance("red" $bSize)   		
@@ -1202,9 +1208,9 @@
   	    endgameFlag = false;
   		getScoreUpdate(false);
   		var tmr = document.getElementById("timer");
-  		if(tmr.getAttribute("visible") == "false"){
+  	//	if(tmr.getAttribute("visible") == "false" ){
   			showMatch();
-  		}
+  	//	}
   	}
   	function pause(){
   		pauseStart = new Date().getTime();
@@ -1932,6 +1938,43 @@
   		setCryptobox('blue', 2, obj.blue.cryptobox2, obj.blue.cbKeys);
   		setCryptobox('red', 1, obj.red.cryptobox1, obj.red.cbKeys);
   		setCryptobox('red', 2, obj.red.cryptobox2, obj.red.cbKeys);
+  		
+  		if(obj.red.cbRows !== undefined){
+  			for(var i = 0; i < 8; i++){
+  				document.getElementById("red_"+(Math.floor(i/4) + 1)+"_chevron_r"+(i % 4)).setAttribute("visible", ((obj.red.cbRows >> i) & 1 )> 0 ? "true" : "false");
+  			}
+  		
+  		}
+  		
+  		
+  		var relic = document.getElementById("redRelic1");
+  		if(obj.red.relic1Zone == undefined || obj.red.relic1Zone == 0){
+  			relic.setAttribute("visible", "false");
+  		}else{
+  			relic.setAttribute("visible", "true");
+  			relic.src = "/img/relic_red_"+obj.red.relic1Zone+(obj.red.relic1Standing == "true" ? "":"_side")+".png";
+  		}
+  		 relic = document.getElementById("redRelic2");
+  		if(obj.red.relic2Zone == undefined || obj.red.relic2Zone == 0){
+  			relic.setAttribute("visible", "false");
+  		}else{
+  			relic.setAttribute("visible", "true");
+  			relic.src = "/img/relic_red_"+obj.red.relic2Zone+(obj.red.relic2Standing == "true" ? "":"_side")+".png";
+  		}
+  		 relic = document.getElementById("blueRelic1");
+  		if(obj.blue.relic1Zone == undefined || obj.blue.relic1Zone == 0){
+  			relic.setAttribute("visible", "false");
+  		}else{
+  			relic.setAttribute("visible", "true");
+  			relic.src = "/img/relic_blue_"+obj.blue.relic1Zone+(obj.blue.relic1Standing == "true" ? "":"_side")+".png";
+  		}
+  		 relic = document.getElementById("blueRelic2");
+  		if(obj.blue.relic2Zone == undefined || obj.blue.relic2Zone == 0){
+  			relic.setAttribute("visible", "false");
+  		}else{
+  			relic.setAttribute("visible", "true");
+  			relic.src = "/img/relic_blue_"+obj.blue.relic2Zone+(obj.blue.relic2Standing == "true" ? "":"_side")+".png";
+  		}
   		
   		
   		document.getElementById("scoreRed").innerHTML = parseInt(obj.red.teleopPoints) + parseInt(obj.red.autoPoints) + parseInt(obj.red.foulPoints);

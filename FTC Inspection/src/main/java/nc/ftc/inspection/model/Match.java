@@ -192,6 +192,14 @@ public class Match {
 		list.add(json("cryptobox1", a.scores.get("cryptobox1")));
 		list.add(json("cryptobox2", a.scores.get("cryptobox2")));
 		list.add(json("cbKeys", a.scores.get("cbKeys") == null ? "0" : a.scores.get("cbKeys")));
+		Object o = a.scores.get("relic1Zone");
+		if(o != null)list.add(json("relic1Zone", o));
+		o = a.scores.get("relic2Zone");
+		if(o != null)list.add(json("relic2Zone", o));
+		o = a.scores.get("relic1Standing");
+		if(o != null)list.add(json("relic1Standing", o));
+		o = a.scores.get("relic2Standing");
+		if(o != null)list.add(json("relic2Standing", o));
 		list.add(json("jewelSet1", a.scores.get("jewelSet1")));
 		list.add(json("jewelSet2", a.scores.get("jewelSet2")));
 		return list;
