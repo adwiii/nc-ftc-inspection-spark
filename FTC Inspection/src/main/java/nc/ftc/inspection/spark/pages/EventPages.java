@@ -1766,6 +1766,7 @@ public class EventPages {
 			map.put("matches", r2);
 			map.put("event", event);
 			map.put("target", team);
+			map.put("teamName", GlobalDAO.getTeamName(target));
 			return render(request, map, Path.Template.TEAM_MATCH_RESULT);
 		};
 		

@@ -19,7 +19,7 @@ $fullPage
 <TITLE>Match Results</TITLE>
 </head>
 <a href="../../"><< Team Info Page</a>
-<CENTER><H2>$target<BR>
+<CENTER><H2>$target - $teamName<BR>
 Match Results</H2></CENTER>
 <HR>
 <DIV ALIGN=CENTER><TABLE BORDER=2 CELLPADDING=5 CELLSPACING=1 WIDTH=75%>
