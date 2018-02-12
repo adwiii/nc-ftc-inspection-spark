@@ -57,20 +57,20 @@
   		<img id="${alliance}_${index}_3_2" visible="false" class="cell" src="/img/grey-square${size}.png" alt="brown" 
   		style="position:absolute;left:$left3; top:$top4;">
   		#if($ad2)
-  		<img id="${alliance}_${index}_chevron_r0" visible="false" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r0" visible="false" class="chevron chevronR" src= #if($index==1)"/img/chevron_white.png"#else "/img/chevron_flip_white.png" flip="true"#end alt="chevron"
   		style="top:30;">
-  		<img id="${alliance}_${index}_chevron_r1" visible="false" class="chevron chevronR" src= #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r1" visible="false" class="chevron chevronR" src= #if($index==1)"/img/chevron_white.png"#else "/img/chevron_flip_white.png" flip="true"#end alt="chevron"
   		style="top:110;">
-  		<img id="${alliance}_${index}_chevron_r2" visible="false" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r2" visible="false" class="chevron chevronR" src = #if($index==1)"/img/chevron_white.png"#else "/img/chevron_flip_white.png" flip="true"#end alt="chevron"
   		style="top:188;z-index:2;">
-  		<img id="${alliance}_${index}_chevron_r3" visible="false" class="chevron chevronR" src = #if($index==1)"/img/chevron.png"#else "/img/chevron_flip.png" flip="true"#end alt="chevron"
+  		<img id="${alliance}_${index}_chevron_r3" visible="false" class="chevron chevronR" src = #if($index==1)"/img/chevron_white.png"#else "/img/chevron_flip_white.png" flip="true"#end alt="chevron"
   		style="top:265;">
   		
-  		<img id="${alliance}_${index}_chevron_c0" visible="false" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		<img id="${alliance}_${index}_chevron_c0" visible="false" class="chevron chevronC" src = "/img/chevron_down_white.png" alt="chevron"
   		style="left:26;">
-  		<img id="${alliance}_${index}_chevron_c1" visible="false" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		<img id="${alliance}_${index}_chevron_c1" visible="false" class="chevron chevronC" src = "/img/chevron_down_white.png" alt="chevron"
   		style="left:105;">
-  		<img id="${alliance}_${index}_chevron_c2" visible="false" class="chevron chevronC" src = "/img/chevron_down.png" alt="chevron"
+  		<img id="${alliance}_${index}_chevron_c2" visible="false" class="chevron chevronC" src = "/img/chevron_down_white.png" alt="chevron"
   		style="left:182;">
   		
   		#end
@@ -1991,7 +1991,8 @@
 					}
 					
 				} else{
-					cell.setAttribute("visible", ((rand-1) % 3 == c ? "true" : enc == 0 ? "false" : "true"));
+				//todo if want key columnn highlighting to disappear, use endAutoFlag in this and
+					cell.setAttribute("visible", (((rand-1) % 3 == c ) ? "true" : enc == 0 ? "false" : "true"));
 					if(enc == 0){
 						cell.src = alliance=='red' ? "/img/pink-square${cbSize}.png" : "/img/cyan-square${cbSize}.png"; 
 					} else{
