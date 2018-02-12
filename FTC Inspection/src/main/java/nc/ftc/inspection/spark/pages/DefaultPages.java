@@ -14,6 +14,7 @@ import nc.ftc.inspection.spark.util.Path;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import static spark.Spark.halt;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 
 public class DefaultPages {
@@ -74,6 +75,7 @@ public class DefaultPages {
 	public static Route forwardTo(String newAddress) {
 		return(Request req, Response resp) -> {
 			resp.redirect(newAddress);
+			halt();
 			return "";
 		};
 	}

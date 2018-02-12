@@ -21,6 +21,7 @@ import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.model.Team.FormIndex;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
+import static spark.Spark.halt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -672,6 +673,7 @@ public class EventPages {
 			
 			response.status(200);
 			response.redirect("../");
+			halt();
 			return "OK";
 		};
 		
@@ -2688,6 +2690,7 @@ public class EventPages {
 				EventDAO.createElimsMatches(event, matches);
 				response.status(200);
 				response.redirect("../");
+				halt();
 				return "OK";
 		};
 		

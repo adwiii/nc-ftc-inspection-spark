@@ -17,6 +17,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
+import static spark.Spark.halt;
 import static nc.ftc.inspection.spark.util.RequestUtil.*;
 
 public class LoginPage {
@@ -86,6 +87,7 @@ public class LoginPage {
 		request.session().attribute("currentUser", user.getUsername());
 		if (getQueryLoginRedirect(request) != null) {
 			response.redirect(getQueryLoginRedirect(request));
+			halt();
 		}
 		return render(request, model, Path.Template.LOGIN);
 	};
@@ -118,8 +120,10 @@ public class LoginPage {
 		request.session().attribute("currentUser", user.getUsername());
 		if (getQueryLoginRedirect(request) != null) {
 			response.redirect(getQueryLoginRedirect(request));
+			halt();
 		}
 		response.redirect(Path.Web.INDEX);
+		halt();
 		return render(request, model, Path.Template.LOGIN);
 	};
 
@@ -154,6 +158,7 @@ public class LoginPage {
 		request.session().removeAttribute("sessionToken");
 		request.session().attribute("loggedOut", true);
 		response.redirect(Path.Web.LOGIN);
+		halt();
 		return null;
 	};
 

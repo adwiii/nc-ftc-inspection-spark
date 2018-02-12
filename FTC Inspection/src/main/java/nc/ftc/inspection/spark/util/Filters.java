@@ -1,5 +1,7 @@
 package nc.ftc.inspection.spark.util;
 
+import static spark.Spark.halt;
+
 import nc.ftc.inspection.AuthenticationManager;
 import nc.ftc.inspection.model.User;
 import spark.*;
@@ -11,10 +13,12 @@ public class Filters {
     public static Filter addTrailingSlashesAndLowercase = (Request request, Response response) -> {
         if (!request.pathInfo().endsWith("/")) {
             response.redirect(request.pathInfo().toLowerCase() + "/");
+            halt();
         } else {
         	//check to see if we need to go to lower case
         	if (!request.pathInfo().equals(request.pathInfo().toLowerCase())) {
         		response.redirect(request.pathInfo().toLowerCase());
+        		halt();
         	}
         }
     };
@@ -31,10 +35,12 @@ public class Filters {
     		if (user == User.NONE) {
                 request.session().attribute("loginRedirect", request.pathInfo());
                 response.redirect(Path.Web.LOGIN);
+                halt();
     		}
     		//if the user cannot access this page, then 403
     		if ((user & type) == 0) {
     			response.redirect(Path.Web.ERROR_403);
+    			halt();
     		}
     	};
     }
