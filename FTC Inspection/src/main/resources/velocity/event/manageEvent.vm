@@ -36,19 +36,18 @@
 
 </form>
 
-	<label>Event State:</label>
-	Status:
+	<label>Event Status:</label>
 	#if($status == 0)
 		Future
 		<br>
-		Next Step: Setting the event to "Setup" creates the event database and allows the entering of teams. If this server instance will be sending updates to a remote server, do NOT proceed. Got to <a href="">Server Config</a> to configure remotes.<br>
+		Next Step: Setting the event to "Setup" creates the event database and allows the entering of teams. If this server instance will be sending updates to a remote server, do NOT proceed. Go to <a href="">Server Config</a> to configure remotes.<br>
 		<button onclick="setStatus(1)">Setup Event</button>
 	#elseif($status == 1)
 		Setup
 		<br>
 		This Step:Use <a href="./teams/">this form</a> to add/remove teams from the event<br>
 		<br>
-		Next Step:After the team list is complete, setting the event to "inspection" 
+		Next Step: After the team list is complete, setting the event to "inspection" 
 		populates the necessary info for inspection to begin. Make sure ALL teams are entered.
 	After starting inspection, TEAMS CANNOT BE ADDED. They can be removed until matches start.
 		<br>
@@ -69,14 +68,14 @@
 		Then the event is ready! <br>
 		
 		If you need to edit team names or remove teams, do so <a href="./teams/">here</a>.<br>
-		Next Step:After Finishing Quals, begin the alliance selection:
+		Next Step: After Finishing Quals, begin the alliance selection:
 		<button onclick="setStatus(4)">Alliance Selection</button>
 	#elseif($status == 4)
 		Alliance Selection
 		<br>
 		This Step: Use the FIRST software to generate alliances.  Upload alliances <a href="./allianceupload/">here.</a>
 		<br>
-		Next Step:After uploading alliances, begin elims:
+		Next Step: After uploading alliances, begin elims:
 		<button onclick="setStatus(5)">Eliminations</button>
 	#elseif($status == 5)
 		Eliminations
