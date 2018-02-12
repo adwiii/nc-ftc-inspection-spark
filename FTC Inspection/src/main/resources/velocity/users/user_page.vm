@@ -1,7 +1,8 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<h2>Hello $currentUser</h2>
-<h3>You currently have the following roles</h3>
+<h2>Hello $currentUser.</h2>
+To change your password, please visit <a href="/changepw/">this page.</a>
+<h3>You currently have the following roles:</h3>
 <ul>
 #foreach( $role in $rolesList )
     <li>$role</li>
