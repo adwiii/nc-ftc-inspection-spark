@@ -133,6 +133,7 @@
     });
     
 </script>
+<a href="/event/$sysEvent/manage/"><< To Event Management</a>
 <table>
 <tr>
 <td>

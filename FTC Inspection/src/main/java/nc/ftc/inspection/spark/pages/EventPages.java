@@ -82,6 +82,8 @@ public class EventPages {
 		if (success) {
 			model.put("success", 1);
 			model.put("resp", "Event successfully created");
+			response.redirect(Path.Web.MANAGE_EVENT.replace(":event", code));
+			halt();
 		} else {
 			model.put("success", 0);
 			model.put("resp", "Could not create event, please check the information and try again");
