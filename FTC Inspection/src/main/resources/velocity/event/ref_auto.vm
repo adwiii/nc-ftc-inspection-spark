@@ -130,6 +130,8 @@
 		obj.cryptoboxKeys = keys;
 		obj.cbKeys = getCryptoboxKeyEncoding();
 		obj.parkedAuto = parked;
+		obj.cryptobox1 = getCryptoboxData(1);
+		obj.cryptobox2 = getCryptoboxData(2)
 		addJewelScore(1, obj);
 		addJewelScore(2, obj);
 		return obj;
