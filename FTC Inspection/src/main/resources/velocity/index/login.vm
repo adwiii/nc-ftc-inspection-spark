@@ -9,7 +9,7 @@
     	#end
     #elseif($authenticationSucceeded)
     	#if($changePW)
-        	<p class="good notification">Your password has been successfully changed.</p>
+        	<p class="good notification">Password successfully changed.</p>
         #else
         	<p class="good notification">Welcome back, $currentUser</p>
         #end
@@ -32,7 +32,7 @@
     #end
     #if($changePW)
         <label>Old password: </label>
-    	<input type="password" name="password" required>
+    	<input type="password" name="password">
     	<label>New password: </label>
     	<input type="password" name="newPassword1" required>
     	<label>Re-enter new password: </label>
