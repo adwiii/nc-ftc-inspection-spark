@@ -2535,6 +2535,46 @@ public class EventPages {
 			if (match == null) {
 				return null;
 			}
+			List<Match> schedule = e.scheduleCache.get();
+			if(schedule == null) {
+				schedule = EventDAO.getSchedule(event);
+				e.scheduleCache.set(schedule);
+			}
+			if (match.isElims()) {
+				for (int i = 0; i < schedule.size(); i++) {
+					if (schedule.get(i).getName().toLowerCase().equals(ms)) {
+						if (i > 0) {
+							Match prev = schedule.get(i - 1);
+							if (prev.isElims()) {
+								map.put("prevMatch", schedule.get(i - 1).getName().toLowerCase());
+							} else {
+								map.put("prevMatch", schedule.get(i - 1).getNumber());
+							}
+						}
+						if (i < schedule.size() - 1) {
+							map.put("nextMatch", schedule.get(i + 1).getName().toLowerCase());
+						}
+						break;
+					}
+				}
+			} else {
+				for (int i = 0; i < schedule.size(); i++) {
+					if (schedule.get(i).getNumber() == m) {
+						if (i > 0) {
+							map.put("prevMatch", schedule.get(i - 1).getNumber());
+						}
+						if (i < schedule.size() - 1) {
+							Match next = schedule.get(i + 1);
+							if (next.isElims()) {
+								map.put("nextMatch", schedule.get(i + 1).getName().toLowerCase());
+							} else {
+								map.put("nextMatch", schedule.get(i + 1).getNumber());
+							}
+						}
+						break;
+					}
+				}
+			}
 			if(elims) {
 				e.fillCardCarry(match);
 			}
@@ -2544,7 +2584,7 @@ public class EventPages {
 			map.put("redBreakdown", match.redScoreBreakdown);
 			map.put("blueBreakdown", match.blueScoreBreakdown);
 			map.put("matchNumber", match.getNumber());
-			map.put("fieldNumber", match.getNumber() % 2);
+			map.put("fieldNumber", (match.getNumber() +1 ) % 2 + 1);
 			map.put("red", match.getRed());
 			map.put("blue", match.getBlue());
 			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());

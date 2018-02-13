@@ -66,6 +66,13 @@ small {
 	});
 </script>
 <a href="../../../results"><< To Results Page</a>
+<br>
+#if($prevMatch)
+<a href="../../$prevMatch/scoresheet/" style="float:left"><< Previous Match</a>
+#end
+#if($nextMatch)
+<a href="../../$nextMatch/scoresheet/" style="float:right">Next Match >></a>
+#end
 <table>
 #if($redScore > $blueScore) 
 <tr><td colspan="2" class="center" style="font-size:200%"><b>$redScore</b> - $blueScore</td></tr>
