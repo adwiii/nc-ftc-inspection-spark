@@ -22,8 +22,8 @@
 			} else {
 				j.disabled = false;
 			}
-			scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
-			
+			//scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		j = document.getElementById('relic2Upright');
 		if ($('input[name=relic2]:checked').val() == 0){
@@ -40,16 +40,20 @@
 			} else {
 				j.disabled = false;
 			}
-			scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
+			//scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		$('input[name=balanced]').change(function(){
-			scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
+			//scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
+			scoreUpdate(getScoreObject());
 		});
 		$('input[id=relic1Upright]').change(function(){
-			scoreUpdate({relic1Standing:document.getElementById('relic1Upright').checked});
+			//scoreUpdate({relic1Standing:document.getElementById('relic1Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		$('input[id=relic2Upright]').change(function(){
-			scoreUpdate({relic2Standing:document.getElementById('relic2Upright').checked});
+			//scoreUpdate({relic2Standing:document.getElementById('relic2Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		
 		//init cryptobox
@@ -113,10 +117,11 @@
 		else{
 			document.getElementById("cb" + cb + "L").innerHTML = "";
 		}
-		var obj={};
-		obj["cryptobox"+cb] = cbVal;
-		obj["cbRows"] = getRows();
-		scoreUpdate(obj);
+		//var obj={};
+		//obj["cryptobox"+cb] = cbVal;
+		//obj["cbRows"] = getRows();
+		//scoreUpdate(obj);
+		scoreUpdate(getScoreObject());
 	}
 	function getRows(){
 	var rows = 0;
@@ -138,19 +143,22 @@
 		} else {
 			slot.setAttribute("selected", false);
 		}
-		var obj = {};
-		obj["cbRows"] = getRows();
-		scoreUpdate(obj);
+		//var obj = {};
+		//obj["cbRows"] = getRows();
+		//scoreUpdate(obj);
+		scoreUpdate(getScoreObject());
 	}
 	
 	function radioRelic(rel, value){
 		if(rel == 1){
 			relic1 = value;
-			scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
+			//scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
+			scoreUpdate(getScoreObject());
 		} else if(rel == 2){
 			relic2 = value;
 			if(value == "0")document.getElementById('relic2Upright').checked = false;
-			scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
+			//scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
+			scoreUpdate(getScoreObject());
 		}
 	}
 	
@@ -185,6 +193,7 @@
 		obj.relic1Standing = document.getElementById('relic1Upright').checked;
 		obj.relic2Zone = $('input[name=relic2]:checked').val();
 		obj.relic2Standing = document.getElementById('relic2Upright').checked;
+		obj.cbRows = getRows();
 		obj.balanced = $('input[name=balanced]:checked').val();
 		return obj;
 	}
