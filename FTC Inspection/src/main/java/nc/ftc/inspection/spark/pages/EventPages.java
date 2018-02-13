@@ -388,7 +388,7 @@ public class EventPages {
 				int b2S = scan.nextInt();
 				scan.nextLine();
 				*/
-				scan.nextInt(); //always 1
+				scan.nextInt(); //Division Number. We are ignoring this.
 				int phase = scan.nextInt();
 				int number = scan.nextInt();
 				int TScount = scan.nextInt();
@@ -1627,6 +1627,13 @@ public class EventPages {
 				res += "\"blueWins\":"+blueWin+",";
 				
 				//elims cards
+				e.fillCardCarry(m);
+				res += "\"red1Card\":"+m.getRed().carriesCard()+",";
+				res += "\"red2Card\":"+m.getRed().carriesCard()+",";
+				res += "\"blue1Card\":"+m.getBlue().carriesCard()+",";
+				res += "\"blue2Card\":"+m.getBlue().carriesCard();
+				
+				/*Old code- same as in fillCardCarry method.
 				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(event);
 				List<Integer> list = cardMap.get(red.getRank());
 				Integer t = list.size() > 0 ? list.get(0) : null;
@@ -1636,6 +1643,7 @@ public class EventPages {
 				t = list.size() > 0 ? list.get(0) : null;
 				res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
 				res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
+				*/
 			} else {
 				//quals cards
 				//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
@@ -2958,5 +2966,66 @@ public class EventPages {
 			}
 			map.put("teams", teams);
 			return render(request, map, Path.Template.MATCH_RESULT_NAME);
+		};
+
+		public static Route serveDivisonUploadPage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.DIVISION_WINNER_UPLOAD);
+		};
+
+		public static Route handleDivisionUpload  = (Request request, Response response) ->{
+			//Take team numbers and generate Finals matches:
+			/*1. Create event database,
+			 *2. Add teams
+			 *3. Initialize event tables
+			 *4.  Add event to active events.
+			 *5. Generate finals matches
+			 *6. Set event to "Elims"
+			 *7. return redirect to manage page. Make sure elims manage page has option to edit team info
+			 */
+			int red1, red2, red3, blue1, blue2, blue3;
+			boolean redCard, blueCard;
+			try {
+				red1 = Integer.parseInt(request.queryParamOrDefault("red1", "0"));
+				red2 = Integer.parseInt(request.queryParamOrDefault("red2", "0"));
+				red3 = Integer.parseInt(request.queryParamOrDefault("red3", "0"));
+				blue1 = Integer.parseInt(request.queryParamOrDefault("blue1", "0"));
+				blue2 = Integer.parseInt(request.queryParamOrDefault("blue2", "0"));
+				blue3= Integer.parseInt(request.queryParamOrDefault("blue3", "0"));
+				redCard = request.queryParamOrDefault("redCard", "false").equals("on");
+				blueCard = request.queryParamOrDefault("blueCard", "false").equals("on");
+			}catch(NumberFormatException e) {
+				response.status(400);
+				return "Invalid Team Numbers!";
+			}
+			
+			String code = request.params("event");
+			EventDAO.createEventDatabase(code);
+			EventDAO.addTeamToEvent(red1, code);
+			EventDAO.addTeamToEvent(red2, code);
+			EventDAO.addTeamToEvent(red3, code);
+			EventDAO.addTeamToEvent(blue1, code);
+			EventDAO.addTeamToEvent(blue2, code);
+			EventDAO.addTeamToEvent(blue3, code);
+			
+			EventDAO.setProperty(code, "isFinalsDivision", "true");
+			EventDAO.setProperty(code, "redCard", Boolean.toString(redCard));
+			EventDAO.setProperty(code, "blueCard", Boolean.toString(blueCard));
+			Alliance red = new Alliance(1, red1, red2, red3);
+			Alliance blue = new Alliance(2, blue1, blue2, blue3);
+			Alliance[] alliances = new Alliance[2];
+			alliances[0] = red;
+			alliances[1] = blue;
+			EventDAO.createAlliances(code, alliances);
+			Match f1 = new Match(1, red, blue, "IF-1");
+			Match f2 = new Match(2, red, blue, "IF-2");
+			List<Match> matches = new ArrayList<>();
+			matches.add(f1);
+			matches.add(f2);
+			EventDAO.createElimsMatches(code, matches);
+			EventDAO.setEventStatus(code, EventData.ELIMS);
+			Server.activeEvents.get(code).getData().setStatus(EventData.ELIMS);
+			
+			response.redirect("../teams"); 
+			return "OK";
 		};
 }

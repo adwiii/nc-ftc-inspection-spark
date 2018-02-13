@@ -1538,7 +1538,7 @@
 				sf = sf.substring(0, sf.indexOf('-'));
 				n = "Semifinal "+sf+" Match "+m;
 			} else{
-				n = "Finals Match " + n.substring(2);
+				n = "Finals Match " + n.substring(n.indexOf("F")+2);
 			}
 		}
 		document.getElementById("top").innerHTML = n;//n == -1 ? "Test Match" : ("Qualification Match "+n);

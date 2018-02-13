@@ -256,6 +256,10 @@ public class Server {
 		before(Path.Web.UPLOAD_SCHEDULE, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.UPLOAD_SCHEDULE, EventPages.serveUploadSchedulePage);
 		
+		before(Path.Web.UPLOAD_DIVISION_WINNERS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.UPLOAD_DIVISION_WINNERS, EventPages.serveDivisonUploadPage);
+		post(Path.Web.UPLOAD_DIVISION_WINNERS, EventPages.handleDivisionUpload);
+		
 		before(Path.Web.EDIT_SCORE_HOME, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.EDIT_SCORE_HOME, EventPages.serveEditScoreHome);
 		

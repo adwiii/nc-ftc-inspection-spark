@@ -41,6 +41,7 @@
 		Future
 		<br>
 		Next Step: Setting the event to "Setup" creates the event database and allows the entering of teams. If this server instance will be sending updates to a remote server, do NOT proceed. Go to <a href="">Server Config</a> to configure remotes.<br>
+		If setting up Inter-Division Finals, do NOT proceed. Use <a href="divisionupload/">this form</a> to import division winners.<br>
 		<button onclick="setStatus(1)">Setup Event</button>
 	#elseif($status == 1)
 		Setup
