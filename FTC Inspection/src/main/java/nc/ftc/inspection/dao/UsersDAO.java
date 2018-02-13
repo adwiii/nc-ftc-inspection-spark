@@ -84,13 +84,14 @@ public class UsersDAO {
 	 * @param newPw The new password in plaintext
 	 * @return True if successful, false if failed (due to either no username found or incorrect current username).
 	 */
-	public static boolean updatePassword(String username, String oldPw, String newPw){
+	public static boolean updatePassword(String username, String oldPw, String newPw, boolean adminOverride){
 		if (username == null || username.isEmpty()) {
 			return false;
 		}
 		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
-			User user = authenticate(username, oldPw);
+			//if the admin is overriding, then we don't need to authenticate
+			User user = adminOverride ? getUser(username) : authenticate(username, oldPw);
 			if(user == null){
 				return false;
 			}

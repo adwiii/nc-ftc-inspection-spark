@@ -61,6 +61,7 @@ public class LoginPage {
 	public static Route handlePasswordChangePost = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
 		model.put("changePW", true);
+		boolean other = false;
 		User user = UsersDAO.authenticate(getQueryUsername(request), getQueryPassword(request));
 		if (user == null) {
 			User temp = UsersDAO.getUser(getQueryUsername(request));
@@ -73,6 +74,7 @@ public class LoginPage {
 				return render(request, model, Path.Template.LOGIN);
 			}
 			user = temp;
+			other = true; //we are not updating our own password
 		}
 		if (request.queryParams("newPassword1") == null || !request.queryParams("newPassword1").equals(request.queryParams("newPassword2"))) {
 			model.put("authenticationFailed", true);
@@ -81,10 +83,18 @@ public class LoginPage {
 			return render(request, model, Path.Template.LOGIN);
 		}
 		model.put("authenticationSucceeded", true);
-		UsersDAO.updatePassword(user.getUsername(), getQueryPassword(request), request.queryParams("newPassword1"));
-		user = UsersDAO.authenticate(getQueryUsername(request), request.queryParams("newPassword1"));
-		request.session().attribute("sessionToken", AuthenticationManager.getNewSession(user));
-		request.session().attribute("currentUser", user.getUsername());
+		if (!UsersDAO.updatePassword(user.getUsername(), getQueryPassword(request), request.queryParams("newPassword1"), other)) {
+			//the change failed
+			model.put("authenticationFailed", true);
+			model.put("username", getQueryUsername(request));
+			model.put("reason", "Could not update password");
+			return render(request, model, Path.Template.LOGIN);
+		}
+		if (!other) { //if we are updating someone else's password, then don't update the session
+			user = UsersDAO.authenticate(getQueryUsername(request), request.queryParams("newPassword1"));
+			request.session().attribute("sessionToken", AuthenticationManager.getNewSession(user));
+			request.session().attribute("currentUser", user.getUsername());
+		}
 		if (getQueryLoginRedirect(request) != null) {
 			response.redirect(getQueryLoginRedirect(request));
 			halt();

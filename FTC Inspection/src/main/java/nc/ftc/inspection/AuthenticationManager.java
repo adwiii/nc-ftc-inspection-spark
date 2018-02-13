@@ -107,7 +107,7 @@ public class AuthenticationManager {
 	}
 
 	public static User getCurrentUser(Request request) {
-		Session session = sessions.get(request.queryParams("sessionToken"));
+		Session session = sessions.get(request.session().attribute("sessionToken"));
 		if (session != null) {
 			return session.getUser();
 		}
