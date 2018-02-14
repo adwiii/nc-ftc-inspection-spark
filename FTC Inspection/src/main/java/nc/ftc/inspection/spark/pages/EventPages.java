@@ -25,6 +25,7 @@ import static spark.Spark.halt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2430,22 +2431,40 @@ public class EventPages {
 				
 
 				//TODO check 2-team alliances?
-				list.add(json("red3Name", teams.get(red.getTeam3()).getName()));
-				list.add(json("blue3Name", teams.get(blue.getTeam3()).getName()));
+				Team red3 = teams.get(red.getTeam3());
+				Team blue3 = teams.get(blue.getTeam3());
+				list.add(json("red3Name", red3 == null ? "" : red3.getName()));
+				list.add(json("blue3Name", blue3 == null ? "" : blue3.getName()));
 				
 				//put seeds here
 				list.add(json("redRank", mr.getRed().getRank()));
 				list.add(json("blueRank", mr.getBlue().getRank()));
 				
+				String isFDStr = EventDAO.getProperty(code, "isFinalsDivision");
+				boolean isFD = false;
+				if(isFDStr != null && isFDStr.equals("true")) {
+					isFD = true;					
+				}
+				
 				//get card info for elims - done by alliance, only set card1 (sent below if)
 				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(code);
 				List<Integer> cardList = cardMap.get(red.getRank());
+				if(isFD && EventDAO.getProperty(code, "redCard").equals("true")) {
+					cardList.add(0);
+					Collections.sort(cardList); //this is incase the card is added retroactively
+				}
 				if(redCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
 					redCard1 = 3;
+					redCard2 = 3;
 				}
 				cardList = cardMap.get(blue.getRank());
+				if(isFD && EventDAO.getProperty(code, "blueCard").equals("true")) {
+					cardList.add(0);
+					Collections.sort(cardList);
+				}
 				if(blueCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
 					blueCard1 = 3;
+					blueCard2 = 3;
 				}
 				
 				
