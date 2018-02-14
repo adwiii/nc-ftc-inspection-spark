@@ -2611,7 +2611,7 @@ public class EventPages {
 			map.put("redBreakdown", match.redScoreBreakdown);
 			map.put("blueBreakdown", match.blueScoreBreakdown);
 			map.put("matchNumber", match.getNumber());
-			map.put("fieldNumber", match.getNumber() % 2);
+			map.put("fieldNumber", (match.getNumber() +1 ) % 2 + 1);
 			map.put("red", match.getRed());
 			map.put("blue", match.getBlue());
 			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());
