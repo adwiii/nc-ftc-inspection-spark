@@ -961,7 +961,7 @@ public class EventPages {
 					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
 			//	}
 				Server.activeEvents.get(e).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
-				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
+				Server.activeEvents.get(e).getCurrentMatch().updateNotify();
 			}
 			return s;
 		};
@@ -1035,6 +1035,9 @@ public class EventPages {
 					if(match.refLockout)return "LOCKOUT";
 					return "Invalid match status: "+status;
 				}				
+				event.getCurrentMatch().updateJewels();
+				event.getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+				event.getCurrentMatch().updateNotify();
 				return res;
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -2613,7 +2616,7 @@ public class EventPages {
 			map.put("redBreakdown", match.redScoreBreakdown);
 			map.put("blueBreakdown", match.blueScoreBreakdown);
 			map.put("matchNumber", match.getNumber());
-			map.put("fieldNumber", match.getNumber() % 2);
+			map.put("fieldNumber", (match.getNumber() +1 ) % 2 + 1);
 			map.put("red", match.getRed());
 			map.put("blue", match.getBlue());
 			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());
