@@ -216,6 +216,16 @@
 		border-radius: 0px 15px 15px 0px;
 		align:left;
 	}
+	#progressBar[overlay="true"]{
+		width:520px;
+		left:700px;
+		top:899;
+		height:50;
+	}
+	div[overlay="true"] > #progress{
+	
+	}
+	
 	div[ad2="true"][timeout="false"] > .timerImage{
 		height:180;
 	}
@@ -565,6 +575,9 @@
 		position:absolute;
 		height:180px;
 		width: 260px;
+		font-size: 130px;
+		text-align:center;
+		color:white;
 		#if($ad2)
 			#if($flip)
 			top:250px;
@@ -572,11 +585,15 @@
 			top:850px;
 			#end
 		#else
-		top: 900px;
+			#if($overlay)
+				top: 950px;
+				height:130px;
+				line-height:130px;
+			#else
+				top: 900px;
+			#end
 		#end		
-		font-size: 160px;
-		text-align:center;
-		color:white;
+		
 	}
 	.score[visible="false"]{
 		display:none;
@@ -1161,6 +1178,11 @@
   	
   	<div id="scoreBlue" class="score">0</div>
   	<div id="scoreRed" class="score" >0</div>
+  	#if($overlay)
+  		<div id="progressBar" overlay="true">
+    		<div id="progress" style="width:0%"></div>
+  		</div>
+  	#end
 
   	<script>
   	
@@ -1376,7 +1398,7 @@
   			return;
   		}
   		
-  		#if($ad2)
+  		#if($ad2 || $overlay)
   		document.getElementById("progress").style.width = (elapsed * 100 / 158000)+'%';
   		#end
   		if (elapsed < 30000){

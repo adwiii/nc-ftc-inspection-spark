@@ -2009,12 +2009,14 @@ public class EventPages {
 			String fieldStr = request.queryParams("field");
 			String ad2Str = request.queryParams("ad2");
 			String muteStr = request.queryParams("mute");
+			String overlayStr = request.queryParams("overlay");
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
 			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
 			map.put("ad2", ad2Str == null ? false : Boolean.parseBoolean(ad2Str));
+			map.put("overlay", overlayStr == null ? false : Boolean.parseBoolean(overlayStr));
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 
