@@ -155,7 +155,15 @@ Pit Display
   			$("#rankingTable .move").slice(0, 5).appendTo("#rankingTable");
   			$("#matchTable .move").slice(0, 5).appendTo("#matchTable");
   		}, 3000);
-  		window.setTimeout(function(){window.location.reload(true);}, 180000);
+  		setInterval(function() {
+  			$.get(".").done(function(data){
+  				##taken from https://stackoverflow.com/questions/6758081/javascript-document-innerhtml-set-content-of-whole-document
+  	  			document.write(data);
+  	  		}).fail( function(xhr, textStatus, errorThrown) {
+  	        	console.log(textStatus);
+  	    	});
+  		}, 180000);
+  		//window.setTimeout(function(){window.location.reload(true);}, 180000);
 	});
 </script>
 </body>
