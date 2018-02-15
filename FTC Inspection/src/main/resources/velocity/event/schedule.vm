@@ -33,7 +33,7 @@ $fullPage
 			#end
 			#set($i = $i + 1)
 			<tr align=CENTER>
-				<td BGCOLOR=$c>$m.number</td>
+				<td BGCOLOR=$c>$m.name</td>
 				<td BGCOLOR=$c>$m.red.team1</td>
 				<td BGCOLOR=$c>$m.red.team2</td>
 				<td BGCOLOR=$c>$m.red.team3</td>

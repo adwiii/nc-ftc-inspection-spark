@@ -49,6 +49,7 @@ public class Path {
         public static final String EVENT_STATUS = "/event/:event/status/data/"; //Endpoint to get data
         public static final String EVENT_STATUS_PAGE = "/event/:event/status/"; //page to view table
         public static final String UPLOAD_SCHEDULE = "/event/:event/manage/scheduleupload/";
+        public static final String UPLOAD_DIVISION_WINNERS = "/event/:event/manage/divisionupload/";
         public static final String SCHEDULE = "/event/:event/schedule/";
         public static final String SCHEDULE_STATUS = "/event/:event/schedule/status/";
         //TODO have a subdir for scoring/match stuff under /event?
@@ -221,6 +222,7 @@ public class Path {
         public static final String STATS = "/velocity/event/stats.vm";
         public static final String NO_DATA = "/velocity/noData.vm";
 		public static final String QUEUE_DISPLAY = "/velocity/event/queue.vm";
+		public static final String DIVISION_WINNER_UPLOAD = "/velocity/event/uploadDivisionWinners.vm";
     }
 
 }

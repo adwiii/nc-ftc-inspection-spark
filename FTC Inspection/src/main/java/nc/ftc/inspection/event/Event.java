@@ -256,6 +256,16 @@ public class Event {
 	 */
 	public void fillCardCarry(Match m) {
 		if(!m.isElims())throw new IllegalStateException("DONT SET CARD CARRY FOR NON_ELIMINATION MATCHES!");
+		String isFD = EventDAO.getProperty(this.getData().getCode(), "isFinalsDivision");
+		if(isFD != null && isFD.equals("true")) {
+			if(EventDAO.getProperty(this.getData().getCode(), "redCard").equals("true")) {
+				m.getRed().setCardCarry(true);
+			}
+			if(EventDAO.getProperty(this.getData().getCode(), "blueCard").equals("true")) {
+				m.getBlue().setCardCarry(true);
+			}
+			
+		}
 		Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(data.getCode());
 		List<Integer> cardList = cardMap.get(m.getRed().getRank());
 		if(cardList.size()>0 && cardList.get(0) < m.getNumber()) {

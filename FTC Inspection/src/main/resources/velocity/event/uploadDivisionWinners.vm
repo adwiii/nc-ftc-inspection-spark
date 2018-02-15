@@ -1,0 +1,36 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+
+<style>
+label{
+    float:left;
+}
+input{
+}
+</style>
+Input the team numbers for inter-division finals:<br><br>
+<form action="" method="post">
+	<table>
+		<tr><th>Red Captain</th><th>Red 1st Pick</th><th>Red 2nd Pick</th><th>Carries Card?</th></tr>
+		<tr>
+			##<td> <input id="redRank" type="number" name="redRank"/></td>
+			<td> <input id="red1" type="number" name="red1"/></td>
+    		<td> <input id="red2" type="number" name="red2"/></td>
+    		<td> <input id="red3" type="number" name="red3"/></td>
+			<td> <input id="redCard" type="checkbox" name="redCard"/></td>
+    	<tr><tr><th>Blue Captain</th><th>Blue 1st Pick</th><th>Blue 2nd Pick</th><th>Carries Card?</th></tr>
+		<tr>
+			 ##<td> <input id="blueRank" type="number" name="blueRank"/></td>
+			 <td> <input id="blue1" type="number" name="blue1"/></td>
+   			 <td> <input id="blue2" type="number" name="blue2"/></td>
+   			 <td> <input id="blue3" type="number" name="blue3"/></td>
+			<td> <input id="blueCard" type="checkbox" name="blueCard"/></td>
+    	<tr>
+    </table>
+  
+    
+    <input type="submit" value="Generate Finals"></input>
+</form>
+
+
+#end

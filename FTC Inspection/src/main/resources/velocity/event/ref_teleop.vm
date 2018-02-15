@@ -22,8 +22,8 @@
 			} else {
 				j.disabled = false;
 			}
-			scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
-			
+			//scoreUpdate({relic1Zone:$('input[name=relic1]:checked').val(),relic1Standing:document.getElementById('relic1Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		j = document.getElementById('relic2Upright');
 		if ($('input[name=relic2]:checked').val() == 0){
@@ -40,16 +40,20 @@
 			} else {
 				j.disabled = false;
 			}
-			scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
+			//scoreUpdate({relic2Zone:$('input[name=relic2]:checked').val(),relic2Standing:document.getElementById('relic2Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		$('input[name=balanced]').change(function(){
-			scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
+			//scoreUpdate({balanced:$('input[name=balanced]:checked').val()});
+			scoreUpdate(getScoreObject());
 		});
 		$('input[id=relic1Upright]').change(function(){
-			scoreUpdate({relic1Standing:document.getElementById('relic1Upright').checked});
+			//scoreUpdate({relic1Standing:document.getElementById('relic1Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		$('input[id=relic2Upright]').change(function(){
-			scoreUpdate({relic2Standing:document.getElementById('relic2Upright').checked});
+			//scoreUpdate({relic2Standing:document.getElementById('relic2Upright').checked});
+			scoreUpdate(getScoreObject());
 		});
 		
 		//init cryptobox
@@ -113,10 +117,11 @@
 		else{
 			document.getElementById("cb" + cb + "L").innerHTML = "";
 		}
-		var obj={};
-		obj["cryptobox"+cb] = cbVal;
-		obj["cbRows"] = getRows();
-		scoreUpdate(obj);
+		//var obj={};
+		//obj["cryptobox"+cb] = cbVal;
+		//obj["cbRows"] = getRows();
+		//scoreUpdate(obj);
+		scoreUpdate(getScoreObject());
 	}
 	function getRows(){
 	var rows = 0;
@@ -138,19 +143,22 @@
 		} else {
 			slot.setAttribute("selected", false);
 		}
-		var obj = {};
-		obj["cbRows"] = getRows();
-		scoreUpdate(obj);
+		//var obj = {};
+		//obj["cbRows"] = getRows();
+		//scoreUpdate(obj);
+		scoreUpdate(getScoreObject());
 	}
 	
 	function radioRelic(rel, value){
 		if(rel == 1){
 			relic1 = value;
-			scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
+			//scoreUpdate({relic1Zone:value, relic1Standing : document.getElementById('relic1Upright').checked});
+			scoreUpdate(getScoreObject());
 		} else if(rel == 2){
 			relic2 = value;
 			if(value == "0")document.getElementById('relic2Upright').checked = false;
-			scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
+			//scoreUpdate({relic2Zone:value, relic2Standing : document.getElementById('relic2Upright').checked});
+			scoreUpdate(getScoreObject());
 		}
 	}
 	
@@ -185,6 +193,7 @@
 		obj.relic1Standing = document.getElementById('relic1Upright').checked;
 		obj.relic2Zone = $('input[name=relic2]:checked').val();
 		obj.relic2Standing = document.getElementById('relic2Upright').checked;
+		obj.cbRows = getRows();
 		obj.balanced = $('input[name=balanced]:checked').val();
 		return obj;
 	}
@@ -265,6 +274,12 @@
 			<td class="glyph" onclick="toggle(1,3,1)" id="cb_1,3,1" bgcolor="#FFFFFF">&ensp;</td>
 			<td class="glyph" onclick="toggle(1,3,2)" id="cb_1,3,2" bgcolor="#FFFFFF">&ensp;</td>
 		</tr>
+		<tr>
+			<td style="border:none;text-align:center"></td>
+			<td style="border:none;text-align:center">L</td>
+			<td style="border:none;text-align:center">C</td>
+			<td style="border:none;text-align:center">R</td>
+		</tr>
 	</table>
 	<div id="cb1L"></div>
 </td> <!-- End CB1 -->
@@ -294,10 +309,17 @@
 			<td class="glyph" onclick="toggle(2,3,1)" id="cb_2,3,1" bgcolor="#FFFFFF">&ensp;</td>
 			<td class="glyph" onclick="toggle(2,3,2)" id="cb_2,3,2" bgcolor="#FFFFFF">&ensp;</td>
 		</tr>
+		<tr>
+			<td style="border:none;text-align:center"></td>
+			<td style="border:none;text-align:center">L</td>
+			<td style="border:none;text-align:center">C</td>
+			<td style="border:none;text-align:center">R</td>
+		</tr>
 	</table>
 	<div id="cb2L"></div>
 </td> <!-- End CB2 -->
 </tr>
+<tr><td colspan=2>NOTE: The cryptobox is as viewed from INSIDE the field. If you are facing the audience, then the cryptobox in front of you is reversed from your perspective.</td></tr>
 <tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap" style="width: -webkit-fill-available;"><table  style="white-space:nowrap;width:100%"><tr>
 	<td class="fifty"><label><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end/>0</label></td>
 	<td class="fifty"><label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label></td>

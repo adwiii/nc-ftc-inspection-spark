@@ -76,6 +76,8 @@
 		<a href="../audience/?flip=true">Audience Display (Flipped)</a>
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
+	</li><li>
+		<a href="../field/?ad=true&overlay=true&color=FF00FF">Video Overlay</a>
 	</li>
 </ul>
 #end

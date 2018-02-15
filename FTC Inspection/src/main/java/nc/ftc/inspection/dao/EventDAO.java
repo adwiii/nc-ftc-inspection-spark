@@ -46,7 +46,7 @@ public class EventDAO {
 	private static final RemoteUpdater updater = RemoteUpdater.getInstance();
 	
 	
-	//MAX SQL = 30
+	//MAX SQL = 31
 	//TODO THis needs to be a command - NO, this should not be a thing! Must create an event locally.
 	static final SQL CREATE_EVENT_SQL = new SQL(1,"INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)");
 	static final String[] CREATE_EVENT_DB_SQL ={ 
@@ -168,6 +168,9 @@ public class EventDAO {
 	static final SQL SELECTION_SQL = new SQL(26, "INSERT INTO selections(op, alliance, team) VALUES (?,?,?);");
 	static final SQL UNDO_SELECTION_SQL = new SQL(27, "DELETE FROM selections WHERE id IN (SELECT MAX(id) FROM selections);");
 	static final SQL CLEAR_SELECTION_SQL = new SQL(28, "DELETE FROM selections;");
+	
+	static final SQL SET_PROPERTY = new SQL(30, "INSERT OR REPLACE INTO preferences VALUES (?,?);");
+	static final String GET_PROPERTY_SQL = "SELECT value FROM preferences WHERE id = ?;";
 	
 	static {
 		Field[] fields = EventDAO.class.getDeclaredFields();
@@ -1127,13 +1130,16 @@ public class EventDAO {
 	public static boolean createAlliances(String event, Alliance[] data) {
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(SET_ALLIANCE_SQL.sql);
-			for(int i = 0; i < 4; i++) {
+			for(int i = 0; i < data.length; i++) {
 				ps.setInt(1, data[i].getRank());
 				ps.setInt(2, data[i].getTeam1());
 				ps.setInt(3, data[i].getTeam2());
 				ps.setInt(4, data[i].getTeam3());
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, SET_ALLIANCE_SQL.id,data[i].getRank(), data[i].getTeam1(), data[i].getTeam2(), data[i].getTeam3() ));
+			}
+			if(!Server.activeEvents.containsKey(event)) {
+				Server.activeEvents.put(event, new Event(EventDAO.getEvent(event)));
 			}
 			Server.activeEvents.get(event).scheduleCache.invalidate();
 			return true;			
@@ -1179,6 +1185,9 @@ public class EventDAO {
 				ps.setInt(2, 1);
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 1));
+			}
+			if(!Server.activeEvents.containsKey(event)) {
+				Server.activeEvents.put(event, new Event(EventDAO.getEvent(event)));
 			}
 			Server.activeEvents.get(event).scheduleCache.invalidate();
 			return true;
@@ -1358,7 +1367,29 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 	}
-	
+	public static String getProperty(String event, String key) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(GET_PROPERTY_SQL);
+			ps.setString(1, key);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return rs.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public static void setProperty(String event, String key, String value) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(SET_PROPERTY.sql);
+			ps.setString(1, key);
+			ps.setString(2, value);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
 	

@@ -75,11 +75,13 @@
 	});
 	function radioParked(value){
 		parked = value;
-		scoreUpdate({parkedAuto:value});
+		//scoreUpdate({parkedAuto:value});
+		scoreUpdate(getScoreObject());
 	}
 	function radioKeys(value){
 		keys = value;
-		scoreUpdate({cryptoboxKeys:value});
+		//scoreUpdate({cryptoboxKeys:value});
+		scoreUpdate(getScoreObject());
 	}
 	
 	function addJewelScore(set, obj){
@@ -98,9 +100,10 @@
 			//get original color and set it back to that
 			j.src = (id == 1 && rand < 4 || id == 2 && rand > 3) ? red : blue;
 		}
-		var obj = {};
-		addJewelScore(set, obj);
-		scoreUpdate(obj);
+		//var obj = {};
+		//addJewelScore(set, obj);
+		//scoreUpdate(obj);
+		scoreUpdate(getScoreObject());
 	}
 	
 	function scoreUpdate(obj){
@@ -128,8 +131,12 @@
 		obj.major = parseInt(document.getElementById('major').textContent);
 		obj.minor = parseInt(document.getElementById('minor').textContent);
 		obj.cryptoboxKeys = keys;
+		obj.cryptobox1 = getCryptoboxData(1);
+		obj.cryptobox2 = getCryptoboxData(2);
 		obj.cbKeys = getCryptoboxKeyEncoding();
 		obj.parkedAuto = parked;
+		obj.cryptobox1 = getCryptoboxData(1);
+		obj.cryptobox2 = getCryptoboxData(2)
 		addJewelScore(1, obj);
 		addJewelScore(2, obj);
 		return obj;
@@ -243,7 +250,8 @@ function hex(x) {
 			slot.setAttribute("bgcolor","#565C05");
 			slot.style.borderColor = "#000000";
 			autoGlyphs++;
-			scoreUpdate({autoGlyphs:autoGlyphs});
+			//scoreUpdate({autoGlyphs:autoGlyphs});
+			scoreUpdate(getScoreObject());
 		} else if(bg == "#565C05" && border == "#000000"){//brown to gray
 			slot.setAttribute("bgcolor","#D6D6CB");
 			slot.style.borderColor = "#000000";
@@ -251,7 +259,8 @@ function hex(x) {
 			slot.setAttribute("bgcolor","#565C05");
 			slot.style.borderColor = "#FFD700";
 			keys++;
-			scoreUpdate({cryptoboxKeys:keys});
+			//scoreUpdate({cryptoboxKeys:keys});
+			scoreUpdate(getScoreObject());
 		} else if (bg == "#565C05" && border == "#FFD700" && keylocNum == c) {//brown key to gray key
 			slot.setAttribute("bgcolor","#D6D6CB");
 			slot.style.borderColor = "#FFD700";
@@ -262,7 +271,8 @@ function hex(x) {
 				keys--;
 			}
 			autoGlyphs--;
-			scoreUpdate({cryptoboxKeys:keys,autoGlyphs:autoGlyphs});
+			//scoreUpdate({cryptoboxKeys:keys,autoGlyphs:autoGlyphs});
+			scoreUpdate(getScoreObject());
 		}
 		var cbVal = getCryptoboxData(cb);
 		var cbKeys = getCryptoboxKeyEncoding();
@@ -277,10 +287,11 @@ function hex(x) {
 		else{
 			document.getElementById("cb" + cb + "L").innerHTML = "";
 		}
-		var obj={};
-		obj["cryptobox"+cb] = cbVal;
-		obj["cbKeys"] = cbKeys;
-		scoreUpdate(obj);
+		//var obj={};
+		//obj["cryptobox"+cb] = cbVal;
+		//obj["cbKeys"] = cbKeys;
+		//scoreUpdate(obj);
+		scoreUpdate(getScoreObject());
 	}
 </script>
 <style>

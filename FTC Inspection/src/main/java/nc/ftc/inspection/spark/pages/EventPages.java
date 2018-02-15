@@ -25,6 +25,7 @@ import static spark.Spark.halt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -388,7 +389,7 @@ public class EventPages {
 				int b2S = scan.nextInt();
 				scan.nextLine();
 				*/
-				scan.nextInt(); //always 1
+				scan.nextInt(); //Division Number. We are ignoring this.
 				int phase = scan.nextInt();
 				int number = scan.nextInt();
 				int TScount = scan.nextInt();
@@ -960,7 +961,7 @@ public class EventPages {
 					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
 			//	}
 				Server.activeEvents.get(e).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
-				Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
+				Server.activeEvents.get(e).getCurrentMatch().updateNotify();
 			}
 			return s;
 		};
@@ -1034,6 +1035,9 @@ public class EventPages {
 					if(match.refLockout)return "LOCKOUT";
 					return "Invalid match status: "+status;
 				}				
+				event.getCurrentMatch().updateJewels();
+				event.getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
+				event.getCurrentMatch().updateNotify();
 				return res;
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -1608,7 +1612,7 @@ public class EventPages {
 			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
 			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
 			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
-			if(e.getData().getStatus() == EventData.ELIMS) {
+			if(e.getData().getStatus() == EventData.ELIMS && m != Match.TEST_MATCH) {
 				res += "\"red3\":"+red.getTeam3() +",";
 				res += "\"blue3\":"+blue.getTeam3() +",";
 				res += "\"red3Name\":\""+GlobalDAO.getTeamName(red.getTeam3()) +"\",";
@@ -1627,6 +1631,13 @@ public class EventPages {
 				res += "\"blueWins\":"+blueWin+",";
 				
 				//elims cards
+				e.fillCardCarry(m);
+				res += "\"red1Card\":"+m.getRed().carriesCard()+",";
+				res += "\"red2Card\":"+m.getRed().carriesCard()+",";
+				res += "\"blue1Card\":"+m.getBlue().carriesCard()+",";
+				res += "\"blue2Card\":"+m.getBlue().carriesCard();
+				
+				/*Old code- same as in fillCardCarry method.
 				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(event);
 				List<Integer> list = cardMap.get(red.getRank());
 				Integer t = list.size() > 0 ? list.get(0) : null;
@@ -1636,6 +1647,7 @@ public class EventPages {
 				t = list.size() > 0 ? list.get(0) : null;
 				res += "\"blue1Card\":"+(t!=null && t.intValue()<m.getNumber())+",";
 				res += "\"blue2Card\":"+(t!=null && t.intValue()<m.getNumber());
+				*/
 			} else {
 				//quals cards
 				//for each team, if they had a card from a previous match & they got a YELLOW card, mark as 3 to display both yellow and red.
@@ -2000,14 +2012,27 @@ public class EventPages {
 			String fieldStr = request.queryParams("field");
 			String ad2Str = request.queryParams("ad2");
 			String muteStr = request.queryParams("mute");
+			String overlayStr = request.queryParams("overlay");
+			String colorStr = request.queryParamOrDefault("color", "#FF00FF");
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+			String eventName = request.params("event");
+			if(eventName != null) {
+				Event e = Server.activeEvents.get(eventName);
+				if(e != null) {
+					eventName = e.getData().getName();
+				}
+			}
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
 			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
 			map.put("ad2", ad2Str == null ? false : Boolean.parseBoolean(ad2Str));
+			map.put("overlay", overlayStr == null ? false : Boolean.parseBoolean(overlayStr));
+			map.put("bgColor", colorStr);
+			map.put("eventName", eventName);
 			return render(request, map, Path.Template.FIELD_DISPLAY);
-		};
+		};		
+		
 
 		//TODO request could send what it thinks the last command was, 
 		//and this blocks if matches, and returns immediately if wrong.
@@ -2422,22 +2447,40 @@ public class EventPages {
 				
 
 				//TODO check 2-team alliances?
-				list.add(json("red3Name", teams.get(red.getTeam3()).getName()));
-				list.add(json("blue3Name", teams.get(blue.getTeam3()).getName()));
+				Team red3 = teams.get(red.getTeam3());
+				Team blue3 = teams.get(blue.getTeam3());
+				list.add(json("red3Name", red3 == null ? "" : red3.getName()));
+				list.add(json("blue3Name", blue3 == null ? "" : blue3.getName()));
 				
 				//put seeds here
 				list.add(json("redRank", mr.getRed().getRank()));
 				list.add(json("blueRank", mr.getBlue().getRank()));
 				
+				String isFDStr = EventDAO.getProperty(code, "isFinalsDivision");
+				boolean isFD = false;
+				if(isFDStr != null && isFDStr.equals("true")) {
+					isFD = true;					
+				}
+				
 				//get card info for elims - done by alliance, only set card1 (sent below if)
 				Map<Integer, List<Integer>> cardMap = EventDAO.getCardsElims(code);
 				List<Integer> cardList = cardMap.get(red.getRank());
+				if(isFD && EventDAO.getProperty(code, "redCard").equals("true")) {
+					cardList.add(0);
+					Collections.sort(cardList); //this is incase the card is added retroactively
+				}
 				if(redCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
 					redCard1 = 3;
+					redCard2 = 3;
 				}
 				cardList = cardMap.get(blue.getRank());
+				if(isFD && EventDAO.getProperty(code, "blueCard").equals("true")) {
+					cardList.add(0);
+					Collections.sort(cardList);
+				}
 				if(blueCard1 == 1 && cardList.size()>0 && cardList.get(0) < mr.getNumber()) {
 					blueCard1 = 3;
+					blueCard2 = 3;
 				}
 				
 				
@@ -2646,7 +2689,7 @@ public class EventPages {
 			map.put("redBreakdown", gson.fromJson(match.getScoreBreakdown(match.getRed()), type));
 			map.put("blueBreakdown", gson.fromJson(match.getScoreBreakdown(match.getBlue()), type));
 			map.put("matchNumber", match.getNumber());
-			map.put("fieldNumber", match.getNumber() % 2); //TODO hardcoded field
+			map.put("fieldNumber", (match.getNumber() +1 ) % 2 + 1);
 			map.put("red", match.getRed());
 			map.put("blue", match.getBlue());
 			int redRelic1Zone = Integer.parseInt(match.getRed().getScore("relic1Zone").toString());
@@ -2998,5 +3041,66 @@ public class EventPages {
 			}
 			map.put("teams", teams);
 			return render(request, map, Path.Template.MATCH_RESULT_NAME);
+		};
+
+		public static Route serveDivisonUploadPage = (Request request, Response response) ->{
+			return render(request, new HashMap<String, Object>(), Path.Template.DIVISION_WINNER_UPLOAD);
+		};
+
+		public static Route handleDivisionUpload  = (Request request, Response response) ->{
+			//Take team numbers and generate Finals matches:
+			/*1. Create event database,
+			 *2. Add teams
+			 *3. Initialize event tables
+			 *4.  Add event to active events.
+			 *5. Generate finals matches
+			 *6. Set event to "Elims"
+			 *7. return redirect to manage page. Make sure elims manage page has option to edit team info
+			 */
+			int red1, red2, red3, blue1, blue2, blue3;
+			boolean redCard, blueCard;
+			try {
+				red1 = Integer.parseInt(request.queryParamOrDefault("red1", "0"));
+				red2 = Integer.parseInt(request.queryParamOrDefault("red2", "0"));
+				red3 = Integer.parseInt(request.queryParamOrDefault("red3", "0"));
+				blue1 = Integer.parseInt(request.queryParamOrDefault("blue1", "0"));
+				blue2 = Integer.parseInt(request.queryParamOrDefault("blue2", "0"));
+				blue3= Integer.parseInt(request.queryParamOrDefault("blue3", "0"));
+				redCard = request.queryParamOrDefault("redCard", "false").equals("on");
+				blueCard = request.queryParamOrDefault("blueCard", "false").equals("on");
+			}catch(NumberFormatException e) {
+				response.status(400);
+				return "Invalid Team Numbers!";
+			}
+			
+			String code = request.params("event");
+			EventDAO.createEventDatabase(code);
+			EventDAO.addTeamToEvent(red1, code);
+			EventDAO.addTeamToEvent(red2, code);
+			EventDAO.addTeamToEvent(red3, code);
+			EventDAO.addTeamToEvent(blue1, code);
+			EventDAO.addTeamToEvent(blue2, code);
+			EventDAO.addTeamToEvent(blue3, code);
+			
+			EventDAO.setProperty(code, "isFinalsDivision", "true");
+			EventDAO.setProperty(code, "redCard", Boolean.toString(redCard));
+			EventDAO.setProperty(code, "blueCard", Boolean.toString(blueCard));
+			Alliance red = new Alliance(1, red1, red2, red3);
+			Alliance blue = new Alliance(2, blue1, blue2, blue3);
+			Alliance[] alliances = new Alliance[2];
+			alliances[0] = red;
+			alliances[1] = blue;
+			EventDAO.createAlliances(code, alliances);
+			Match f1 = new Match(1, red, blue, "IF-1");
+			Match f2 = new Match(2, red, blue, "IF-2");
+			List<Match> matches = new ArrayList<>();
+			matches.add(f1);
+			matches.add(f2);
+			EventDAO.createElimsMatches(code, matches);
+			EventDAO.setEventStatus(code, EventData.ELIMS);
+			Server.activeEvents.get(code).getData().setStatus(EventData.ELIMS);
+			
+			response.redirect("../teams"); 
+			return "OK";
 		};
 }
