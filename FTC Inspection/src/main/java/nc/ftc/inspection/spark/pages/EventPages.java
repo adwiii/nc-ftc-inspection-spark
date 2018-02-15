@@ -2013,15 +2013,26 @@ public class EventPages {
 			String ad2Str = request.queryParams("ad2");
 			String muteStr = request.queryParams("mute");
 			String overlayStr = request.queryParams("overlay");
+			String colorStr = request.queryParamOrDefault("color", "#FF00FF");
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+			String eventName = request.params("event");
+			if(eventName != null) {
+				Event e = Server.activeEvents.get(eventName);
+				if(e != null) {
+					eventName = e.getData().getName();
+				}
+			}
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
 			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
 			map.put("ad2", ad2Str == null ? false : Boolean.parseBoolean(ad2Str));
 			map.put("overlay", overlayStr == null ? false : Boolean.parseBoolean(overlayStr));
+			map.put("bgColor", colorStr);
+			map.put("eventName", eventName);
 			return render(request, map, Path.Template.FIELD_DISPLAY);
-		};
+		};		
+		
 
 		//TODO request could send what it thinks the last command was, 
 		//and this blocks if matches, and returns immediately if wrong.

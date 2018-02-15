@@ -77,7 +77,7 @@
   	</div>
 #end
 #macro (parking $alliance $size)
-	<div id="parking$alliance" class="parking">
+	<div id="parking$alliance" class="parking" visible="true">
   			#if($ad2)<div style="float:left; width:200;">#end
   			<img id="parking${alliance}1" src="/img/parking_black${size}.png" alt="Parking">
   			#if($ad2)
@@ -90,7 +90,7 @@
   		</div>
 #end
 #macro (ball $alliance $size)
-	<div id="ball$alliance" class="ball">
+	<div id="ball$alliance" class="ball" visible="true">
 			#if($ad2)<div style="float:left;width:420;">#end
   			<img id="jewel${alliance}1" src="/img/ball-split${size}.png" alt="Balance Stone" >
   			#if($ad2)
@@ -105,7 +105,7 @@
   		</div>
 #end
 #macro (balance $alliance $size)
-	<div id="balance$alliance" class="balance">
+	<div id="balance$alliance" class="balance" visible=#if($overlay)"false"#else"true"#end>
 	<br>
   			<img id="balance${alliance}1" src="/img/tt_black${size}.png" alt="Balance Stone">
   			#if($ad2)
@@ -197,9 +197,15 @@
 		max-width:33%;
 		max-height:100%;
 	}
+	
 	div[timeout="true"] > #progressBar{
 		display:none;
 	}
+	
+	#progressBar[visible="false"]{
+		display:none;
+	}
+	
 	#progressBar{
 		position:absolute;
 		text-align:left;
@@ -222,6 +228,35 @@
 		top:899;
 		height:50;
 	}
+	#progressTime{
+		position:absolute;
+		width:100px;
+		height:30px;
+		top:-8;
+		left:210;
+		text-align:center;
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		color:black;
+		z-index:3;
+			
+	}
+	#progressHighlight{
+		position:absolute;
+		width:100px;
+		height:38px;
+		top:7;
+		left:210;
+		filter: alpha(opacity=40); /* internet explorer */
+ 	    -khtml-opacity: 0.4;      /* khtml, old safari */
+  		-moz-opacity: 0.4;       /* mozilla, netscape */
+  		opacity: 0.4;           /* fx, safari, opera */		
+		border-radius: 12px 12px 12px 12px;
+		
+		background-color:white;	
+		z-index:2;
+	}
+	
+	
 	div[overlay="true"] > #progress{
 	
 	}
@@ -575,7 +610,7 @@
 		position:absolute;
 		height:180px;
 		width: 260px;
-		font-size: 130px;
+		font-size: 160px;
 		text-align:center;
 		color:white;
 		#if($ad2)
@@ -588,6 +623,7 @@
 			#if($overlay)
 				top: 950px;
 				height:130px;
+				font-size:130px;
 				line-height:130px;
 			#else
 				top: 900px;
@@ -616,16 +652,37 @@
 		#end
 		float:right;
 	}
-	.relics{
-		height:340px;
-		width:150px;
-		float:left;
-	}
-	.relic{
-		position:relative;
-		left:40; 
-		top:5;
-	}
+	#if($overlay)
+		.relics{
+			height:180;
+			width:80px;
+		}
+		#blueRelicSet{			
+			float:left;
+		}
+		#redRelicSet{
+			float:right;
+		}
+		.relic{
+			width:80px;
+			position:relative;
+			left:0; 
+			top:10;
+		}
+		
+	#else
+		.relics{
+			height:340px;
+			width:150px;
+			float:left;
+		}
+		.relic{
+			position:relative;
+			left:40; 
+			top:5;
+		}
+	#end
+	
 	.relic[visible="false"]{
 		display:none;
 	}
@@ -701,6 +758,9 @@
 		top:4px;
 		#end	
 	}
+	.parking[visible="false"]{
+		display:none;
+	}
 	#parkingBlue{	
 		float:left;	
 	}
@@ -719,6 +779,9 @@
 			width: 220px;
 			top:5px;
 		#end	
+	}
+	.balance[visible="false"]{
+		display:none;
 	}
 	#balanceBlue{
 		float:left;
@@ -743,12 +806,112 @@
 			align:center;
 		#end
 	}
+	.ball[visible="false"]{
+		display:none;
+	}
 	#ballBlue{
 		float:left;
 	}
 	#ballRed{
 		float:right;
 	}
+
+	.overlayWing{
+		position: absolute;
+		height:50;
+		width:100%;
+		background-color:white;
+		font:35px "Arial Black", Arial, Helvetica, sans-serif;
+		
+	}
+	.blueOverlayWing{
+		border: black solid;
+		border-radius: 15px 0px 0px 15px;
+		border-width:2px 0px 2px 2px;
+	}
+	.redOverlayWing{
+		border: black solid;
+		border-radius: 0px 15px 15px 0px;
+		border-width:2px 2px 2px 0px;
+	}
+	.overlayWing[card="true"]{
+		background-color:yellow;
+	}
+	.overlayWing1{
+		top:25;
+	}
+	
+	div[teams="3"] > .overlayWing1{	
+		top:4;
+	}
+	.overlayWing2{
+		top:105;
+	}
+	div[teams="3"] > .overlayWing2{
+		top:63;
+	}
+	.overlayWing3{
+		display:none;
+	}
+	div[teams="3"] > .overlayWing3{
+		display:block;
+		top:121;
+	}
+	
+	.overlayWingSet{
+		position:absolute;
+		width:130;
+		height:180;	
+	}
+	.overlayWingSet[visible="false"]{
+		display:none;
+	}
+	#blueOverlayWings{
+		top:899;
+		left:568;
+		
+	}
+	#redOverlayWings{
+		top:899;
+		left:1220;
+	}
+	
+	
+	#chroma{
+		position:absolute;
+		width:100%;
+		height:828;
+		background-color:$bgColor;
+		z-index:5;
+	}
+	#chroma[visible="false"]{
+		display:none;
+	}
+	#matchBar{	
+		position:absolute;
+		text-overflow:ellipsis;
+		white-space:nowrap;
+		overflow:hidden;
+		top:833;
+		left:290;
+		width:650;
+		height:60;
+		text-align:center;	
+		font:40px "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	#eventBar{
+		position:absolute;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		white-space:nowrap;
+		top:833;
+		left:978;
+		width:870;
+		height:60;
+		text-align:center;		
+		font:38px "Arial Black", Arial, Helvetica, sans-serif;
+	}
+	
 	.wing{
 		position:absolute;
 		 
@@ -1025,6 +1188,10 @@
   	<div id="top">
   		Match 1
   	</div>
+  	#if($overlay)
+  		<div id="chroma" visible="true">
+  		</div>
+  	#end
   	<div id="timer" visible="true" ad2="$ad2" timeout="false">
 	  	<img class="timerImage" id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
@@ -1073,7 +1240,9 @@
 	  	<img id="timeoutBarImg" class="toBar" src="/img/alliancebar200.png" alt="toBar" visible="false">
   		#if($ad2)
   		<div id="progressBar">
-    		<div id="progress" style="width:0%"></div>
+    		<div id="progress" style="width:0%">
+    		</div>
+    		
   		</div>
   		#end
   		<div id="timeoutBar" class="toBar" visible="false">Alliance Timeout Window Expired</div>
@@ -1141,15 +1310,19 @@
 	  		#grid("blue" $cbSize "1")
 	  		#if($ad2)
 	  		<div class="relics">
-	  		
 	  			<img class="relic" id="blueRelic1" src="/img/relic_blue_1.png" alt="relic" visible="false" >
 	  			<img class="relic" id="blueRelic2" src="/img/relic_blue_3_side.png" alt="relic" visible="false">
-	  		
 	  		</div>
 	  		#end
 	  		#grid("blue" $cbSize "2")
 	  		#ball("blue" $jSize)
 	  		#parking("blue" $pSize)
+	  		#if($overlay)
+		  		<div class="relics" id="blueRelicSet">		  		
+		  			<img class="relic" id="blueRelic1" src="/img/relic_black.png" alt="relic" visible="false" >
+		  			<img class="relic" id="blueRelic2" src="/img/relic_black.png" alt="relic" visible="false" >
+		  		</div>
+	  		#end
 	  		#balance("blue" $bSize)	
 	  	#if($ad2)  		  		
   			</div>
@@ -1157,20 +1330,23 @@
   		#end
   		#grid("red" $cbSize "1")
   		#if($ad2)
-  			<div class="relics">
-	  		
+  			<div class="relics">	  		
 	  			<img class="relic" id="redRelic1" src="/img/relic_red_3_side.png" alt="relic" visible="false" >
 	  			<img class="relic" id="redRelic2" src="/img/relic_red_3_side.png" alt="relic" visible="false" >
-	  		
 	  		</div>
   		#end
   		#grid("red" $cbSize "2")
   		#ball("red" $jSize) 	
   		#parking("red" $pSize)
+  		#if($overlay)
+  			<div class="relics" id="redRelicSet">
+	  			<img class="relic" id="redRelic1" src="/img/relic_black.png" alt="relic" visible="false" >
+	  			<img class="relic" id="redRelic2" src="/img/relic_black.png" alt="relic" visible="false" >
+	  		</div>
+  		#end
   		#balance("red" $bSize)   		
-  		
-  		#if($ad2)
-  		
+  			
+  		#if($ad2)  		
   		</div>
   		#end
   			
@@ -1179,9 +1355,34 @@
   	<div id="scoreBlue" class="score">0</div>
   	<div id="scoreRed" class="score" >0</div>
   	#if($overlay)
+  		<div id="matchBar">Match 1</div>
+  		<div id="eventBar">$eventName</div>
   		<div id="progressBar" overlay="true">
     		<div id="progress" style="width:0%"></div>
+			<div id="progressTime">
+				150
+			</div>
+			<div id="progressHighlight">
+			</div>
   		</div>
+  		<div id="blueOverlayWings" class="overlayWingSet" teams="2">
+  			<div id="blueOverlayWing1" class="blueOverlayWing overlayWing overlayWing1">
+  			</div>
+  			<div id="blueOverlayWing2" class="blueOverlayWing overlayWing overlayWing2">
+  			</div>
+  			<div id="blueOverlayWing3" class="blueOverlayWing overlayWing overlayWing3">
+  			</div>
+  		</div>
+  		<div id="redOverlayWings" class="overlayWingSet" teams="2">
+  			<div id="redOverlayWing1" class="redOverlayWing overlayWing overlayWing1">
+  			</div>
+  			<div id="redOverlayWing2" class="redOverlayWing overlayWing overlayWing2">
+  			</div>
+  			<div id="redOverlayWing3" class="redOverlayWing overlayWing overlayWing3">
+  			</div>
+  		</div>
+  		
+  		
   	#end
 
   	<script>
@@ -1349,6 +1550,13 @@
   		document.getElementById("timeoutBar").setAttribute("visible", "true");
   		document.getElementById("timeoutBarImg").setAttribute("visible", "true");
   		document.getElementById("selection").setAttribute("visible","false");
+  		#if($overlay)
+  			document.getElementById("chroma").setAttribute("visible", "false");
+  			document.getElementById("progressBar").setAttribute("visible", "false");
+  			document.getElementById("redOverlayWings").setAttribute("visible", "false");
+  			document.getElementById("blueOverlayWings").setAttribute("visible", "false");
+  		#end
+  	
   	}
   	
   	
@@ -1363,6 +1571,9 @@
   		onesDigit.src = "/digits/"+color+s%10+".png";
   		colon.src = "/digits/"+color+"colon.png";
   		//d.innerHTML = min+":"+ (s < 10 ? "0" : "") + s;
+  		#if($overlay)
+  			document.getElementById("progressTime").innerHTML = sec;
+  		#end
   	}
   	function tick(){
   		var cur = new Date().getTime();
@@ -1399,7 +1610,7 @@
   		}
   		
   		#if($ad2 || $overlay)
-  		document.getElementById("progress").style.width = (elapsed * 100 / 158000)+'%';
+  			document.getElementById("progress").style.width = (elapsed * 100 / 158000)+'%';
   		#end
   		if (elapsed < 30000){
   			//autonomous
@@ -1430,7 +1641,10 @@
   			if(!endgameFlag){
   				endgameFlag = true;
   				endgameSound.play();
-  			}
+  				#if($overlay)
+	  				swapOverlay();
+	  			#end
+	  			}
   			display(30 - (elapsed-128000)/1000, "W");
   		} else{
   			//End of match, sound buzzer.
@@ -1564,6 +1778,9 @@
 			}
 		}
 		document.getElementById("top").innerHTML = n;//n == -1 ? "Test Match" : ("Qualification Match "+n);
+		#if($overlay)
+			document.getElementById("matchBar").innerHTML = n;
+		#end
 	}
 	function fillWings(data){
 		var wing = document.getElementById("blueWing1");
@@ -1588,6 +1805,22 @@
 		wing.getElementsByClassName("wingName")[0].innerHTML = data.red2Name;
 		wing.setAttribute("card", data.red2Card);
 		
+		#if($overlay)
+			wing = document.getElementById("redOverlayWing1");
+			wing.innerHTML = data.red1;
+			wing.setAttribute("card", data.red1Card);
+			wing = document.getElementById("redOverlayWing2");
+			wing.innerHTML = data.red2;
+			wing.setAttribute("card", data.red2Card);
+			
+			wing = document.getElementById("blueOverlayWing1");
+			wing.innerHTML = data.blue1;
+			wing.setAttribute("card", data.blue1Card);
+			wing = document.getElementById("blueOverlayWing2");
+			wing.innerHTML = data.blue2;
+			wing.setAttribute("card", data.blue2Card);
+		#end
+		
 		if(typeof data.red3 !== 'undefined' && data.red3 > 0){
 			wing = document.getElementById("redWing3");
 			wing.getElementsByClassName("wingNumber")[0].innerHTML = data.red3;
@@ -1604,13 +1837,27 @@
 			wing.setAttribute("card", data.blue1Card);
 			wing.setAttribute("visible", "true");
 			
-			document.getElementById("blueWing").setAttribute("teams","3");
-		
+			document.getElementById("blueWing").setAttribute("teams","3");		
 			document.getElementById("redWing").setAttribute("teams","3");
+			
+			#if($overlay)
+				document.getElementById("blueOverlayWings").setAttribute("teams", "3");
+				document.getElementById("redOverlayWings").setAttribute("teams", "3");
+				
+				wing = document.getElementById("blueOverlayWing3");
+				wing.innerHTML = data.blue3;
+				wing.setAttribute("card", data.blue1Card);
+				wing = document.getElementById("redOverlayWing3");
+				wing.innerHTML = data.red3;
+				wing.setAttribute("card", data.red1Card);
+			#end
+			
 		} else{
-		  document.getElementById("blueWing").setAttribute("teams","2");
-		
-			document.getElementById("redWing").setAttribute("teams","2");
+		  	document.getElementById("blueWing").setAttribute("teams","2");		
+			document.getElementById("redWing").setAttribute("teams","2");			
+			
+			document.getElementById("blueOverlayWings").setAttribute("teams", "2");
+			document.getElementById("redOverlayWings").setAttribute("teams", "2");
 		}
 		
 		setTop(data.name);
@@ -1652,8 +1899,32 @@
 		document.getElementById("preview").setAttribute("elims", elims ? "true" : "false");
 		
   		display( 150  , "W");
-  		#if($ad2)
+  		#if($ad2 || $overlay)
   		document.getElementById("progress").style.width = '0%';
+  		#end
+  		#if($overlay)
+  			document.getElementById("chroma").setAttribute("visible", "false");
+  			document.getElementById("progressBar").setAttribute("visible", "false");
+  			document.getElementById("redOverlayWings").setAttribute("visible", "false");
+  			document.getElementById("blueOverlayWings").setAttribute("visible", "false");
+  			
+  			var balls = document.getElementsByClassName("ball");
+  			var parking = document.getElementsByClassName("parking");
+  			var balance = document.getElementsByClassName("balance");
+  			var relics = document.getElementsByClassName("relic");
+  			
+  			for(var i = 0; i < balls.length; i++){
+  				balls[i].setAttribute("visible", "true");
+  			}
+  			for(var i = 0; i < parking.length; i++){
+  				parking[i].setAttribute("visible", "true");
+  			}
+  			for(var i = 0; i < balance.length; i++){
+  				balance[i].setAttribute("visible", "false");
+  			}
+  			for(var i = 0; i < relics.length; i++){
+  				relics[i].setAttribute("visible", "false");
+  			}
   		#end
 
 		document.getElementById("red1_number").innerHTML = data.red1;
@@ -1708,6 +1979,25 @@
 	
 		fillWings(data);
 	}
+	function swapOverlay(){
+		var balls = document.getElementsByClassName("ball");
+		var parking = document.getElementsByClassName("parking");
+		var balance = document.getElementsByClassName("balance");
+		var relics = document.getElementsByClassName("relic");
+		for(var i = 0; i < balls.length; i++){
+			balls[i].setAttribute("visible", "false");
+		}
+		for(var i = 0; i < parking.length; i++){
+			parking[i].setAttribute("visible", "false");
+		}
+		for(var i = 0; i < balance.length; i++){
+			balance[i].setAttribute("visible", "true");
+		}
+		for(var i = 0; i < relics.length; i++){
+			relics[i].setAttribute("visible", "true");
+		}	
+	}
+	
 	function getArrow(dif){
 		dif = parseInt(dif);
 		if(dif < 0)return '&#9660;';
@@ -1724,8 +2014,16 @@
 	
 		var elims = data.name.indexOf("F") >= 0;
 		
+		#if($overlay)
+  			document.getElementById("chroma").setAttribute("visible", "false");
+  			document.getElementById("progressBar").setAttribute("visible", "false");
+  			document.getElementById("redOverlayWings").setAttribute("visible", "false");
+  			document.getElementById("blueOverlayWings").setAttribute("visible", "false");
+  		#end
+		
+		
 		document.getElementById("result").setAttribute("elims", elims ? "true" : "false");
-	
+		
 		document.getElementById("timer").setAttribute("timeout", "false");
 		document.getElementById("scoreRed").setAttribute("visible","false");
 		document.getElementById("scoreBlue").setAttribute("visible","false");
@@ -1846,6 +2144,13 @@
 		document.getElementById("scoreBar").setAttribute("visible","false");
 		document.getElementById("selection").setAttribute("visible","true");
 		
+		#if($overlay)
+  			document.getElementById("chroma").setAttribute("visible", "false");
+  			document.getElementById("progressBar").setAttribute("visible", "false");
+  			document.getElementById("redOverlayWings").setAttribute("visible", "false");
+  			document.getElementById("blueOverlayWings").setAttribute("visible", "false");
+  		#end
+		
 		setTop("Alliance Selection");
 	
 		for(var a = 0; a < 4; a++){
@@ -1882,6 +2187,14 @@
                 dataType: 'json',
                 success: function (data) {
                     rand=data.rand;
+                    
+                    #if($overlay)
+			  			document.getElementById("chroma").setAttribute("visible", "false");
+			  			document.getElementById("progressBar").setAttribute("visible", "true");
+			  			document.getElementById("redOverlayWings").setAttribute("visible", "true");
+			  			document.getElementById("blueOverlayWings").setAttribute("visible", "true");
+			  		#end
+                    
                     document.getElementById("timer").setAttribute("timeout", "false");
                     document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
                    	document.getElementById("preview").setAttribute("visible","false");
@@ -1943,6 +2256,14 @@
 		
   		document.getElementById("timeoutBar").setAttribute("visible", "false");
   		document.getElementById("timeoutBarImg").setAttribute("visible", "false");
+		
+		#if($overlay)
+  			document.getElementById("chroma").setAttribute("visible", "true");
+  			document.getElementById("progressBar").setAttribute("visible", "true");
+  			document.getElementById("redOverlayWings").setAttribute("visible", "true");
+  			document.getElementById("blueOverlayWings").setAttribute("visible", "true");
+  		#end
+
 	}
 	
 	
@@ -2016,7 +2337,11 @@
 				//todo if want key columnn highlighting to disappear, use endAutoFlag in this and
 					cell.setAttribute("visible", (((rand-1) % 3 == c ) ? "true" : enc == 0 ? "false" : "true"));
 					if(enc == 0){
-						cell.src = alliance=='red' ? "/img/pink-square${cbSize}.png" : "/img/cyan-square${cbSize}.png"; 
+						if(endAutoFlag){
+							 cell.setAttribute("visible", "false");
+						}else{
+							 cell.src = alliance=='red' ? "/img/pink-square${cbSize}.png" : "/img/cyan-square${cbSize}.png";
+						} 
 					} else{
 						cell.src = enc == 1 ? "/img/brown-square${cbSize}.png" : "/img/grey-square${cbSize}.png";
 					}
@@ -2076,9 +2401,10 @@
 	  				document.getElementById("blue_"+(Math.floor(i/4)+1)+"_chevron_r"+(i % 4)).setAttribute("visible", ((obj.blue.cbRows >> i) & 1 )> 0 ? "true" : "false");
 	  			}
 	  		
-	  		} 		
+	  		}   			
 	  		
 	  		var relic = document.getElementById("redRelic1");
+	  		
 	  		if(obj.red.relic1Zone == undefined || obj.red.relic1Zone == 0){
 	  			relic.setAttribute("visible", "false");
 	  		}else{
@@ -2107,6 +2433,46 @@
 	  			relic.src = "/img/relic_blue_"+obj.blue.relic2Zone+(obj.blue.relic2Standing == "true" ? "":"_side")+".png";
 	  		}
 	  		
+  		#end
+  		
+  		#if($overlay)
+  			var relicScored = false;
+  			var relic = document.getElementById("redRelic1");
+	  		if(obj.red.relic1Zone == undefined || obj.red.relic1Zone == 0){
+	  			relic.src = "/img/relic_black.png";
+	  		}else{
+	  			relicScored = true;
+	  			relic.setAttribute("visible", "true");
+	  			relic.src = "/img/relic_red_"+obj.red.relic1Zone+(obj.red.relic1Standing == "true" ? "":"_side")+"_circle.png";
+	  		}
+	  		 relic = document.getElementById("redRelic2");
+	  		if(obj.red.relic2Zone == undefined || obj.red.relic2Zone == 0){
+	  			relic.src = "/img/relic_black.png";
+	  		}else{
+	  			relicScored = true;
+	  			relic.setAttribute("visible", "true");
+	  			relic.src = "/img/relic_red_"+obj.red.relic2Zone+(obj.red.relic2Standing == "true" ? "":"_side")+"_circle.png";
+	  		}
+	  		 relic = document.getElementById("blueRelic1");
+	  		if(obj.blue.relic1Zone == undefined || obj.blue.relic1Zone == 0){
+	  			relic.src = "/img/relic_black.png";
+	  		}else{
+	  			relicScored = true;
+	  			relic.setAttribute("visible", "true");
+	  			relic.src = "/img/relic_blue_"+obj.blue.relic1Zone+(obj.blue.relic1Standing == "true" ? "":"_side")+"_circle.png";
+	  		}
+	  		 relic = document.getElementById("blueRelic2");
+	  		if(obj.blue.relic2Zone == undefined || obj.blue.relic2Zone == 0){
+	  			relic.src = "/img/relic_black.png";
+	  		}else{
+	  			relicScored = true;
+	  			relic.setAttribute("visible", "true");
+	  			relic.src = "/img/relic_blue_"+obj.blue.relic2Zone+(obj.blue.relic2Standing == "true" ? "":"_side")+"_circle.png";
+	  		}
+	  		
+	  		if(relicScored && !endgameFlag){
+	  			swapOverlay();
+	  		}
   		#end
   		
   		

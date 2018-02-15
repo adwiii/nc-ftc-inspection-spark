@@ -1,6 +1,7 @@
 package nc.ftc.inspection.model;
 
 import java.lang.reflect.Type;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class Match {
 		return blue;
 	}
 	public int randomize(){
-		Random r = new Random();
+		SecureRandom r = new SecureRandom();
 		randomization = r.nextInt(6) + 1;
 		red.randomization = this.randomization;
 		blue.randomization = this.randomization;
