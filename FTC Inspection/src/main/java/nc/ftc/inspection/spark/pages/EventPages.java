@@ -1612,7 +1612,7 @@ public class EventPages {
 			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
 			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
 			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
-			if(e.getData().getStatus() == EventData.ELIMS) {
+			if(e.getData().getStatus() == EventData.ELIMS && m != Match.TEST_MATCH) {
 				res += "\"red3\":"+red.getTeam3() +",";
 				res += "\"blue3\":"+blue.getTeam3() +",";
 				res += "\"red3Name\":\""+GlobalDAO.getTeamName(red.getTeam3()) +"\",";
