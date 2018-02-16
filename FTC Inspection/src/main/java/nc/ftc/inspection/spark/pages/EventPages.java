@@ -61,7 +61,7 @@ public class EventPages {
 	public static Route serveEventCreationPage = (Request request, Response response) -> {	
 		return render(request, Path.Template.CREATE_EVENT);
 	};
-	public static final String eventCodePattern = "a-z0-9_";
+	public static final String eventCodePattern = "[a-z0-9_]+";
 	public static Route handleEventCreationPost = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
 		String code = request.queryParams("eventCode");
