@@ -785,9 +785,15 @@
 	}
 	#balanceBlue{
 		float:left;
+		#if($overlay)
+		right:8px;
+		#end
 	}
 	#balanceRed{
 		float: right;
+		#if($overlay)
+		left:8px;
+		#end
 	}
 	.ball{
 		#if($ad2)
@@ -802,7 +808,7 @@
 			height:180px;
 			width: 100px;
 			top:5px;
-			left:10px;
+			/* left:10px; */
 			align:center;
 		#end
 	}
