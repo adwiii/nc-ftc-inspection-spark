@@ -109,6 +109,7 @@
     				<li><a href="/config/">Server&nbsp;Config</a></li>
     		#end ## end admin if
     		<li> <a href="/feedback/">Feedback </a></li>
+    		</ul>
     		</div></li>
     		#########################################################################
     		#else ##We know we are not on mobile
@@ -122,6 +123,7 @@
     			    <li><a href="/event/$sysEvent/schedule">Schedule</a></li>
     				<li><a href="/event/$sysEvent/results">Results</a></li>
     				<li><a href="/event/$sysEvent/rankings">Rankings</a></li>
+    				</ul>
     			</div>
     		</li>
     		#if($INSPECTOR)
@@ -133,6 +135,7 @@
     				<li><a href="/event/$sysEvent/inspect/hw">Hardware</a></li>
     				<li><a href="/event/$sysEvent/inspect/sw">Software</a></li>
     				<li><a href="/event/$sysEvent/inspect/fd">Field</a></li>
+    				</ul>
     			</div>
     		</li>
     		#end ##end inspector if
@@ -149,6 +152,7 @@
     			    <li><a href="/create/account/">Create&nbsp;Users</a></li>
     				<li><a href="/users/manage/">Manage&nbsp;Users</a></li>
     				<li><a href="/config/">Server&nbsp;Config</a></li>
+    				</ul>
     			</div>
     		</li>
     		#end ## end admin if
