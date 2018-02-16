@@ -189,7 +189,7 @@
 	}	
 	
 	function getCell(bg){
-		if(bg == "#FFFFFF")return 0;
+		if(bg == "#FFFFFF" || bg == "")return 0;
 		if(bg == "#565C05")return 1;
 		if(bg == "#D6D6CB")return 2;
 	}
@@ -197,7 +197,7 @@
 		var data = 0;
 		for(var r = 0; r < 4; r++){
 			for(var c = 0; c < 3; c++){
-				data += getCell(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor")) << ((r * 6) + (2 * c));
+				data += getCell(rgb2hex(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor"))) << ((r * 6) + (2 * c));
 			}
 		}
 		return data;
@@ -213,7 +213,7 @@
 			for(var c = 0; c < 3; c++){
 				for(var cb = 1; cb <=2; cb++){
 					slot = document.getElementById("cb_"+cb+","+r+","+c)
-					border = rgb2hex(slot.style.borderColor).toUpperCase();
+					border = rgb2hex(slot.style.borderColor);
 					if(border == "#FFD700") data +=  1 << ((r * 6) + (2 * c) + (cb - 1));
 				}
 			}
@@ -229,6 +229,9 @@ var hexDigits = new Array
 
 //Function to convert rgb color to hex format
 function rgb2hex(rgb) {
+	 if (rgb.length > 0 && rgb.charAt(0) == '#'){
+		 return rgb.toUpperCase();
+	 } 
  rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
  if (rgb == null) {
  	return "";
@@ -242,14 +245,14 @@ function hex(x) {
 	function toggle(cb,r,c){
 		var slot = document.getElementById("cb_"+cb+","+r+","+c);
 		bg = slot.getAttribute("bgcolor").toUpperCase();
-		border = rgb2hex(slot.style.borderColor).toUpperCase();
+		border = rgb2hex(slot.style.borderColor);
 		if (border == "") {
 			border = "#000000";
 		}
 		var hasKey = false;
 		var isKey = false;
 		for (var i = 0; i < 4; i++) {
-			if (rgb2hex(document.getElementById("cb_"+cb+","+i+","+c).style.borderColor).toUpperCase() == "#FFD700") {
+			if (rgb2hex(document.getElementById("cb_"+cb+","+i+","+c).style.borderColor) == "#FFD700") {
 				hasKey = true;
 				if (i == r) {
 					isKey = true;
