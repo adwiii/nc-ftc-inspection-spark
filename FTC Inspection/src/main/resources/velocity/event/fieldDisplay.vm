@@ -3,6 +3,9 @@
 ## All Rights Reserved.
 ##
 
+<!-- Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief -->
+<!-- All Rights Reserved.                                      -->
+
 #if($ad2)
   			#set($cbSize = 100)
   			#set($jSize = 42)
