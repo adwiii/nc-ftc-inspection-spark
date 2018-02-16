@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+ * All Rights Reserved.
+ */
+
 package nc.ftc.inspection.spark.util;
 
 import nc.ftc.inspection.dao.UsersDAO;
