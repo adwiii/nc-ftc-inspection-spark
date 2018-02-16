@@ -1,3 +1,8 @@
+##
+## Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+## All Rights Reserved.
+##
+
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <!-- This is based off of the things found here: https://jsfiddle.net/DTcHh/16420/ -->

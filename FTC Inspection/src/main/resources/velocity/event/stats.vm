@@ -1,3 +1,8 @@
+##
+## Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+## All Rights Reserved.
+##
+
 #macro (esr $s)
 <td>$s.avg</td><td>$s.sum</td><td>$s.opp</td><td>$s.pct</td>
 #end
@@ -129,9 +134,6 @@ function openTab(evt, tabName) {
 
 	$().ready(function(){
   		document.getElementById("teamGeneralId").click();
-  		//$('#general').fixedHeaderTable({ footer: false, cloneHeadToFoot: true, fixedColumn: true });
-  		//$('#Avg').fixedHeaderTable({ footer: false, cloneHeadToFoot: true, fixedColumn: true });
-  		//$('#PR').fixedHeaderTable({ footer: false, cloneHeadToFoot: true, fixedColumn: true });
 	});
 </script>
 <a href="/event/$sysEvent/home/"><< To Event Home</a>

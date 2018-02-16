@@ -1,4 +1,13 @@
+##
+## Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+## All Rights Reserved.
+##
+
 #macro(mainLayout $mainWidth)
+
+<!-- Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief -->
+<!-- All Rights Reserved.                                      -->
+
 <html>
 <head>
     <title>FTC Live</title>
@@ -179,9 +188,9 @@
         <!-- END BODY CONTENT -->
     </div>
 </main>
-##<footer>
-##    This is a footer.
-##</footer>
+<footer>
+    <span class="singleLine">FTC Live Scoring Software v2.3.&nbsp;</span><span class="singleLine">Copyright &copy; 2016-2018. All Rights Reserved.</span>
+</footer>
 </body>
 </html>
 #end

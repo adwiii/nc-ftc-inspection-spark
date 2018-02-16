@@ -1,3 +1,8 @@
+##
+## Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+## All Rights Reserved.
+##
+
 #macro (scoreField $alliance $key $label $limit) 
 	<div id="${alliance}_${key}_score" class="scoreControl">
 		<label class="scoreLabel">$label</label>
