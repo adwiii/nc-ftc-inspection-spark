@@ -98,6 +98,33 @@ $(document).ready(function() {
     $('#addButton').click(function(e) {
     	sendData(true);
     });
+    
+    $('#deleteButton').click(function(e) {
+    	if (!confirm("Are you sure you want to delete these users?\nThis action cannot be undone.")) {
+    		return;
+    	}
+    	var sel = $('#selectedUsers option').toArray();
+    	var res = [];
+    	for(var i = 0; i < sel.length; i++){
+    		res.push(sel[i].value);
+    	}
+    	$.ajax({
+			url: "/delete/",
+  			type: "POST",
+  			data: {changedUsers:res},
+  			success: function(data){
+  				$('#selectedUsers option').remove();
+  				document.getElementById("msg").innerHTML = "Users successfully removed";
+  				updateRoles();
+  			},
+  			error:function(xhr, ajaxOptions, thrownError){  				
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+                document.getElementById("msg").innerHTML = xhr.responseText;
+  			}});
+    });
+    
     function updateRoles() {
     	var selectedOpt = $('#possibleRoles option:selected')[0].value;
     	var userOptions = $('#selectedUsers option');
@@ -189,10 +216,21 @@ Role to Edit:
 </select>
 </td>
 <td>
-<input type="button" id="removeButton" class="bad notification" value="Remove Permissions">
+<table style="width:100%">
+<tr style="width:100%">
+<td style="width:50%">
 <input type="button" id="addButton" class="good notification" value="Add Permissions">
+</td><td style="width:50%">
+<input type="button" id="removeButton" class="bad notification" value="Remove Permissions">
+</td>
+</tr>
+</table>
 <div id="msg" style="text-align:center"></div>
 </td>
-
+</tr>
+<tr><td></td><td>
+<br><br><br>
+<input type="button" id="deleteButton" class="bad notification" value="Delete Users">
+</td></tr></table>
 
 #end
