@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+ * All Rights Reserved.
+ */
 
 //this code initializes any datepickers on the page
 $( function() {
