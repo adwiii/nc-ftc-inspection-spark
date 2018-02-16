@@ -210,7 +210,7 @@
 </style>
 <p class="${alliance}Alliance banner">Final Review</p>
 <table>
-<tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs)autoGlyphs#end</td></tr>
+<tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs "24")autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
 	<td class="right nowrap absorbing-column">
 	<table style="width:100%"><tr>
@@ -219,7 +219,23 @@
 		<td class="nowrap" style="width:33%"><label for="gk3">2</label><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/></td>
 	</tr></table>
 	</td></tr>
-<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels)jewel_count#end</td></tr>
+<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels "4")jewel_count#end</td></tr>
+	
+<tr><td class="left"><label>Robots Parked (Auto):</label></td>
+	<td class="right nowrap absorbing-column">
+	<table style="width:100%"><tr>
+	<td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td>
+	<td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td>
+	<td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td>
+	</tr></table>
+</td></tr>
+
+<!-- TELEOP STUFF HERE-->
+<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($glyphs "24")glyphs#end</td></tr>
+<tr><td class="left"><label>Rows:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($rows "8")rows#end</td></tr>
+<tr><td class="left"><label>Columns:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($columns "6")columns#end</td></tr>
+<tr><td class="left"><label>Ciphers:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($ciphers "2")ciphers#end</td></tr>
+
 <tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap" style="width: -webkit-fill-available;"><table  style="white-space:nowrap;width:100%"><tr>
 	<td class="fifty"><label><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end/>0</label></td>
 	<td class="fifty"><label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label></td>
@@ -240,21 +256,7 @@
 	<td>
 	<input type="checkbox" id="relic2Upright" #if($relic2Standing == true)checked#end/></td><td><label for="relic2Upright">Upright?</label>
 	</td></tr></table></td></tr>
-	
-<tr><td class="left"><label>Robots Parked (Auto):</label></td>
-	<td class="right nowrap absorbing-column">
-	<table style="width:100%"><tr>
-	<td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td>
-	</tr></table>
-</td></tr>
 
-<!-- TELEOP STUFF HERE-->
-<tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($glyphs)glyphs#end</td></tr>
-<tr><td class="left"><label>Rows:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($rows)rows#end</td></tr>
-<tr><td class="left"><label>Columns:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($columns)columns#end</td></tr>
-<tr><td class="left"><label>Ciphers:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($ciphers)ciphers#end</td></tr>
 <tr><td class="left"><label>Robots Balanced:</label></td>
 <td class="right nowrap absorbing-column">
 <table style="width:100%"><tr>
@@ -263,8 +265,8 @@
 	<td class="nowrap" style="width:33%"><label for="bal3">2</label><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/></td>
 	</tr></table>	
 </td></tr>
-<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
-<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
+<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor "99999")minor#end</td></tr>
+<tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major "99999")major#end</td></tr>
 </table>
 <input type="submit" class="bad notification" value="Submit Final Score" onclick="submit()">
 #end

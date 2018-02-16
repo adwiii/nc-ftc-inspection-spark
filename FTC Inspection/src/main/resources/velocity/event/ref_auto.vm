@@ -246,6 +246,17 @@ function hex(x) {
 		if (border == "") {
 			border = "#000000";
 		}
+		var hasKey = false;
+		var isKey = false;
+		for (var i = 0; i < 4; i++) {
+			if (rgb2hex(document.getElementById("cb_"+cb+","+i+","+c).style.borderColor).toUpperCase() == "#FFD700") {
+				hasKey = true;
+				if (i == r) {
+					isKey = true;
+				}
+			}
+		}
+		
 		if(bg == "#FFFFFF" && border == "#000000"){//white to brown
 			slot.setAttribute("bgcolor","#565C05");
 			slot.style.borderColor = "#000000";
@@ -255,7 +266,7 @@ function hex(x) {
 		} else if(bg == "#565C05" && border == "#000000"){//brown to gray
 			slot.setAttribute("bgcolor","#D6D6CB");
 			slot.style.borderColor = "#000000";
-		} else if (bg == "#D6D6CB" && border == "#000000" && keylocNum == c) {//gray to brown key
+		} else if (bg == "#D6D6CB" && border == "#000000" && keylocNum == c && !hasKey) {//gray to brown key
 			slot.setAttribute("bgcolor","#565C05");
 			slot.style.borderColor = "#FFD700";
 			keys++;
@@ -267,7 +278,7 @@ function hex(x) {
 		} else {//gray key to white
 			slot.setAttribute("bgcolor","#FFFFFF");
 			slot.style.borderColor = "#000000";
-			if (keylocNum == c) { //we removed a key
+			if (isKey) { //we removed a key
 				keys--;
 			}
 			autoGlyphs--;
