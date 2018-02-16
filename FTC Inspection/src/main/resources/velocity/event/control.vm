@@ -295,6 +295,9 @@
 		margin: 4px 10px;
 		cursor: pointer;
 	}
+	.tabButton:disabled{
+		background-color: #d3d3d3;
+	}
 	
 	.tabButton:hover {
 		background-color: #3e8e41;
@@ -360,6 +363,15 @@ function randomize(r){
 		var startBtn = document.getElementById("startBtn");
 		startBtn.disabled = false;
 		startBtn.setAttribute("state","ready");
+		
+		//COMMENCE LOCKOUT
+		openTab(null,'ScoreTab');//open score tab
+		//lockout from change tab
+  		var tabs = document.getElementsByClassName("tabButton");
+  		for(var i = 0; i < tabs.length; i++){
+  			tabs[i].setAttribute("state", "off");
+  			tabs[i].disabled = true;
+  		}
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
@@ -476,7 +488,7 @@ function start(){
 		commitBtn.innerHTML = "Edit Now";
 		commitBtn.setAttribute("onclick","lockout()");
 		commitBtn.setAttribute("state","off");
-		
+				
 		var postBtn = document.getElementById("postBtn");
 		postBtn.setAttribute("state", "off");
 		postBtn.disabled = true;
@@ -555,6 +567,14 @@ function abort(){
 		startBtn.setAttribute("state","ready");
 		startBtn.innerHTML = "Start Match";
 		startBtn.setAttribute("onclick", "start()");
+		
+		//UNDO LOCKOUT
+  		var tabs = document.getElementsByClassName("tabButton");
+  		for(var i = 0; i < tabs.length; i++){
+  			tabs[i].setAttribute("state", "ready");
+  			tabs[i].disabled = false;
+  		}
+  		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
@@ -600,6 +620,14 @@ function commit(){
 		preview.disabled = false;
 		var rand = document.getElementById("randomBtn");
 		rand.innerHTML = "Randomize";
+		
+		//UNDO LOCKOUT
+  		var tabs = document.getElementsByClassName("tabButton");
+  		for(var i = 0; i < tabs.length; i++){
+  			tabs[i].setAttribute("state", "ready");
+  			tabs[i].disabled = false;
+  		}
+  		
 		
 		setControlState(true);
 		

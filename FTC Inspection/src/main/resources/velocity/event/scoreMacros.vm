@@ -1,11 +1,11 @@
-#macro (scoreField $alliance $key $label) 
+#macro (scoreField $alliance $key $label $limit) 
 	<div id="${alliance}_${key}_score" class="scoreControl">
 		<label class="scoreLabel">$label</label>
-		<input type="text" class="scoreField" value="0" disabled></input>
+		<input type="text" class="scoreField" value="0" onfocusout="validate('$alliance','$key', $limit)" disabled></input>
 		<div>
-			<button class="arrow" onclick="up('$alliance','$key')" disabled>&#9650;</button>
+			<button class="arrow" onclick="up('$alliance','$key', $limit)" disabled>&#9650;</button>
 			<br/>
-			<button class="arrow" onclick="down('$alliance','$key')" disabled>&#9660;</button>
+			<button class="arrow" onclick="down('$alliance','$key', $limit)" disabled>&#9660;</button>
 		</div>
 	</div> 
 #end
@@ -40,9 +40,9 @@
 				<tr><td>Balance Points</td><td id="${alliance}BalancePoints">0</td></tr>
 				<tr><th>Foul</th><th id="${alliance}FoulScore">0</th></tr>
 			</table>
-			#scoreField($alliance "major" "Major<br>Penalties")
-		    #scoreField($alliance "minor" "Minor Penalties")
-			#scoreField($alliance "adjust" "Adjust")
+			#scoreField($alliance "major" "Major<br>Penalties" "99999")
+		    #scoreField($alliance "minor" "Minor Penalties" "99999")
+			#scoreField($alliance "adjust" "Adjust" "99999")
 		</fieldset>				
 	</div>
 #end
@@ -52,10 +52,10 @@
 	<div id="${alliance}AutoScores" >
 		<fieldset class="breakdown">
 			<legend>Auto Scores</legend>						
-			#scoreField($alliance "autoGlyphs" "Glyphs")
-			#scoreField($alliance "jewels" "Jewels")
-			#scoreField($alliance "cryptoboxKeys" "Keys")
-			#scoreField($alliance "parkedAuto" "Parked")
+			#scoreField($alliance "autoGlyphs" "Glyphs" "24")
+			#scoreField($alliance "jewels" "Jewels" "4")
+			#scoreField($alliance "cryptoboxKeys" "Keys" "2")
+			#scoreField($alliance "parkedAuto" "Parked" "2")
 		</fieldset>
 	</div>
 	<!--
@@ -69,11 +69,11 @@
 	<div id="${alliance}TeleopScores" style="float:left;">
 		<fieldset class="breakdown">
 			<legend>Teleop Scores</legend>						
-			#scoreField($alliance "glyphs" "Glyphs")
-			#scoreField($alliance "rows" "Rows")
-			#scoreField($alliance "columns" "Columns")						
-			#scoreField($alliance "ciphers" "Ciphers")
-			#scoreField($alliance "balanced" "Balanced")
+			#scoreField($alliance "glyphs" "Glyphs" "24")
+			#scoreField($alliance "rows" "Rows" "8")
+			#scoreField($alliance "columns" "Columns" "6")						
+			#scoreField($alliance "ciphers" "Ciphers" "2")
+			#scoreField($alliance "balanced" "Balanced" "2")
 		</fieldset>
 	</div>
 	<div id="${alliance}RelicScores" style="float:left;">
@@ -322,15 +322,23 @@
 	  		document.getElementById(a+"Score").innerHTML = obj[a].score;//parseInt(obj[a].autoPoints)+parseInt(obj[a].teleopPoints)+parseInt(obj[a].foulPoints)+parseInt(obj[a].adjust);
   		}
   	}
-  	
-  	function up(alliance, key){
+  	function validate(alliance, key, limit) {
   		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
   		var val = parseInt(txt.value);
-  		val += 1;
+  		if (val > limit || val < 0) {
+  			val = 0;
+  		}
   		txt.value = val;
   		updateScore(alliance, key, val);
   	}
-  	function down(alliance, key){
+  	function up(alliance, key, limit){
+  		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
+  		var val = parseInt(txt.value);
+  		val += val == limit ? 0 : 1;
+  		txt.value = val;
+  		updateScore(alliance, key, val);
+  	}
+  	function down(alliance, key, limit){
   		var txt = document.getElementById(alliance+"_"+key+"_score").children[1];
   		var val = parseInt(txt.value);
   		val -= val == 0 ? 0 : 1;

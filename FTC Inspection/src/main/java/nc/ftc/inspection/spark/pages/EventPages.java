@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.MultipartConfigElement;
@@ -63,13 +64,21 @@ public class EventPages {
 	public static Route serveEventCreationPage = (Request request, Response response) -> {	
 		return render(request, Path.Template.CREATE_EVENT);
 	};
-	
+	public static final String eventCodePattern = "[a-z0-9_]+";
 	public static Route handleEventCreationPost = (Request request, Response response) -> {
 		Map<String, Object> model = new HashMap<>();
 		String code = request.queryParams("eventCode");
 		String name = request.queryParams("eventName");
 		String eventDate = request.queryParams("eventDate");
 		Date date = null;
+		if (!Pattern.matches(eventCodePattern, code)) {
+			model.put("success", 0);
+			model.put("resp", "Could not create event, the event code must be lowercase letters, numbers, or underscore");
+			model.put("eventCode", code);
+			model.put("eventName", name);
+			model.put("eventDate", eventDate);
+			return render(request, model, Path.Template.CREATE_EVENT);
+		}
 		try {
 			date = new Date(EventDAO.EVENT_DATE_FORMAT.parse(eventDate).getTime());	
 		} catch (Exception e) {
