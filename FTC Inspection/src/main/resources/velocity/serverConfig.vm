@@ -14,6 +14,14 @@
 		<a href="keys/">Manage Access Keys</a>
 	</li>
 </ul>
+<h2>
+	Server Data Management
+</h2>
+<ul>
+	<li>		
+		<a href="/server/">Data Management</a>
+	</li>
+</ul>
 
 
 #end

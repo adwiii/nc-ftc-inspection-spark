@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -18,12 +20,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
 
 import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.commons.io.FileUtils;
@@ -47,7 +56,15 @@ import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.ConfigDAO;
+import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.dao.GlobalDAO;
+import nc.ftc.inspection.dao.UsersDAO;
+import nc.ftc.inspection.model.Alliance;
+import nc.ftc.inspection.model.EventData;
+import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.Remote;
+import nc.ftc.inspection.model.Team;
+import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.util.Path;
 import spark.Request;
 import spark.Response;
@@ -389,6 +406,107 @@ public class ServerPages {
 			return resp2;
 		}
 		return resp1+";"+resp2;
+	};
+	
+	public static Route handleDeleteEventPost = (Request request, Response response)->{
+		String event = request.queryParams("code");
+		String op = request.queryParams("op");
+		boolean res = false;
+		if(op.equals( "remove")) {
+			res = EventDAO.removeEvent(event);
+		} else if(op.equals( "delete")) {
+			res = EventDAO.deleteEvent(event);
+		}
+		if(!res) {
+			response.status(500);
+			return "FAILED";
+		}		
+		return "OK";
+	};
+	public static Route serveServerDataPage = (Request request, Response response) ->{
+		return render(request, new HashMap<>(), Path.Template.SERVER_DATA_MANAGEMENT);
+	};
+	
+	public static Route handleExportUsers = (Request request, Response response) ->{
+		List<User> users = UsersDAO.getAllUsers();
+		response.raw().setContentType("application/octet-stream");
+		response.raw().setHeader("Content-Disposition","attachment; filename=users.dat");
+		try(ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(response.raw().getOutputStream()))){			
+			outputStream.writeObject(users);			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "OK";
+	};
+	
+	@SuppressWarnings("unchecked")
+	public static Route handleImportUsers = (Request request, Response response) ->{
+		List<User> newUsers;
+		String location = "public";          // the directory location where files will be stored
+		long maxFileSize = 100000000;       // the maximum size allowed for uploaded files
+		long maxRequestSize = 100000000;    // the maximum size allowed for multipart/form-data requests
+		int fileSizeThreshold = 4096;       // the size threshold after which files will be written to disk
+		
+		MultipartConfigElement multipartConfigElement = new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold);
+		request.raw().setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
+		Part p = request.raw().getPart("file");
+		try(ObjectInputStream inputStream = new ObjectInputStream(p.getInputStream())){
+			newUsers = (List<User>)inputStream.readObject();
+		}catch(Exception e) {
+			e.printStackTrace();
+			response.status(500);
+			return "Corrupted users file.";
+		}
+		int added = UsersDAO.importUsers(newUsers);
+		if(added < 0)response.status(500);
+		System.out.println(added+" users imported.");
+		return added + " users imported";
+	};
+	
+	public static List<Team> parseTeamFile(Request request, Response response) throws IOException, ServletException{
+		String location = "public";          // the directory location where files will be stored
+		long maxFileSize = 100000000;       // the maximum size allowed for uploaded files
+		long maxRequestSize = 100000000;    // the maximum size allowed for multipart/form-data requests
+		int fileSizeThreshold = 4096;// the size threshold after which files will be written to disk
+		
+		MultipartConfigElement multipartConfigElement = new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold);
+		request.raw().setAttribute("org.eclipse.jetty.multipartConfig",    multipartConfigElement);	
+		Part p = request.raw().getPart("file");
+		List<Team> teams = new ArrayList<Team>();
+		Scanner scan = new Scanner(p.getInputStream());
+		scan.useDelimiter("\\|");
+		try{
+			while(scan.hasNextLine()){
+				try {
+				int division = scan.nextInt();
+				int team = scan.nextInt();
+				String name = scan.next();
+				String affiliation = scan.next();
+				String city = scan.next();
+				String state = scan.next();
+				String country = scan.next();
+				boolean advanced = scan.nextBoolean();
+				scan.nextLine();
+				Team t = new Team(team, name, city+","+state+", "+country);
+				teams.add(t);
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return teams;
+	}
+	
+	public static Route handleImportTeams = (Request request, Response response) ->{
+		List<Team> teams = parseTeamFile(request, response);
+		int added = GlobalDAO.addNewTeams(teams);
+		if(added == -1) {
+			response.status(500);
+			return "Error adding teams";
+		}
+		return added +" teams added.";
 	};
 
 }

@@ -27,6 +27,7 @@ public class UsersDAO {
 	static final SQL UPDATE_PASSWORD_SQL = new SQL(1, "UPDATE users SET hashedPassword = ?, salt = ?, changed=1 WHERE username = ?");
 	static final SQL UPDATE_TYPE_SQL = new SQL(2, "UPDATE users SET type = ?, changed=1 WHERE username = ?");
 	static final SQL NEW_USER_SQL = new SQL(3, "INSERT INTO users VALUES (?,?,?,?,?,0)");
+	static final String IMPORT_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,?);";
 	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
 	static final SQL ASSIGN_ROLE_SQL = new SQL(4, "INSERT OR REPLACE INTO roles VALUES (?,?,?)");
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
@@ -309,6 +310,34 @@ public class UsersDAO {
 			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
 			return false;
 		}
+	}
+
+	public static int importUsers(List<User> newUsers) {
+		
+		try (Connection local = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps;
+			int added = 0;
+			for(User user : newUsers) {
+				ps = local.prepareStatement(IMPORT_USER_SQL);
+				ps.setString(1, user.getUsername());
+				ps.setString(2, user.getHashedPw());
+				ps.setInt(3, user.getType());
+				ps.setString(4, user.getSalt());
+				ps.setString(5, user.getRealName());
+				ps.setBoolean(6, user.hasChangedPw());
+				try {
+					added += ps.executeUpdate();
+				}catch(Exception e) {
+					//user alreayd exists
+				}
+			}			
+			return added;
+		} catch (SQLException e) {
+			System.out.println("Error in user import:");
+			e.printStackTrace();
+			return -1;
+		}
+		
 	}
 
 }

@@ -1,0 +1,111 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<h1>Server Data Management</h1>
+All of these operations only affect the local instance - they do not propagate to any remote servers.
+<br><br>
+<fieldset>
+<legend>Import Team Data</legend>
+Importing team data will add entries for all teams not currently in the master team database. If a team already has an entry, it will not be modified. 
+The format needs to match the teams.txt file created by the FIRST Official scoring application. This does NOT add teams to any event. To do that, use
+ the import teams option within the specific event's setup page.
+<br>
+<input id="teamsFile" type="file" name="file"/>
+<button id="importTeams" onclick="importTeams()">Import Teams</button><div id="teamStatus"></div>
+</fieldset>
+
+<br><br>
+<fieldset>
+	<legend>User Import/Export</legend>
+	Exporting users will download a users.dat file that can be imported to other instances of the server.
+	<button id="exportUsers" onclick="exportUsers()">Export Users</button><br><hr><br>
+	Importing users will add any users from the provided users.dat file that do not exist to the system. They will have the same permissions on this system as the source system. If a user with the same username exists on this server, its data will not be modified.
+	
+	<input id="usersFile" type="file" name="file"/>
+	<button id="uploadUsers" onclick="importUsers()">Import Users</button><div id="userStatus"></div>
+</fieldset>
+	<br><br>
+<fieldset>
+	<legend>Delete Events</legend>
+	This section provides the ability to remove entire events. These are dangerous operations! <br>
+	<b>Removing</b> an event removes the entry in the event list, but leaves its data intact. 
+	The event will no longer show up on the home page. This is the safe way to remove an event.<br>
+	<b>Deleting</b> an event will delete all of its data. This operation cannot be undone!
+	 
+	<table>
+		<tr>
+			<td>Event Code:</td>
+			<td><input type="text" id="eventCode" style="width:200px"></td>
+			<td><button id="removeEvent" onclick="removeEvent()">Remove Event</button></td>
+			<td><button id="deleteEvent" onclick="deleteEvent()">Delete Event</button></td>
+			<td id="removeStatus"></td>
+		</tr>
+	</table>
+</fieldset>
+
+<script>
+function sendRequest(event, operation){
+	var obj={code:event, op:operation};
+	$.post("event/", obj).done(function(data){
+		document.getElementById("removeStatus").innerHTML = "<font color='green'>SUCCESS</font>";
+	}).fail(function(xhr, textStatus, error){
+		document.getElementById("removeStatus").innerHTML = "<font color='red'>FAILED</font>";
+	});
+}
+
+function removeEvent(){
+	var code = document.getElementById("eventCode").value;	
+	sendRequest(code, "remove");		
+}
+function deleteEvent(){
+	var code = document.getElementById("eventCode").value;
+	if(confirm("Are you sure you want to delete all data for event " + code +"? This operation cannot be undone!")){
+		sendRequest(code, "delete");		
+	}
+}
+function exportUsers(){
+	window.open("users/");
+}
+function importUsers(){
+	var files = document.getElementById("usersFile").files;
+	var formData = new FormData();
+	formData.append("file",files[0], files[0].name);
+	
+	
+	$.ajax({
+       url : 'users/',
+       type : 'POST',
+       data : formData,
+       processData: false,  // tell jQuery not to process the data
+       contentType: false,  // tell jQuery not to set contentType
+       success : function(data) {
+           document.getElementById("userStatus").innerHTML = "<font color='green'>"+data+"</font>";
+       },
+       fail : function(xhr, textStatus, error){
+		  document.getElementById("userStatus").innerHTML = "<font color='red'>ERROR</font>";
+		}
+	});
+}
+
+function importTeams(){
+	var files = document.getElementById("teamsFile").files;
+	var formData = new FormData();
+	formData.append("file",files[0], files[0].name);
+	
+	
+	$.ajax({
+       url : 'teams/',
+       type : 'POST',
+       data : formData,
+       processData: false,  // tell jQuery not to process the data
+       contentType: false,  // tell jQuery not to set contentType
+       success : function(data) {
+           document.getElementById("teamStatus").innerHTML = "<font color='green'>"+data+"</font>";
+       },
+       fail : function(xhr, textStatus, error){
+		  document.getElementById("teamStatus").innerHTML = "<font color='red'>ERROR</font>";
+		}
+	});
+}
+</script>
+
+#end

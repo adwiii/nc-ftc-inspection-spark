@@ -1,5 +1,6 @@
 package nc.ftc.inspection.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,7 +9,7 @@ import java.util.Map.Entry;
 
 import nc.ftc.inspection.dao.UsersDAO;
 
-public class User {
+public class User implements Serializable{
 	
 	public static int SYSADMIN = 1<<31;
 	public static int ADMIN = 1<<30;

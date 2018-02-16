@@ -1,6 +1,9 @@
 package nc.ftc.inspection.dao;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,6 +41,10 @@ import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.Selection;
 import nc.ftc.inspection.model.Team;
+import nc.ftc.inspection.spark.pages.ServerPages;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 
 public class EventDAO {
 	public static final SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
@@ -172,6 +179,9 @@ public class EventDAO {
 	static final SQL SET_PROPERTY = new SQL(30, "INSERT OR REPLACE INTO preferences VALUES (?,?);");
 	static final String GET_PROPERTY_SQL = "SELECT value FROM preferences WHERE id = ?;";
 	
+	static final String REMOVE_EVENT_SQL = "DELETE FROM events WHERE code=?;";
+	
+	
 	static {
 		Field[] fields = EventDAO.class.getDeclaredFields();
 		System.out.println(fields.length);
@@ -217,6 +227,28 @@ public class EventDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public static boolean removeEvent(String code) {
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(REMOVE_EVENT_SQL);
+			ps.setString(1, code);
+			ps.executeUpdate();
+		}catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	public static boolean deleteEvent(String code) {
+		removeEvent(code);
+		try {
+			Files.deleteIfExists(new File(Server.DB_PATH+code+".db").toPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+		
 	}
 	
 	public static EventData getEvent(String code){
@@ -1388,6 +1420,27 @@ public class EventDAO {
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static int importTeamList(String event, List<Team> teams) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps;
+			int added = 0;
+			for(Team t : teams) {
+				try {
+					ps = local.prepareStatement(ADD_TEAM_SQL.sql);
+					ps.setInt(1, t.getNumber());
+					added += ps.executeUpdate();
+					updater.enqueue(new Update(event, 1, null,ADD_TEAM_SQL.id, t.getNumber()));
+				}catch(Exception e) {
+					//team already there
+				}
+			}
+			return added;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
 		}
 	}
 	

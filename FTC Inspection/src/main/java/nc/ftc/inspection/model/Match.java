@@ -94,7 +94,7 @@ public class Match {
 		//TODO Fire events to any observers 
 		//Pre-random->auto= scorekeeper, AD? (show result of random), non-HR tablets
 		//MOVED EVENT FIRING to calling methods.
-		
+		System.out.println("Match Status: "+stat);
 		if(status == MatchStatus.PRE_RANDOM){
 			red.initializeScores();
 			blue.initializeScores();

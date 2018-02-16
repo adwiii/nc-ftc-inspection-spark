@@ -27,6 +27,8 @@ public class GlobalDAO {
 	private static final String GET_TEAM_NAME_SQL = "SELECT name FROM teamInfo WHERE number = ?";
 	private static final String ADD_FEEDBACK_SQL = "INSERT INTO feedback VALUES (?, ?);";
 	private static final String GET_FEEDBACK_SQL = "SELECT * FROM feedback;";
+	private static final SQL ADD_NEW_TEAM_SQL = new SQL(3,"INSERT INTO teamInfo VALUES (?, ?, ?);");
+	private static final SQL ADD_NEW_TEAMS_OVERWRITE = new SQL(4,"INSERT OR REPLACE INTO teamInfo VALUES (?, ?, ?);");
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
 	static {
@@ -163,6 +165,34 @@ public class GlobalDAO {
 			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
 			return false;
 		}
+	}
+
+	public static int addNewTeams(List<Team> teams, boolean overwrite) {
+		try (Connection local = DriverManager.getConnection(Server.GLOBAL_DB)){			
+			PreparedStatement ps;
+			int added = 0;
+			for(Team t : teams) {
+				try {
+					ps = local.prepareStatement(overwrite ? ADD_NEW_TEAMS_OVERWRITE.sql : ADD_NEW_TEAM_SQL.sql);
+					ps.setInt(1, t.getNumber());
+					ps.setString(2, t.getName());
+					ps.setString(3, t.getLocation());
+					added += ps.executeUpdate();
+					updater.enqueue(new Update(null, Update.GLOBAL_DB_UPDATE, null, overwrite ? ADD_NEW_TEAMS_OVERWRITE.id : ADD_NEW_TEAM_SQL.id, t.getNumber(), t.getName(), t.getLocation()));
+				}catch(Exception e) {
+					//team already in system.
+				}
+			}
+			return added;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Error importing teams!");
+			return -1;
+		}
+	}
+	
+	public static int addNewTeams(List<Team> teams) {
+		return addNewTeams(teams, false);
 	}
 
 }

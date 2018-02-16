@@ -354,6 +354,19 @@ public class Server {
 		
 		get(Path.Web.STATS, EventPages.serveStats);
 		
+		
+		before(Path.Web.SERVER_DATA_MANAGEMENT, Filters.getAuthenticationFilter(User.ADMIN));
+		before(Path.Web.DELETE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.SERVER_DATA_MANAGEMENT, ServerPages.serveServerDataPage);
+		post(Path.Web.DELETE_EVENT, ServerPages.handleDeleteEventPost);
+		before(Path.Web.EXPORT_USERS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.EXPORT_USERS, ServerPages.handleExportUsers);
+		post(Path.Web.EXPORT_USERS, ServerPages.handleImportUsers);
+		before(Path.Web.IMPORT_TEAMS_TO_MASTER, Filters.getAuthenticationFilter(User.ADMIN));
+		post(Path.Web.IMPORT_TEAMS_TO_MASTER, ServerPages.handleImportTeams);
+		before(Path.Web.IMPORT_TEAM_LIST, Filters.getAuthenticationFilter(User.ADMIN));
+		post(Path.Web.IMPORT_TEAM_LIST, EventPages.handleImportTeamList);
+		
 		get(Path.Web.ALL, DefaultPages.notFound);
 		
 		after("*", Filters.addGzipHeader);

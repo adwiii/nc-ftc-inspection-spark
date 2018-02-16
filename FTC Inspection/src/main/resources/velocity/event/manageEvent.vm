@@ -19,6 +19,27 @@
 	function saveZip() {
 		window.open("./zip/", "");
 	}
+	
+	function importTeams(){
+		var files = document.getElementById("teamsFile").files;
+		var formData = new FormData();
+		formData.append("file",files[0], files[0].name);
+		
+		
+		$.ajax({
+	       url : 'teams/import/',
+	       type : 'POST',
+	       data : formData,
+	       processData: false,  // tell jQuery not to process the data
+	       contentType: false,  // tell jQuery not to set contentType
+	       success : function(data) {
+	           document.getElementById("teamStatus").innerHTML = "<font color='green'>"+data+"</font>";
+	       },
+	       fail : function(xhr, textStatus, error){
+			  document.getElementById("teamStatus").innerHTML = "<font color='red'>ERROR</font>";
+			}
+		});
+	}
 </script>
 
 
@@ -48,6 +69,13 @@
 		<br>
 		This Step:Use <a href="./teams/">this form</a> to add/remove teams from the event<br>
 		<br>
+		<fieldset>
+			<legend>Import Team List</legend>
+			Alternatively, if you have a teams.txt file exported from the FIRST Official Scoring app, you can use that to populate teams. If a team exists in the system, this operation will overwrite their name and location.
+			<br>
+			<input id="teamsFile" type="file" name="file"/>
+			<button id="importTeams" onclick="importTeams()">Import Teams</button><div id="teamStatus"></div>
+		</fieldset>
 		Next Step: After the team list is complete, setting the event to "inspection" 
 		populates the necessary info for inspection to begin. Make sure ALL teams are entered.
 	After starting inspection, TEAMS CANNOT BE ADDED. They can be removed until matches start.

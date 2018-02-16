@@ -50,7 +50,10 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import spark.Request;
 import spark.Response;
@@ -1544,7 +1547,7 @@ public class EventPages {
 		};
 		public static Route serveMatchControlPage = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<String, Object>();
-			
+			System.out.println("Serving Match Control Page");
 			return render(request, map, Path.Template.CONTROL);
 		};
 		
@@ -3102,5 +3105,17 @@ public class EventPages {
 			
 			response.redirect("../teams"); 
 			return "OK";
+		};
+		
+		public static Route handleImportTeamList = (Request request, Response response) ->{
+			String event = request.params("event");
+			List<Team> teams = ServerPages.parseTeamFile(request, response);
+			int added = GlobalDAO.addNewTeams(teams, true);
+			int added2 = EventDAO.importTeamList(event, teams );
+			if(added == -1 || added2 == -1) {
+				response.status(500);
+				return "Error adding teams";
+			}
+			return added +" teams added to team list, "+added2 +" teams added to event.";
 		};
 }
