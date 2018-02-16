@@ -185,7 +185,7 @@
 		#if($flip)
 		top:250px;
 		#else
-		top: 850px;
+		top: 851px;
 		#end
 		left:800px;
 		width:320px;
@@ -215,6 +215,10 @@
 		top:-70;
 		left:-260;
 		float:left;
+		-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+		-moz-box-sizing: border-box; /* Firefox, other Gecko */
+		box-sizing: border-box; /* Opera/IE 8+ */
+		border:2px solid black;
 	}
 	#progress{
 		height:100%;
@@ -226,13 +230,13 @@
 		width:520px;
 		left:700px;
 		top:899;
-		height:50;
+		height:51;
 	}
 	#progressTime{
 		position:absolute;
 		width:100px;
 		height:30px;
-		top:-8;
+		top:-11;
 		left:210;
 		text-align:center;
 		font:45px "Arial Black", Arial, Helvetica, sans-serif;
@@ -244,7 +248,7 @@
 		position:absolute;
 		width:100px;
 		height:38px;
-		top:7;
+		top:4;
 		left:210;
 		filter: alpha(opacity=40); /* internet explorer */
  	    -khtml-opacity: 0.4;      /* khtml, old safari */
@@ -608,7 +612,6 @@
 	}
 	.score{
 		position:absolute;
-		height:180px;
 		width: 260px;
 		font-size: 160px;
 		text-align:center;
@@ -617,9 +620,10 @@
 			#if($flip)
 			top:250px;
 			#else
-			top:850px;
+			top:851px;
 			#end
 		#else
+			height:180px;
 			#if($overlay)
 				top: 950px;
 				height:130px;
@@ -1160,8 +1164,34 @@
 		top:-19;
 	}
 	
-	
-	
+	##Taken from https://www.w3schools.com/css/tryit.asp?filename=trycss3_animation2
+	.gameOverAnim {
+    	background-color: #FF0000;
+    	-webkit-animation-name: gameOverAnimStyle; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    	animation-name: gameOverAnimStyle;
+	    animation-duration: 4s;
+	}
+
+	/* Safari 4.0 - 8.0 */
+	@-webkit-keyframes gameOverAnimStyle {
+	    0%   {background-color: #FF0000;}
+		20% {background-color: #FF7777;}
+		40%  {background-color: #FF0000;}
+		60% {background-color: #FF7777;}
+		80%  {background-color: #FF0000;}
+		100% {background-color: #FF7777;}
+	}
+
+	/* Standard syntax */
+	@keyframes gameOverAnimStyle {
+		0%   {background-color: #FF0000;}
+		20% {background-color: #FF7777;}
+		40%  {background-color: #FF0000;}
+		60% {background-color: #FF7777;}
+		80%  {background-color: #FF0000;}
+		100% {background-color: #FF7777;}
+	}
 	</style>
 
 <body>
@@ -1578,6 +1608,9 @@
   		colon.src = "/digits/"+color+"colon.png";
   		//d.innerHTML = min+":"+ (s < 10 ? "0" : "") + s;
   		#if($overlay)
+  			if (sec > 120) {
+  				sec = sec - 120;
+  			}
   			document.getElementById("progressTime").innerHTML = sec;
   		#end
   	}
@@ -1620,6 +1653,9 @@
   		#end
   		if (elapsed < 30000){
   			//autonomous
+  			  	#if($ad2 || $overlay)
+  					document.getElementById("progress").style.backgroundColor = "green"; //yellow for endgame
+  				#end
   			display(150 - (elapsed/1000), "W");
   		} else if(elapsed < 35000){
   			//end of auto, sound buzzer on first time. start 5 second pickup time
@@ -1647,6 +1683,9 @@
   			if(!endgameFlag){
   				endgameFlag = true;
   				endgameSound.play();
+  				#if($ad2 || $overlay)
+  					document.getElementById("progress").style.backgroundColor = "#FFFF00"; //yellow for endgame
+  				#end
   				#if($overlay)
 	  				swapOverlay();
 	  			#end
@@ -1657,6 +1696,13 @@
   			//stop timer! (return)
   			buzzerSound.play();
   			display(0, "W");
+  			#if($ad2 || $overlay)
+  				document.getElementById("progress").classList.add('gameOverAnim');
+  				setTimeout(function() {
+  					document.getElementById("progress").classList.remove('gameOverAnim');
+  					document.getElementById("progress").style.backgroundColor = "#FF0000";
+  				}, 4000);
+  			#end
   			window.clearInterval(timerInstance);
   			timeout = false;
   			allianceTO = 0;
