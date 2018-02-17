@@ -109,7 +109,7 @@ $(document).ready(function() {
     		res.push(sel[i].value);
     	}
     	$.ajax({
-			url: "/delete/",
+			url: "delete/",
   			type: "POST",
   			data: {changedUsers:res},
   			success: function(data){

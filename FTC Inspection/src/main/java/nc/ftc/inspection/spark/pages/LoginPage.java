@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.bag.SynchronizedSortedBag;
+
 import com.google.gson.Gson;
 
 import nc.ftc.inspection.AuthenticationManager;
@@ -221,6 +223,19 @@ public class LoginPage {
 			response.status(400);
 			return "Unable to edit permissions";
 		}
+	};
+	
+	public static Route handleDeleteUsers = (Request request, Response response)->{
+		String[] changedUsers = request.queryParamsValues("changedUsers[]");
+		boolean success = true;
+		for(String user : changedUsers) {
+			if(!UsersDAO.deleteUser(user))success = false;
+		}
+		if(!success) {
+			response.status(500);
+			return "An error occurred";
+		}
+		return "OK";
 	};
 
 }

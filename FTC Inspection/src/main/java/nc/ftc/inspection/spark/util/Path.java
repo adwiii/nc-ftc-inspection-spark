@@ -7,10 +7,16 @@ package nc.ftc.inspection.spark.util;
 
 import nc.ftc.inspection.Server;
 
+/**
+ * The Path class contains two nested classes, Web and Template, that contain all the constants
+ * for URL mapping. Web contains all the URLS and Template contains all the velocity files.
+ *
+ */
 public class Path {
 
-    // The @Getter methods are needed in order to access
-    // the variables from Velocity Templates
+    /**
+     * The Web nested class contains constants for all the URLs.
+     */
     public static class Web {
     	public static final String DEFAULT = "/";
         public static final String INDEX = "/index/";
@@ -35,6 +41,7 @@ public class Path {
         public static final String EXPORT_USERS = "/server/users/";
         public static final String IMPORT_TEAMS_TO_MASTER = "/server/teams/";
         public static final String IMPORT_TEAM_LIST = "/event/:event/manage/teams/import/";
+        public static final String DELETE_USERS = "/users/manage/delete/";
         
         
         public static final String EDIT_FORM = "/event/:event/edit/";
@@ -172,6 +179,9 @@ public class Path {
         }
     }
 
+    /**
+     * The Template class contains constants for all the velocity macro files.
+     */
     public static class Template {
         public final static String INDEX = "/velocity/index/index.vm";
         public final static String LOGIN = "/velocity/index/login.vm";

@@ -25,6 +25,11 @@ import nc.ftc.inspection.model.User;
 
 import org.mindrot.jbcrypt.*;
 
+/**
+ * The UsersDAO contains static methods for all User data access operations. It provides methods 
+ * to create, delete, and modify Users and their permissions. 
+ *
+ */
 public class UsersDAO {
 	
 	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
@@ -35,8 +40,14 @@ public class UsersDAO {
 	static final String IMPORT_USER_SQL = "INSERT INTO users VALUES (?,?,?,?,?,?);";
 	static final String EVENT_ROLE_SQL = "SELECT role FROM roles WHERE username = ? AND eventCode = ?";
 	static final SQL ASSIGN_ROLE_SQL = new SQL(4, "INSERT OR REPLACE INTO roles VALUES (?,?,?)");
+	static final SQL DELETE_USER = new SQL(5, "DELETE FROM users WHERE username = ?;");
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
+	
+	/**
+	 * Static initialization of the remote updater SQL mapping. This mapping allows the 
+	 * sending of SQL Query ID and parameter list to the remote server for updates.
+	 */
 	static {
 		Field[] fields = UsersDAO.class.getDeclaredFields();
 		System.out.println(fields.length);
@@ -139,7 +150,6 @@ public class UsersDAO {
 			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL.sql);
 			String salt = BCrypt.gensalt();
 			String hashedPw = BCrypt.hashpw(password, salt);
-			//TODO fill these in.
 			ps.setString(1, username);
 			ps.setString(2, hashedPw);
 			ps.setInt(3, type);
@@ -161,8 +171,31 @@ public class UsersDAO {
 		}
 		return false;
 	}
-
 	
+	/**
+	 * Deletes the User with the specified username from the system. If no such user exists, 
+	 * nothing occurs. Returns true if the delete was successful, false if failed or no such user.
+	 * @param username The username to delete
+	 * @return true if delete, false if no change occurred.
+	 */
+	public static boolean deleteUser(String username) {
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			PreparedStatement ps = conn.prepareStatement(DELETE_USER.sql);
+			ps.setString(1, username);
+			return 1 == ps.executeUpdate();
+		}catch(Exception e){
+			return false;
+		}
+	}
+
+	/**
+	 * Returns a User object for the user with the given username.
+	 * @param username The username to query
+	 * @return The User object associated with the passd username.
+	 */
 	public static User getUser(String username) {
 		if (username == null || username.isEmpty()) {
 			return null;
@@ -183,6 +216,12 @@ public class UsersDAO {
 		return null;
 	}
 	
+	/**
+	 * Adds the specified role to the User with the specified username.
+	 * @param username The username of the User to edit.
+	 * @param role The new role to add to the user.
+	 * @return true if sucessfully set, false otherwise.
+	 */
 	public static boolean addRole(String username, int role) {
 		if (username == null || username.isEmpty()) {
 			return false;
@@ -193,6 +232,12 @@ public class UsersDAO {
 		return updateRole(username, newRole);
 	}
 	
+	/**
+	 * Removes the specified from the specified user.
+	 * @param username The username to edit
+	 * @param role The role to remove from the user.
+	 * @return true if removal successfull, false otherwise.
+	 */
 	public static boolean removeRole(String username, int role) {
 		if (username == null || username.isEmpty()) {
 			return false;
@@ -203,6 +248,13 @@ public class UsersDAO {
 		return updateRole(username, newRole);
 	}
 	
+	/**
+	 * Update Role - This private method is used by addRole and removeRole to edit the bit-encoding of the 
+	 * Users than stores what permissions they have.
+	 * @param username The username being edited
+	 * @param newRole The new value of the permission bit-encoding
+	 * @return true if update successfull, false otherwise.
+	 */
 	private static boolean updateRole(String username, int newRole) {
 		if (username == null || username.isEmpty()) {
 			return false;
@@ -224,6 +276,10 @@ public class UsersDAO {
 		return false;
 	}
 	
+	/**
+	 * Returns a list of all users in the system. SystemAdmin users are omitted from the list, as they cannot be edited.
+	 * @return The List of Users.
+	 */
 	public static List<User> getAllUsers() {
 		ArrayList<User> users = new ArrayList<User>();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
@@ -240,11 +296,12 @@ public class UsersDAO {
 	}
 	
 	/**
+	 * @deprecated Roles are no longer event-specific.
 	 * Returns the integer identifying the role of the given user at the specified event.
 	 * If the given user is not assigned to work the given event, or the given event/user doesn't exist, returns -1.
-	 * @param username
-	 * @param eventCode
-	 * @return
+	 * @param username The username to query
+	 * @param eventCode The event 
+	 * @return The encoding of the User's role at the event.
 	 */
 	public static int getRoleAtEvent(String username, String eventCode){
 		if (username == null || username.isEmpty()) {
@@ -267,11 +324,12 @@ public class UsersDAO {
 	}
 	
 	/**
-	 * Assigns the given role to the specified usr for the specified event.
-	 * @param eventCode
+	 * @deprecated Roles are no longer event-specific.
+	 * Assigns the given role to the specified user for the specified event.
+	 * @param eventCode The event to assign the role for.
 	 * @param username The username of the user to assign
-	 * @param role
-	 * @return
+	 * @param role The role to assign
+	 * @return true if assignment successful, false otherwise.
 	 */
 	public static boolean assignRole(String eventCode, String username, int role){
 		if (username == null || username.isEmpty()) {
@@ -292,6 +350,12 @@ public class UsersDAO {
 		return false;
 	}
 
+	/**
+	 * Executes the operation specified by the remote update packet.
+	 * @param v Mapping of String parameters to replace in the SQL. 
+	 * @param p The parameter list. p[0] is the ID of the SQL query to execute.
+	 * @return true if the operation is successful, false otherwise.
+	 */
 	public static boolean executeRemoteUpdate(Map<String, String> v, Object[] p) {
 		if(p == null)return true;
 		if(p.length == 0)return true;
@@ -317,6 +381,11 @@ public class UsersDAO {
 		}
 	}
 
+	/**
+	 * Adds the Users in the passed list to the system. If a username already exists, their information is unaffected.
+	 * @param newUsers The List of Users to add.
+	 * @return The number of Users added.
+	 */
 	public static int importUsers(List<User> newUsers) {
 		
 		try (Connection local = DriverManager.getConnection(Server.GLOBAL_DB)){
