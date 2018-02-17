@@ -2030,15 +2030,21 @@ public class EventPages {
 			String ad2Str = request.queryParams("ad2");
 			String muteStr = request.queryParams("mute");
 			String overlayStr = request.queryParams("overlay");
-			String colorStr = request.queryParamOrDefault("color", "#FF00FF");
+			String colorStr = request.queryParams("color");
+			
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
-			String eventName = request.params("event");
-			if(eventName != null) {
-				Event e = Server.activeEvents.get(eventName);
+			String code = request.params("event");
+			String eventName = "";
+			if(code != null) {
+				Event e = Server.activeEvents.get(code);
 				if(e != null) {
 					eventName = e.getData().getName();
 				}
+				if(colorStr == null) {
+					colorStr = EventDAO.getProperty(code, "overlayDefault");
+				}
 			}
+			
 			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
@@ -2389,6 +2395,11 @@ public class EventPages {
 			Map<String, Object> map = new HashMap<String, Object>();
 			String code = request.params("event");
 			EventData data = EventDAO.getEvent(code);
+			String colorStr = EventDAO.getProperty(code, "overlayDefault");
+			if(colorStr == null) {
+				colorStr = "FF00FF";
+			}
+			map.put("color", colorStr);
 			map.put("event", data);
 			return render(request, map, Path.Template.EVENT_HOME);
 		};
@@ -3131,5 +3142,35 @@ public class EventPages {
 				return "Error adding teams";
 			}
 			return added +" teams added to team list, "+added2 +" teams added to event.";
+		};
+		
+		/**
+		 * Endpoint to render the Event Settings page.
+		 */
+		public static Route serveEventSettings = (Request request, Response response) ->{
+			String event = request.params("event");
+			EventData data = EventDAO.getEvent(event);
+			String colorStr = EventDAO.getProperty(event, "overlayDefault");
+			if(colorStr == null) {
+				colorStr = "FF00FF";
+			}
+			Map<String, Object> map = new HashMap<>();
+			map.put("code", event);
+			map.put("name", data.getName());
+			map.put("color", colorStr);
+			return render(request, map, Path.Template.EVENT_SETTINGS);
+		};
+		
+		/**
+		 * Endpoint to set the default background color of the Overlay Display. The default color
+		 * is stored in the "overlayDefault" entry in the event preferences table. This operation is
+		 * not guaranteed to work on events created before v2.3.
+		 * @since v2.3
+		 */
+		public static Route handleOverlayColorSet = (Request request, Response response)->{
+			String event = request.params("event");
+			String color = request.queryParams("color");
+			EventDAO.setProperty(event, "overlayDefault", color);
+			return "OK";
 		};
 }

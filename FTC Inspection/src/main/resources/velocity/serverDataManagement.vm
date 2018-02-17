@@ -50,6 +50,7 @@ The format needs to match the teams.txt file created by the FIRST Official scori
 <script>
 function sendRequest(event, operation){
 	var obj={code:event, op:operation};
+	document.getElementById("removeStatus").innerHTML = "";
 	$.post("event/", obj).done(function(data){
 		document.getElementById("removeStatus").innerHTML = "<font color='green'>SUCCESS</font>";
 	}).fail(function(xhr, textStatus, error){
@@ -75,7 +76,7 @@ function importUsers(){
 	var formData = new FormData();
 	formData.append("file",files[0], files[0].name);
 	
-	
+	document.getElementById("userStatus").innerHTML = "";
 	$.ajax({
        url : 'users/',
        type : 'POST',
@@ -95,7 +96,7 @@ function importTeams(){
 	var files = document.getElementById("teamsFile").files;
 	var formData = new FormData();
 	formData.append("file",files[0], files[0].name);
-	
+	document.getElementById("teamStatus").innerHTML = "";
 	
 	$.ajax({
        url : 'teams/',

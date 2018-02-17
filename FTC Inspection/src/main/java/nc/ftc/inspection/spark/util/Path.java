@@ -37,11 +37,13 @@ public class Path {
         public static final String EVENT_SIMPLE = "/event/:event/";
         public static final String EDIT_PERMISSIONS = "/users/manage/";
         public static final String SERVER_DATA_MANAGEMENT = "/server/";
+        public static final String EVENT_SETTINGS = "/event/:event/settings/";
         public static final String DELETE_EVENT = "/server/event/";
         public static final String EXPORT_USERS = "/server/users/";
         public static final String IMPORT_TEAMS_TO_MASTER = "/server/teams/";
         public static final String IMPORT_TEAM_LIST = "/event/:event/manage/teams/import/";
         public static final String DELETE_USERS = "/users/manage/delete/";
+        public static final String SET_OVERLAY_DEFAULT = "/event/:event/settings/overlay/";
         
         
         public static final String EDIT_FORM = "/event/:event/edit/";
@@ -244,6 +246,7 @@ public class Path {
 		public static final String QUEUE_DISPLAY = "/velocity/event/queue.vm";
 		public static final String DIVISION_WINNER_UPLOAD = "/velocity/event/uploadDivisionWinners.vm";
 		public static final String SERVER_DATA_MANAGEMENT = "/velocity/serverDataManagement.vm";
+		public static final String EVENT_SETTINGS = "/velocity/event/eventSettings.vm";
     }
 
 }

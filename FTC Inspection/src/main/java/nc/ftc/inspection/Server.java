@@ -265,6 +265,10 @@ public class Server {
 		
 		before(Path.Web.MANAGE_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MANAGE_EVENT, EventPages.serveManagePage);
+		before(Path.Web.EVENT_SETTINGS, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.EVENT_SETTINGS, EventPages.serveEventSettings);
+		before(Path.Web.SET_OVERLAY_DEFAULT, Filters.getAuthenticationFilter(User.ADMIN));
+		put(Path.Web.SET_OVERLAY_DEFAULT, EventPages.handleOverlayColorSet);
 		
 		before(Path.Web.ZIP_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.ZIP_EVENT, EventPages.serveZipFile);

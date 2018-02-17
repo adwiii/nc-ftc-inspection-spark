@@ -69,7 +69,7 @@ public class EventDAO {
 											"CREATE TABLE local.formStatus(team INTEGER REFERENCES teams(number), formID VARCHAR(2), cbIndex INTEGER, status BOOLEAN, PRIMARY KEY (team, formID, cbIndex), FOREIGN KEY (formID, cbIndex) REFERENCES formRows(formID, itemIndex));" ,
 											"CREATE TABLE local.formComments(team INTEGER REFERENCES teams(number), formID VARCHAR(2), comment VARCHAR, PRIMARY KEY (team, formID));",
 											"CREATE TABLE local.formSigs(team INTEGER REFERENCES teams(number), formID VARCHAR(2), sigIndex INTEGER, sig VARCHAR, PRIMARY KEY (team, formID, sigIndex));",
-											"CREATE TABLE local.preferences (id VARCHAR, value VARCHAR);",
+											"CREATE TABLE local.preferences (id VARCHAR PRIMARY KEY, value VARCHAR);",
 											"CREATE TABLE local.inspectionStatus (team INTEGER PRIMARY KEY REFERENCES teams(number), ci TINYINT, hw TINYINT, sw TINYINT, fd TINYINT, sc TINYINT);",
 											"INSERT INTO local.formRows SELECT * FROM formRows;",
 											"INSERT INTO local.formItems SELECT * FROM formItems;",											

@@ -1,0 +1,54 @@
+##
+## Copyright (c) 2016-2018 Thomas Barnette and Trey Woodlief
+## All Rights Reserved.
+##
+
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<h1>Event Settings and Data Management: $code ($name)</h1>
+<script>
+function updatePreview(){
+	document.getElementById("colorPreview").style.backgroundColor = document.getElementById("colorInput").value;
+}
+function saveColor(){
+	document.getElementById("colorStatus").innerHTML = "";
+	$.ajax({
+       url : 'overlay/',
+       type : 'PUT',
+       data : {color:document.getElementById("colorInput").value},
+       success : function(data) {
+           document.getElementById("colorStatus").innerHTML = "<font color='green'>Color Saved.</font>";
+       },
+       fail : function(xhr, textStatus, error){
+		  document.getElementById("colorStatus").innerHTML = "<font color='red'>Failed to set color</font>";
+		}
+	});
+}
+</script>
+
+<fieldset>
+<legend>Settings</legend>
+	<div style="float:left; height:30;line-height:30px;">Video Overlay Default Color:&nbsp;&nbsp;&nbsp;</div>
+	
+	<input type="text" value="$color" style="width:80; float:left; height:30;" id="colorInput" oninput="updatePreview()"></input>
+	<div style="float:left;width:10;">&nbsp;</div>
+	<div style="width:29;height:29;border:solid 1px black; background-color:$color;float:left;position:relative;top:2;" id="colorPreview"></div>
+	<div style="float:left;width:10;">&nbsp;</div>
+	<button style="position:relative;top:5; float:left;" onclick="saveColor()">Save</button>
+	<div id="colorStatus" style="float:left;position:relative; left:10; height:30;line-height:30px;"></div>
+</fieldset>
+
+<fieldset>
+	<legend>Data Management</legend>
+	Team Export
+	<hr>
+	Download Event Backup<br>
+	Restore from backup
+	<hr>
+	Delete Inspection Data <br>
+Delete Qualification Data<br>
+Delete Elimination Data<br>
+
+</fieldset>
+
+#end
