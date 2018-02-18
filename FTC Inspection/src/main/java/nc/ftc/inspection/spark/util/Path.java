@@ -102,6 +102,8 @@ public class Path {
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
         public static final String WAIT_FOR_MATCH_END = "event/:event/match/status/end/";
+
+		public static final String WAIT_FOR_START = "/event/:event/match/status/start/";
         public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
         public static final String GET_DISPLAY_COMMANDS = "/event/:event/display/command/";
         public static final String TIMEOUT_COMMAND = "/event/:event/timeout/:cmd/";

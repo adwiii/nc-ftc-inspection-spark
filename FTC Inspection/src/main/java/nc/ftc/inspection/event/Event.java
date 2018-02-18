@@ -79,6 +79,7 @@ public class Event {
 		System.out.println("Loaded Test Match");
 	}
 	public void loadNextMatch(){
+		timer.started = false;
 		if(currentMatch != null && currentMatch == Match.TEST_MATCH) {
 			loadTestMatch();
 			return;
@@ -100,6 +101,7 @@ public class Event {
 	}
 	
 	public void loadMatch(int num) {
+		timer.started = false;
 		Match temp = currentMatch;
 		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num, data.getStatus() >= EventData.ELIMS);
 		if(currentMatch == null) {

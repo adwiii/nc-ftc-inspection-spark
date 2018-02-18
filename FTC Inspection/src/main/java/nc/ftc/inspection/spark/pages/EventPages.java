@@ -746,6 +746,12 @@ public class EventPages {
 			return render(request, new HashMap<String, Object>(), Path.Template.HEAD_REF);
 		};
 		
+		/**
+		 * This endpoint serves the Score tracker page that is used to enter live scores during a match.
+		 * It determines the appropriate state to set the score tracker page to: Pre-Match, Auto, Teleop, Review, or Post-Match.
+		 * It also pre-fills the pages with any scores already in the system so if the page is refreshed, no data is lost or 
+		 * overwritten.
+		 */
 		public static Route serveRef = (Request request, Response response) ->{
 			
 			Map<String, Object> model = new HashMap<>();
@@ -774,7 +780,8 @@ public class EventPages {
 				template = Path.Template.REF_PRE_RANDOM;
 				break;
 			case AUTO:
-				template = Path.Template.REF_AUTO;
+				//Don't serve auto until after the start of the match.
+				template = e.getTimer().isStarted() ? Path.Template.REF_AUTO : Path.Template.REF_PRE_RANDOM;
 //				model.put(arg0, arg1)
 				break;
 			case AUTO_REVIEW:
@@ -1714,6 +1721,29 @@ public class EventPages {
 			}
 			//Return scores so control page can be guarenteed most recent values.			
 			return e.getCurrentMatch().getFullScores();
+		};
+		
+		public static Route handleWaitForStart = (Request request, Response response)->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}
+			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.REVIEW) {
+				return "OK";
+			} else {
+				synchronized(e.getTimer().waitForStartLock) {
+					e.getTimer().waitForStartLock.wait();
+				}
+			}
+			return "OK";
 		};
 		
 		public static Route handleWaitForEnd = (Request request, Response response) ->{

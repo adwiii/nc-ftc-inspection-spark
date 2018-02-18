@@ -156,6 +156,7 @@ public class Server {
 		//I am unsure about the ones below here
 		get(Path.Web.GET_RANDOM, EventPages.handleGetRandom);
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
+		get(Path.Web.WAIT_FOR_START, EventPages.handleWaitForStart);
 		get(Path.Web.WAIT_FOR_MATCH_END, EventPages.handleWaitForEnd);
 		get(Path.Web.GET_FULL_SCORESHEET, EventPages.handleGetFullScoresheet);
 		get(Path.Web.GET_FULL_SCORESHEET_PLAIN, EventPages.handleGetFullScoresheet);
