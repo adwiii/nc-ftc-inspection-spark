@@ -16,6 +16,19 @@
   	<script src="/js/general.js"></script>
   	<script>
   	
+  	window.onbeforeunload = function(){
+
+  		//if preview button not available - in match, not committed
+  		//Else if random is red - bad state 
+  		if(document.getElementById("previewBtn").disabled){
+  			return "DANGER! Leaving this page will result in loss of current match scores!";
+  		} 
+  		if(document.getElementById("randomBtn").getAttribute("state") == "warn"){
+  			return 'WARNING! You are about to leave mid-match sequence, which can leave the system in a bad state! ';
+  		}
+  		return undefined;
+	};
+  	
   	var lastBreakdown = 0;
   	var lastFullScore = 0;
   	var acceptScores = true;
@@ -186,6 +199,41 @@
   			type: "POST",
   			success: function(data){
   				getCurrentMatchData();
+  				//only preview is available, reset manual random, timeout, load test match buttons.
+  				var postBtn = document.getElementById("postBtn");
+				postBtn.setAttribute("state","off");
+				postBtn.disabled = true;
+				var commitBn = document.getElementById("commitBtn");
+				commitBtn.setAttribute("state", "off");
+				commitBtn.disabled = true;
+				var preview = document.getElementById("previewBtn");
+				preview.setAttribute("state", "ready");
+				preview.disabled = false;
+				var rand = document.getElementById("randomBtn");
+				rand.innerHTML = "Randomize";
+				rand.setAttribute("state", "off");
+				rand.disabled = true;
+				var set = document.getElementById("showBtn");
+				set.setAttribute("state", "off");
+				set.disabled = true;
+				var start = document.getElementById("startBtn");
+				start.setAttribute("state", "off");
+				start.disabled = true;
+				//UNDO LOCKOUT
+		  		
+		  		var btn = document.getElementById("match-1");
+		  		btn.setAttribute("state", "ready");
+		  		btn.disabled = false;
+		  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
+		  		for(var i = 0; i < toBtns.length; i++){
+		  			toBtns[i].setAttribute("state", "ready");
+		  			toBtns[i].disabled = false;
+		  		}
+		  		var randBtns = document.getElementById("externalRandomize").getElementsByClassName("matchControlButton");
+  				for(var i = 0; i < randBtns.length; i++){
+  					randBtns[i].setAttribute("state", "ready");
+  				}
+  		
   			},
   			error:function(xhr, ajaxOptions, thrownError){
   				
@@ -372,12 +420,29 @@ function randomize(r){
 		startBtn.setAttribute("state","ready");
 		
 		//COMMENCE LOCKOUT
-		openTab(null,'ScoreTab');//open score tab
+		//Only force tab if not in score tab or settings tab
+		if(tabcontent[2].style.display == "none"){
+			openTab(null,'ScoreTab');//open score tab if not in settings tab (Stays in settings tab if already there. ~ force to scores at start of match)
+		}
 		//lockout from change tab
   		var tabs = document.getElementsByClassName("tabButton");
   		for(var i = 0; i < tabs.length; i++){
-  			tabs[i].setAttribute("state", "off");
-  			tabs[i].disabled = true;
+  			if(tabs[i].innerHTML != "Scores" && tabs[i].innerHTML != "Settings"){
+	  			tabs[i].setAttribute("state", "off");
+	  			tabs[i].disabled = true;
+  			}
+  		}
+  		var btn = document.getElementById("match-1");
+  		btn.setAttribute("state", "off");
+  		btn.disabled = true;
+  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < toBtns.length; i++){
+  			toBtns[i].setAttribute("state", "off");
+  			toBtns[i].disabled = true;
+  		}
+  		var randBtns = document.getElementById("externalRandomize").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < randBtns.length; i++){
+  			randBtns[i].setAttribute("state", "warn");
   		}
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
@@ -503,7 +568,17 @@ function start(){
 		acceptScores = true;
   		getScoreUpdate(false);
   		getScoreControlUpdate(false);
+  		
+  		var tabs = document.getElementsByClassName("tabButton");
+  		for(var i = 0; i < tabs.length; i++){
+	  		tabs[i].setAttribute("state", "off");
+	  		tabs[i].disabled = true;
+  		}
+  		openTab(null,'ScoreTab'); //force score tab open
+  		
 		//TODO local timer control here
+		
+		
 		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
@@ -633,6 +708,14 @@ function commit(){
   		for(var i = 0; i < tabs.length; i++){
   			tabs[i].setAttribute("state", "ready");
   			tabs[i].disabled = false;
+  		}
+  		var btn = document.getElementById("match-1");
+  		btn.setAttribute("state", "ready");
+  		btn.disabled = false;
+  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < toBtns.length; i++){
+  			toBtns[i].setAttribute("state", "ready");
+  			toBtns[i].disabled = false;
   		}
   		
 		
@@ -812,7 +895,7 @@ function fillSelectionData(data){
 		<div id="tabBar">
 			<button class="tabButton" onclick="openTab(event, 'ScheduleTab')">Schedule</button>
 			<button class="tabButton" onclick="openTab(event, 'ScoreTab')" id="scoreTabBtn">Scores</button>
-			<button class="tabButton" onclick="openTab(event, 'SettingsTab')">Settings</button>
+			<button class="tabButton" onclick="openTab(event, 'SettingsTab')" id="settingsTabBtn">Settings</button>
 			<button class="tabButton" onclick="openTab(event, 'SelectionTab')">Alliance Selection</button>
 		</div>
 		<div class="tabContent" id="ScoreTab">
@@ -846,21 +929,21 @@ function fillSelectionData(data){
 				<legend>System Test</legend>
 				<button class="matchControlButton" onclick="loadMatch(this)" id="match-1">Test Match</button>
 			</fieldset>
-			<fieldset>
+			<fieldset id="timeoutControls">
 				<legend>Timeout Controls</legend>
 				<button class="matchControlButton" id="fieldTO" onclick="timeoutCommand('field')">Field Timeout</button>
 				<button class="matchControlButton" id="teamTO" onclick="timeoutCommand('team')">Team Timeout</button>
 				<button class="matchControlButton" id="endTO" onclick="timeoutCommand('end')">End Timeout</button>
 				<button class="matchControlButton" id="showTO" onclick="timeoutCommand('show')">Display Timeout</button>
 			</fieldset>
-			<fieldset>
+			<fieldset id="externalRandomize">
 				<legend>External Randomization</legend>
 				<button class="matchControlButton" id="rand1" onclick="randomize(1)">1</button>
-				<button class="matchControlButton" id="rand1" onclick="randomize(2)">2</button>
-				<button class="matchControlButton" id="rand1" onclick="randomize(3)">3</button>
-				<button class="matchControlButton" id="rand1" onclick="randomize(4)">4</button>
-				<button class="matchControlButton" id="rand1" onclick="randomize(5)">5</button>
-				<button class="matchControlButton" id="rand1" onclick="randomize(6)">6</button>
+				<button class="matchControlButton" id="rand2" onclick="randomize(2)">2</button>
+				<button class="matchControlButton" id="rand3" onclick="randomize(3)">3</button>
+				<button class="matchControlButton" id="rand4" onclick="randomize(4)">4</button>
+				<button class="matchControlButton" id="rand5" onclick="randomize(5)">5</button>
+				<button class="matchControlButton" id="rand6" onclick="randomize(6)">6</button>
 			</fieldset>
 			<fieldset>
 				<legend>Match Timer</legend>
