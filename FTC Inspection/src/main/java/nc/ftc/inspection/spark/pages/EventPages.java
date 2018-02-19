@@ -3188,6 +3188,7 @@ public class EventPages {
 			map.put("code", event);
 			map.put("name", data.getName());
 			map.put("color", colorStr);
+			map.put("phase", data.getStatus());
 			return render(request, map, Path.Template.EVENT_SETTINGS);
 		};
 		
@@ -3201,6 +3202,26 @@ public class EventPages {
 			String event = request.params("event");
 			String color = request.queryParams("color");
 			EventDAO.setProperty(event, "overlayDefault", color);
+			return "OK";
+		};
+		public static Route handleDeleteData = (Request request, Response response)->{
+			String event = request.params("event");
+			String phase = request.params("phase");
+			if(phase.equals("inspection")) {
+				
+			} else if(phase.equals("quals")) {
+				EventDAO.deleteQuals(event);
+				EventDAO.setEventStatus(event, EventData.INSPECTION);
+				Server.activeEvents.get(event).calculateRankings();
+				Server.activeEvents.get(event).rankingsCache.invalidate();
+				Server.activeEvents.get(event).resultsCache.invalidate();
+				Server.activeEvents.get(event).scheduleCache.invalidate();
+			} else if(phase.equals("elims")) {
+				EventDAO.deleteElims(event);
+				EventDAO.setEventStatus(event, EventData.QUALS);
+				Server.activeEvents.get(event).resultsCache.invalidate();
+				Server.activeEvents.get(event).scheduleCache.invalidate();
+			}
 			return "OK";
 		};
 }

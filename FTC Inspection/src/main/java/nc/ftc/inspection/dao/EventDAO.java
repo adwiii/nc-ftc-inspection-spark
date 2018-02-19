@@ -58,7 +58,7 @@ public class EventDAO {
 	private static final RemoteUpdater updater = RemoteUpdater.getInstance();
 	
 	
-	//MAX SQL = 31
+	//MAX SQL = 35
 	//TODO THis needs to be a command - NO, this should not be a thing! Must create an event locally.
 	static final SQL CREATE_EVENT_SQL = new SQL(1,"INSERT INTO events(code, name, [date], status) VALUES(?,?,?,0)");
 	static final String[] CREATE_EVENT_DB_SQL ={ 
@@ -127,6 +127,18 @@ public class EventDAO {
 	static final SQL CREATE_SCHEDULE_DATA_SQL = new SQL(8,"INSERT INTO qualsData VALUES (?,?,?);");
 	static final SQL CREATE_SCHEDULE_RESULTS_SQL = new SQL(9,"INSERT INTO qualsResults (match) VALUES (?);");
 	static final SQL CREATE_SCHEDULE_SCORES_SQL = new SQL(10,"INSERT INTO qualsScores (match, alliance) VALUES (?,?);");
+	
+	static final SQL DELETE_SCHEDULE_SQL = new SQL(32,"DELETE FROM quals");
+	static final SQL DELETE_SCHEDULE_DATA_SQL = new SQL(33, "DELETE FROM qualsData;");
+	static final SQL DELETE_SCHEDULE_RESULTS_SQL = new SQL(34, "DELETE FROM qualsResults;");
+	static final SQL DELETE_SCHEDULE_SCORES_SQL = new SQL(35, "DELETE FROM qualsScores;");	
+	
+	static final SQL DELETE_ELIMS_SQL = new SQL(36,"DELETE FROM elims");
+	static final SQL DELETE_ELIMS_DATA_SQL = new SQL(37, "DELETE FROM elimsData;");
+	static final SQL DELETE_ELIMS_RESULTS_SQL = new SQL(38, "DELETE FROM elimsResults;");
+	static final SQL DELETE_ELIMS_SCORES_SQL = new SQL(39, "DELETE FROM elimsScores;");
+	static final SQL DELETE_ALLIANCES_SQL = new SQL(40, "DELETE FROM alliances;");
+	
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
 	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
 	static final String GET_MATCH_SQL = "SELECT q.* FROM quals q WHERE q.match=? ORDER BY match LIMIT 1;";
@@ -1449,6 +1461,39 @@ public class EventDAO {
 		}
 	}
 	
+	
+	public static void deleteQuals(String event) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(DELETE_SCHEDULE_RESULTS_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_SCHEDULE_DATA_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_SCHEDULE_SCORES_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_SCHEDULE_SQL.sql);
+			ps.executeUpdate();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void deleteElims(String event) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(DELETE_ELIMS_RESULTS_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_ELIMS_DATA_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_ELIMS_SCORES_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_ELIMS_SQL.sql);
+			ps.executeUpdate();
+			ps = local.prepareStatement(DELETE_ALLIANCES_SQL.sql);
+			ps.executeUpdate();
+			EventDAO.clearSelections(event);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
 	

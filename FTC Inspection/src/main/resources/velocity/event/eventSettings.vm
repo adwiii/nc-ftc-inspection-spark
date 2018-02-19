@@ -24,6 +24,29 @@ function saveColor(){
 		}
 	});
 }
+
+function deletePhase(phase){
+	if(confirm("Are you sure you want to delete "+phase+"? This operation cannot be undone!")){
+		document.getElementById("deleteStatus").innerHTML = "";
+		$.ajax({
+			url:phase+"/",
+			type: 'DELETE',
+			data: {},
+			success: function(data){
+				document.getElementById("deleteStatus").innerHTML = "Success";
+				var old = document.getElementById(phase);
+				old.disabled = true;
+				if(phase == 'elims'){ //no inspection delet support yet
+					var prev = document.getElementById(phase == 'elims' ? 'quals' : 'inspection');
+					prev.disabled = false;
+				}
+			},
+			fail: function(xhr, textStatus, error){
+				document.getElementById("deleteStatus").innerHTML = "Error";
+			}
+		});	
+	}
+}
 </script>
 
 <fieldset>
@@ -40,14 +63,23 @@ function saveColor(){
 
 <fieldset>
 	<legend>Data Management</legend>
+	<!--
 	Team Export
 	<hr>
 	Download Event Backup<br>
 	Restore from backup
 	<hr>
-	Delete Inspection Data <br>
-Delete Qualification Data<br>
-Delete Elimination Data<br>
+	-->
+	These operations provide a mechanism to delete data and back the event up a phase. This allows recovery from errors
+	such as uploading an incorrect match schedule or generating incorrect alliances. Any data from that phase (such as matches played or inspection forms) will be permanently deleted. THESE OPERATIONS ARE DANGEROUS AND CANNOT
+	BE UNDONE! The operations DO NOT affect remote servers, so if you are connected to one, you will need to notify the administrators
+	of the remote server to duplicate the operation.
+	<table><tr>
+		<td><button id='inspection' onclick="deletePhase('inspection')" disabled>Delete Inspection Data</button></td>
+		<td><button id='quals' onclick="deletePhase('quals')" #if($phase != 3) disabled#end>Delete Quals Data</button></td>
+		<td><button id='elims' onclick="deletePhase('elims')" #if($phase != 5) disabled#end>Delete Elims Data</button></td>
+	</tr></table>
+	<div id="deleteStatus"></div>
 
 </fieldset>
 
