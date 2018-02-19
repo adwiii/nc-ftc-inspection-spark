@@ -9,27 +9,18 @@ import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.Part;
-import javax.swing.plaf.synth.SynthSpinnerUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.event.StatsCalculator;
 import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
-import nc.ftc.inspection.model.Alliance;
-import nc.ftc.inspection.model.FormRow;
-import nc.ftc.inspection.model.Match;
-import nc.ftc.inspection.model.Team;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
@@ -38,7 +29,6 @@ import nc.ftc.inspection.spark.pages.LoginPage;
 import nc.ftc.inspection.spark.pages.ServerPages;
 import nc.ftc.inspection.spark.util.Filters;
 import nc.ftc.inspection.spark.util.Path;
-import spark.Spark;
 
 /**
  * The Server class contains the main method that is run on startup. It is responsible for 
@@ -67,6 +57,8 @@ public class Server {
 	*/
 	public static String defaultEventCode = "test11";
 	
+	public static Logger log = LoggerFactory.getLogger(Server.class);
+	
 	/**
 	 * Static initialization of path constants from the -D JVM parameters.
 	 */
@@ -79,8 +71,8 @@ public class Server {
 		int ind = archive.lastIndexOf('/');
 		if(ind >= 0)archive = archive.substring(0, ind);
 		ARCHIVE_PATH = archive + "/archive/";
-		System.out.println("DB Path set to: "+DB_PATH);
-		System.out.println("Archive Path set to: " + ARCHIVE_PATH);
+		log.debug("DB Path set to: {}", DB_PATH);
+		log.debug("Archive Path set to: {}", ARCHIVE_PATH);
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 		CONFIG_DB = "jdbc:sqlite:"+DB_PATH+"config.db";
 	}
@@ -104,12 +96,12 @@ public class Server {
 				e.getValue().calculateRankings();
 				
 			}catch(Exception e1) {
-				System.err.println("Cant calculate rankings for "+e.getKey());
+				log.error("Cant calculate rankings for {}", e.getKey());
 			}
 			try {
 				StatsCalculator.enqueue(new StatsCalculatorJob(e.getValue(), StatsCalculatorJob.ELIMS));
 			}catch(Exception e2) {
-				System.err.println("Error calculating elims stats!");
+				log.error("Error calculating elims stats for {}", e.getKey());
 			}
 		}
 	//	threadPool(100, 30, 0);
@@ -120,11 +112,11 @@ public class Server {
 		if(loc != null && loc.equals("external")){
 			publicLoc = "src/main/resources/public";
 			staticFiles.externalLocation(publicLoc);
-			System.out.println("External Static Files");
+			log.info("External Static Files");
 		} else {
 			publicLoc = "public";
 			staticFiles.location(publicLoc);
-			System.out.println("Internal Static Files");
+			log.info("Internal Static Files");
 			enableDebugScreen();
 		}
 		publicDir = new File("src/main/resources/public");

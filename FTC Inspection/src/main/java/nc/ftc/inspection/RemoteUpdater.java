@@ -5,12 +5,9 @@
 
 package nc.ftc.inspection;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 import org.apache.http.NameValuePair;
@@ -19,7 +16,6 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.Gson;
 
 import nc.ftc.inspection.dao.ConfigDAO;
-import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Remote;
 
 public class RemoteUpdater extends Thread {

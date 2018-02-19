@@ -7,7 +7,6 @@ package nc.ftc.inspection.spark.pages;
 
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import nc.ftc.inspection.dao.GlobalDAO;

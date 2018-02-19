@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mindrot.jbcrypt.BCrypt;
-
-import com.google.common.io.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nc.ftc.inspection.Key;
 import nc.ftc.inspection.Server;
@@ -46,11 +46,11 @@ public class ConfigDAO {
 	static final String IS_VERIFIED = "SELECT pw,verified FROM clientKeys WHERE event=?";
 	static final String VERIFY = "UPDATE clientKeys SET verified=1 WHERE event=?";
 	//static final String SAVE_FAILED = "INSERT INTO ";
-	
+	static final Logger log = LoggerFactory.getLogger(ConfigDAO.class);
 	public static void runStartupCheck() {
 		boolean exists = new File(Server.DB_PATH+"config.db").exists();
 		if(!exists) {
-			System.out.println("Creating config database!");
+			log.info("Creating config database!");
 			try(Connection conn = DriverManager.getConnection(Server.CONFIG_DB)){
 				Statement sql = conn.createStatement();
 				sql.addBatch(CREATE_CONFIG_DB_SQL[0]);
@@ -59,7 +59,7 @@ public class ConfigDAO {
 				}
 				sql.executeBatch();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				log.error("Error creating config database.", e);
 			}
 		}
 	}	
@@ -78,7 +78,7 @@ public class ConfigDAO {
 			if(!rs.next())return false;
 			return BCrypt.checkpw(key, rs.getString(1));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error checking key for {}.", event, e);
 		}
 		return false;
 	}
@@ -91,7 +91,7 @@ public class ConfigDAO {
 			ps.setBoolean(3,  false);
 			return ps.executeUpdate() == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error saving key for {}.", event, e);
 		}
 		return false;
 	}
@@ -104,7 +104,7 @@ public class ConfigDAO {
 			ps.setString(3, event);
 			return ps.executeUpdate() == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error saving remote for {}.", event, e);
 		}
 		return false;
 	}
@@ -116,7 +116,7 @@ public class ConfigDAO {
 			ps.setString(2, event);
 			return ps.executeUpdate() == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error deleting remote for {}.", event, e);
 		}
 		return false;
 	}
@@ -132,7 +132,7 @@ public class ConfigDAO {
 			}
 			return list;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting remotes for.", e);
 		}
 		return null;
 	}
@@ -146,7 +146,7 @@ public class ConfigDAO {
 			if(!rs.next())return null;
 			return rs.getString(1);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting remote key for {} with host {}.", event, host, e);
 		}
 		return null;
 	}
@@ -172,7 +172,7 @@ public class ConfigDAO {
 			}
 			return "Invalid key";
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error validating key for {}.", event, e);
 		}
 		return "ERROR";
 	}
@@ -183,7 +183,7 @@ public class ConfigDAO {
 			ps.setString(1, event);
 			return ps.executeUpdate() == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error deleting client key for {}.", event, e);
 		}
 		return false;
 	}
@@ -200,7 +200,7 @@ public class ConfigDAO {
 			}
 			return keys;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting key list.", e);
 		}
 		return null;
 	}

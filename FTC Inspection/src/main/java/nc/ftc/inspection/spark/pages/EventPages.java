@@ -6,10 +6,8 @@
 package nc.ftc.inspection.spark.pages;
 
 import nc.ftc.inspection.Server;
-import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.dao.GlobalDAO;
-import nc.ftc.inspection.event.ADState;
 import nc.ftc.inspection.event.Display;
 import nc.ftc.inspection.event.DisplayCommand;
 import nc.ftc.inspection.event.Event;
@@ -23,22 +21,17 @@ import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.MatchStatus;
 import nc.ftc.inspection.model.Selection;
 import nc.ftc.inspection.model.Team;
-import nc.ftc.inspection.model.Team.FormIndex;
 import nc.ftc.inspection.spark.util.Path;
 import static nc.ftc.inspection.spark.util.ViewUtil.render;
 import static spark.Spark.halt;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -47,7 +40,6 @@ import java.util.stream.Collectors;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
@@ -56,10 +48,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import spark.Request;
 import spark.Response;
