@@ -29,6 +29,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
@@ -190,6 +193,8 @@ public class EventDAO {
 	
 	static final String REMOVE_EVENT_SQL = "DELETE FROM events WHERE code=?;";
 	
+
+	static final Logger log = LoggerFactory.getLogger(EventDAO.class);
 	
 	static {
 		Field[] fields = EventDAO.class.getDeclaredFields();
@@ -233,7 +238,7 @@ public class EventDAO {
 			ResultSet rs = ps.executeQuery();
 			return createEventList(rs);
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error getting event list.", e);
 		}
 		return null;
 	}
@@ -243,7 +248,7 @@ public class EventDAO {
 			ps.setString(1, code);
 			ps.executeUpdate();
 		}catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error removing event "+ code, e);
 			return false;
 		}
 		return true;
@@ -253,7 +258,7 @@ public class EventDAO {
 		try {
 			Files.deleteIfExists(new File(Server.DB_PATH+code+".db").toPath());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Error deleting event "+ code, e);
 			return false;
 		}
 		return true;
@@ -265,10 +270,13 @@ public class EventDAO {
 			PreparedStatement ps = conn.prepareStatement(GET_EVENT_SQL);
 			ps.setString(1, code);
 			ResultSet rs = ps.executeQuery();
-			if(!rs.next())return null;
+			if(!rs.next()) {
+				log.info("No event for code {}", code);
+				return null;
+			}
 			return new EventData(rs.getString(1), rs.getString(2), rs.getInt(4), rs.getDate(3));
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error getting EventData for"+ code, e);
 		}
 		return null;
 	}
@@ -282,7 +290,7 @@ public class EventDAO {
 			int affected = ps.executeUpdate();
 			return affected == 1;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error creating event " + code, e);
 			return false;
 		}
 	}
@@ -303,7 +311,7 @@ public class EventDAO {
 			updater.enqueue(new Update(code, Update.COMMAND, null, Update.SET_EVENT_STATUS_CMD, status));
 			return affected == 1;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error setting event status "+ status+ "for "+code, e);
 			return false;
 		}
 	}
@@ -318,9 +326,10 @@ public class EventDAO {
 			return affected == 1;
 		}catch(Exception e){
 			if(e.getMessage().contains("PRIMARY KEY must be unique")) {
+				log.info("Team {} already in event {}.", team, eventCode);
 				return false; //attempted to add a team already in event.
 			}
-			e.printStackTrace();
+			log.error("Error adding team "+team+" to event " + eventCode,  e);
 			return false;
 		}
 	}
@@ -328,11 +337,11 @@ public class EventDAO {
 	public static boolean addTeamLate(int team, String code) {
 		// TODO Auto-generated method stub
 		//TODO add inspection data insertion SQL
+		log.warn("Added team {} to event {} late! Inspection data not supported!", team, code);
 		return addTeamToEvent(team, code);
 	}
 	
 	public static boolean removeTeamFromEvent(int team, String eventCode){
-		//TODO IF EVENT PAST SETUP, need to do ADD_TEAM_LATE_SQL
 		try(Connection conn = getLocalDB(eventCode)){
 			PreparedStatement ps = conn.prepareStatement(REMOVE_TEAM_SQL.sql);
 			ps.setInt(1, team);
@@ -340,7 +349,7 @@ public class EventDAO {
 			updater.enqueue(new Update(eventCode, 1, null,REMOVE_TEAM_SQL.id, team));
 			return affected == 1;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error removing team "+team+" from event "+ eventCode +":", e);
 			return false;
 		}
 	}
@@ -359,7 +368,7 @@ public class EventDAO {
 			updater.enqueue(new Update(code, Update.COMMAND, null, Update.CREATE_EVENT_DB_CMD));
 			return true;
 		} catch(Exception e){
-			e.printStackTrace();
+			log.error("Error creating event database for "+code, e);
 		}
 		return false;
 	}
@@ -383,7 +392,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, Update.COMMAND, null, Update.POPULATE_STATUS_TABLES_CMD));
 			return true;
 		} catch(Exception e){
-			e.printStackTrace();
+			log.error("error populating status tables for "+event, e);
 		}
 		return false;
 	}
@@ -403,7 +412,7 @@ public class EventDAO {
 			}		
 			return form;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Error getting failed items in "+formCode+" for team "+team +" in "+eventCode, e );
 		}
 		return null;
 	}
@@ -468,7 +477,7 @@ public class EventDAO {
 			}
 			return form;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Error getting form "+formCode+" for "+Arrays.toString(teams)+" at "+eventCode, e);
 		}
 		return null;
 	}
@@ -487,7 +496,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, 1, null,SET_FORM_STATUS_SQL.id, status, form, team, itemIndex));
 			return affected == 1;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error setting form status: "+form +" index "+itemIndex+" to "+status+" for team "+team+" at "+event, e);
 		}
 		return false;
 	}
@@ -505,7 +514,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, 1, map, SET_STATUS_SQL.id, status, team));
 			return affected == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error setting team "+team+" "+form+" status to "+status+" at "+event, e);
 		}
 		return false;
 	}
@@ -525,9 +534,10 @@ public class EventDAO {
 		} catch (SQLException e) {
 			if(e.getMessage().contains("no such table")) {
 				System.err.println("OLD DB ("+event+")"+e.getMessage());
+				log.error("Old or missing Database ("+event+"). No teams table!", e);
 				return null;
 			}
-			e.printStackTrace();
+			log.error("Error getting teams at "+event, e);
 		}
 		return null;
 	}
@@ -538,6 +548,7 @@ public class EventDAO {
 			ps.setInt(1, teamNo);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.next()) {
+				log.info("No status info for team {} at {}.", teamNo, event);
 				return null;
 			}
 			Team team = new Team(rs.getInt("team"), "NO NAME");
@@ -547,7 +558,7 @@ public class EventDAO {
 			return team;
 			
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error getting status for team "+teamNo+" at "+event, e);
 		}
 		return null;
 	}
