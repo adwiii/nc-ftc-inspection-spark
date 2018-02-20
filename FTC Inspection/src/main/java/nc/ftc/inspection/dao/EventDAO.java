@@ -593,16 +593,14 @@ public class EventDAO {
 			}
 			return result;
 		} catch (SQLException e) {
-			System.err.println("SQL Error in getStatus()");
+			log.error("SQL Error in getStatus for {}", event, e);
 		}
 		return null;
 	}
 	
 	public static boolean createSchedule(String event, List<Match> matches){
-		//TODO if schedule already exists, PK violation -> way to overwrite schedule
 		try(Connection local = getLocalDB(event)){
 			for(Match m : matches){
-				System.out.println(m.getNumber());
 				PreparedStatement ps = local.prepareStatement(CREATE_SCHEDULE_SQL.sql);
 				ps.setInt(1, m.getNumber());
 				Alliance red = m.getRed();
@@ -638,12 +636,14 @@ public class EventDAO {
 				ps.setInt(2,  1);
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, 1, null, CREATE_SCHEDULE_SCORES_SQL.id, m.getNumber(), 1));
+				
+				log.info("Saved match {} for event {} ", m.getNumber(), event);
 			}			
 			
 			//TODO calc rankings!
 			
-		} catch(Exception e){
-			e.printStackTrace();
+		} catch(Exception e){//TODO handle PK violation separately - second upload of schedule.
+			log.error("Error saving schedule for event {}", event, e);
 			return false;
 		}
 		Server.activeEvents.get(event).scheduleCache.invalidate();
@@ -676,7 +676,7 @@ public class EventDAO {
 					matches.add(parseElimsMatch(rs));
 				}
 			}catch(Exception e) {
-				System.err.println("NO ELIMS TABLE FOR "+event);
+				log.error("No elims table for {}", event, e);
 			}
 			return matches;
 		}catch(Exception e){
@@ -694,9 +694,10 @@ public class EventDAO {
 			while(rs.next()){
 				matches.add(elims ? parseElimsMatch(rs) : parseMatch(rs));
 			}
-			System.out.println(matches.get(0));
+			System.out.println(matches.get(0));			
 			return matches.get(0);
 		}catch(Exception e){
+			log.error("Error findng next match for {} ", event, e);
 			return null;
 		}
 	}
@@ -715,7 +716,7 @@ public class EventDAO {
 				System.out.println("Loaded event "+ed.getCode());
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error loading active events!", e);
 		}
 	}
 	
@@ -783,7 +784,7 @@ public class EventDAO {
 			Server.activeEvents.get(event).resultsCache.invalidate();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error committing score for match {} at {}", match.getNumber(), event, e);
 			return false;
 		}
 	}
@@ -877,7 +878,7 @@ public class EventDAO {
 			return result;
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error getting schedule status JSON for {}", event, e);
 			return "";
 		}
 	}
@@ -891,10 +892,13 @@ public class EventDAO {
 			while(rs.next()){
 				m = elims ?  parseElimsMatch(rs) : parseMatch(rs) ;
 			}
-			if(m == null)return null;
+			if(m == null) {
+				log.warn("NULL match for match {} (elims={}) at {}", num, elims, event);
+				return null;
+			}
 			return m;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error getting match {} (elims={}) at {}", num, elims, event, e);
 			return null;
 		}
 	}
@@ -922,12 +926,12 @@ public class EventDAO {
 					result.add(mr);
 				}
 			}catch(Exception e) {
-				System.err.println("NO ELIMS TABLES IN DB FOR "+event);
+				log.error("NO ELIMS TABLES IN DB FOR {}",event);
 			}
 			return result;
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error getting match results for {}", event, e);
 			return null;
 		}
 	}
@@ -966,14 +970,14 @@ public class EventDAO {
 		}
 		catch(Exception e) {
 			if(e.getMessage() == null) {
-				e.printStackTrace();
+				log.error("Error getting match results for {}", event, e);
 				return null;
 			}
 			if(e.getMessage().contains("no such column")) {
-				System.err.println("OLD DB ("+event+")"+e.getMessage());
+				log.warn("OLD DB ("+event+")"+e.getMessage());
 				return null;
 			}
-			e.printStackTrace();
+			log.error("Error getting match results for {}", event, e);
 			return null;
 		}
 	}
@@ -990,7 +994,7 @@ public class EventDAO {
 				Alliance a = match.getAlliance(rs.getInt(2) == Alliance.RED ? "red" : "blue");
 				a.initializeScores();
 				Set<String> keys = a.getScoreFields();
-				//TODO URGENT FIX THIS
+				//These keys are not persisted! Remember this anywhere els ethis operation is performed!
 				keys.remove("card3");
 				keys.remove("dq3");
 				keys.remove("cbKeys");
@@ -1002,7 +1006,7 @@ public class EventDAO {
 			return match;
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error getting full match results for {}", event, e);
 			return null;
 		}
 	}
@@ -1034,7 +1038,7 @@ public class EventDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error getting statistics match results for {}", code, e);
 		}
 		return results;
 	}
@@ -1046,7 +1050,6 @@ public class EventDAO {
 		
 		try (Connection local = getLocalDB(eventCode)){
 			String s  =String.join(",",  IntStream.of(teamList).mapToObj(Integer::toString).collect(Collectors.toList()));
-//			System.out.println(s);
 			PreparedStatement ps = local.prepareStatement(GET_COMMENT_SQL.replace(":in", s));
 			List<Integer> list = new ArrayList<>(teamList.length);
 			for(int i:teamList) {
@@ -1055,15 +1058,13 @@ public class EventDAO {
 			ps.setString(1, formID);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-//				System.out.println("Result:"+rs.getInt(1)+":"+rs.getString(2));
 				result[list.indexOf(rs.getInt(1))] = rs.getString(2);
 			}
-//			System.out.println("All done!");
 			for(int i = 0; i < result.length; i++) {
 				result[i] = result[i] == null ? "" : result[i];
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting {} form comments for teams {} at {}", formID, Arrays.toString(teamList), eventCode, e);
 		}
 		return result;
 	}	
@@ -1077,7 +1078,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, 1, null, SET_COMMENT_SQL.id, comment, team, form));
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error setting {} form comments for teams {} at {}", form, team, event, e);
 		}
 		return false;
 	}
@@ -1092,7 +1093,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, 1, null, SET_SIG_SQL.id, sig, team, form, sigIndex));
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error updating sig {} {} for team {} at {}", form, sigIndex, team, event, e);
 		}
 		return false;
 	}
@@ -1114,7 +1115,7 @@ public class EventDAO {
 				result[i] = result[i] == null ? "" : result[i];
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting {} sigs for teams {} at {}", formID, Arrays.toString(teamList), eventCode, e);
 		}
 		return result;
 	}
@@ -1142,8 +1143,7 @@ public class EventDAO {
 			}
 			return map;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error getting team card map for teams {} at {}", Arrays.toString(teams), event, e);
 		}
 		return null;
 	}
@@ -1156,7 +1156,7 @@ public class EventDAO {
 				sql = sql.replaceAll(entry.getKey(), entry.getValue());
 			}
 		}
-		System.out.println("Executing Update ("+event+"): "+sql+" "+Arrays.toString(p));
+		log.info("Executing Update ("+event+"): "+sql+" "+Arrays.toString(p));
 		try (Connection local = getLocalDB(event)){			
 			PreparedStatement ps = local.prepareStatement(sql);
 			for(int i = 1; i < p.length; i++) {
@@ -1173,8 +1173,7 @@ public class EventDAO {
 			}
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
+			log.error("ERROR IN REMOTE UPDATE: "+sql, e);
 			return false;
 		}
 	}
@@ -1183,6 +1182,7 @@ public class EventDAO {
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(SET_ALLIANCE_SQL.sql);
 			for(int i = 0; i < data.length; i++) {
+				log.info("Saving alliance {}: {}, {}, {}", data[i].getRank(), data[i].getTeam1(), data[i].getTeam2(), data[i].getTeam3());
 				ps.setInt(1, data[i].getRank());
 				ps.setInt(2, data[i].getTeam1());
 				ps.setInt(3, data[i].getTeam2());
@@ -1196,7 +1196,7 @@ public class EventDAO {
 			Server.activeEvents.get(event).scheduleCache.invalidate();
 			return true;			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error creating alliances for {}", event);
 		}
 		return false;
 	}
@@ -1237,6 +1237,7 @@ public class EventDAO {
 				ps.setInt(2, 1);
 				ps.executeUpdate();
 				updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, ADD_ELIMS_MATCH_SCORES_SQL.id, match.getNumber(), 1));
+				log.info("Saved elims match {} ({}) for {}", match.getNumber(), match.getName(), event);
 			}
 			if(!Server.activeEvents.containsKey(event)) {
 				Server.activeEvents.put(event, new Event(EventDAO.getEvent(event)));
@@ -1244,7 +1245,7 @@ public class EventDAO {
 			Server.activeEvents.get(event).scheduleCache.invalidate();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error Creating Elims matches for event {}", event, e);
 		}
 		return false;
 	}
@@ -1260,7 +1261,7 @@ public class EventDAO {
 			}
 			return results;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting series results for series {} at {}", series, event, e);
 		}
 		return null;
 	}
@@ -1273,7 +1274,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, CANCEL_ELIMS_MATCH_SQL.id, m));
 			return affected == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error cancelling match {} for {}", m, event, e);
 		}
 		return false;
 	}
@@ -1286,7 +1287,7 @@ public class EventDAO {
 			updater.enqueue(new Update(event, Update.EVENT_DB_UPDATE, null, UNCANCEL_ELIMS_MATCH_SQL.id, m));
 			return affected == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error uncancelling match {} for {}", m, event, e);
 		}
 		return false;
 	}
@@ -1309,7 +1310,7 @@ public class EventDAO {
 			}
 			return map;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting cards for elims at {}", event, e);
 		}
 		return null;
 	}
@@ -1322,7 +1323,7 @@ public class EventDAO {
 			if(!rs.next())return 0;
 			return rs.getInt(1);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting elims match number for match {} at {}", name, event);
 		}
 		return 0;
 	}
@@ -1332,10 +1333,13 @@ public class EventDAO {
 			PreparedStatement ps = local.prepareStatement(GET_ELIMS_MATCH_BASIC);
 			ps.setInt(1, match);
 			ResultSet rs = ps.executeQuery();
-			if(!rs.next())return null;
+			if(!rs.next()) {
+				log.warn("No elims match {} for {}", match, event);
+				return null;
+			}
 			return new int[] {rs.getInt(1), rs.getInt(2)};
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting basic elims match {} at {}", match, event, e);
 		}
 		return null;
 	}
@@ -1358,7 +1362,7 @@ public class EventDAO {
 			}
 			return list;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting selections for {}", event, e);
 		}
 		return null;
 	}
@@ -1370,13 +1374,13 @@ public class EventDAO {
 			ps.setInt(2, alliance);
 			ps.setInt(3,  team);
 			ps.executeUpdate();
-			
+			log.info("Saving selection: team = {}, alliance = {}, op= {}", team, alliance, op);
 			//TODO change these to updates that have the params so server can construct Selection object to execute in parallel with local?
 			updater.enqueue(new Update(event, SELECTION_SQL.id, null, op, alliance, team));
 			updater.sendNow();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error saving selection for {}", event, e);
 		}
 		return false;
 	}
@@ -1385,11 +1389,12 @@ public class EventDAO {
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(UNDO_SELECTION_SQL.sql);
 			ps.executeUpdate();
+			log.info("Undoing selection for {}", event);
 			updater.enqueue(new Update(event, UNDO_SELECTION_SQL.id, null));
 			updater.sendNow();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error undoing selection at {}", event, e);
 		}
 		return false;
 	}
@@ -1398,11 +1403,12 @@ public class EventDAO {
 		try (Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(CLEAR_SELECTION_SQL.sql);
 			ps.executeUpdate();
+			log.info("Cleared selections for {}", event);
 			updater.enqueue(new Update(event, CLEAR_SELECTION_SQL.id, null));
 			updater.sendNow();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error clearing selections at {}", event, e);
 		}
 		return false;
 	}
@@ -1416,7 +1422,7 @@ public class EventDAO {
 				match.randomize(rs.getInt(1));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error saving randomization data for match {} at {} ", match.getNumber(), event, e);
 		}
 	}
 	public static String getProperty(String event, String key) {
@@ -1428,7 +1434,7 @@ public class EventDAO {
 				return rs.getString(1);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting property {} for {}", key, event, e);
 		}
 		return null;
 	}
@@ -1439,7 +1445,7 @@ public class EventDAO {
 			ps.setString(2, value);
 			ps.executeUpdate();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error setting property {} for {}", key, event, e);
 		}
 	}
 	
@@ -1452,6 +1458,7 @@ public class EventDAO {
 					ps = local.prepareStatement(ADD_TEAM_SQL.sql);
 					ps.setInt(1, t.getNumber());
 					added += ps.executeUpdate();
+					log.info("Adding team {} to {}", t.getNumber(), event);
 					updater.enqueue(new Update(event, 1, null,ADD_TEAM_SQL.id, t.getNumber()));
 				}catch(Exception e) {
 					//team already there
@@ -1459,7 +1466,7 @@ public class EventDAO {
 			}
 			return added;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error importin teams to {}", event, e );
 			return -1;
 		}
 	}
@@ -1475,8 +1482,9 @@ public class EventDAO {
 			ps.executeUpdate();
 			ps = local.prepareStatement(DELETE_SCHEDULE_SQL.sql);
 			ps.executeUpdate();
+			log.info("Deleting Quals for {}", event);
 		}catch(SQLException e) {
-			e.printStackTrace();
+			log.error("Error deleting quals for {}", event, e);
 		}
 	}
 	
@@ -1492,9 +1500,10 @@ public class EventDAO {
 			ps.executeUpdate();
 			ps = local.prepareStatement(DELETE_ALLIANCES_SQL.sql);
 			ps.executeUpdate();
+			log.info("Deleting Elims for {}", event);
 			EventDAO.clearSelections(event);
 		}catch(SQLException e) {
-			e.printStackTrace();
+			log.error("Error deleting quals for {}", event, e);
 		}
 	}
 	
