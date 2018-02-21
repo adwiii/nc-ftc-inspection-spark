@@ -9,7 +9,7 @@
 
 **Score Tracker Auto Loading** - To prevent randomization desynchronization between score trackers and the server, the score tracker's page does not load until match start. As of now, if the match is aborted AND RANDOMIZATION IS CHANGED, the score tracker MUST REFRESH. This issue will be addressed soon.
 
-**Logging Improvements** Log files are now handles internally instead of via batch redirects, so they will populate as the program executes instead of at termination.
+**Logging Improvements** Log files are now handled internally instead of via batch redirects, so they will populate as the program executes instead of at termination.
 
 **Deletion of Quals/Elims Data** - The Event Settings page mentioned above provides a way to delete all data from elims or quals. This is a very dangerous operation that should only be performed if a faulty match schedule is uploaded or incorrect alliances generated. (This feature is not fully tested yet) 
 
