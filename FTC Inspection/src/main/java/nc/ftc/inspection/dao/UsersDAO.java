@@ -24,6 +24,8 @@ import nc.ftc.inspection.Update;
 import nc.ftc.inspection.model.User;
 
 import org.mindrot.jbcrypt.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The UsersDAO contains static methods for all User data access operations. It provides methods 
@@ -43,6 +45,7 @@ public class UsersDAO {
 	static final SQL DELETE_USER = new SQL(5, "DELETE FROM users WHERE username = ?;");
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
+	static Logger log = LoggerFactory.getLogger(UsersDAO.class);
 	
 	/**
 	 * Static initialization of the remote updater SQL mapping. This mapping allows the 
@@ -122,12 +125,12 @@ public class UsersDAO {
 			ps.setString(3, user.getUsername());
 			int affected = ps.executeUpdate();
 			if(affected > 1){
-				throw new RuntimeException("OMG WE HAD >1 USER ENTRIES -- WE DONE SCREWED UP");
+				throw new RuntimeException("WE HAD >1 USER ENTRIES -- something messed up");
 			}
 			updater.enqueue(new Update(null, Update.USER_DB_UPDATE, null, UPDATE_PASSWORD_SQL.id, user.getHashedPw(), user.getSalt(), user.getUsername() ));
 			return affected == 1;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error updating password for {}", username, e);
 		}
 		return false;
 	}
@@ -147,6 +150,7 @@ public class UsersDAO {
 		}
 		username = username.toLowerCase();
 		try(Connection conn = DriverManager.getConnection(Server.GLOBAL_DB)){
+			log.info("Adding new user: {}", username);
 			PreparedStatement ps = conn.prepareStatement(NEW_USER_SQL.sql);
 			String salt = BCrypt.gensalt();
 			String hashedPw = BCrypt.hashpw(password, salt);
@@ -167,7 +171,7 @@ public class UsersDAO {
 					return false;
 				}
 			}
-			e.printStackTrace();
+			log.error("Error adding user {}", username, e);
 		}
 		return false;
 	}
@@ -187,6 +191,7 @@ public class UsersDAO {
 			ps.setString(1, username);
 			return 1 == ps.executeUpdate();
 		}catch(Exception e){
+			log.error("Error deleting user {}", username, e);
 			return false;
 		}
 	}
@@ -206,12 +211,13 @@ public class UsersDAO {
 			ps.setString(1, username);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.next()){
+				log.warn("User lookup failed: {}", username);
 				return null;
 			}
 			return new User(username, rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getBoolean(5));
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error getting user {}", username, e);
 		}
 		return null;
 	}
@@ -271,7 +277,7 @@ public class UsersDAO {
 			updater.enqueue(new Update(null, Update.USER_DB_UPDATE, null, UPDATE_TYPE_SQL.id, newRole, username));
 			return affected == 1;
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error updating role for {}", username, e);
 		}
 		return false;
 	}
@@ -290,7 +296,7 @@ public class UsersDAO {
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			log.error("Error getting users list", e);
 		}
 		return users;
 	}
@@ -365,7 +371,7 @@ public class UsersDAO {
 				sql = sql.replaceAll(entry.getKey(), entry.getValue());
 			}
 		}
-		System.out.println("Executing Update (user): "+sql+" "+Arrays.toString(p));
+		log.info("Executing Update (user): "+sql+" "+Arrays.toString(p));
 		try (Connection local = DriverManager.getConnection(Server.GLOBAL_DB)){			
 			PreparedStatement ps = local.prepareStatement(sql);
 			for(int i = 1; i < p.length; i++) {
@@ -375,8 +381,7 @@ public class UsersDAO {
 			ps.execute();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
+			log.error("ERROR IN REMOTE UPDATE: "+sql, e);
 			return false;
 		}
 	}
@@ -402,13 +407,12 @@ public class UsersDAO {
 				try {
 					added += ps.executeUpdate();
 				}catch(Exception e) {
-					//user alreayd exists
+					//user already exists
 				}
 			}			
 			return added;
 		} catch (SQLException e) {
-			System.out.println("Error in user import:");
-			e.printStackTrace();
+			log.error("Error importing users", e);
 			return -1;
 		}
 		

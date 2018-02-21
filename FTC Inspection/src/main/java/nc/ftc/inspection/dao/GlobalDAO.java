@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
@@ -36,6 +39,8 @@ public class GlobalDAO {
 	private static final SQL ADD_NEW_TEAMS_OVERWRITE = new SQL(4,"INSERT OR REPLACE INTO teamInfo VALUES (?, ?, ?);");
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
+	
+	static Logger log = LoggerFactory.getLogger(GlobalDAO.class);
 	static {
 		Field[] fields = GlobalDAO.class.getDeclaredFields();
 		System.out.println(fields.length);
@@ -70,7 +75,7 @@ public class GlobalDAO {
 			if(!rs.next())return "";
 			return rs.getString(1);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting team name for {}", team, e);
 		}
 		return null;
 	}
@@ -85,7 +90,7 @@ public class GlobalDAO {
 			}
 			return list;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting master team list", e);
 		}
 		return null;
 	}
@@ -99,13 +104,14 @@ public class GlobalDAO {
 			updater.enqueue(new Update(null, Update.GLOBAL_DB_UPDATE, null, NEW_TEAM_SQL.id, number, name));
 			return affected == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error adding new team", e);
 		}
 		return false;
 	}
 	
 	public static boolean editTeamName(int number, String name, String location){
 		try(Connection global = DriverManager.getConnection(Server.GLOBAL_DB)){
+			log.info("Setting team info for {}: name = {}, loc = {}", number, name, location);
 			PreparedStatement ps = global.prepareStatement(EDIT_TEAM_SQL.sql);
 			ps.setInt(1,  number);
 			ps.setString(2,  name);
@@ -114,7 +120,7 @@ public class GlobalDAO {
 			updater.enqueue(new Update(null, Update.GLOBAL_DB_UPDATE, null, EDIT_TEAM_SQL.id, name, number));
 			return affected == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error editing team {}", number, e);
 		}
 		return false;
 	}
@@ -127,7 +133,7 @@ public class GlobalDAO {
 			int affected = ps.executeUpdate();
 			return affected == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error saving feedback");
 		}
 		return false;
 	}
@@ -142,7 +148,7 @@ public class GlobalDAO {
 			}
 			return list;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Error getting feedback");
 		}
 		return null;
 	}
@@ -156,7 +162,7 @@ public class GlobalDAO {
 				sql = sql.replaceAll(entry.getKey(), entry.getValue());
 			}
 		}
-		System.out.println("Executing Update (global): "+sql+" "+Arrays.toString(p));
+		log.info("Executing Update (global): "+sql+" "+Arrays.toString(p));
 		try (Connection local = DriverManager.getConnection(Server.GLOBAL_DB)){			
 			PreparedStatement ps = local.prepareStatement(sql);
 			for(int i = 1; i < p.length; i++) {
@@ -166,8 +172,8 @@ public class GlobalDAO {
 			ps.execute();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("ERROR IN REMOTE UPDATE: "+sql);
+			
+			log.error("ERROR IN REMOTE UPDATE: "+sql, e);
 			return false;
 		}
 	}
@@ -178,6 +184,7 @@ public class GlobalDAO {
 			int added = 0;
 			for(Team t : teams) {
 				try {
+					log.info("Adding team {}", t.getNumber());
 					ps = local.prepareStatement(overwrite ? ADD_NEW_TEAMS_OVERWRITE.sql : ADD_NEW_TEAM_SQL.sql);
 					ps.setInt(1, t.getNumber());
 					ps.setString(2, t.getName());
@@ -190,8 +197,7 @@ public class GlobalDAO {
 			}
 			return added;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("Error importing teams!");
+			log.error("Error importing teams!", e);
 			return -1;
 		}
 	}
