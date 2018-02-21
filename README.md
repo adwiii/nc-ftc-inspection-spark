@@ -3,7 +3,7 @@
 
 **Deleting Users** - There is now an option to delete users on the "Manage Users" page.
 
-**Video Overlay Default Color** - There is now an "Event Settings" page (accessible by an admin below Event Management on th eevent home page). This page allows the setting of a default color for the video overlay. NOTE: If using an event created before this update, the value can only be set once. Setting it multiple times will cause unpredictable behavior (It will randomly choose one of the set values). 
+**Video Overlay Default Color** - There is now an "Event Settings" page (accessible by an admin below Event Management on the event home page). This page allows the setting of a default color for the video overlay. NOTE: If using an event created before this update, the value can only be set once. Setting it multiple times will cause unpredictable behavior (It will randomly choose one of the set values). 
 
 **Match Control Page Safeties** - The control flow of the match control page has been improved to disable buttons that would cause illegal states. This fix handles the abort match case and re-allows access to the manual randomization pages before match start. The state of the control page is reset appropriately when a new match is loaded. The page also presents the user with a confirm dialog if they attempt to leave the page at time that would leave the server in an illegal state. (After randomization and before commit.)
 
