@@ -9,6 +9,11 @@ import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.net.BindException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,9 +23,12 @@ import org.slf4j.LoggerFactory;
 
 import nc.ftc.inspection.dao.ConfigDAO;
 import nc.ftc.inspection.dao.EventDAO;
+import nc.ftc.inspection.dao.GlobalDAO;
+import nc.ftc.inspection.dao.UsersDAO;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.event.StatsCalculator;
 import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
+import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.User;
 import nc.ftc.inspection.spark.pages.DefaultPages;
 import nc.ftc.inspection.spark.pages.EventPages;
@@ -57,13 +65,46 @@ public class Server {
 	*/
 	public static String defaultEventCode = "test11";
 	
-	public static Logger log = LoggerFactory.getLogger(Server.class);
-	
+
+	public static Logger log;
+	public static boolean redirected = false;
+	public static void redirectError() {
+		if(redirected)return;
+		//If not in eclipse, use the -Ddb parameter to set the DB. If in eclipse, use default.
+		String loc = System.getProperty("location");
+		if(loc != null && loc.equals("external")){
+			File logDir = new File("logs");
+			if(!logDir.exists() || !logDir.isDirectory()) {
+				logDir.mkdirs();
+			}
+			File logFile = new File("logs/"+System.currentTimeMillis()+"_err.log");
+			try {
+				logFile.createNewFile();
+			} catch (IOException e1) {
+				System.err.println("Error creating log file!");
+				e1.printStackTrace();
+			}
+			try {
+				System.out.println("Redirecting error stream to log file "+logFile.getName());
+				PrintStream pw = new PrintStream(logFile);
+				System.setErr(pw);
+			} catch (FileNotFoundException e) {
+				System.err.println("Error redirecting System.err!");
+				e.printStackTrace();
+			}
+		}
+		log = LoggerFactory.getLogger(Server.class);
+		redirected = true;
+	}
 	/**
 	 * Static initialization of path constants from the -D JVM parameters.
 	 */
 	static{ 
-		//If not in eclipse, use the -Ddb parameter to set the DB. If in eclipse, use default.
+		
+		if(!redirected) {
+			redirectError();
+		}	
+		
 		String db = System.getProperty("db");
 		DB_PATH = db == null ? "src/main/resources/db/" : db;
 		String archive = DB_PATH;
@@ -76,6 +117,7 @@ public class Server {
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 		CONFIG_DB = "jdbc:sqlite:"+DB_PATH+"config.db";
 	}
+	
 	/**
 	 * Run on startup. No parameters are passed to main this way. All parameters are passed via -D 
 	 * JVM parameters.
@@ -105,6 +147,19 @@ public class Server {
 			}
 		}
 	//	threadPool(100, 30, 0);
+		initExceptionHandler((e) -> {
+			if(e instanceof BindException) {
+				System.out.println("Bind Error! Port 80 already in use!");
+				System.out.println("Please check that another instance of the live scoring system or other web server is not running.");
+				System.out.println("Use the Resource Monitor to check for processes listening on TCP 80 and kill them.");
+			} else {
+				System.out.println("Error occured while launching server!");
+				System.out.println(e.getClass().getName());
+				System.out.println(e.getMessage());
+			}
+			System.out.println("Please terminate (CTRL+C in this window) and resolve the issue, then restart the server.");
+		}
+		);
 		port(80); //TODO make this a runtime argument.
 		//Use the -Dlocation argument to determine if inside eclipse or running from a built .jar.
 		String loc = System.getProperty("location");
@@ -112,7 +167,8 @@ public class Server {
 		if(loc != null && loc.equals("external")){
 			publicLoc = "src/main/resources/public";
 			staticFiles.externalLocation(publicLoc);
-			log.info("External Static Files");
+			log.info("External Static Files");		
+			
 		} else {
 			publicLoc = "public";
 			staticFiles.location(publicLoc);

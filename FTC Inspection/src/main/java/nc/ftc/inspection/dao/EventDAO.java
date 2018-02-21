@@ -47,6 +47,15 @@ import nc.ftc.inspection.model.Selection;
 import nc.ftc.inspection.model.Team;
 
 public class EventDAO {
+	
+	static final Logger log;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(EventDAO.class);
+	}
+	
 	public static final SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 	
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
@@ -194,11 +203,10 @@ public class EventDAO {
 	static final String REMOVE_EVENT_SQL = "DELETE FROM events WHERE code=?;";
 	
 
-	static final Logger log = LoggerFactory.getLogger(EventDAO.class);
+	
 	
 	static {
 		Field[] fields = EventDAO.class.getDeclaredFields();
-		System.out.println(fields.length);
 		for(Field f : fields) {
 			if(f.getType().equals(SQL.class)) {
 				SQL s = null;
@@ -533,8 +541,7 @@ public class EventDAO {
 			return result;
 		} catch (SQLException e) {
 			if(e.getMessage().contains("no such table")) {
-				System.err.println("OLD DB ("+event+")"+e.getMessage());
-				log.error("Old or missing Database ("+event+"). No teams table!", e);
+				log.error("Old or missing Database ("+event+"). No teams table!");
 				return null;
 			}
 			log.error("Error getting teams at "+event, e);
@@ -694,9 +701,16 @@ public class EventDAO {
 			while(rs.next()){
 				matches.add(elims ? parseElimsMatch(rs) : parseMatch(rs));
 			}
-			System.out.println(matches.get(0));			
 			return matches.get(0);
-		}catch(Exception e){
+		} catch(IndexOutOfBoundsException e) {
+			log.warn("No next match found for {}", event);
+			return null;
+		}
+		catch(Exception e){
+			if(e.getMessage().contains("no such table:")) {
+				log.warn("Unable to load next match for {}:", event, e.getMessage());
+				return null;
+			}
 			log.error("Error findng next match for {} ", event, e);
 			return null;
 		}
@@ -713,7 +727,9 @@ public class EventDAO {
 				//e.setCurrentMatch(getNextMatch(ed.getCode()));
 				e.loadNextMatch();
 				Server.activeEvents.put(ed.getCode(), e);
+				//This one can stay a syso
 				System.out.println("Loaded event "+ed.getCode());
+				log.info("Loaded event "+ed.getCode());
 			}
 		} catch (SQLException e) {
 			log.error("Error loading active events!", e);
@@ -931,6 +947,10 @@ public class EventDAO {
 			return result;
 		}
 		catch(Exception e) {
+			if(e.getMessage().contains("no such table")) {
+				log.warn("No quals table for {}:", event);
+				return null;
+			}
 			log.error("Error getting match results for {}", event, e);
 			return null;
 		}
@@ -959,7 +979,6 @@ public class EventDAO {
 				a.updateScore("card2", rs.getInt(4));
 				a.updateScore("dq1",Boolean.parseBoolean(rs.getObject(5).toString()));
 				a.updateScore("dq2", Boolean.parseBoolean(rs.getObject(6).toString()));
-				//System.out.println(rs.getInt(1)+" "+rs.getInt(2)+":"+rs.getInt(3)+","+rs.getInt(4)+","+rs.getBoolean(5)+","+rs.getBoolean(6));
 			}
 //			ps = local.prepareStatement("SELECT match, alliance, dq1, dq2 FROM qualsScores;");
 //			rs = ps.executeQuery();
@@ -1012,6 +1031,10 @@ public class EventDAO {
 	}
 	public static List<MatchResult> getMatchResultsForStats(String code, boolean elims) {
 		List<MatchResult> results = getMatchResults(code);
+		if(results == null) {
+			log.warn("No results for {} - cannot calculate stats", code);
+			return null;
+		}
 		if(elims) {
 			results.removeIf(((Predicate<MatchResult>)MatchResult::isElims).negate());
 		} else {

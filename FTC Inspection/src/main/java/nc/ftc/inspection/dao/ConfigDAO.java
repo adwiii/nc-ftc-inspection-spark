@@ -46,7 +46,13 @@ public class ConfigDAO {
 	static final String IS_VERIFIED = "SELECT pw,verified FROM clientKeys WHERE event=?";
 	static final String VERIFY = "UPDATE clientKeys SET verified=1 WHERE event=?";
 	//static final String SAVE_FAILED = "INSERT INTO ";
-	static final Logger log = LoggerFactory.getLogger(ConfigDAO.class);
+	static final Logger log;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(ConfigDAO.class);
+	}
 	public static void runStartupCheck() {
 		boolean exists = new File(Server.DB_PATH+"config.db").exists();
 		if(!exists) {

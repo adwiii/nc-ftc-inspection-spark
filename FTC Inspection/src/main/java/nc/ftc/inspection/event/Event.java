@@ -15,8 +15,11 @@ import org.apache.commons.math3.linear.CholeskyDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nc.ftc.inspection.Cache;
+import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
 import nc.ftc.inspection.model.Alliance;
@@ -43,6 +46,13 @@ public class Event {
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
 	
+	static Logger log;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(Event.class);
+	}
 	
 	Timer timer = new Timer(this);
 	Display display = new Display();
@@ -76,7 +86,7 @@ public class Event {
 		currentMatch.clearSubmitted();
 		currentMatch.getRed().initializeScores();
 		currentMatch.getBlue().initializeScores();
-		System.out.println("Loaded Test Match");
+		log.info("Loaded Test Match");
 	}
 	public void loadNextMatch(){
 		timer.started = false;
@@ -87,7 +97,7 @@ public class Event {
 		previousMatch = currentMatch;
 		currentMatch = EventDAO.getNextMatch(data.getCode());
 		if(currentMatch == null){
-			System.err.println("Unable to load matches for event "+data.getCode());
+			log.warn("Unable to load matches for event "+data.getCode());
 			return;
 		}
 		if(previousMatch != null){
@@ -97,7 +107,7 @@ public class Event {
 			fillCardCarry(currentMatch);
 		}
 		currentMatch.setStatus(MatchStatus.PRE_RANDOM);
-		System.out.println("Loaded match #"+currentMatch.getNumber());
+		log.info("Loaded match #"+currentMatch.getNumber());
 	}
 	
 	public void loadMatch(int num) {
@@ -112,7 +122,7 @@ public class Event {
 			}				
 			previousMatch = currentMatch;
 			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
-			System.out.println("Loaded "+currentMatch.getName());
+			log.info("Loaded "+currentMatch.getName());
 		}
 		
 	}
@@ -241,7 +251,7 @@ public class Event {
 			StatsCalculator.enqueue(new StatsCalculatorJob(this, StatsCalculatorJob.QUALS));
 			
 		}catch(Exception e) {
-			System.err.println("Err calculating OPR for "+data.getCode());
+			log.warn("Err calculating OPR for "+data.getCode());
 		}
 	}
 	

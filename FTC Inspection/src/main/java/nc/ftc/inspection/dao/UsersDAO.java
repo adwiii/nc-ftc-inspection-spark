@@ -33,6 +33,13 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class UsersDAO {
+	static Logger log ;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(UsersDAO.class);
+	}
 	
 	static final String PASSWORD_SQL = "SELECT hashedPassword, salt, type, realName, changed FROM users where username = ?";
 	static final String GET_ALL_SQL = "SELECT username, hashedPassword, salt, type, realName, changed FROM users";
@@ -45,7 +52,7 @@ public class UsersDAO {
 	static final SQL DELETE_USER = new SQL(5, "DELETE FROM users WHERE username = ?;");
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
-	static Logger log = LoggerFactory.getLogger(UsersDAO.class);
+	
 	
 	/**
 	 * Static initialization of the remote updater SQL mapping. This mapping allows the 
@@ -53,7 +60,6 @@ public class UsersDAO {
 	 */
 	static {
 		Field[] fields = UsersDAO.class.getDeclaredFields();
-		System.out.println(fields.length);
 		for(Field f : fields) {
 			if(f.getType().equals(SQL.class)) {
 				SQL s = null;

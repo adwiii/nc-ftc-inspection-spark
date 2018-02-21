@@ -41,6 +41,8 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -55,6 +57,14 @@ import spark.Response;
 import spark.Route;
 
 public class EventPages {
+	static Logger log ;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(EventPages.class);
+	}
+	
 	public static Route serveEventCreationPage = (Request request, Response response) -> {	
 		return render(request, Path.Template.CREATE_EVENT);
 	};
@@ -623,7 +633,7 @@ public class EventPages {
 			}
 			for(Integer t : teams) {
 				EventDAO.addTeamToEvent(t, event);
-				System.err.println("MISSING TEAM "+t+". AUTOMATICALLY ADDED TO EVENT!");
+				log.info("MISSING TEAM "+t+". AUTOMATICALLY ADDED TO EVENT!");
 			}
 			
 			
@@ -996,7 +1006,6 @@ public class EventPages {
 				if(status == MatchStatus.AUTO || status == MatchStatus.AUTO_REVIEW) {
 					Server.activeEvents.get(e).getCurrentMatch().updateJewels();
 				}
-				System.out.println(status);
 				if(!status.isReview()) {
 					Server.activeEvents.get(request.params("event")).getCurrentMatch().updateNotify();
 					response.status(409);
@@ -1158,6 +1167,7 @@ public class EventPages {
 				response.status(409);
 				return "Match not ready for auto!";
 			}
+			log.info("Starting Match!");
 			event.getTimer().start();
 			return "OK";
 		};
@@ -1262,6 +1272,7 @@ public class EventPages {
 				response.status(400);
 				return "No active match";
 			}
+			log.info("Aborting Match!");
 			match.getRed().initializeScores();
 			match.getBlue().initializeScores();
 			e.getTimer().reset();
@@ -1354,7 +1365,7 @@ public class EventPages {
 			}
 			if((red2 >= 2 || blue2 >= 2) && (red1 >=2 || blue1 >= 2)){
 				//SF complete
-				System.out.println("Semifinals complete!");
+				log.info("Semifinals complete!");
 				//red = winner of SF1
 				//blue = winner of SF2
 				Alliance red = new Alliance(red1 >= 2 ? 1 : 4);
@@ -1449,7 +1460,7 @@ public class EventPages {
 						Match m = new Match(last.getNumber() + 2, match.getRed(), match.getBlue(), prefix+"-"+(num+1) );
 						List<Match> matches = new ArrayList<>(1);
 						matches.add(m);
-						System.out.println("Creating Match "+m.getName());
+						log.info("Creating Match "+m.getName());
 						EventDAO.createElimsMatches(event, matches);
 					}
 				}
@@ -1514,7 +1525,6 @@ public class EventPages {
 					handleElimsUpdate(event, e.getCurrentMatch());	
 					Alliance red = match.getRed();
 					Alliance blue = match.getBlue();
-					System.out.println("");
 					MatchResult res = new MatchResult(match.getNumber(), red, blue,  red.getLastScore(),blue.getLastScore(), 1,blue.isAllianceRedCard() ? 0 : red.getPenaltyPoints(),  red.isAllianceRedCard() ? 0 : blue.getPenaltyPoints(), match.getName());
 					Display d = e.getDisplay();
 					d.lastResult = res;
@@ -1557,7 +1567,7 @@ public class EventPages {
 		};
 		public static Route serveMatchControlPage = (Request request, Response response) ->{
 			Map<String, Object> map = new HashMap<String, Object>();
-			System.out.println("Serving Match Control Page");
+			log.info("Serving Match Control Page");
 			return render(request, map, Path.Template.CONTROL);
 		};
 		
@@ -2024,7 +2034,6 @@ public class EventPages {
 		};
 
 		public static Route serveInspectionOverride = (Request request, Response response) ->{
-			System.out.println("OVER");;
 			String eventCode = request.params("event");
 			String form = request.params("form");
 			Map<String, Object> map = new HashMap<>();
@@ -2297,7 +2306,6 @@ public class EventPages {
 			String code = request.params("event");
 			EventData data = EventDAO.getEvent(code);
 			int newStatus = Integer.parseInt(request.queryParams("status"));
-			System.out.println(newStatus);
 			if(newStatus != data.getStatus() + 1) {
 				response.status(400);
 				return "CANT SKIP PHASE!";
@@ -2311,6 +2319,7 @@ public class EventPages {
 				break;
 			case 3:				
 				System.out.println(code + " added to active events.");
+				log.info(code + " added to active events.");
 				break;
 			case 6:
 				String event = request.params("event");
@@ -3024,15 +3033,12 @@ public class EventPages {
 			for (Team team : teams) {
 				File hw = new File(hwDir.getPath() + "/"  + team.getNumber() + "-hw.html");
 				hw.createNewFile();
-				System.out.println(hw.getPath());
 				FileUtils.writeStringToFile(hw, inspectionPage(null, null, true, event, "HW", String.valueOf(team.getNumber()), null, true));
 				File sw = new File(swDir.getPath() + "/"  + team.getNumber() + "-sw.html");
 				sw.createNewFile();
-				System.out.println(sw.getPath());
 				FileUtils.writeStringToFile(sw, inspectionPage(null, null, true, event, "SW", String.valueOf(team.getNumber()), null, true));
 				File fd = new File(fdDir.getPath() + "/" + team.getNumber() + "-fd.html");
 				fd.createNewFile();
-				System.out.println(fd.getPath());
 				FileUtils.writeStringToFile(fd, inspectionPage(null, null, true, event, "FD", String.valueOf(team.getNumber()), null, true));
 			}
 			//super fake work around bc we need the event to be "active" to pull scoresheets
@@ -3047,7 +3053,6 @@ public class EventPages {
 				}
 				File scoresheet = new File(scoreDir.getPath() + "/" + name + ".html");
 				scoresheet.createNewFile();
-				System.out.println(scoresheet.getPath());
 				FileUtils.writeStringToFile(scoresheet, getFullScoresheet(null, event, name, true));
 			}
 			File img = new File(scoreDir.getPath() + "/img");

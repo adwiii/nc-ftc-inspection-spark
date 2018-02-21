@@ -28,6 +28,13 @@ import nc.ftc.inspection.model.Feedback;
 import nc.ftc.inspection.model.Team;
 
 public class GlobalDAO {
+	static Logger log ;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(GlobalDAO.class);
+	}
 	
 	private static final String MASTER_TEAM_LIST_SQL = "SELECT * FROM teamInfo";
 	private static final SQL NEW_TEAM_SQL = new SQL(1,"INSERT INTO teamInfo VALUES (?, ?, NULL)");
@@ -40,10 +47,9 @@ public class GlobalDAO {
 	public static final Map<Integer, SQL> queryMap = new HashMap<>(); 
 	private static RemoteUpdater updater = RemoteUpdater.getInstance();
 	
-	static Logger log = LoggerFactory.getLogger(GlobalDAO.class);
+
 	static {
 		Field[] fields = GlobalDAO.class.getDeclaredFields();
-		System.out.println(fields.length);
 		for(Field f : fields) {
 			if(f.getType().equals(SQL.class)) {
 				SQL s = null;

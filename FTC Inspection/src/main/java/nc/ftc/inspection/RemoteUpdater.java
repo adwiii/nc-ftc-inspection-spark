@@ -103,7 +103,7 @@ public class RemoteUpdater extends Thread {
 		public void run() {
 			//give all enqueued a (very quick) chance to finish.
 			//if no con, hopefully they realize it quickly.
-			System.err.println("Shutting down remote updater! (This will take 3 seconds)");
+			System.out.println("Shutting down Server! (This will take 3 seconds)");
 			synchronized(instance) {
 				instance.notifyAll();
 			}

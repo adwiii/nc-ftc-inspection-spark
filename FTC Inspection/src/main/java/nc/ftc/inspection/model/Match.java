@@ -12,9 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import nc.ftc.inspection.Server;
 import nc.ftc.inspection.dao.EventDAO;
 
 public class Match {
@@ -30,6 +34,13 @@ public class Match {
 	Object scoreLock = new Object();
 	public boolean refLockout = false;
 	boolean cancelled = false;
+	static Logger log;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(Match.class);
+	}
 	
 	public static transient final Match TEST_MATCH;
 	
@@ -99,7 +110,7 @@ public class Match {
 		//TODO Fire events to any observers 
 		//Pre-random->auto= scorekeeper, AD? (show result of random), non-HR tablets
 		//MOVED EVENT FIRING to calling methods.
-		System.out.println("Match Status: "+stat);
+		log.info("Match Status: "+stat);
 		if(status == MatchStatus.PRE_RANDOM){
 			red.initializeScores();
 			blue.initializeScores();

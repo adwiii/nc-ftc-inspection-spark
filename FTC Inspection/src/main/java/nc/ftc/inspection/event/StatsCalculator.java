@@ -19,7 +19,10 @@ import java.util.function.ToDoubleFunction;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
 import nc.ftc.inspection.dao.EventDAO;
 import nc.ftc.inspection.model.Alliance;
@@ -27,6 +30,13 @@ import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.Team;
 
 public class StatsCalculator extends Thread{
+	static Logger log;
+	static{
+		if(!Server.redirected) {
+			Server.redirectError();
+		}
+		log = LoggerFactory.getLogger(StatsCalculator.class);
+	}
 	public static class StatsCalculatorJob {
 		Event event;
 		int phase;
@@ -85,6 +95,14 @@ public class StatsCalculator extends Thread{
 	
 	public void calculateStats(StatsCalculatorJob job) {
 		List<MatchResult> results = EventDAO.getMatchResultsForStats(job.event.getData().getCode(), job.phase == job.ELIMS);
+		if(results == null) {
+			return;
+		}
+		if(results.size() == 0) {
+			log.warn("Results size == 0, cannot calculate stats for {}",job.event.getData().getCode());
+			
+			return;
+		}
 		List<Rank> rankings = new ArrayList<>(job.event.getRankings()); //clone of rankings
 		double[][][] matrices = createMatrices(results,rankings);
 		double[][] A = matrices[0];
@@ -104,6 +122,9 @@ public class StatsCalculator extends Thread{
 	}
 	
 	private double[][][] createMatrices( List<MatchResult> results, List<Rank> rankings) {
+		if(results == null) {
+			return null;
+		}
 		double[][][] res = new double[3][][];//[results.size() * 2][rankings.size()];
 		res[0] = new double[results.size() * 2][rankings.size()];
 		double[][] A = res[0];
