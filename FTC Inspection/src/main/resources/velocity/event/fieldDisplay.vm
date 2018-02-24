@@ -185,7 +185,8 @@
 		position: absolute;
 		top: 225px;
 		left:600px;
-		width:765px;
+		width:753px;
+		height:520;
 		background-color:black;
 	}
 	#timer[ad2="true"][timeout="false"]{
@@ -200,10 +201,25 @@
 		z-index:2;
 		background-color:black;
 	}
-	
 	.timerImage{
-		max-width:33%;
+		max-width:33%:
 		max-height:100%;
+	}
+	div[ad="false"] > .timerImage{
+		height:520;	
+		position:absolute;
+	}
+	div[ad="false"] > .timer1{
+		left:0;
+	}
+	div[ad="false"] > .timer2{
+		left:233;
+	}
+	div[ad="false"] > .timer3{
+		left:287
+	}
+	div[ad="false"] > .timer4{
+		left:520;
 	}
 	
 	div[timeout="true"] > #progressBar{
@@ -1237,10 +1253,10 @@
   		</div>
   	#end
   	<div id="timer" visible="true" ad2="$ad2" timeout="false">
-	  	<img class="timerImage" id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
-	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
-	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
-	  	<img class="timerImage" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
+	  	<img class="timerImage timer1" id="minDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+	  	<img class="timerImage timer2" id="colon" src="/digits/Wcolon.png" alt="colon">
+	  	<img class="timerImage timer3" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
+	  	<img class="timerImage timer4" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
 	  	<div id="blueWing" teams="2">
 	  		<div id="blueWing1" class="wing blueWing wing1" card=false>
 	  			<div class="wingName">
