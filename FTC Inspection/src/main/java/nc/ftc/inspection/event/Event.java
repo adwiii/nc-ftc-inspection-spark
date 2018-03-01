@@ -46,6 +46,10 @@ public class Event {
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
 	
+	//keep null until first inspection write.
+	//this way old / noninspecting events dont create extra resources
+	BulkTransactionManager inspectionManager;
+	
 	static Logger log;
 	static{
 		if(!Server.redirected) {
@@ -305,6 +309,16 @@ public class Event {
 	}
 	public  Map<String, EventStat> getElimsStats() {
 		return elimsStats;
+	}
+	
+	public boolean setFormStatus(String form, int team, int itemIndex, boolean status) {
+		if(inspectionManager == null) {
+			inspectionManager = new BulkTransactionManager(this);
+		}
+		//TODO check that team exists in inspection table
+		EventDAO.setTeamStatus(getData().getCode(), form, team, 1); //In progress = 1
+		EventDAO.setFormStatus(getData().getCode(), inspectionManager, form,team, itemIndex, status);
+		return true;
 	}
 	
 }

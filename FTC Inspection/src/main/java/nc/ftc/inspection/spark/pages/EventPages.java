@@ -229,8 +229,19 @@ public class EventPages {
 		int team =  Integer.parseInt(request.queryParams("team"));
 		int itemIndex = Integer.parseInt(request.queryParams("index"));
 		boolean status = Boolean.parseBoolean(request.queryParams("state"));
+		
+		Event e = Server.activeEvents.get(event);
+		if(e == null) {
+			response.status(400);
+			return "Event not active!";
+		}
+		
+		response.status(e.setFormStatus(form, team, itemIndex, status) ? 200 : 500);
+		/*
 		response.status(EventDAO.setFormStatus(event, form,team, itemIndex, status) ? 200 : 500);
 		EventDAO.setTeamStatus(event, form, team, 1);//IN PROGRESS TODO CONSTANT
+		*/
+		
 		return request.queryParams("state");
 		//Client perspective:
 		//If 200 & state matches, we good. If 200 & state wrong, timing issue, do nothing
