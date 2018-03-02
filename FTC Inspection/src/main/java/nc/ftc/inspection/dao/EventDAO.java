@@ -1610,6 +1610,7 @@ public class EventDAO {
 	public static void executeBulkTransaction(String code, Queue<Update> queue) {
 		//TODO keep a map of eventcode to  BulkTransaction here, and handle it all here?
 		//that way no other classes need to be touched. And all data tranactions stay in DAO.
+		long start = System.currentTimeMillis();
 		try(Connection local = getLocalDB(code)){
 			local.setAutoCommit(false);
 			Map<Object, PreparedStatement> map = new HashMap<>();
@@ -1640,7 +1641,7 @@ public class EventDAO {
 				}
 			}
 			local.commit();
-			log.info("Completed batch update: {} updates for {}", queue.size(), code);
+			log.info("Completed batch update: {} updates for {} in {} ms", queue.size(), code, System.currentTimeMillis() - start);
 		} catch (SQLException e) {
 			log.error("SQL Error in Batch Update! ", e);
 		}
