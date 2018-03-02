@@ -39,7 +39,9 @@ public class Event {
 	public Cache<List<MatchResult>> resultsCache = new Cache<>();
 	public Cache<List<Rank>> rankingsCache = new Cache<>();
 	public Cache<List<Match>> scheduleCache = new Cache<>(60000 * 60);//hour
+	//TODO combine these in the future.
 	public Cache<Map<Integer, Team>> teamNameCache = new Cache<>(60000 * 10);
+	public Cache<Map<Integer,Team>> teamStatusCache = new Cache<>(Long.MAX_VALUE);
 	
 	//Monitors for messaging and long polls
 	public Object waitForRefLock = new Object();
@@ -316,7 +318,19 @@ public class Event {
 			inspectionManager = new BulkTransactionManager(this);
 		}
 		//TODO check that team exists in inspection table
-		EventDAO.setTeamStatus(getData().getCode(), form, team, 1); //In progress = 1
+		//EventDAO.setTeamStatus(getData().getCode(), form, team, 1); //In progress = 1
+		if(teamStatusCache.get() == null) {
+			//this will populate the status cache
+			EventDAO.getStatus(getData().getCode());
+		} 
+		Team t = teamStatusCache.get().get(team);
+		if(t == null) {
+			//team not in system.
+			return false;
+		}
+		if(t.getStatus(form) != 1) {
+			EventDAO.setTeamStatus(getData().getCode(), form, team, 1);
+		}
 		EventDAO.setFormStatus(getData().getCode(), inspectionManager, form,team, itemIndex, status);
 		return true;
 	}

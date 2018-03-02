@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -497,6 +498,7 @@ public class EventDAO {
 	
 	public static boolean setFormStatus(String event, BulkTransactionManager manager, String form, int team, int itemIndex, boolean status){
 		Update update = new Update(event, 1, null,SET_FORM_STATUS_SQL.id, status, form, team, itemIndex);
+		log.info("Enqueued update: team {} form {} item {} status {}", team, form, itemIndex, status);
 		manager.enqueue(update);
 		updater.enqueue(update);
 		return true;
@@ -529,6 +531,14 @@ public class EventDAO {
 			Map<String, String> map = new HashMap<>();
 			map.put(":column", form);
 			updater.enqueue(new Update(event, 1, map, SET_STATUS_SQL.id, status, team));
+			Event ev = Server.activeEvents.get(event);
+			if(ev != null) {
+				if(ev.teamStatusCache.get() != null) {
+					Map<Integer, Team> cache = ev.teamStatusCache.get();
+					cache.get(team).setStatus(form, (byte) status);
+				}
+			}
+			log.info("Set team {} status for {} to {}", team, form, status);
 			return affected == 1;
 		} catch (SQLException e) {
 			log.error("Error setting team "+team+" "+form+" status to "+status+" at "+event, e);
@@ -559,6 +569,15 @@ public class EventDAO {
 	}
 	
 	public static Team getTeamStatus(String event, int teamNo) {
+		Event ev = Server.activeEvents.get(event);
+		if(ev != null) {
+			if(ev.teamStatusCache.get() != null) {
+				Map<Integer, Team> cache = ev.teamStatusCache.get();
+				if(cache.containsKey(teamNo)) {
+					return cache.get(teamNo);
+				}
+			}
+		}
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(GET_TEAMSTATUS_SQL);
 			ps.setInt(1, teamNo);
@@ -580,6 +599,14 @@ public class EventDAO {
 	}
 	
 	public static List<Team> getStatus(String event, String ... columns){
+		Event e = Server.activeEvents.get(event);
+		if(e != null) {
+			if(e.teamStatusCache.get() != null) {
+				List<Team> teams = new ArrayList<Team>(e.teamStatusCache.get().values());
+				Collections.sort(teams, Comparator.comparingInt(x -> x.getNumber()));
+				return teams;
+			}
+		}
 		try(Connection local = getLocalDB(event)){
 			Statement stmt = local.createStatement();
 			stmt.execute(ATTACH_GLOBAL.replaceAll(":path", Server.DB_PATH));
@@ -607,9 +634,15 @@ public class EventDAO {
 //				}).toArray(String[]::new));
 				result.add(team);
 			}
+			Map<Integer, Team> map = new HashMap<>();
+			for(Team t : result) {
+				map.put(t.getNumber(), t);
+			}
+			log.info("Initialized teamstatus cache for {}", event);
+			e.teamStatusCache.set(map);
 			return result;
-		} catch (SQLException e) {
-			log.error("SQL Error in getStatus for {}", event, e);
+		} catch (SQLException e2) {
+			log.error("SQL Error in getStatus for {}", event, e2);
 		}
 		return null;
 	}
