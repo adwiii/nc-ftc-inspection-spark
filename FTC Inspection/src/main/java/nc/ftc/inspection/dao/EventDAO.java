@@ -44,6 +44,8 @@ import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
+import nc.ftc.inspection.model.FormRow.DataItem;
+import nc.ftc.inspection.model.FormRow.Item;
 import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.Selection;
@@ -484,6 +486,40 @@ public class EventDAO {
 					break;
 				}				
 			}
+			
+			List<Integer> teamsList = new ArrayList<>();
+			for(int team : teams) {
+				teamsList.add(team);
+			}
+			//check update queue for changes to the given teams
+			Event event = Server.activeEvents.get(eventCode);
+			if(event != null) {
+				if(event.inspectionManager != null) {
+					Queue<Update> updates = event.inspectionManager.getQueueClone();
+					while(!updates.isEmpty()) {
+						Update up = updates.poll();
+						if(up.p[0].equals(EventDAO.SET_FORM_STATUS_SQL.id) && teamsList.contains(up.p[3]) && formCode.equals(up.p[2])) {
+							//an update for a team on this form exists
+							int teamNumber = ((Number)up.p[3]).intValue();
+							int itemIndex = ((Number)up.p[4]).intValue();
+							boolean status = (Boolean)up.p[1];
+							rowLoop:
+							for(FormRow row : form) {
+								for(Item item : row.getItems()) {
+									if(item instanceof DataItem) {
+										if(item.getIndex() == itemIndex && item.getTeam() == teamNumber) {
+											((DataItem) item).setChecked(status);
+											break rowLoop;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			
 			for(FormRow row : form){
 				row.postProcess();
 			}

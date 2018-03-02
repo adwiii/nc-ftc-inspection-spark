@@ -50,7 +50,7 @@ public class Event {
 	
 	//keep null until first inspection write.
 	//this way old / noninspecting events dont create extra resources
-	BulkTransactionManager inspectionManager;
+	public BulkTransactionManager inspectionManager;
 	
 	static Logger log;
 	static{
@@ -334,5 +334,6 @@ public class Event {
 		EventDAO.setFormStatus(getData().getCode(), inspectionManager, form,team, itemIndex, status);
 		return true;
 	}
+	
 	
 }

@@ -40,11 +40,21 @@ public class BulkTransactionManager extends Thread{
 			//Initiate Bulk Transaction
 			Queue<Update> clone = new LinkedList<Update>();
 			synchronized(this) {
-				clone.offer(queue.poll());
+				while(!queue.isEmpty()) {
+					clone.offer(queue.poll());
+				}
 			}
 			//Call Bulk Transaction
 			EventDAO.executeBulkTransaction(event.getData().getCode(), clone);
 		}
+	}
+	
+	public Queue<Update> getQueueClone(){
+		Queue<Update> clone;
+		synchronized(this) {
+			clone = new LinkedList<Update>(queue);
+		}
+		return clone;
 	}
 	
 	public void writeNow() {
