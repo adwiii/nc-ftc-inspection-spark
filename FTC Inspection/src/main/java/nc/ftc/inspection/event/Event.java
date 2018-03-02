@@ -317,8 +317,7 @@ public class Event {
 		if(inspectionManager == null) {
 			inspectionManager = new BulkTransactionManager(this);
 		}
-		//TODO check that team exists in inspection table
-		//EventDAO.setTeamStatus(getData().getCode(), form, team, 1); //In progress = 1
+		
 		if(teamStatusCache.get() == null) {
 			//this will populate the status cache
 			EventDAO.getStatus(getData().getCode());
@@ -328,6 +327,7 @@ public class Event {
 			//team not in system.
 			return false;
 		}
+		//check the team is in progress, if not, set it.
 		if(t.getStatus(form) != 1) {
 			EventDAO.setTeamStatus(getData().getCode(), form, team, 1);
 		}
