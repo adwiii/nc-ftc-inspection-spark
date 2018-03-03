@@ -32,6 +32,7 @@ import nc.ftc.inspection.model.Team;
 public class Event {
 	//TODO keep list of match result objects here.
 	EventData data;
+	Match nextMatch;
 	Match currentMatch;
 	Match previousMatch;	
 	
@@ -106,6 +107,7 @@ public class Event {
 			log.warn("Unable to load matches for event "+data.getCode());
 			return;
 		}
+		//this will need to go away and mmove to EventPages.handleScoreCommit
 		if(previousMatch != null){
 			previousMatch.setStatus(MatchStatus.POST_COMMIT);
 		}
