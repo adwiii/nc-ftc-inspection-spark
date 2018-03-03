@@ -51,7 +51,7 @@ public class Event {
 	
 	//keep null until first inspection write.
 	//this way old / noninspecting events dont create extra resources
-	public BulkTransactionManager inspectionManager;
+	private volatile BulkTransactionManager inspectionManager;
 	
 	static Logger log;
 	static{
@@ -315,9 +315,14 @@ public class Event {
 		return elimsStats;
 	}
 	
+	private Object inspectionManagerCreationLock = new Object();
 	public boolean setFormStatus(String form, int team, int itemIndex, boolean status) {
 		if(inspectionManager == null) {
-			inspectionManager = new BulkTransactionManager(this);
+			synchronized(inspectionManagerCreationLock) {
+				if(inspectionManager == null) { 
+					inspectionManager = new BulkTransactionManager(this);
+				}
+			}
 		}
 		
 		if(teamStatusCache.get() == null) {
@@ -335,6 +340,10 @@ public class Event {
 		}
 		EventDAO.setFormStatus(getData().getCode(), inspectionManager, form,team, itemIndex, status);
 		return true;
+	}
+	
+	public BulkTransactionManager getInspectionManager() {
+		return inspectionManager;
 	}
 	
 	

@@ -2054,9 +2054,8 @@ public class EventPages {
 			String eventName = "Unknown Event";
 			if (e != null) {
 				eventName = e.getData().getName();
-			} else {
 				map.put("teams", EventDAO.getStatus(eventCode, form));
-			}
+			} 
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECTION_OVERRIDE_PAGE);
 		};
