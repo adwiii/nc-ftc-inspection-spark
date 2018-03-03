@@ -494,8 +494,8 @@ public class EventDAO {
 			//check update queue for changes to the given teams
 			Event event = Server.activeEvents.get(eventCode);
 			if(event != null) {
-				if(event.inspectionManager != null) {
-					Queue<Update> updates = event.inspectionManager.getQueueClone();
+				if(event.getInspectionManager() != null) {
+					Queue<Update> updates = event.getInspectionManager().getQueueClone();
 					while(!updates.isEmpty()) {
 						Update up = updates.poll();
 						if(up.p[0].equals(EventDAO.SET_FORM_STATUS_SQL.id) && teamsList.contains(up.p[3]) && formCode.equals(up.p[2])) {
