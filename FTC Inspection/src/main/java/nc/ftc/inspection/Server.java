@@ -268,6 +268,8 @@ public class Server {
 		//Ref Pages
 		before(Path.Web.REF, Filters.getAuthenticationFilter(User.REF));
 		get(Path.Web.REF, EventPages.serveRef);
+		before(Path.Web.REF_IDLE, Filters.getAuthenticationFilter(User.REF));
+		get(Path.Web.REF_IDLE, EventPages.serveIdleRef);
 		
 
 		//ADMIN Pages

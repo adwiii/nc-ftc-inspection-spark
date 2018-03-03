@@ -819,6 +819,21 @@ public class EventPages {
 			//return "";
 		};
 		
+		public static Route serveIdleRef = (Request request, Response response) ->{
+			Map<String, Object> model = new HashMap<>();
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				return "No active match";
+			}
+			model.put("match", match.getName());
+			model.put("field", (match.getNumber() + 1) % 2 + 1);
+			return render(request, model, Path.Template.REF_IDLE);			
+		};
+		
 		public static Route handleGetRandom = (Request request, Response response) ->{
 			//TODO this is the call that will long-poll / websocket to simulate a push to 
 			//clients when randomization complete.
