@@ -1571,8 +1571,8 @@ public class EventPages {
 						d.blue2Dif = 0;
 					}
 				}
-				
-				e.loadNextMatch();
+				e.getCurrentMatch().setStatus(MatchStatus.POST_COMMIT);
+				e.loadStagedMatch();
 			}
 			return "OK";
 		};

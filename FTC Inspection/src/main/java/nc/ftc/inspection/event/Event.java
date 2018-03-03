@@ -102,20 +102,35 @@ public class Event {
 			return;
 		}
 		previousMatch = currentMatch;
-		currentMatch = EventDAO.getNextMatch(data.getCode());
-		if(currentMatch == null){
+		Match loadingMatch = EventDAO.getNextMatch(data.getCode());
+		if(loadingMatch == null){
 			log.warn("Unable to load matches for event "+data.getCode());
 			return;
 		}
-		//this will need to go away and mmove to EventPages.handleScoreCommit
-		if(previousMatch != null){
-			previousMatch.setStatus(MatchStatus.POST_COMMIT);
+		if(currentMatch == null) {
+			currentMatch = loadingMatch;
+			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
+			if(currentMatch.isElims()) { //for breakdown calc
+				fillCardCarry(currentMatch);
+			}
+			log.info("Loaded match #"+currentMatch.getNumber());
+		} else {
+			nextMatch = loadingMatch;
+			nextMatch.setStatus(MatchStatus.PRE_RANDOM);
+			log.info("Staged match #"+currentMatch.getNumber());
 		}
+		
+		
+		
+	}
+	
+	public void loadStagedMatch() {
+		currentMatch = nextMatch;
+		nextMatch = null;
 		if(currentMatch.isElims()) { //for breakdown calc
 			fillCardCarry(currentMatch);
 		}
-		currentMatch.setStatus(MatchStatus.PRE_RANDOM);
-		log.info("Loaded match #"+currentMatch.getNumber());
+		log.info("Moved match {} from staged to current", currentMatch.getNumber());
 	}
 	
 	public void loadMatch(int num) {
