@@ -22,6 +22,9 @@ public class FormRow {
 		public String getId(){
 			return formID+"_"+team+"_"+index;
 		}
+		public int getIndex() {
+			return index;
+		}
 	}
 	public  class HeaderItem extends Item{
 		public String label;
@@ -46,6 +49,9 @@ public class FormRow {
 		}
 		public boolean getChecked(){
 			return checked;
+		}
+		public void setChecked(boolean c) {
+			this.checked = c;
 		}
 	}
 	String formID;

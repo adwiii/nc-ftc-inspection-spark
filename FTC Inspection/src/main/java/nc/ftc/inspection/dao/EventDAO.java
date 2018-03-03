@@ -20,10 +20,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,12 +37,15 @@ import org.slf4j.LoggerFactory;
 import nc.ftc.inspection.RemoteUpdater;
 import nc.ftc.inspection.Server;
 import nc.ftc.inspection.Update;
+import nc.ftc.inspection.event.BulkTransactionManager;
 import nc.ftc.inspection.event.Event;
 import nc.ftc.inspection.event.StatsCalculator;
 import nc.ftc.inspection.event.StatsCalculator.StatsCalculatorJob;
 import nc.ftc.inspection.model.Alliance;
 import nc.ftc.inspection.model.EventData;
 import nc.ftc.inspection.model.FormRow;
+import nc.ftc.inspection.model.FormRow.DataItem;
+import nc.ftc.inspection.model.FormRow.Item;
 import nc.ftc.inspection.model.Match;
 import nc.ftc.inspection.model.MatchResult;
 import nc.ftc.inspection.model.Selection;
@@ -126,7 +131,7 @@ public class EventDAO {
 	static final SQL SET_SIG_SQL = new SQL(6,"UPDATE formSigs SET sig = ? WHERE team = ? AND formID = ? AND sigIndex = ? ");
 	
 	//TODO change to >= 2 when Inspection is stored in active events.
-	static final String GET_ACTIVE_EVENTS_SQL = "SELECT * FROM events WHERE status >= 3 AND status <= 5;";
+	static final String GET_ACTIVE_EVENTS_SQL = "SELECT * FROM events WHERE status >= 2 AND status <= 5;";
 	static final SQL CREATE_SCHEDULE_SQL = new SQL(7,"INSERT INTO quals VALUES (?,?,?,?,?,?,?,?,?);");
 	static final SQL CREATE_SCHEDULE_DATA_SQL = new SQL(8,"INSERT INTO qualsData VALUES (?,?,?);");
 	static final SQL CREATE_SCHEDULE_RESULTS_SQL = new SQL(9,"INSERT INTO qualsResults (match) VALUES (?);");
@@ -309,8 +314,9 @@ public class EventDAO {
 			ps.setInt(1, status);
 			ps.setString(2, code);
 			int affected = ps.executeUpdate();
-			if(status == EventData.QUALS) {
+			if(status == EventData.INSPECTION && !Server.activeEvents.containsKey(code)) {
 				Server.activeEvents.put(code, new Event(getEvent(code)));
+				log.info("Added {} to active events list.", code);
 			}
 			Event e = Server.activeEvents.get(code);
 			if (e != null) {
@@ -480,6 +486,40 @@ public class EventDAO {
 					break;
 				}				
 			}
+			
+			List<Integer> teamsList = new ArrayList<>();
+			for(int team : teams) {
+				teamsList.add(team);
+			}
+			//check update queue for changes to the given teams
+			Event event = Server.activeEvents.get(eventCode);
+			if(event != null) {
+				if(event.getInspectionManager() != null) {
+					Queue<Update> updates = event.getInspectionManager().getQueueClone();
+					while(!updates.isEmpty()) {
+						Update up = updates.poll();
+						if(up.p[0].equals(EventDAO.SET_FORM_STATUS_SQL.id) && teamsList.contains(up.p[3]) && formCode.equals(up.p[2])) {
+							//an update for a team on this form exists
+							int teamNumber = ((Number)up.p[3]).intValue();
+							int itemIndex = ((Number)up.p[4]).intValue();
+							boolean status = (Boolean)up.p[1];
+							rowLoop:
+							for(FormRow row : form) {
+								for(Item item : row.getItems()) {
+									if(item instanceof DataItem) {
+										if(item.getIndex() == itemIndex && item.getTeam() == teamNumber) {
+											((DataItem) item).setChecked(status);
+											break rowLoop;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			
 			for(FormRow row : form){
 				row.postProcess();
 			}
@@ -492,7 +532,13 @@ public class EventDAO {
 	
 	
 	
-	public static boolean setFormStatus(String event, String form, int team, int itemIndex, boolean status){
+	public static boolean setFormStatus(String event, BulkTransactionManager manager, String form, int team, int itemIndex, boolean status){
+		Update update = new Update(event, 1, null,SET_FORM_STATUS_SQL.id, status, form, team, itemIndex);
+		log.info("Enqueued update: team {} form {} item {} status {}", team, form, itemIndex, status);
+		manager.enqueue(update);
+		updater.enqueue(update);
+		return true;
+		/*
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(SET_FORM_STATUS_SQL.sql);
 			//System.out.println(status+","+form+","+team+","+itemIndex);
@@ -507,6 +553,7 @@ public class EventDAO {
 			log.error("Error setting form status: "+form +" index "+itemIndex+" to "+status+" for team "+team+" at "+event, e);
 		}
 		return false;
+		*/
 	}
 	
 	
@@ -520,6 +567,14 @@ public class EventDAO {
 			Map<String, String> map = new HashMap<>();
 			map.put(":column", form);
 			updater.enqueue(new Update(event, 1, map, SET_STATUS_SQL.id, status, team));
+			Event ev = Server.activeEvents.get(event);
+			if(ev != null) {
+				if(ev.teamStatusCache.get() != null) {
+					Map<Integer, Team> cache = ev.teamStatusCache.get();
+					cache.get(team).setStatus(form, (byte) status);
+				}
+			}
+			log.info("Set team {} status for {} to {}", team, form, status);
 			return affected == 1;
 		} catch (SQLException e) {
 			log.error("Error setting team "+team+" "+form+" status to "+status+" at "+event, e);
@@ -550,6 +605,15 @@ public class EventDAO {
 	}
 	
 	public static Team getTeamStatus(String event, int teamNo) {
+		Event ev = Server.activeEvents.get(event);
+		if(ev != null) {
+			if(ev.teamStatusCache.get() != null) {
+				Map<Integer, Team> cache = ev.teamStatusCache.get();
+				if(cache.containsKey(teamNo)) {
+					return cache.get(teamNo);
+				}
+			}
+		}
 		try(Connection local = getLocalDB(event)){
 			PreparedStatement ps = local.prepareStatement(GET_TEAMSTATUS_SQL);
 			ps.setInt(1, teamNo);
@@ -571,6 +635,14 @@ public class EventDAO {
 	}
 	
 	public static List<Team> getStatus(String event, String ... columns){
+		Event e = Server.activeEvents.get(event);
+		if(e != null) {
+			if(e.teamStatusCache.get() != null) {
+				List<Team> teams = new ArrayList<Team>(e.teamStatusCache.get().values());
+				Collections.sort(teams, Comparator.comparingInt(x -> x.getNumber()));
+				return teams;
+			}
+		}
 		try(Connection local = getLocalDB(event)){
 			Statement stmt = local.createStatement();
 			stmt.execute(ATTACH_GLOBAL.replaceAll(":path", Server.DB_PATH));
@@ -598,9 +670,15 @@ public class EventDAO {
 //				}).toArray(String[]::new));
 				result.add(team);
 			}
+			Map<Integer, Team> map = new HashMap<>();
+			for(Team t : result) {
+				map.put(t.getNumber(), t);
+			}
+			log.info("Initialized teamstatus cache for {}", event);
+			e.teamStatusCache.set(map);
 			return result;
-		} catch (SQLException e) {
-			log.error("SQL Error in getStatus for {}", event, e);
+		} catch (SQLException e2) {
+			log.error("SQL Error in getStatus for {}", event, e2);
 		}
 		return null;
 	}
@@ -1528,6 +1606,46 @@ public class EventDAO {
 		}catch(SQLException e) {
 			log.error("Error deleting quals for {}", event, e);
 		}
+	}
+	public static void executeBulkTransaction(String code, Queue<Update> queue) {
+		//TODO keep a map of eventcode to  BulkTransaction here, and handle it all here?
+		//that way no other classes need to be touched. And all data tranactions stay in DAO.
+		long start = System.currentTimeMillis();
+		try(Connection local = getLocalDB(code)){
+			local.setAutoCommit(false);
+			Map<Object, PreparedStatement> map = new HashMap<>();
+			PreparedStatement ps = null;
+			for(Update update : queue) {
+				if(!update.e.equals(code)) {
+					//IGNORE THIS UPDATE, it got queued incorrectly.
+					continue;
+				}
+				if(update.t != Update.EVENT_DB_UPDATE) {
+					//IGNORE THIS UPDATE, IT GOT QUEUED INCORRECTLY
+					continue;
+				}
+				if(!map.containsKey(update.p[0])){
+					map.put(update.p[0], local.prepareStatement(EventDAO.queryMap.get(update.p[0]).sql));	
+				}
+				ps = map.get(update.p[0]);
+				for(int i = 1; i < update.p.length; i++) {
+					ps.setObject(i, update.p[i]);
+				}
+				ps.addBatch();
+			}
+			for(Entry<Object, PreparedStatement> entry : map.entrySet()) {
+				try {
+					int[] updated = entry.getValue().executeBatch();
+				} catch(SQLException e) {
+					log.error("SQL Error in batch update! ", e);
+				}
+			}
+			local.commit();
+			log.info("Completed batch update: {} updates for {} in {} ms", queue.size(), code, System.currentTimeMillis() - start);
+		} catch (SQLException e) {
+			log.error("SQL Error in Batch Update! ", e);
+		}
+		
 	}
 	
 	

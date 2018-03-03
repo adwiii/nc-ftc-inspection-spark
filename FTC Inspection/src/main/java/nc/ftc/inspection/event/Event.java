@@ -39,13 +39,19 @@ public class Event {
 	public Cache<List<MatchResult>> resultsCache = new Cache<>();
 	public Cache<List<Rank>> rankingsCache = new Cache<>();
 	public Cache<List<Match>> scheduleCache = new Cache<>(60000 * 60);//hour
+	//TODO combine these in the future.
 	public Cache<Map<Integer, Team>> teamNameCache = new Cache<>(60000 * 10);
+	public Cache<Map<Integer,Team>> teamStatusCache = new Cache<>(Long.MAX_VALUE);
 	
 	//Monitors for messaging and long polls
 	public Object waitForRefLock = new Object();
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
 	public Object waitForCommitLock = new Object();
+	
+	//keep null until first inspection write.
+	//this way old / noninspecting events dont create extra resources
+	private volatile BulkTransactionManager inspectionManager;
 	
 	static Logger log;
 	static{
@@ -307,5 +313,37 @@ public class Event {
 	public  Map<String, EventStat> getElimsStats() {
 		return elimsStats;
 	}
+	
+	private Object inspectionManagerCreationLock = new Object();
+	public boolean setFormStatus(String form, int team, int itemIndex, boolean status) {
+		if(inspectionManager == null) {
+			synchronized(inspectionManagerCreationLock) {
+				if(inspectionManager == null) { 
+					inspectionManager = new BulkTransactionManager(this);
+				}
+			}
+		}
+		
+		if(teamStatusCache.get() == null) {
+			//this will populate the status cache
+			EventDAO.getStatus(getData().getCode());
+		} 
+		Team t = teamStatusCache.get().get(team);
+		if(t == null) {
+			//team not in system.
+			return false;
+		}
+		//check the team is in progress, if not, set it.
+		if(t.getStatus(form) != 1) {
+			EventDAO.setTeamStatus(getData().getCode(), form, team, 1);
+		}
+		EventDAO.setFormStatus(getData().getCode(), inspectionManager, form,team, itemIndex, status);
+		return true;
+	}
+	
+	public BulkTransactionManager getInspectionManager() {
+		return inspectionManager;
+	}
+	
 	
 }
