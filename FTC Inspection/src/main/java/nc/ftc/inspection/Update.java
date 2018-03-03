@@ -28,7 +28,7 @@ public class Update {
 	public String e;
 	public int t;
 	Map<String,String> v;
-	Object[] p;
+	public Object[] p;
 	
 	//NEVER CHANGE THESE CONSTANTS! They have not been consistently used in external classes!
 	public static final transient int EVENT_DB_UPDATE = 1; //contains sql info to run
