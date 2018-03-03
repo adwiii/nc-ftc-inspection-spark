@@ -45,6 +45,7 @@ public class Event {
 	public Object waitForRefLock = new Object();
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
+	public Object waitForCommitLock = new Object();
 	
 	static Logger log;
 	static{

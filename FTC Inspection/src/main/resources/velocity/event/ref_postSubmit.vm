@@ -6,13 +6,22 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
 <script>
-
-var isActive = true;
-
 $().ready(function () {
- 	window.setTimeout(function(){ location.href="idle";}, 5000);
+    pollServer();
 });
-
+	function pollServer(){
+            $.ajax({
+                url: "../../match/status/commit/",
+                type: "GET",
+                success: function (data) {
+                    location.href='idle';
+                },
+                error: function () {
+                    //ERROR HANDLING
+                    console.log("Error");
+                    window.setTimeout(pollServer, 5000);
+                }});
+	}
 </script>
 <div id="d1">Score submitted. Waiting for next match.</div>
 #end

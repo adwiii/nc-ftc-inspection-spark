@@ -1575,7 +1575,9 @@ public class EventPages {
 						d.blue2Dif = 0;
 					}
 				}
-				
+				synchronized(e.waitForCommitLock) {
+					e.waitForCommitLock.notifyAll();
+				}
 				e.loadNextMatch();
 			}
 			return "OK";
@@ -1784,6 +1786,28 @@ public class EventPages {
 				if(m.getStatus() == MatchStatus.AUTO) {
 					response.status(409);
 					return "ABORTED";
+				}
+			}
+			return "OK";
+		};
+		
+		public static Route handleWaitForCommit = (Request request, Response response)->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.POST_COMMIT) {
+				return "OK";
+			} else {
+				synchronized(e.waitForCommitLock) {
+					e.waitForCommitLock.wait();
 				}
 			}
 			return "OK";

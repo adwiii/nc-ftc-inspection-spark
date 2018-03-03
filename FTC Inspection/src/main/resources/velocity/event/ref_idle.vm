@@ -5,8 +5,24 @@
 
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<div id="d1">Score Track Match $match (Field $field)?</div>
-<div>
-<button id="yes" onclick="location.href='../'">Yes</button><button id="refresh" onclick="location.reload(true)">Refresh</button>
+
+<style>
+button{
+		background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 12px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 10px;
+		cursor: pointer;
+	}
+</style>
+
+<div id="d1" style="text-align:center;">Score Track Match $match (Field $field)?</div>
+<div style="text-align:center;">
+<button id="yes" onclick="location.href='../'">Yes</button><button id="refresh" onclick="location.reload(true)">No (Refresh)</button>
 </div>
 #end
