@@ -313,9 +313,14 @@ public class Event {
 		return elimsStats;
 	}
 	
+	private Object inspectionManagerCreationLock = new Object();
 	public boolean setFormStatus(String form, int team, int itemIndex, boolean status) {
 		if(inspectionManager == null) {
-			inspectionManager = new BulkTransactionManager(this);
+			synchronized(inspectionManagerCreationLock) {
+				if(inspectionManager == null) { 
+					inspectionManager = new BulkTransactionManager(this);
+				}
+			}
 		}
 		
 		if(teamStatusCache.get() == null) {
