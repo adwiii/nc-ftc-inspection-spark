@@ -1251,6 +1251,10 @@ public class EventPages {
 				response.status(200);
 				return event.getTimer().elapsed();
 			}
+			if (match.getStatus() == MatchStatus.REVIEW) {
+				response.status(200);
+				return 158 * 1000; //the match is over, just return the end of match time 
+			}
 			response.status(409);
 			return "Match not running!";
 		};

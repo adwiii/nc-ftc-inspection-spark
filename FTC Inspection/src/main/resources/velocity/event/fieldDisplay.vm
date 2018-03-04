@@ -1447,6 +1447,7 @@
   	var paused = false;
   	var timerInstance;
   	var elapsed;
+  	var waitingForServerTime = false;
   	var prevTick;
   	var endAutoFlag = false;
   	var countFlag = false;
@@ -1484,6 +1485,7 @@
 	});
 	
 	function getMatchTime() {
+		waitingForServerTime = true;
 		var cur = new Date().getTime(); //we are going to measure network time
   		console.log('cur elapsed: ' + elapsed);
   		$.ajax({
@@ -1492,12 +1494,13 @@
 			dataType: 'json',
 			success: function(data, textStatus, xhr){
 				if (xhr.status != 200 && xhr.status != 209) {
-					return 240*1000; //we are not in a match and we are not paused, so give up
+					return 160*1000; //we are not in a match and we are not paused, so give up
 				}
 				// the data is the elapsed time in ms. We think the current elapsed time is actually
 				// what the server says plus half of the elapsed time to account for network lag
 				var rn = new Date().getTime();
 				elapsed = data + (rn - cur) / 2;
+				prevTick = rn;
 				startTime = rn - elapsed; //we should now be reset to correct time
 				console.log('new elapsed: ' + elapsed);
 				if (timerInstance == null) { 
@@ -1517,13 +1520,14 @@
   						//TODO
   					}
 				}
-				return elapsed;
 			},
 			error:function(xhr, ajaxOptions, thrownError){
 				console.log(xhr);
 				console.log(ajaxOptions);
 				console.log(thrownError);
 		}});
+		waitingForServerTime = false;
+		return elapsed; //since elapsed is global this doesn't really matter
 	}
 	
 	function getTimerCommand()
@@ -1676,10 +1680,17 @@
   		#end
   	}
   	function tick(){
+  		if (waitingForServerTime) { // we are current synchronously waiting in a previous tick for a time update, thus we need to skip this tick and we will catch up later
+  			return;
+  		}
   		var cur = new Date().getTime();
   		elapsed = cur - startTime;
   		if (cur - prevTick > 150) { //our system time is messed up, need to reset
-  			elapsed = getMatchTime();
+  			console.log(prevTick);
+  			console.log(cur);
+  			console.log((cur - prevTick) + ' asking server');
+  			getMatchTime();
+  			return; //we are giving up on this tick
   		}
   		prevTick = cur;
   		if(timeout){
