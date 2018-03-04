@@ -1227,6 +1227,34 @@ public class EventPages {
 			return "Match not running!";
 		};
 		
+		public static Route getMatchTime = (Request request, Response response) -> {
+			String eventCode = request.params("event");
+			Event event = Server.activeEvents.get(eventCode);
+			if(event == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			Match match = event.getCurrentMatch();
+			if(match == null){
+				response.status(500);
+				return "No match loaded.";
+			}
+			if(match.getStatus() == null){
+				response.status(500);
+				return "Null Status";
+			}
+			if(event.getTimer().paused()) {
+				response.status(209); //flag that the match is paused
+				return event.getTimer().elapsed();
+			}
+			if(match.getStatus() == MatchStatus.AUTO || match.getStatus() == MatchStatus.TELEOP) {
+				response.status(200);
+				return event.getTimer().elapsed();
+			}
+			response.status(409);
+			return "Match not running!";
+		};
+		
 		public static Route handleTimeoutCommand = (Request request, Response response) ->{
 			String event = request.params("event");
 			String cmd = request.params("cmd");
@@ -2101,7 +2129,7 @@ public class EventPages {
 				match = e.getCurrentMatch().getNumber() % 2;
 			}
 			//TODO add block=false param to retrieve last command.
-			return cmd+","+match;
+			return cmd+","+match + ","+e.getTimer().elapsed();
 		};
 		public static Route handleGetDisplayCommands = (Request request, Response response) ->{
 			String event = request.params("event");

@@ -1446,6 +1446,8 @@
   	var pauseStart = 0;
   	var paused = false;
   	var timerInstance;
+  	var elapsed;
+  	var prevTick;
   	var endAutoFlag = false;
   	var countFlag = false;
   	var teleopFlag = false;
@@ -1478,7 +1480,51 @@
   		//$("#body").css("top", ($("body").height() - zoom * $("body").height()) / 2);
     	getTimerCommand();
     	getDisplayCommand();
+    	getMatchTime();
 	});
+	
+	function getMatchTime() {
+		var cur = new Date().getTime(); //we are going to measure network time
+  		console.log('cur elapsed: ' + elapsed);
+  		$.ajax({
+			url: "../time/",
+			type: "GET",
+			dataType: 'json',
+			success: function(data, textStatus, xhr){
+				if (xhr.status != 200 && xhr.status != 209) {
+					return 240*1000; //we are not in a match and we are not paused, so give up
+				}
+				// the data is the elapsed time in ms. We think the current elapsed time is actually
+				// what the server says plus half of the elapsed time to account for network lag
+				var rn = new Date().getTime();
+				elapsed = data + (rn - cur) / 2;
+				startTime = rn - elapsed; //we should now be reset to correct time
+				console.log('new elapsed: ' + elapsed);
+				if (timerInstance == null) { 
+					if (xhr.status == 200) {//we loaded a page in the middle of a match, start the timer
+						timeout = false;
+	  					stopScores = false;
+  						timerInstance = setInterval(tick, 50);
+  						paused = false;
+  						endAutoFlag = false;
+ 	 					countFlag = false;
+  						teleopFlag = false;
+  	    				endgameFlag = false;
+  						getScoreUpdate(false);
+  						var tmr = document.getElementById("timer");
+  						showMatch();
+  					} else if (xhr.status == 209) { //we laoded a page with the match paused
+  						//TODO
+  					}
+				}
+				return elapsed;
+			},
+			error:function(xhr, ajaxOptions, thrownError){
+				console.log(xhr);
+				console.log(ajaxOptions);
+				console.log(thrownError);
+		}});
+	}
 	
 	function getTimerCommand()
 	{
@@ -1530,6 +1576,7 @@
   		timeout = false;
   		stopScores = false;
   		startTime = new Date().getTime();
+  		prevTick = startTime;
   		timerInstance = setInterval(tick, 50);
   		startSound.play();
   		paused = false;
@@ -1546,10 +1593,13 @@
   	function pause(){
   		pauseStart = new Date().getTime();
   		window.clearInterval(timerInstance);
-  		paused = true;  		
+  		timerInstance = null;
+  		paused = true;
   	}
   	function resume(){
-  		startTime += new Date().getTime() - pauseStart;
+  		var offset = new Date().getTime() - pauseStart;
+  		startTime += offset;
+  		//prevTick += offset;
   		timerInstance = setInterval(tick, 50);
   		paused = false;
   	}
@@ -1557,6 +1607,7 @@
   		foghornSound.play();
   		stopScores = true;
   		window.clearInterval(timerInstance);
+  		timerInstance = null;
   		display(150, 'W');
   	}
   	
@@ -1564,6 +1615,7 @@
   		allianceTO = 0;
   		timeout = true;
   		startTime = new Date().getTime();
+  		prevTick = startTime;
   		timerInstance = setInterval(tick, 50);
   		#if(!$ad)
   			showTimeout();
@@ -1574,6 +1626,7 @@
  		if(!timeout){
  			timeout = true;
  			startTime = new Date().getTime() - timeoutLength; //due to math in tick, pretend field timeout just expired
+ 			prevTick = startime;
   			timerInstance = setInterval(tick, 50);
  			#if(!$ad)
   				showTimeout();
@@ -1624,8 +1677,11 @@
   	}
   	function tick(){
   		var cur = new Date().getTime();
-  		var elapsed = cur - startTime;
-  		
+  		elapsed = cur - startTime;
+  		if (cur - prevTick > 150) { //our system time is messed up, need to reset
+  			elapsed = getMatchTime();
+  		}
+  		prevTick = cur;
   		if(timeout){
   			var left = ( timeoutLength + (allianceTO * allianceTimeoutLength) -elapsed );
   			display( left  / 1000 , "W");
@@ -1633,6 +1689,7 @@
   				buzzerSound.play();
   				display(0, "W");
   				window.clearInterval(timerInstance);
+  				timerInstance = null;
   				return;
   			}
   			//display alliance timeout window
@@ -1712,6 +1769,7 @@
   				}, 4000);
   			#end
   			window.clearInterval(timerInstance);
+  			timerInstance = null;
   			timeout = false;
   			allianceTO = 0;
   			return;
