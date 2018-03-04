@@ -717,7 +717,8 @@ public class EventPages {
 				return "Match already randomized!";
 			}
 			*/
-			if(e.getCurrentMatch().getStatus() != MatchStatus.PRE_RANDOM && e.getCurrentMatch().getStatus() != MatchStatus.AUTO) {
+			Match m = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
+			if(m.getStatus() != MatchStatus.PRE_RANDOM && m.getStatus() != MatchStatus.AUTO) {
 				response.status(500);
 				return "Invalid match phase.";
 			}
@@ -727,12 +728,13 @@ public class EventPages {
 			}catch(Exception e2) {
 				//no param
 			}
-			int r = e.getCurrentMatch().randomize(val);
+			
+			int r = m.randomize(val);
 			synchronized(e.waitForRandomLock) {
 				e.waitForRandomLock.notifyAll();
 			}
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_RANDOM);
-			e.getCurrentMatch().setStatus(MatchStatus.AUTO);
+			m.setStatus(MatchStatus.AUTO);
 			return "{\"rand\":\"" + r +"\"}";
 		};
 		
@@ -745,7 +747,12 @@ public class EventPages {
 			if(e.getCurrentMatch() == null){
 				return null;
 			}
-			if(!e.getCurrentMatch().isRandomized()){
+			if(e.isMatchStaged()) {
+				if(!e.getStagedMatch().isRandomized()){
+					response.status(500);
+					return "Match not randomized!";
+				}
+			} else if(!e.getCurrentMatch().isRandomized()){
 				response.status(500);
 				return "Match not randomized!";
 			}
@@ -1572,7 +1579,11 @@ public class EventPages {
 					}
 				}
 				e.getCurrentMatch().setStatus(MatchStatus.POST_COMMIT);
-				e.loadStagedMatch();
+				if(e.isMatchStaged()) { //this will handle the case where finals match not created yet in else.
+					e.loadStagedMatch();
+				} else {
+					e.loadNextMatch();
+				}
 			}
 			return "OK";
 		};
@@ -1627,7 +1638,8 @@ public class EventPages {
 				response.status(200);
 				return "{}";
 			}
-			Match m = e.getCurrentMatch();
+			Match m = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
+			log.info("Returning info for match " + m.getName());
 			Alliance red = m.getRed();
 			Alliance blue = m.getBlue();
 			//TODO fix this an dmake it not suck!

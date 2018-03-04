@@ -149,7 +149,7 @@ public class EventDAO {
 	static final SQL DELETE_ALLIANCES_SQL = new SQL(40, "DELETE FROM alliances;");
 	
 	static final String GET_SCHEDULE_SQL = "SELECT * FROM quals";
-	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 ORDER BY match LIMIT 1;";
+	static final String GET_NEXT_MATCH_SQL = "SELECT q.* FROM qualsData qd LEFT JOIN quals q ON qd.match == q.match WHERE qd.status==0 AND q.match > ? ORDER BY match LIMIT 1;";
 	static final String GET_MATCH_SQL = "SELECT q.* FROM quals q WHERE q.match=? ORDER BY match LIMIT 1;";
 	
 	static final SQL COMMIT_MATCH_DATA = new SQL(11,"UPDATE qualsData SET status = ?, randomization = ? WHERE match = ?;");
@@ -179,7 +179,7 @@ public class EventDAO {
 //	static final SQL COMMIT_ELIMS_SCORES_SQL = new SQL(23,"UPDATE elimsScores SET autoGlyphs=?, cryptoboxKeys=?, jewels=?, parkedAuto=?, glyphs=?, rows=?, columns=?, ciphers=?, relic1Zone=?, relic1Standing=?, relic2Zone=?, relic2Standing=?, balanced=?, major=?, minor=?, cryptobox1=?, cryptobox2=?, jewelSet1=?, jewelSet2=?, adjust=?, card1=?, card2=?, dq1=?, dq2=? WHERE match=? AND alliance=?");
 	
 	static final String GET_SCHEDULE_ELIMS_SQL = "SELECT  q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match";
-	static final String GET_NEXT_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE ed.status==0 ORDER BY q.match LIMIT 1;";
+	static final String GET_NEXT_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE ed.status==0 AND q.match > ? ORDER BY q.match LIMIT 1;";
 	static final String GET_ELIMS_MATCH_SQL = "SELECT q.match, red.rank, red.team1, red.team2, red.team3, blue.rank, blue.team1, blue.team2, blue.team3, name, status=2 FROM elims q LEFT JOIN alliances red ON red.rank=q.red LEFT JOIN alliances blue ON blue.rank=q.blue LEFT JOIN elimsData ed ON ed.match=q.match WHERE q.match=? ORDER BY q.match LIMIT 1;";
 	static final String GET_ELIMS_MATCH_BASIC = "SELECT red, blue FROM elims WHERE match = ?;";
 	
@@ -770,10 +770,11 @@ public class EventDAO {
 		}
 	}
 	
-	public static Match getNextMatch(String event){
+	public static Match getNextMatch(String event, int base){
 		try(Connection local = getLocalDB(event)){
 			boolean elims = getEvent(event).getStatus() == EventData.ELIMS;
 			PreparedStatement ps = local.prepareStatement(elims ? GET_NEXT_ELIMS_MATCH_SQL :GET_NEXT_MATCH_SQL);
+			ps.setInt(1, base);
 			ResultSet rs = ps.executeQuery();
 			List<Match> matches = new ArrayList<>();
 			while(rs.next()){
@@ -792,6 +793,9 @@ public class EventDAO {
 			log.error("Error findng next match for {} ", event, e);
 			return null;
 		}
+	}
+	public static Match getNextMatch(String event) {
+		return getNextMatch(event, 0);
 	}
 	
 	public static void loadActiveEvents(){

@@ -102,7 +102,12 @@ public class Event {
 			return;
 		}
 		previousMatch = currentMatch;
-		Match loadingMatch = EventDAO.getNextMatch(data.getCode());
+		Match loadingMatch;
+		if(currentMatch != null) {
+			loadingMatch= EventDAO.getNextMatch(data.getCode(), currentMatch.getNumber());
+		} else {
+			loadingMatch = EventDAO.getNextMatch(data.getCode());
+		}
 		if(loadingMatch == null){
 			log.warn("Unable to load matches for event "+data.getCode());
 			return;
@@ -131,6 +136,13 @@ public class Event {
 			fillCardCarry(currentMatch);
 		}
 		log.info("Moved match {} from staged to current", currentMatch.getNumber());
+	}
+	
+	public boolean isMatchStaged() {
+		return nextMatch != null;
+	}
+	public Match getStagedMatch() {
+		return nextMatch;
 	}
 	
 	public void loadMatch(int num) {
