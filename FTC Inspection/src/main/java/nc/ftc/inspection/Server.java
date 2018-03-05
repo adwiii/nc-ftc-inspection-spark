@@ -362,6 +362,7 @@ public class Server {
 		post(Path.Web.RERANDOMIZE, EventPages.handleReRandomizePost);
 		
 		//admin? - yes, except this would block the get to rankings
+		get(Path.Web.GET_TIME, EventPages.getMatchTime);
 		post(Path.Web.UPLOAD_SCHEDULE, "multipart/form-data", EventPages.handleScheduleUpload);
 		post(Path.Web.START_MATCH, EventPages.handleStartMatch);
 		post(Path.Web.PAUSE_MATCH, EventPages.handlePauseMatch);

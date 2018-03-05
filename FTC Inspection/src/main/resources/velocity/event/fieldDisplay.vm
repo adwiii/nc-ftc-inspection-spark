@@ -1446,6 +1446,9 @@
   	var pauseStart = 0;
   	var paused = false;
   	var timerInstance;
+  	var elapsed;
+  	var waitingForServerTime = false;
+  	var prevTick;
   	var endAutoFlag = false;
   	var countFlag = false;
   	var teleopFlag = false;
@@ -1479,7 +1482,54 @@
     	getTimerCommand();
     	getDisplayCommand();
     	getMatchInfo();
+    	getMatchTime();
 	});
+	
+	function getMatchTime() {
+		waitingForServerTime = true;
+		var cur = new Date().getTime(); //we are going to measure network time
+  		console.log('cur elapsed: ' + elapsed);
+  		$.ajax({
+			url: "../time/",
+			type: "GET",
+			dataType: 'json',
+			success: function(data, textStatus, xhr){
+				if (xhr.status != 200 && xhr.status != 209) {
+					return 160*1000; //we are not in a match and we are not paused, so give up
+				}
+				// the data is the elapsed time in ms. We think the current elapsed time is actually
+				// what the server says plus half of the elapsed time to account for network lag
+				var rn = new Date().getTime();
+				elapsed = data + (rn - cur) / 2;
+				prevTick = rn;
+				startTime = rn - elapsed; //we should now be reset to correct time
+				console.log('new elapsed: ' + elapsed);
+				if (timerInstance == null) { 
+					if (xhr.status == 200) {//we loaded a page in the middle of a match, start the timer
+						timeout = false;
+	  					stopScores = false;
+  						timerInstance = setInterval(tick, 50);
+  						paused = false;
+  						endAutoFlag = false;
+ 	 					countFlag = false;
+  						teleopFlag = false;
+  	    				endgameFlag = false;
+  						getScoreUpdate(false);
+  						var tmr = document.getElementById("timer");
+  						showMatch();
+  					} else if (xhr.status == 209) { //we laoded a page with the match paused
+  						//TODO
+  					}
+				}
+			},
+			error:function(xhr, ajaxOptions, thrownError){
+				console.log(xhr);
+				console.log(ajaxOptions);
+				console.log(thrownError);
+		}});
+		waitingForServerTime = false;
+		return elapsed; //since elapsed is global this doesn't really matter
+	}
 	
 	function getTimerCommand()
 	{
@@ -1531,6 +1581,7 @@
   		timeout = false;
   		stopScores = false;
   		startTime = new Date().getTime();
+  		prevTick = startTime;
   		timerInstance = setInterval(tick, 50);
   		startSound.play();
   		paused = false;
@@ -1547,10 +1598,13 @@
   	function pause(){
   		pauseStart = new Date().getTime();
   		window.clearInterval(timerInstance);
+  		timerInstance = null;
   		paused = true;  		
   	}
   	function resume(){
-  		startTime += new Date().getTime() - pauseStart;
+  		var offset = new Date().getTime() - pauseStart;
+  		startTime += offset;
+  		//prevTick += offset;
   		timerInstance = setInterval(tick, 50);
   		paused = false;
   	}
@@ -1558,6 +1612,7 @@
   		foghornSound.play();
   		stopScores = true;
   		window.clearInterval(timerInstance);
+  		timerInstance = null;
   		display(150, 'W');
   	}
   	
@@ -1565,6 +1620,7 @@
   		allianceTO = 0;
   		timeout = true;
   		startTime = new Date().getTime();
+  		prevTick = startTime;
   		timerInstance = setInterval(tick, 50);
   		#if(!$ad)
   			showTimeout();
@@ -1575,6 +1631,7 @@
  		if(!timeout){
  			timeout = true;
  			startTime = new Date().getTime() - timeoutLength; //due to math in tick, pretend field timeout just expired
+ 			prevTick = startime;
   			timerInstance = setInterval(tick, 50);
  			#if(!$ad)
   				showTimeout();
@@ -1624,9 +1681,19 @@
   		#end
   	}
   	function tick(){
+  		if (waitingForServerTime) { // we are current synchronously waiting in a previous tick for a time update, thus we need to skip this tick and we will catch up later
+  			return;
+  		}
   		var cur = new Date().getTime();
-  		var elapsed = cur - startTime;
-  		
+  		elapsed = cur - startTime;
+  		if (Math.abs(cur - prevTick) > 500) { //our system time is messed up, need to reset
+  			console.log(prevTick);
+  			console.log(cur);
+  			console.log((cur - prevTick) + ' asking server');
+  			getMatchTime();
+  			return; //we are giving up on this tick
+  		}
+  		prevTick = cur;
   		if(timeout){
   			var left = ( timeoutLength + (allianceTO * allianceTimeoutLength) -elapsed );
   			display( left  / 1000 , "W");
@@ -1634,6 +1701,7 @@
   				buzzerSound.play();
   				display(0, "W");
   				window.clearInterval(timerInstance);
+  				timerInstance = null;
   				return;
   			}
   			//display alliance timeout window
@@ -1713,6 +1781,7 @@
   				}, 4000);
   			#end
   			window.clearInterval(timerInstance);
+  			timerInstance = null;
   			timeout = false;
   			allianceTO = 0;
   			return;
