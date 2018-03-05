@@ -1685,7 +1685,7 @@
   		}
   		var cur = new Date().getTime();
   		elapsed = cur - startTime;
-  		if (cur - prevTick > 150) { //our system time is messed up, need to reset
+  		if (Math.abs(cur - prevTick) > 500) { //our system time is messed up, need to reset
   			console.log(prevTick);
   			console.log(cur);
   			console.log((cur - prevTick) + ' asking server');
