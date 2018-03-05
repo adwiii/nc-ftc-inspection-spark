@@ -20,7 +20,7 @@
 
   		//if preview button not available - in match, not committed
   		//Else if random is red - bad state 
-  		if(document.getElementById("previewBtn").disabled){
+  		if(document.getElementById("previewBtn").disabled || !document.getElementById("commitBtn").disabled){
   			return "DANGER! Leaving this page will result in loss of current match scores!";
   		} 
   		if(document.getElementById("randomBtn").getAttribute("state") == "warn"){
@@ -200,12 +200,15 @@
   			success: function(data){
   				getCurrentMatchData();
   				//only preview is available, reset manual random, timeout, load test match buttons.
+  				
+  				/*
   				var postBtn = document.getElementById("postBtn");
 				postBtn.setAttribute("state","off");
 				postBtn.disabled = true;
 				var commitBn = document.getElementById("commitBtn");
 				commitBtn.setAttribute("state", "off");
 				commitBtn.disabled = true;
+				*/
 				var preview = document.getElementById("previewBtn");
 				preview.setAttribute("state", "ready");
 				preview.disabled = false;
@@ -543,6 +546,25 @@ function endMatch(){
 	var rand = document.getElementById("randomBtn");
 	rand.innerHTML = "Randomize";
 	
+	//UNDO LOCKOUT
+  		var tabs = document.getElementsByClassName("tabButton");
+  		for(var i = 0; i < tabs.length; i++){
+  			tabs[i].setAttribute("state", "ready");
+  			tabs[i].disabled = false;
+  		}
+  		var btn = document.getElementById("match-1");
+  		btn.setAttribute("state", "ready");
+  		btn.disabled = false;
+  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < toBtns.length; i++){
+  			toBtns[i].setAttribute("state", "ready");
+  			toBtns[i].disabled = false;
+  		}
+  		var randBtns = document.getElementById("externalRandomize").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < randBtns.length; i++){
+  			randBtns[i].setAttribute("state", "warn");
+  		}
+	
 	waitForRefReview();
 	
 }
@@ -722,20 +744,7 @@ function commit(){
 		
 		
 		
-		//UNDO LOCKOUT
-  		var tabs = document.getElementsByClassName("tabButton");
-  		for(var i = 0; i < tabs.length; i++){
-  			tabs[i].setAttribute("state", "ready");
-  			tabs[i].disabled = false;
-  		}
-  		var btn = document.getElementById("match-1");
-  		btn.setAttribute("state", "ready");
-  		btn.disabled = false;
-  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
-  		for(var i = 0; i < toBtns.length; i++){
-  			toBtns[i].setAttribute("state", "ready");
-  			toBtns[i].disabled = false;
-  		}
+		
   		
 		
 		setControlState(true);

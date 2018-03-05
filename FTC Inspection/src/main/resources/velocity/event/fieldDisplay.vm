@@ -1478,6 +1478,7 @@
   		//$("#body").css("top", ($("body").height() - zoom * $("body").height()) / 2);
     	getTimerCommand();
     	getDisplayCommand();
+    	getMatchInfo();
 	});
 	
 	function getTimerCommand()
@@ -1747,8 +1748,10 @@
             	if(data[0] == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
+            		stopScores = true;
             		#if(!$ad)getMatchInfo();#end
             	} else if(data[0] == 'SHOW_MATCH'){
+            		getMatchInfo();
             		showMatch();
             	} else if(data[0] == 'STOP_SCORE_UPDATES'){
             		stopScores = true;

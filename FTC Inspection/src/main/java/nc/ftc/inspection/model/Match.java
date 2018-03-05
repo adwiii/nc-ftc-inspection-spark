@@ -43,11 +43,15 @@ public class Match {
 	}
 	
 	public static transient final Match TEST_MATCH;
+	public static transient final Match TEST_MATCH2; // needed for parallel test matches.
 	
 	static {
 		Alliance red = new Alliance(-1, -2);
 		Alliance blue = new Alliance(-3,-4);
+		Alliance red2 = new Alliance(-1, -2);
+		Alliance blue2 = new Alliance(-3,-4);
 		TEST_MATCH = new Match(-1, red, blue, "Test Match");
+		TEST_MATCH2 = new Match(-1, red2, blue2, "Test Match");
 	}
 	
 	public Match(int num, Alliance red, Alliance blue){

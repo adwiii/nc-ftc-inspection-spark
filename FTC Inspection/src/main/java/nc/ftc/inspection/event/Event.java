@@ -85,20 +85,21 @@ public class Event {
 //		currentMatch = nextMatch;
 //	}
 	
-	private void loadTestMatch() {
-		currentMatch = Match.TEST_MATCH;
-		currentMatch.refLockout = false;
-		currentMatch.setStatus( MatchStatus.PRE_RANDOM);
-		currentMatch.clearRandom();
-		currentMatch.clearSubmitted();
-		currentMatch.getRed().initializeScores();
-		currentMatch.getBlue().initializeScores();
-		log.info("Loaded Test Match");
+	private void resetTestMatch(Match m) {
+		m.refLockout = false;
+		m.setStatus( MatchStatus.PRE_RANDOM);
+		m.clearRandom();
+		m.clearSubmitted();
+		m.getRed().initializeScores();
+		m.getBlue().initializeScores();
+		log.info("Reset Test Match");
 	}
 	public void loadNextMatch(){
 		timer.started = false;
-		if(currentMatch != null && currentMatch == Match.TEST_MATCH) {
-			loadTestMatch();
+		if(currentMatch != null && currentMatch.getNumber() == -1) {
+			Match n = currentMatch == Match.TEST_MATCH ? Match.TEST_MATCH2 : Match.TEST_MATCH;
+			resetTestMatch(n);
+			nextMatch = n;
 			return;
 		}
 		previousMatch = currentMatch;
@@ -122,7 +123,7 @@ public class Event {
 		} else {
 			nextMatch = loadingMatch;
 			nextMatch.setStatus(MatchStatus.PRE_RANDOM);
-			log.info("Staged match #"+currentMatch.getNumber());
+			log.info("Staged match #"+nextMatch.getNumber());
 		}
 		
 		
@@ -147,17 +148,33 @@ public class Event {
 	
 	public void loadMatch(int num) {
 		timer.started = false;
-		Match temp = currentMatch;
-		currentMatch = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num, data.getStatus() >= EventData.ELIMS);
+		Match temp = num == -1 ? Match.TEST_MATCH : EventDAO.getMatch(data.getCode(), num, data.getStatus() >= EventData.ELIMS);
+		previousMatch = currentMatch;
 		if(currentMatch == null) {
 			currentMatch = temp;
-		} else {
-			if(currentMatch == Match.TEST_MATCH) {
-				loadTestMatch();
-			}				
-			previousMatch = currentMatch;
 			currentMatch.setStatus(MatchStatus.PRE_RANDOM);
-			log.info("Loaded "+currentMatch.getName());
+			if(currentMatch.isElims()) { //for breakdown calc
+				fillCardCarry(currentMatch);
+			}
+			log.info("Loaded match #"+currentMatch.getNumber());
+		} else {
+			//if current match has not been randomized, discard it.
+			if(currentMatch.getStatus() == MatchStatus.PRE_RANDOM) {
+				currentMatch = null;
+				loadMatch(num);
+				return;
+			}
+			if(temp == Match.TEST_MATCH) {
+				if(currentMatch.getNumber() == -1) {
+					temp = currentMatch == Match.TEST_MATCH ? Match.TEST_MATCH2 : Match.TEST_MATCH;
+				} else {
+					temp = Match.TEST_MATCH;
+				}
+				resetTestMatch(temp);
+			}		
+			nextMatch = temp;
+			nextMatch.setStatus(MatchStatus.PRE_RANDOM);
+			log.info("Staged "+nextMatch.getName());
 		}
 		
 	}

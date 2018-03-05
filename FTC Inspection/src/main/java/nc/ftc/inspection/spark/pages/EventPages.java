@@ -720,6 +720,7 @@ public class EventPages {
 			Match m = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
 			if(m.getStatus() != MatchStatus.PRE_RANDOM && m.getStatus() != MatchStatus.AUTO) {
 				response.status(500);
+				log.warn("Failed Radnomization: Invalid match phase ({}) for {}", m.getStatus(), event);
 				return "Invalid match phase.";
 			}
 			int val = 0;
@@ -733,6 +734,7 @@ public class EventPages {
 			synchronized(e.waitForRandomLock) {
 				e.waitForRandomLock.notifyAll();
 			}
+			log.info("Randomized {} to {}", m.getName(), r);
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_RANDOM);
 			m.setStatus(MatchStatus.AUTO);
 			return "{\"rand\":\"" + r +"\"}";
@@ -850,15 +852,16 @@ public class EventPages {
 				response.status(500);
 				return "";
 			}
-			if(event.getCurrentMatch().isRandomized()){
-				return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
+			Match m = event.isMatchStaged() ? event.getStagedMatch() : event.getCurrentMatch();
+			if(m.isRandomized()){
+				return "{\"rand\":\"" + m.getRandomization() +"\"}";
 			}
 			//Not yet randomized. Wait until it is.
 			//TODO some form of timeout? half an hour? - just put in .wait(ms) call
 			synchronized(event.waitForRandomLock){
 				event.waitForRandomLock.wait();
 			}
-			return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
+			return "{\"rand\":\"" + m.getRandomization() +"\"}";
 		};
 		
 		
@@ -1539,7 +1542,7 @@ public class EventPages {
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				//TODO for elims, dont do rank check, do series record check & generate new matches or cancel matches
-				if(e.getData().getStatus() == EventData.ELIMS) {
+				if(e.getCurrentMatch().isElims()) {
 					handleElimsUpdate(event, e.getCurrentMatch());	
 					Alliance red = match.getRed();
 					Alliance blue = match.getBlue();
@@ -1658,7 +1661,7 @@ public class EventPages {
 			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
 			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
 			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
-			if(e.getData().getStatus() == EventData.ELIMS && m != Match.TEST_MATCH) {
+			if(e.getData().getStatus() == EventData.ELIMS && m.getNumber() > 0) {//not a test match
 				res += "\"red3\":"+red.getTeam3() +",";
 				res += "\"blue3\":"+blue.getTeam3() +",";
 				res += "\"red3Name\":\""+GlobalDAO.getTeamName(red.getTeam3()) +"\",";
@@ -2158,7 +2161,11 @@ public class EventPages {
 				response.status(400);
 				return "Event not active";
 			}
+			if(e.isMatchStaged()) {
+				e.loadStagedMatch();
+			}
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_MATCH);
+			
 			return "OK";
 		};
 		
