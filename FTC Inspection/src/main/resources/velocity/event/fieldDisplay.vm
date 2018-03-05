@@ -1514,7 +1514,21 @@
  	 					countFlag = false;
   						teleopFlag = false;
   	    				endgameFlag = false;
-  						getScoreUpdate(false);
+  	    				getMatchInfo();
+  						 $.ajax({
+				                url: "../random/",
+				                type: "GET",
+				                dataType: 'json',
+				                success: function (data) {
+				                    rand=data.rand;
+  									getScoreUpdate(false);
+				                },
+				                error: function () {
+				                	//try scores anyway.
+  									getScoreUpdate(false);
+				                    //ERROR HANDLING
+				                    console.log("Error");
+				                  }});
   						var tmr = document.getElementById("timer");
   						showMatch();
   					} else if (xhr.status == 209) { //we laoded a page with the match paused
