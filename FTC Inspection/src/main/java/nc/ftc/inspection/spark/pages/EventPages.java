@@ -212,6 +212,9 @@ public class EventPages {
 		String formID = request.params("form").toUpperCase();
 		String team = request.queryParams("team");
 		String teams = request.queryParams("teams");
+		if(Server.activeEvents.get(eventCode) == null) {
+			return noData(request, "Inspection");
+		}
 		return inspectionPage(request, response, false, eventCode, formID, team, teams, plain);
 	};
 	public static Route serveInspectionPageReadOnly = (Request request, Response response) ->{
@@ -2025,6 +2028,8 @@ public class EventPages {
 			Event eventData = Server.activeEvents.get(event);
 			if (eventData != null) {
 				eventName = eventData.getData().getName();
+			} else {
+				return noData(request, "Inspection");
 			}
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECT_HOME);
@@ -2126,7 +2131,9 @@ public class EventPages {
 			if (e != null) {
 				eventName = e.getData().getName();
 				map.put("teams", EventDAO.getStatus(eventCode, form));
-			} 
+			}  else {
+				return noData(request, "Inspection");
+			}
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECTION_OVERRIDE_PAGE);
 		};
