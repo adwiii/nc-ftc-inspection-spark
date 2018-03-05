@@ -1984,9 +1984,10 @@
 		} else{
 		  	document.getElementById("blueWing").setAttribute("teams","2");		
 			document.getElementById("redWing").setAttribute("teams","2");			
-			
-			document.getElementById("blueOverlayWings").setAttribute("teams", "2");
-			document.getElementById("redOverlayWings").setAttribute("teams", "2");
+			#if($overlay)
+				document.getElementById("blueOverlayWings").setAttribute("teams", "2");
+				document.getElementById("redOverlayWings").setAttribute("teams", "2");
+			#end
 		}
 		
 		setTop(data.name);
