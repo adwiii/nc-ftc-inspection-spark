@@ -9,6 +9,10 @@
 <html>
 <style>
 /* This is all common to the field display */
+	@font-face {
+		font-family: "Arial Black";
+		src: url("/fonts/Arial Black.ttf");
+	}
 	#top{
 		position:absolute;
 		top:30px;
