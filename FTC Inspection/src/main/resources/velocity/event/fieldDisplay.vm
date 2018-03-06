@@ -1523,7 +1523,9 @@
 						timeout = false;
 						firstTickSinceReload = true;
 	  					stopScores = false;
-  						timerInstance = setInterval(tick, 50);
+	  					#if(!$noTimer)
+  							timerInstance = setInterval(tick, 50);
+  						#end
   						paused = false;
   						endAutoFlag = false;
  	 					countFlag = false;
@@ -1612,8 +1614,10 @@
   		stopScores = false;
   		startTime = new Date().getTime();
   		prevTick = startTime;
-  		timerInstance = setInterval(tick, 50);
-  		startSound.play();
+  		#if(!$noTimer)
+  			timerInstance = setInterval(tick, 50);
+  			startSound.play();
+  		#end
   		paused = false;
   		endAutoFlag = false;
  	 	countFlag = false;
@@ -1639,7 +1643,9 @@
   		paused = false;
   	}
   	function reset(){
-  		foghornSound.play();
+  		#if(!$noTimer)
+  			foghornSound.play();
+  		#end
   		stopScores = true;
   		window.clearInterval(timerInstance);
   		timerInstance = null;
