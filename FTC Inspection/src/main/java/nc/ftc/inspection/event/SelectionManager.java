@@ -272,6 +272,6 @@ public class SelectionManager {
 		EventDAO.createElimsMatches(event.getData().getCode(), matches);
 		event.getData().setStatus(EventData.ELIMS);
 		EventDAO.setEventStatus(event.getData().getCode(), EventData.ELIMS);
-		event.loadNextMatch();
+		event.loadMatch(1);
 	}
 }

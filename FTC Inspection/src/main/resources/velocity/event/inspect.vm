@@ -34,6 +34,9 @@ function update(src){ //TODO move this to a separate js file.
     });
 }
 
+function unsavedComment(team) {
+	document.getElementById("comment_info_" + team).innerHTML = "Unsaved changes";
+}
 function saveNote(src){
 	var t = src.getAttribute("team");
 	var ta =  document.getElementById("note_"+t);
@@ -44,11 +47,13 @@ function saveNote(src){
         data: obj,
         success: function (data) {    
         	ta.bgColor = "#FFFFFF";  
+        	document.getElementById("comment_info_" + t).innerHTML = "Comment saved";
         },
         error: function () {
             //ERROR HANDLING
             console.log("Error");
             ta.bgColor = "#FF0000";
+            document.getElementById("comment_info_" + t).innerHTML = "Error saving comment";
         }
      });
 }
@@ -59,17 +64,22 @@ function saveSig(src){
 	var field = document.getElementById(person+"_"+t);
 	var obj = {team:t, index:person=='insp'?0:1, sig:field.value}; 
 	src.setAttribute("agreed","true");
+	var ack = document.getElementById(src.id + "ack");
 	$.ajax({
         url: "./sig/",
         type: "PUT",
         data: obj,
         success: function (data) {    
         	field.bgColor = "#FFFFFF";   
+        	ack.style.color = "#008000";
+        	ack.innerHTML = "Signature Saved"; //show check mark next to button to acknowledge press
         },
         error: function () {
             //ERROR HANDLING
             console.log("Error");
             field.bgColor = "#FF0000";
+            ack.style.color = "#FF0000";
+            ack.innerHTML = "Error sending signature";
         }
      });
 }
@@ -237,8 +247,9 @@ Appendix
 		<fieldset>
 		<legend>Team $t</legend>
 		<b>General Comments or Reasons for Failure:</b>
-		<br><textarea id="note_$t" rows=4 style="width:100%;">$notes.get($j)</textarea>
+		<br><textarea id="note_$t" rows=4 style="width:100%;" oninput="unsavedComment($t)">$notes.get($j)</textarea>
 		<button team=$t onclick="saveNote(this)">Save</button>
+		<p id="comment_info_$t">&nbsp;</p>
 		<br><br><b>
 		I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
 		</b>
@@ -271,9 +282,10 @@ Appendix
 #else
 	#set($t = $teams.get(0))
 	<br><b>General Comments or Reason(s) for Failure:</b>
-	<br><textarea id="note_$teams.get(0)" rows=4 style="width:100%;"  #if($readOnly)disabled#end>$notes.get(0)</textarea>
+	<br><textarea id="note_$teams.get(0)" rows=4 style="width:100%;"  #if($readOnly)disabled#else oninput="unsavedComment($t)" #end>$notes.get(0)</textarea>
 	#if(!$readOnly)
-	<button team=$t onclick="saveNote(this)">Save</button>
+		<button team=$t onclick="saveNote(this)">Save</button>
+		<p id="comment_info_$t">&nbsp;</p>
 	#end
 	<br><br><b>
 	I hereby state that all the above is true, and to the best of my knowledge all rules and regulations of the FIRST<sup>®</sup> Tech Challenge have been abided by.
@@ -282,11 +294,11 @@ Appendix
 		<tr><td>Inspector</td><td>Team Student Representative</td></tr>
 		<tr><td><input id="insp_$t" value="$sigs.get(0)" #if($readOnly)disabled#end></input>
 			#if(!$readOnly)
-			<button id="insp_${t}but" team=$t person="insp" onclick="saveSig(this)" agreed=false>Agree</button></td>
+			<button id="insp_${t}but" team=$t person="insp" onclick="saveSig(this)" agreed=false>Agree</button><p id="insp_${t}butack">&nbsp;</p></td>
 			#end
 			<td><input id="tsr_$t" value="$sigs.get(1)"  #if($readOnly)disabled#end></input>
 			#if(!$readOnly)
-			<button id="tsr_${t}but" team=$t person="tsr"  onclick="saveSig(this)" agreed=false>Agree</button></td></tr>
+			<button id="tsr_${t}but" team=$t person="tsr"  onclick="saveSig(this)" agreed=false>Agree</button><p id="tsr_${t}butack">&nbsp;</p></td></tr>
 			#end
 	</table>
 	<br><br>

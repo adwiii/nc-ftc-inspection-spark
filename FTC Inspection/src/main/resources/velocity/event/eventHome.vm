@@ -56,9 +56,9 @@
 </h2>
 <ul>
 	<li>
-		<a href="../ref/blue">Blue Alliance Referee/Score Tracker</a>
+		<a href="../ref/blue/idle">Blue Alliance Referee/Score Tracker</a>
 	</li><li>
-		<a href="../ref/red">Red Alliance Referee/Score Tracker</a>
+		<a href="../ref/red/idle">Red Alliance Referee/Score Tracker</a>
 	</li>
 </ul>
 #end
@@ -81,6 +81,8 @@
 		<a href="../audience/">Audience Display</a>
 	</li><li>
 		<a href="../audience/?flip=true">Audience Display (Flipped)</a>
+	</li><li>
+		<a href="../audience/?notimer=true">Audience Display (No Timer)</a>
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li><li>
