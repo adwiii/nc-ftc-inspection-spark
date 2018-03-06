@@ -72,6 +72,7 @@ public class Timer {
 						if(elapsed() > 158000) {
 							//end of match
 							event.getCurrentMatch().setStatus(MatchStatus.REVIEW);
+							event.loadNextMatch();
 							synchronized(waitForEndLock) {
 								waitForEndLock.notifyAll();
 							}

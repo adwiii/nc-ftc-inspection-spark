@@ -717,8 +717,10 @@ public class EventPages {
 				return "Match already randomized!";
 			}
 			*/
-			if(e.getCurrentMatch().getStatus() != MatchStatus.PRE_RANDOM && e.getCurrentMatch().getStatus() != MatchStatus.AUTO) {
+			Match m = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
+			if(m.getStatus() != MatchStatus.PRE_RANDOM && m.getStatus() != MatchStatus.AUTO) {
 				response.status(500);
+				log.warn("Failed Radnomization: Invalid match phase ({}) for {}", m.getStatus(), event);
 				return "Invalid match phase.";
 			}
 			int val = 0;
@@ -727,12 +729,14 @@ public class EventPages {
 			}catch(Exception e2) {
 				//no param
 			}
-			int r = e.getCurrentMatch().randomize(val);
+			
+			int r = m.randomize(val);
 			synchronized(e.waitForRandomLock) {
 				e.waitForRandomLock.notifyAll();
 			}
+			log.info("Randomized {} to {}", m.getName(), r);
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_RANDOM);
-			e.getCurrentMatch().setStatus(MatchStatus.AUTO);
+			m.setStatus(MatchStatus.AUTO);
 			return "{\"rand\":\"" + r +"\"}";
 		};
 		
@@ -745,7 +749,12 @@ public class EventPages {
 			if(e.getCurrentMatch() == null){
 				return null;
 			}
-			if(!e.getCurrentMatch().isRandomized()){
+			if(e.isMatchStaged()) {
+				if(!e.getStagedMatch().isRandomized()){
+					response.status(500);
+					return "Match not randomized!";
+				}
+			} else if(!e.getCurrentMatch().isRandomized()){
 				response.status(500);
 				return "Match not randomized!";
 			}
@@ -843,15 +852,16 @@ public class EventPages {
 				response.status(500);
 				return "";
 			}
-			if(event.getCurrentMatch().isRandomized()){
-				return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
+			Match m = event.isMatchStaged() ? event.getStagedMatch() : event.getCurrentMatch();
+			if(m.isRandomized()){
+				return "{\"rand\":\"" + m.getRandomization() +"\"}";
 			}
 			//Not yet randomized. Wait until it is.
 			//TODO some form of timeout? half an hour? - just put in .wait(ms) call
 			synchronized(event.waitForRandomLock){
 				event.waitForRandomLock.wait();
 			}
-			return "{\"rand\":\"" + event.getCurrentMatch().getRandomization() +"\"}";
+			return "{\"rand\":\"" + m.getRandomization() +"\"}";
 		};
 		
 		
@@ -1564,7 +1574,7 @@ public class EventPages {
 			}
 			if(EventDAO.commitScores(event, e.getCurrentMatch())){
 				//TODO for elims, dont do rank check, do series record check & generate new matches or cancel matches
-				if(e.getData().getStatus() == EventData.ELIMS) {
+				if(e.getCurrentMatch().isElims()) {
 					handleElimsUpdate(event, e.getCurrentMatch());	
 					Alliance red = match.getRed();
 					Alliance blue = match.getBlue();
@@ -1603,8 +1613,12 @@ public class EventPages {
 						d.blue2Dif = 0;
 					}
 				}
-				
-				e.loadNextMatch();
+				e.getCurrentMatch().setStatus(MatchStatus.POST_COMMIT);
+				if(e.isMatchStaged()) { //this will handle the case where finals match not created yet in else.
+					e.loadStagedMatch();
+				} else {
+					e.loadNextMatch();
+				}
 			}
 			return "OK";
 		};
@@ -1659,7 +1673,8 @@ public class EventPages {
 				response.status(200);
 				return "{}";
 			}
-			Match m = e.getCurrentMatch();
+			Match m = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
+			log.info("Returning info for match " + m.getName());
 			Alliance red = m.getRed();
 			Alliance blue = m.getBlue();
 			//TODO fix this an dmake it not suck!
@@ -1678,7 +1693,7 @@ public class EventPages {
 			res += "\"red2Rank\":"+e.getRank(red.getTeam2())+",";
 			res += "\"blue1Rank\":"+e.getRank(blue.getTeam1())+",";
 			res += "\"blue2Rank\":"+e.getRank(blue.getTeam2()) +",";
-			if(e.getData().getStatus() == EventData.ELIMS && m != Match.TEST_MATCH) {
+			if(e.getData().getStatus() == EventData.ELIMS && m.getNumber() > 0) {//not a test match
 				res += "\"red3\":"+red.getTeam3() +",";
 				res += "\"blue3\":"+blue.getTeam3() +",";
 				res += "\"red3Name\":\""+GlobalDAO.getTeamName(red.getTeam3()) +"\",";
@@ -2178,7 +2193,11 @@ public class EventPages {
 				response.status(400);
 				return "Event not active";
 			}
+			if(e.isMatchStaged()) {
+				e.loadStagedMatch();
+			}
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_MATCH);
+			
 			return "OK";
 		};
 		
