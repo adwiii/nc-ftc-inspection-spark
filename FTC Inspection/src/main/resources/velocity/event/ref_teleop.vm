@@ -366,11 +366,11 @@ function rgb2hex(rgb) {
 	
 <tr><td class="left"><label>Robots Balanced:</label></td>
 <td class="right nowrap absorbing-column">
-<table style="width:100%"><tr>
-	<td class="nowrap" style="width:33%"><label for="bal1">0</label><input type="radio" id="bal1" name="balanced" value="0" #if($balanced == 0)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="bal2">1</label><input type="radio" id="bal2" name="balanced" value="1" #if($balanced == 1)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="bal3">2</label><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/></td>
-	</tr></table>	
+<table style="width:100%">
+	<tr><td class="nowrap" style="width:33%"><label for="bal1">0</label><input type="radio" id="bal1" name="balanced" value="0" #if($balanced == 0)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="bal2">1</label><input type="radio" id="bal2" name="balanced" value="1" #if($balanced == 1)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="bal3">2</label><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/></td></tr>
+	</table>	
 </td></tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>

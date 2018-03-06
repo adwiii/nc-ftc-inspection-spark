@@ -414,13 +414,13 @@ function hex(x) {
 </tr>
 <tr><td class="left"><label>Robots Parked:</label></td>
 	<td class="right nowrap absorbing-column">
-	<table style="width:100%"><tr>
-	<td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td>
-	</tr></table>
+	<table style="width:100%">
+	<tr><td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td></tr>
+	</table>
 </td></tr>
-<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
+<tr><td class="right"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
 <input type="submit" value="Submit Auto" onclick="submit()">

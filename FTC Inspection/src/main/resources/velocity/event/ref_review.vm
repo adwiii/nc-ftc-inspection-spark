@@ -218,21 +218,21 @@
 <tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs "24")autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
 	<td class="right nowrap absorbing-column">
-	<table style="width:100%"><tr>
-		<td class="nowrap" style="width:33%"><label for="gk1">0</label><input id="gk1" type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/></td>
-		<td class="nowrap" style="width:33%"><label for="gk2">1</label><input id="gk2" type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/></td>
-		<td class="nowrap" style="width:33%"><label for="gk3">2</label><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/></td>
-	</tr></table>
+	<table style="width:100%">
+		<tr><td class="nowrap" style="width:33%"><label for="gk1">0</label><input id="gk1" type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/></td></tr>
+		<tr><td class="nowrap" style="width:33%"><label for="gk2">1</label><input id="gk2" type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/></td></tr>
+		<tr><td class="nowrap" style="width:33%"><label for="gk3">2</label><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/></td></tr>
+	</table>
 	</td></tr>
 <tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels "4")jewel_count#end</td></tr>
 	
 <tr><td class="left"><label>Robots Parked (Auto):</label></td>
 	<td class="right nowrap absorbing-column">
-	<table style="width:100%"><tr>
-	<td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td>
-	</tr></table>
+	<table style="width:100%">
+	<tr><td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td></tr>
+	</table>
 </td></tr>
 
 <!-- TELEOP STUFF HERE-->
@@ -264,11 +264,11 @@
 
 <tr><td class="left"><label>Robots Balanced:</label></td>
 <td class="right nowrap absorbing-column">
-<table style="width:100%"><tr>
-	<td class="nowrap" style="width:33%"><label for="bal1">0</label><input type="radio" id="bal1" name="balanced" value="0" #if($balanced == 0)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="bal2">1</label><input type="radio" id="bal2" name="balanced" value="1" #if($balanced == 1)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="bal3">2</label><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/></td>
-	</tr></table>	
+<table style="width:100%">
+	<tr><td class="nowrap" style="width:33%"><label for="bal1">0</label><input type="radio" id="bal1" name="balanced" value="0" #if($balanced == 0)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="bal2">1</label><input type="radio" id="bal2" name="balanced" value="1" #if($balanced == 1)checked#end/></td></tr>
+	<tr><td class="nowrap" style="width:33%"><label for="bal3">2</label><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/></td></tr>
+	</table>	
 </td></tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor "99999")minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major "99999")major#end</td></tr>
