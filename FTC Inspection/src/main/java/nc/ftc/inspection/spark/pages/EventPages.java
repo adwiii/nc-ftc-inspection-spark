@@ -2238,8 +2238,9 @@ public class EventPages {
 			//TODO add block=false param to retrieve last command.
 			DisplayCommand cmd = e.getDisplay().blockForNextCommand();
 			int match = -1;
-			if(e.getCurrentMatch() != null) {
-				match = e.getCurrentMatch().getNumber() % 2;
+			Match mat = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
+			if(mat != null) {
+				match = mat.getNumber() % 2;
 			}
 			return cmd +","+match;
 		};
