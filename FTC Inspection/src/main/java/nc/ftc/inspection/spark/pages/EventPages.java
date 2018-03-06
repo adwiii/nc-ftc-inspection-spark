@@ -797,13 +797,25 @@ public class EventPages {
 					model.put(key, a.getScore(key));
 				}
 			}
+			if (match.getStatus() == MatchStatus.AUTO) {
+				model.put("timeLeftInAuto", 30 * 1000 - e.getTimer().elapsed());
+			}
+			if (match.getStatus() == MatchStatus.TELEOP) {
+				model.put("timeLeftInTeleop", 128 * 1000 - e.getTimer().elapsed());
+			}
 			switch(match.getStatus()){
 			case PRE_RANDOM:
 				template = Path.Template.REF_PRE_RANDOM;
 				break;
 			case AUTO:
 				//Don't serve auto until after the start of the match.
-				template = e.getTimer().isStarted() ? Path.Template.REF_AUTO : Path.Template.REF_PRE_RANDOM;
+//				template = e.getTimer().isStarted() ? Path.Template.REF_AUTO : Path.Template.REF_PRE_RANDOM;
+				if (e.getTimer().isStarted()) {
+					template = Path.Template.REF_AUTO;
+					model.put("timeLeftInAuto", Math.max(30 * 1000 - e.getTimer().elapsed(), 0));
+				} else {
+					template = Path.Template.REF_PRE_RANDOM;
+				}
 //				model.put(arg0, arg1)
 				break;
 			case AUTO_REVIEW:
@@ -815,11 +827,18 @@ public class EventPages {
 				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
-				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO;
+				if (a.autoSubmitted()) {
+					template = Path.Template.REF_TELEOP;
+				} else {
+					template = Path.Template.REF_AUTO;
+					model.put("timeLeftInAuto", Math.max(30 * 1000 - e.getTimer().elapsed(), 0));
+				}
+//				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO;
 				break;
 			case REVIEW:
 				if(!a.autoSubmitted()) {//better hurry up and do that auto
 					template = Path.Template.REF_AUTO;
+					model.put("timeLeftInAuto", Math.max(30 * 1000 - e.getTimer().elapsed(), 0));
 				} else if(a.isInReview()) {
 					template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
 				} else {

@@ -5,6 +5,37 @@
 
 #parse("/velocity/layout.vm")
 #@mainLayout()
+
+<style>
+	##Taken from https://www.w3schools.com/css/tryit.asp?filename=trycss3_animation2
+	.gameOverAnim {
+    	background-color: #FF0000;
+    	-webkit-animation-name: gameOverAnimStyle; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-iteration-count: infinite;
+    	animation-name: gameOverAnimStyle;
+	    animation-duration: 4s;
+	    animation-iteration-count: infinite;
+	}
+
+	/* Safari 4.0 - 8.0 */
+	@-webkit-keyframes gameOverAnimStyle {
+	    0%   {background-color: #FFFFFF;}
+		25% {background-color: #FF8C00;}
+		50%  {background-color: #FFFFFF;}
+		75% {background-color: #FF8C00;}
+		100%  {background-color: #FFFFFF;}
+	}
+
+	/* Standard syntax */
+	@keyframes gameOverAnimStyle {
+		0%   {background-color: #FFFFFF;}
+		25% {background-color: #FF8C00;}
+		50%  {background-color: #FFFFFF;}
+		75% {background-color: #FF8C00;}
+		100%  {background-color: #FFFFFF;}
+	}
+</style>
 <script>
 // Red  - #EE1D23
 // Blue - #0166B3
@@ -17,6 +48,9 @@
 	var noBall = '/img/ball_black.png';
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
 	var keylocNum = -1;
+	setTimeout(function() {
+ 		document.getElementById("content").classList.add('gameOverAnim');
+  	}, $timeLeftInAuto + 5000);
 	$( document ).ready(function() {
 		if (rand < 4) {
 			document.getElementById("j_1,1").src = ($jewelSet1 & 2) ? red : noBall;
