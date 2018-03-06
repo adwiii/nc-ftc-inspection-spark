@@ -5,6 +5,37 @@
 
 #parse("/velocity/layout.vm")
 #@mainLayout()
+
+<style>
+	##Taken from https://www.w3schools.com/css/tryit.asp?filename=trycss3_animation2
+	.gameOverAnim {
+    	background-color: #FF0000;
+    	-webkit-animation-name: gameOverAnimStyle; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-iteration-count: infinite;
+    	animation-name: gameOverAnimStyle;
+	    animation-duration: 4s;
+	    animation-iteration-count: infinite;
+	}
+
+	/* Safari 4.0 - 8.0 */
+	@-webkit-keyframes gameOverAnimStyle {
+	    0%   {background-color: #FFFFFF;}
+		25% {background-color: #FF8C00;}
+		50%  {background-color: #FFFFFF;}
+		75% {background-color: #FF8C00;}
+		100%  {background-color: #FFFFFF;}
+	}
+
+	/* Standard syntax */
+	@keyframes gameOverAnimStyle {
+		0%   {background-color: #FFFFFF;}
+		25% {background-color: #FF8C00;}
+		50%  {background-color: #FFFFFF;}
+		75% {background-color: #FF8C00;}
+		100%  {background-color: #FFFFFF;}
+	}
+</style>
 <script>
 // Red  - #EE1D23
 // Blue - #0166B3
@@ -17,6 +48,9 @@
 	var noBall = '/img/ball_black.png';
 	var rand = $rand; //The randomization filled in by velocity. Refresh if re-rand.
 	var keylocNum = -1;
+	setTimeout(function() {
+ 		document.getElementById("content").classList.add('gameOverAnim');
+  	}, $timeLeftInAuto + 5000);
 	$( document ).ready(function() {
 		if (rand < 4) {
 			document.getElementById("j_1,1").src = ($jewelSet1 & 2) ? red : noBall;
@@ -414,13 +448,13 @@ function hex(x) {
 </tr>
 <tr><td class="left"><label>Robots Parked:</label></td>
 	<td class="right nowrap absorbing-column">
-	<table style="width:100%"><tr>
-	<td class="nowrap" style="width:33%"><label for="park1">0</label><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">1</label><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/></td>
-	<td class="nowrap" style="width:33%"><label for="park2">2</label><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/></td>
-	</tr></table>
+	<table style="width:100%">
+	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="park1"><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/>0</label></td></tr>
+	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="park2"><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/>1</label></td></tr>
+	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="park2"><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/>2</label></td></tr>
+	</table>
 </td></tr>
-<tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
+<tr><td class="right"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor)minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major)major#end</td></tr>
 </table>
 <input type="submit" value="Submit Auto" onclick="submit()">

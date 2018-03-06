@@ -77,6 +77,7 @@ public class Path {
         public static final String RERANDOMIZE = "/event/:event/rerandomize/";
         public static final String HEAD_REF = "/event/:event/headref/";
         public static final String REF = "/event/:event/ref/:alliance/";// --> /test/ref/red/   ?
+        public static final String REF_IDLE = "event/:event/ref/:alliance/idle/";
         public static final String GET_RANDOM = "/event/:event/random/";
         //Updating vs submitting. updating is during the match. submit is after
         //need to be separate b/c both PUT and POST used on updating
@@ -104,6 +105,7 @@ public class Path {
         public static final String LOAD_MATCH = "event/:event/match/load/:match/";
         public static final String WAIT_FOR_REFS = "event/:event/match/status/reviewcomplete/";
         public static final String WAIT_FOR_MATCH_END = "event/:event/match/status/end/";
+        public static final String WAIT_FOR_COMMIT = "event/:event/match/status/commit/";
 
 		public static final String WAIT_FOR_START = "/event/:event/match/status/start/";
         public static final String GET_TIMER_COMMANDS = "/event/:event/time/command/";
@@ -210,7 +212,8 @@ public class Path {
         public static final String PIT_DISPLAY_PROJECTOR = "/velocity/event/pitProjector.vm";
         public static final String SCHEDULE_PAGE = "/velocity/event/schedule.vm";
         public static final String HEAD_REF = "/velocity/event/headRef.vm"; 
-        public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm"; 
+        public static final String REF_PRE_RANDOM = "/velocity/event/ref_preRandom.vm";
+        public static final String REF_IDLE = "/velocity/event/ref_idle.vm";
         public static final String REF_AUTO = "/velocity/event/ref_auto.vm";
         public static final String REF_AUTO_REVIEW = "/velocity/event/ref_autoReview.vm";
         public static final String REF_TELEOP = "/velocity/event/ref_teleop.vm";

@@ -20,7 +20,7 @@
 
   		//if preview button not available - in match, not committed
   		//Else if random is red - bad state 
-  		if(document.getElementById("previewBtn").disabled){
+  		if(document.getElementById("previewBtn").disabled || !document.getElementById("commitBtn").disabled){
   			return "DANGER! Leaving this page will result in loss of current match scores!";
   		} 
   		if(document.getElementById("randomBtn").getAttribute("state") == "warn"){
@@ -200,12 +200,15 @@
   			success: function(data){
   				getCurrentMatchData();
   				//only preview is available, reset manual random, timeout, load test match buttons.
+  				
+  				/*
   				var postBtn = document.getElementById("postBtn");
 				postBtn.setAttribute("state","off");
 				postBtn.disabled = true;
 				var commitBn = document.getElementById("commitBtn");
 				commitBtn.setAttribute("state", "off");
 				commitBtn.disabled = true;
+				*/
 				var preview = document.getElementById("previewBtn");
 				preview.setAttribute("state", "ready");
 				preview.disabled = false;
@@ -413,11 +416,12 @@ function randomize(r){
 		rand.setAttribute("state", "warn");
 		rand.innerHTML = "Re-Randomize";
 		var showRand = document.getElementById("showBtn");
-		showRand.disabled = false;
-		showRand.setAttribute("state", "ready");
-		var startBtn = document.getElementById("startBtn");
-		startBtn.disabled = false;
-		startBtn.setAttribute("state","ready");
+		
+		//only allow this if score has been committed
+		if(document.getElementById("commitBtn").getAttribute("state") == "off"){
+			showRand.disabled = false;
+			showRand.setAttribute("state", "ready");
+		}
 		
 		//COMMENCE LOCKOUT
 		//Only force tab if not in score tab or settings tab
@@ -453,7 +457,11 @@ function randomize(r){
 
 function setDisplay(){
 var postObj = {};
-	$.post("../display/match/",postObj).done(function(data){}).fail( function(xhr, textStatus, errorThrown) {
+	$.post("../display/match/",postObj).done(function(data){
+		var startBtn = document.getElementById("startBtn");
+		startBtn.disabled = false;
+		startBtn.setAttribute("state","ready");
+	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
 }
@@ -530,6 +538,33 @@ function endMatch(){
 	var commitBn = document.getElementById("commitBtn");
 	commitBtn.setAttribute("state", "back");
 	commitBtn.disabled = false;
+	
+	var previewBtn = document.getElementById("previewBtn");
+	previewBtn.setAttribute("state", "ready");
+	previewBtn.disabled = false;
+	
+	var rand = document.getElementById("randomBtn");
+	rand.innerHTML = "Randomize";
+	
+	//UNDO LOCKOUT
+  		var tabs = document.getElementsByClassName("tabButton");
+  		for(var i = 0; i < tabs.length; i++){
+  			tabs[i].setAttribute("state", "ready");
+  			tabs[i].disabled = false;
+  		}
+  		var btn = document.getElementById("match-1");
+  		btn.setAttribute("state", "ready");
+  		btn.disabled = false;
+  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < toBtns.length; i++){
+  			toBtns[i].setAttribute("state", "ready");
+  			toBtns[i].disabled = false;
+  		}
+  		var randBtns = document.getElementById("externalRandomize").getElementsByClassName("matchControlButton");
+  		for(var i = 0; i < randBtns.length; i++){
+  			randBtns[i].setAttribute("state", "warn");
+  		}
+	
 	waitForRefReview();
 	
 }
@@ -700,23 +735,16 @@ function commit(){
 		var preview = document.getElementById("previewBtn");
 		preview.setAttribute("state", "ready");
 		preview.disabled = false;
-		var rand = document.getElementById("randomBtn");
-		rand.innerHTML = "Randomize";
 		
-		//UNDO LOCKOUT
-  		var tabs = document.getElementsByClassName("tabButton");
-  		for(var i = 0; i < tabs.length; i++){
-  			tabs[i].setAttribute("state", "ready");
-  			tabs[i].disabled = false;
-  		}
-  		var btn = document.getElementById("match-1");
-  		btn.setAttribute("state", "ready");
-  		btn.disabled = false;
-  		var toBtns = document.getElementById("timeoutControls").getElementsByClassName("matchControlButton");
-  		for(var i = 0; i < toBtns.length; i++){
-  			toBtns[i].setAttribute("state", "ready");
-  			toBtns[i].disabled = false;
-  		}
+		if(document.getElementById("randomBtn").getAttribute("state") == "warn"){
+			var showRand = document.getElementById("showBtn");
+			showRand.disabled = false;
+			showRand.setAttribute("state", "ready");
+		}
+		
+		
+		
+		
   		
 		
 		setControlState(true);

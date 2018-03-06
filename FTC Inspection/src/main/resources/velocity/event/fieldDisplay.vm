@@ -173,6 +173,10 @@
  
 <html>
 	<style>
+	@font-face {
+		font-family: "Arial Black";
+		src: url("/fonts/Arial Black.ttf");
+	}
 	#top{
 		position:absolute;
 		top:30px;
@@ -202,6 +206,9 @@
 	}
 	
 	.timerImage{
+		#if($noTimer)
+			display:none;
+		#end
 		max-width:33%;
 		max-height:100%;
 	}
@@ -229,6 +236,9 @@
 		border:2px solid black;
 	}
 	#progress{
+		#if($noTimer)
+			display:none;
+		#end
 		height:100%;
 		background-color:green;
 		border-radius: 0px 15px 15px 0px;
@@ -1176,30 +1186,31 @@
 	.gameOverAnim {
     	background-color: #FF0000;
     	-webkit-animation-name: gameOverAnimStyle; /* Safari 4.0 - 8.0 */
-    	-webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-duration: 3s; /* Safari 4.0 - 8.0 */
+    	-webkit-animation-iteration-count: 2;
     	animation-name: gameOverAnimStyle;
-	    animation-duration: 4s;
+	    animation-duration: 3s;
+	    animation-iteration-count: 2;
 	}
 
 	/* Safari 4.0 - 8.0 */
 	@-webkit-keyframes gameOverAnimStyle {
 	    0%   {background-color: #FF0000;}
-		20% {background-color: #FF7777;}
-		40%  {background-color: #FF0000;}
-		60% {background-color: #FF7777;}
-		80%  {background-color: #FF0000;}
-		100% {background-color: #FF7777;}
+		25% {background-color: #FF7777;}
+		50%  {background-color: #FF0000;}
+		75% {background-color: #FF7777;}
+		100%  {background-color: #FF0000;}
 	}
 
 	/* Standard syntax */
 	@keyframes gameOverAnimStyle {
 		0%   {background-color: #FF0000;}
-		20% {background-color: #FF7777;}
-		40%  {background-color: #FF0000;}
-		60% {background-color: #FF7777;}
-		80%  {background-color: #FF0000;}
-		100% {background-color: #FF7777;}
+		25% {background-color: #FF7777;}
+		45%  {background-color: #FF0000;}
+		75% {background-color: #FF7777;}
+		100%  {background-color: #FF0000;}
 	}
+	
 	</style>
 
 <body>
@@ -1207,6 +1218,8 @@
 	<script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
+  	
+  	<font face="Arial Black Custom"></font>
   	
   	<audio preload="auto" id="charge">
   	<source src="/audio/charge.wav" type="audio/wav">
@@ -1453,6 +1466,7 @@
   	var countFlag = false;
   	var teleopFlag = false;
   	var endgameFlag = false; 
+  	var firstTickSinceReload = false;
   	var rand;
   	
   	var stopScores = false;
@@ -1481,6 +1495,7 @@
   		//$("#body").css("top", ($("body").height() - zoom * $("body").height()) / 2);
     	getTimerCommand();
     	getDisplayCommand();
+   // 	getMatchInfo();
     	getMatchTime();
 	});
 	
@@ -1494,7 +1509,7 @@
 			dataType: 'json',
 			success: function(data, textStatus, xhr){
 				if (xhr.status != 200 && xhr.status != 209) {
-					return 160*1000; //we are not in a match and we are not paused, so give up
+					return 158*1000; //we are not in a match and we are not paused, so give up
 				}
 				// the data is the elapsed time in ms. We think the current elapsed time is actually
 				// what the server says plus half of the elapsed time to account for network lag
@@ -1506,27 +1521,45 @@
 				if (timerInstance == null) { 
 					if (xhr.status == 200) {//we loaded a page in the middle of a match, start the timer
 						timeout = false;
+						firstTickSinceReload = true;
 	  					stopScores = false;
-  						timerInstance = setInterval(tick, 50);
+	  					#if(!$noTimer)
+  							timerInstance = setInterval(tick, 50);
+  						#end
   						paused = false;
   						endAutoFlag = false;
  	 					countFlag = false;
   						teleopFlag = false;
   	    				endgameFlag = false;
-  						getScoreUpdate(false);
+  	    				getMatchInfo();
+  						 $.ajax({
+				                url: "../random/",
+				                type: "GET",
+				                dataType: 'json',
+				                success: function (data) {
+				                    rand=data.rand;
+  									getScoreUpdate(false);
+				                },
+				                error: function () {
+				                	//try scores anyway.
+  									getScoreUpdate(false);
+				                    //ERROR HANDLING
+				                    console.log("Error");
+				                  }});
   						var tmr = document.getElementById("timer");
   						showMatch();
   					} else if (xhr.status == 209) { //we laoded a page with the match paused
   						//TODO
   					}
 				}
+				waitingForServerTime = false;
 			},
 			error:function(xhr, ajaxOptions, thrownError){
 				console.log(xhr);
 				console.log(ajaxOptions);
 				console.log(thrownError);
+				waitingForServerTime = false;
 		}});
-		waitingForServerTime = false;
 		return elapsed; //since elapsed is global this doesn't really matter
 	}
 	
@@ -1581,8 +1614,10 @@
   		stopScores = false;
   		startTime = new Date().getTime();
   		prevTick = startTime;
-  		timerInstance = setInterval(tick, 50);
-  		startSound.play();
+  		#if(!$noTimer)
+  			timerInstance = setInterval(tick, 50);
+  			startSound.play();
+  		#end
   		paused = false;
   		endAutoFlag = false;
  	 	countFlag = false;
@@ -1598,7 +1633,7 @@
   		pauseStart = new Date().getTime();
   		window.clearInterval(timerInstance);
   		timerInstance = null;
-  		paused = true;
+  		paused = true;  		
   	}
   	function resume(){
   		var offset = new Date().getTime() - pauseStart;
@@ -1608,7 +1643,9 @@
   		paused = false;
   	}
   	function reset(){
-  		foghornSound.play();
+  		#if(!$noTimer)
+  			foghornSound.play();
+  		#end
   		stopScores = true;
   		window.clearInterval(timerInstance);
   		timerInstance = null;
@@ -1736,7 +1773,9 @@
   		} else if(elapsed < 35000){
   			//end of auto, sound buzzer on first time. start 5 second pickup time
   			if(!endAutoFlag){
-  				endAutoSound.play();
+  				if (!firstTickSinceReload) {
+  					endAutoSound.play();
+  				}
   				endAutoFlag = true;
   			}
   			display(5 - (elapsed-30000)/1000, "Y");
@@ -1744,21 +1783,27 @@
   			//sound 3,2,1...
   			if(!countFlag){
   				countFlag = true;
-  				countSound.play();
+  				if (!firstTickSinceReload) {
+  					countSound.play();
+  				}
   			}
   			display(3 - (elapsed-35000)/1000, "R");
   		} else if(elapsed < 128000){
   			//start teleop on first time, sound ding ding ding
   			if(!teleopFlag){
   				teleopFlag = true;
-  				teleopSound.play();
+  				if (!firstTickSinceReload) {
+  					teleopSound.play();
+  				}
   			}
   			display(120 - (elapsed-38000)/1000, "W");
   		} else if(elapsed < 158000){
   			//Start endgame, sound train whistle
   			if(!endgameFlag){
   				endgameFlag = true;
-  				endgameSound.play();
+  				if (!firstTickSinceReload) {
+  					endgameSound.play();
+  				}
   				#if($ad2 || $overlay)
   					document.getElementById("progress").style.backgroundColor = "#FFFF00"; //yellow for endgame
   				#end
@@ -1770,21 +1815,29 @@
   		} else{
   			//End of match, sound buzzer.
   			//stop timer! (return)
-  			buzzerSound.play();
-  			display(0, "W");
-  			#if($ad2 || $overlay)
-  				document.getElementById("progress").classList.add('gameOverAnim');
-  				setTimeout(function() {
-  					document.getElementById("progress").classList.remove('gameOverAnim');
+  			if (!firstTickSinceReload) {
+  				buzzerSound.play();
+  				#if($ad2 || $overlay)
+  					document.getElementById("progress").classList.add('gameOverAnim');
+  					setTimeout(function() {
+	  					document.getElementById("progress").classList.remove('gameOverAnim');
+  						document.getElementById("progress").style.backgroundColor = "#FF0000";
+  					}, 6000);
+  				#end
+  			} else {
+  				#if($ad2 || $overlay)
   					document.getElementById("progress").style.backgroundColor = "#FF0000";
-  				}, 4000);
-  			#end
+  				#end
+  			}
+  			display(0, "W");
   			window.clearInterval(timerInstance);
   			timerInstance = null;
   			timeout = false;
   			allianceTO = 0;
+  			firstTickSinceReload = false;
   			return;
   		}
+  		firstTickSinceReload = false;
   	}
   	display(150, "W");
   	
@@ -1816,8 +1869,10 @@
             	if(data[0] == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
+            		stopScores = true;
             		#if(!$ad)getMatchInfo();#end
             	} else if(data[0] == 'SHOW_MATCH'){
+            		getMatchInfo();
             		showMatch();
             	} else if(data[0] == 'STOP_SCORE_UPDATES'){
             		stopScores = true;
@@ -1984,9 +2039,10 @@
 		} else{
 		  	document.getElementById("blueWing").setAttribute("teams","2");		
 			document.getElementById("redWing").setAttribute("teams","2");			
-			
-			document.getElementById("blueOverlayWings").setAttribute("teams", "2");
-			document.getElementById("redOverlayWings").setAttribute("teams", "2");
+			#if($overlay)
+				document.getElementById("blueOverlayWings").setAttribute("teams", "2");
+				document.getElementById("redOverlayWings").setAttribute("teams", "2");
+			#end
 		}
 		
 		setTop(data.name);

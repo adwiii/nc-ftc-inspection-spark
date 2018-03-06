@@ -206,6 +206,7 @@ public class Server {
 		get(Path.Web.WAIT_FOR_REFS, EventPages.handleWaitForRefs);
 		get(Path.Web.WAIT_FOR_START, EventPages.handleWaitForStart);
 		get(Path.Web.WAIT_FOR_MATCH_END, EventPages.handleWaitForEnd);
+		get(Path.Web.WAIT_FOR_COMMIT, EventPages.handleWaitForCommit);
 		get(Path.Web.GET_FULL_SCORESHEET, EventPages.handleGetFullScoresheet);
 		get(Path.Web.GET_FULL_SCORESHEET_PLAIN, EventPages.handleGetFullScoresheet);
 		get(Path.Web.GET_ALLIANCE_BREAKDOWN, EventPages.handleGetAllianceBreakdown);
@@ -268,6 +269,8 @@ public class Server {
 		//Ref Pages
 		before(Path.Web.REF, Filters.getAuthenticationFilter(User.REF));
 		get(Path.Web.REF, EventPages.serveRef);
+		before(Path.Web.REF_IDLE, Filters.getAuthenticationFilter(User.REF));
+		get(Path.Web.REF_IDLE, EventPages.serveIdleRef);
 		
 
 		//ADMIN Pages
