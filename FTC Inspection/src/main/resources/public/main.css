@@ -20,7 +20,10 @@ body {
     color: #333;
     background: #f9f9f9;
 }
-
+textarea {
+	background-color:	transparent;
+	background:	transparent;
+}
 h1, h2, h3, h4 {
     font-weight: 300;
     font-size:120%;
