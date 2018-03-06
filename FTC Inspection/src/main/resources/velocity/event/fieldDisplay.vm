@@ -1495,7 +1495,7 @@
 			dataType: 'json',
 			success: function(data, textStatus, xhr){
 				if (xhr.status != 200 && xhr.status != 209) {
-					return 160*1000; //we are not in a match and we are not paused, so give up
+					return 158*1000; //we are not in a match and we are not paused, so give up
 				}
 				// the data is the elapsed time in ms. We think the current elapsed time is actually
 				// what the server says plus half of the elapsed time to account for network lag
