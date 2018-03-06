@@ -636,13 +636,15 @@ public class EventDAO {
 	
 	public static List<Team> getStatus(String event, String ... columns){
 		Event e = Server.activeEvents.get(event);
-		if(e != null) {
-			if(e.teamStatusCache.get() != null) {
-				List<Team> teams = new ArrayList<Team>(e.teamStatusCache.get().values());
-				Collections.sort(teams, Comparator.comparingInt(x -> x.getNumber()));
-				return teams;
-			}
+		if(e == null) {
+			return null;
 		}
+		if(e.teamStatusCache.get() != null) {
+			List<Team> teams = new ArrayList<Team>(e.teamStatusCache.get().values());
+			Collections.sort(teams, Comparator.comparingInt(x -> x.getNumber()));
+			return teams;
+		}
+		
 		try(Connection local = getLocalDB(event)){
 			Statement stmt = local.createStatement();
 			stmt.execute(ATTACH_GLOBAL.replaceAll(":path", Server.DB_PATH));

@@ -212,6 +212,9 @@ public class EventPages {
 		String formID = request.params("form").toUpperCase();
 		String team = request.queryParams("team");
 		String teams = request.queryParams("teams");
+		if(Server.activeEvents.get(eventCode) == null) {
+			return noData(request, "Inspection");
+		}
 		return inspectionPage(request, response, false, eventCode, formID, team, teams, plain);
 	};
 	public static Route serveInspectionPageReadOnly = (Request request, Response response) ->{
@@ -720,7 +723,7 @@ public class EventPages {
 			Match m = e.isMatchStaged() ? e.getStagedMatch() : e.getCurrentMatch();
 			if(m.getStatus() != MatchStatus.PRE_RANDOM && m.getStatus() != MatchStatus.AUTO) {
 				response.status(500);
-				log.warn("Failed Radnomization: Invalid match phase ({}) for {}", m.getStatus(), event);
+				log.warn("Failed Randomization: Invalid match phase ({}) for {}", m.getStatus(), event);
 				return "Invalid match phase.";
 			}
 			int val = 0;
@@ -794,13 +797,25 @@ public class EventPages {
 					model.put(key, a.getScore(key));
 				}
 			}
+			if (match.getStatus() == MatchStatus.AUTO) {
+				model.put("timeLeftInAuto", 30 * 1000 - e.getTimer().elapsed());
+			}
+			if (match.getStatus() == MatchStatus.TELEOP) {
+				model.put("timeLeftInTeleop", 128 * 1000 - e.getTimer().elapsed());
+			}
 			switch(match.getStatus()){
 			case PRE_RANDOM:
 				template = Path.Template.REF_PRE_RANDOM;
 				break;
 			case AUTO:
 				//Don't serve auto until after the start of the match.
-				template = e.getTimer().isStarted() ? Path.Template.REF_AUTO : Path.Template.REF_PRE_RANDOM;
+//				template = e.getTimer().isStarted() ? Path.Template.REF_AUTO : Path.Template.REF_PRE_RANDOM;
+				if (e.getTimer().isStarted()) {
+					template = Path.Template.REF_AUTO;
+					model.put("timeLeftInAuto", Math.max(30 * 1000 - e.getTimer().elapsed(), 0));
+				} else {
+					template = Path.Template.REF_PRE_RANDOM;
+				}
 //				model.put(arg0, arg1)
 				break;
 			case AUTO_REVIEW:
@@ -812,11 +827,18 @@ public class EventPages {
 				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO_REVIEW;
 				break;
 			case TELEOP:
-				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO;
+				if (a.autoSubmitted()) {
+					template = Path.Template.REF_TELEOP;
+				} else {
+					template = Path.Template.REF_AUTO;
+					model.put("timeLeftInAuto", Math.max(30 * 1000 - e.getTimer().elapsed(), 0));
+				}
+//				template = a.autoSubmitted() ? Path.Template.REF_TELEOP : Path.Template.REF_AUTO;
 				break;
 			case REVIEW:
 				if(!a.autoSubmitted()) {//better hurry up and do that auto
 					template = Path.Template.REF_AUTO;
+					model.put("timeLeftInAuto", Math.max(30 * 1000 - e.getTimer().elapsed(), 0));
 				} else if(a.isInReview()) {
 					template = a.scoreSubmitted() ? Path.Template.REF_POST_SUBMIT : Path.Template.REF_REVIEW;
 				} else {
@@ -837,6 +859,21 @@ public class EventPages {
 			}
 			return render(request, model, template);
 			//return "";
+		};
+		
+		public static Route serveIdleRef = (Request request, Response response) ->{
+			Map<String, Object> model = new HashMap<>();
+			Event e = Server.activeEvents.get(request.params("event"));
+			if(e == null) {
+				return "Event not active";
+			}
+			Match match = e.getCurrentMatch();
+			if(match == null) {
+				return "No active match";
+			}
+			model.put("match", match.getName());
+			model.put("field", (match.getNumber() + 1) % 2 + 1);
+			return render(request, model, Path.Template.REF_IDLE);			
 		};
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{
@@ -1613,11 +1650,14 @@ public class EventPages {
 						d.blue2Dif = 0;
 					}
 				}
+				synchronized(e.waitForCommitLock) {
+					e.waitForCommitLock.notifyAll();
+				}
 				e.getCurrentMatch().setStatus(MatchStatus.POST_COMMIT);
 				if(e.isMatchStaged()) { //this will handle the case where finals match not created yet in else.
 					e.loadStagedMatch();
 				} else {
-					e.loadNextMatch();
+				e.loadNextMatch();
 				}
 			}
 			return "OK";
@@ -1832,6 +1872,28 @@ public class EventPages {
 			return "OK";
 		};
 		
+		public static Route handleWaitForCommit = (Request request, Response response)->{
+			String event = request.params("event");
+			Event e = Server.activeEvents.get(event);
+			if(e == null){
+				response.status(500);
+				return "Event not active.";
+			}
+			if(e.getCurrentMatch() == null){
+				response.status(200);
+				return "{}";
+			}			
+			Match m = e.getCurrentMatch();
+			if(m.getStatus() == MatchStatus.POST_COMMIT) {
+				return "OK";
+			} else {
+				synchronized(e.waitForCommitLock) {
+					e.waitForCommitLock.wait();
+				}
+			}
+			return "OK";
+		};
+		
 		public static Route serveResultsPage = (Request request, Response response) ->{
 			String event = request.params("event");
 			Event e = Server.activeEvents.get(event);
@@ -2001,6 +2063,8 @@ public class EventPages {
 			Event eventData = Server.activeEvents.get(event);
 			if (eventData != null) {
 				eventName = eventData.getData().getName();
+			} else {
+				return noData(request, "Inspection");
 			}
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECT_HOME);
@@ -2102,7 +2166,9 @@ public class EventPages {
 			if (e != null) {
 				eventName = e.getData().getName();
 				map.put("teams", EventDAO.getStatus(eventCode, form));
-			} 
+			}  else {
+				return noData(request, "Inspection");
+			}
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.INSPECTION_OVERRIDE_PAGE);
 		};
@@ -2197,7 +2263,6 @@ public class EventPages {
 				e.loadStagedMatch();
 			}
 			e.getDisplay().issueCommand(DisplayCommand.SHOW_MATCH);
-			
 			return "OK";
 		};
 		

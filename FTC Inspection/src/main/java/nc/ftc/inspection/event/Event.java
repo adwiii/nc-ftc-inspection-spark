@@ -48,6 +48,7 @@ public class Event {
 	public Object waitForRefLock = new Object();
 	public Object waitForPreviewLock = new Object();
 	public Object waitForRandomLock = new Object();
+	public Object waitForCommitLock = new Object();
 	
 	//keep null until first inspection write.
 	//this way old / noninspecting events dont create extra resources
