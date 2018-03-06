@@ -173,6 +173,10 @@
  
 <html>
 	<style>
+	@font-face {
+		font-family: "Arial Black";
+		src: url("/fonts/Arial Black.ttf");
+	}
 	#top{
 		position:absolute;
 		top:30px;
@@ -1200,6 +1204,7 @@
 		80%  {background-color: #FF0000;}
 		100% {background-color: #FF7777;}
 	}
+	
 	</style>
 
 <body>
@@ -1207,6 +1212,8 @@
 	<script src="/js/jquery-1.12.4.js"></script>
   	<script src="/js/jquery-ui.js"></script>
   	<script src="/js/general.js"></script>
+  	
+  	<font face="Arial Black Custom"></font>
   	
   	<audio preload="auto" id="charge">
   	<source src="/audio/charge.wav" type="audio/wav">
