@@ -206,6 +206,9 @@
 	}
 	
 	.timerImage{
+		#if($noTimer)
+			display:none;
+		#end
 		max-width:33%;
 		max-height:100%;
 	}
@@ -233,6 +236,9 @@
 		border:2px solid black;
 	}
 	#progress{
+		#if($noTimer)
+			display:none;
+		#end
 		height:100%;
 		background-color:green;
 		border-radius: 0px 15px 15px 0px;

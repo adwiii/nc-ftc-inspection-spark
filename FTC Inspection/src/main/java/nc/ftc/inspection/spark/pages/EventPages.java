@@ -1953,12 +1953,14 @@ public class EventPages {
 			String is43Str = request.queryParams("43");
 			String muteStr = request.queryParams("mute");
 			String isFlip = request.queryParams("flip");
+			String isNoTimer = request.queryParams("notimer");
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			map.put("ad", true);
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
 			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
 			map.put("ad2", true);
 			map.put("flip", isFlip == null ? false : Boolean.parseBoolean(isFlip));
+			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 		

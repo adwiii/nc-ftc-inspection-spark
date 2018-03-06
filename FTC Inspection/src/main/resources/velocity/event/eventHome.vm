@@ -82,6 +82,8 @@
 	</li><li>
 		<a href="../audience/?flip=true">Audience Display (Flipped)</a>
 	</li><li>
+		<a href="../audience/?notimer=true">Audience Display (No Timer)</a>
+	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li><li>
 		<a href="../field/?ad=true&overlay=true&color=$color">Video Overlay</a>
