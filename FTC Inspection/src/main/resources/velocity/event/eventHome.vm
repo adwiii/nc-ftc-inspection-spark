@@ -39,6 +39,9 @@
 	</li>
 	#if($INSPECTOR)
 	<li>
+		<a href="../inspect/sc">Sizing Cube</a>
+	</li>
+	<li>
 		<a href="../inspect/hw">Hardware Inspection</a>
 	</li><li>
 		<a href="../inspect/sw">Software Inspection</a>

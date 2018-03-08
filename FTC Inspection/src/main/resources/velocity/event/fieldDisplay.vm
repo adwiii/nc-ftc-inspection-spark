@@ -1254,6 +1254,12 @@
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
+	  	#if($noTimer)
+	  	<div style="width:320; height:185; background-color:white;">
+	  	<img style="max-width:100%; max-height:100%;" src = "/img/ssr_logo.png" alt="ssr logo">
+	  	</div>
+	  	#end
+	  	
 	  	<div id="blueWing" teams="2">
 	  		<div id="blueWing1" class="wing blueWing wing1" card=false>
 	  			<div class="wingName">
