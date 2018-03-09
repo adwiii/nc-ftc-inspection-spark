@@ -573,7 +573,7 @@ public class EventPages {
 					red.updateScore("columns", redColumns);
 					red.updateScore("ciphers", redCiphers);
 					red.updateScore("relic1Zone", red1Z);
-					red.updateScore("relic1Standing", redUpright > 1);
+					red.updateScore("relic1Standing", redUpright >= 1);
 					red.updateScore("relic2Zone", red2Z);
 					red.updateScore("relic2Standing", redUpright == 2);
 					red.updateScore("balanced", redBalanced);
@@ -618,7 +618,7 @@ public class EventPages {
 					blue.updateScore("columns", blueColumns);
 					blue.updateScore("ciphers", blueCiphers);
 					blue.updateScore("relic1Zone", blue1Z);
-					blue.updateScore("relic1Standing", blueUpright > 1);
+					blue.updateScore("relic1Standing", blueUpright >= 1);
 					blue.updateScore("relic2Zone", blue2Z);
 					blue.updateScore("relic2Standing", blueUpright == 2);
 					blue.updateScore("balanced", blueBalanced);
