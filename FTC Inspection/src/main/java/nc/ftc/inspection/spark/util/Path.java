@@ -130,6 +130,7 @@ public class Path {
         public static final String RANKINGS = "/event/:event/rankings/";
         
         public static final String AUDIENCE_DISPLAY = "event/:event/audience/";
+        public static final String OVERLAY = "event/:event/overlay/";
         public static final String FIELD_DISPLAY  ="/event/:event/field/";
         public static final String QUEUE_DISPLAY = "/event/:event/queue/";
         

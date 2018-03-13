@@ -1877,7 +1877,7 @@
             	if(data[0] == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
-            		stopScores = true;
+               		stopScores = true;
             		#if(!$ad)getMatchInfo();#end
             	} else if(data[0] == 'SHOW_MATCH'){
             		getMatchInfo();
@@ -2382,24 +2382,29 @@
                     rand=data.rand;
                     
                     #if($overlay)
-			  			document.getElementById("chroma").setAttribute("visible", "false");
+			  			#if($ad)
+			  				document.getElementById("chroma").setAttribute("visible", "false");			  			
+			  			#end
 			  			document.getElementById("progressBar").setAttribute("visible", "true");
 			  			document.getElementById("redOverlayWings").setAttribute("visible", "true");
 			  			document.getElementById("blueOverlayWings").setAttribute("visible", "true");
 			  		#end
-                    
-                    document.getElementById("timer").setAttribute("timeout", "false");
-                    document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
-                   	document.getElementById("preview").setAttribute("visible","false");
-                   	document.getElementById("scoreRed").setAttribute("visible","true");
-					document.getElementById("scoreBlue").setAttribute("visible","true");
-					document.getElementById("scoreBar").setAttribute("visible",#if($ad2)"false"#else"true"#end);
-					document.getElementById("result").setAttribute("visible","false");
-					document.getElementById("selection").setAttribute("visible","false");
-                    var r = document.getElementById("random");
-                    r.setAttribute("visible", "true");
-                    //TODO sizes?
-                    r.children[0].src = "/img/random"+rand+"_75.png";
+                    #if($overlay && !$ad)
+            			##permanent overlay should not show random.
+            		#else
+	                    document.getElementById("timer").setAttribute("timeout", "false");
+	                    document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
+	                   	document.getElementById("preview").setAttribute("visible","false");
+	                   	document.getElementById("scoreRed").setAttribute("visible","true");
+						document.getElementById("scoreBlue").setAttribute("visible","true");
+						document.getElementById("scoreBar").setAttribute("visible",#if($ad2)"false"#else"true"#end);
+						document.getElementById("result").setAttribute("visible","false");
+						document.getElementById("selection").setAttribute("visible","false");
+	                    var r = document.getElementById("random");
+	                    r.setAttribute("visible", "true");
+	                    //TODO sizes?
+	                    r.children[0].src = "/img/random"+rand+"_75.png";
+                    #end
                     initJewels(rand);
                     showKeyColumn(rand);
                 },

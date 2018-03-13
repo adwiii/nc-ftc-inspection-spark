@@ -2214,7 +2214,39 @@ public class EventPages {
 			map.put("bgColor", colorStr);
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.FIELD_DISPLAY);
-		};		
+		};	
+		
+		public static Route serveOverlay = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			String adStr = request.queryParams("ad");
+			String ad2Str = request.queryParams("ad2");
+			String muteStr = request.queryParams("mute");
+			String colorStr = request.queryParams("color");
+			String isNoTimer = request.queryParams("notimer");
+			
+//			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+			String code = request.params("event");
+			String eventName = "";
+			if(code != null) {
+				Event e = Server.activeEvents.get(code);
+				if(e != null) {
+					eventName = e.getData().getName();
+				}
+				if(colorStr == null) {
+					colorStr = EventDAO.getProperty(code, "overlayDefault");
+				}
+			}
+			
+			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
+			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
+			map.put("ad2", false);
+			map.put("overlay", true);
+			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
+			map.put("eventCode", code);
+			map.put("bgColor", colorStr);
+			map.put("eventName", eventName);
+			return render(request, map, Path.Template.FIELD_DISPLAY);
+		};
 		
 
 		//TODO request could send what it thinks the last command was, 
