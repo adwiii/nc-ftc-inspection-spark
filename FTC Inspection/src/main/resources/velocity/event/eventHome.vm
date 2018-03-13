@@ -90,6 +90,8 @@
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li><li>
 		<a href="../field/?ad=true&overlay=true&color=$color">Video Overlay</a>
+	</li><li>
+		<a href="../field/?ad=true&overlay=true&color=$color&notimer=true">Video Overlay (No Timer)</a>
 	</li>
 </ul>
 #end

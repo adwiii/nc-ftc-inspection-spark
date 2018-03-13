@@ -1973,6 +1973,9 @@ public class EventPages {
 			String muteStr = request.queryParams("mute");
 			String isFlip = request.queryParams("flip");
 			String isNoTimer = request.queryParams("notimer");
+			
+			String code = request.params("event");
+			
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			map.put("ad", true);
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
@@ -1980,6 +1983,7 @@ public class EventPages {
 			map.put("ad2", true);
 			map.put("flip", isFlip == null ? false : Boolean.parseBoolean(isFlip));
 			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
+			map.put("eventCode", code);
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 		
@@ -2184,6 +2188,7 @@ public class EventPages {
 			String muteStr = request.queryParams("mute");
 			String overlayStr = request.queryParams("overlay");
 			String colorStr = request.queryParams("color");
+			String isNoTimer = request.queryParams("notimer");
 			
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			String code = request.params("event");
@@ -2204,6 +2209,8 @@ public class EventPages {
 			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
 			map.put("ad2", ad2Str == null ? false : Boolean.parseBoolean(ad2Str));
 			map.put("overlay", overlayStr == null ? false : Boolean.parseBoolean(overlayStr));
+			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
+			map.put("eventCode", code);
 			map.put("bgColor", colorStr);
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.FIELD_DISPLAY);

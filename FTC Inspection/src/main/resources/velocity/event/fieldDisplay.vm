@@ -1256,7 +1256,7 @@
 	  	<img class="timerImage" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
 	  	#if($noTimer)
 	  	<div style="width:320; height:185; background-color:white;">
-	  	<img style="max-width:100%; max-height:100%;" src = "/img/ssr_logo.png" alt="ssr logo">
+	  	<img style="max-width:100%; max-height:100%;" src = "/img/${eventCode}.png" onerror="if (this.src != '/img/logo.png') this.src = '/img/logo.png';" alt="event logo">
 	  	</div>
 	  	#end
 	  	
@@ -1421,12 +1421,14 @@
   		<div id="matchBar">Match 1</div>
   		<div id="eventBar">$eventName</div>
   		<div id="progressBar" overlay="true">
-    		<div id="progress" style="width:0%"></div>
-			<div id="progressTime">
-				150
-			</div>
-			<div id="progressHighlight">
-			</div>
+  			#if(!$noTimer)
+	    		<div id="progress" style="width:0%"></div>
+				<div id="progressTime">
+					150
+				</div>
+				<div id="progressHighlight">
+				</div>
+			#end
   		</div>
   		<div id="blueOverlayWings" class="overlayWingSet" teams="2">
   			<div id="blueOverlayWing1" class="blueOverlayWing overlayWing overlayWing1">
