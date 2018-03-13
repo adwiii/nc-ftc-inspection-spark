@@ -23,5 +23,5 @@ $().ready(function () {
                 }});
 	}
 </script>
-<div id="d1">Score submitted. Waiting for next match.</div>
+<div id="d1">Score submitted. Waiting for next match. You are scoring the <span style="background-color:$alliance;color:white">$alliance alliance.</span></div>
 #end
