@@ -1522,7 +1522,7 @@
 				// the data is the elapsed time in ms. We think the current elapsed time is actually
 				// what the server says plus half of the elapsed time to account for network lag
 				var rn = new Date().getTime();
-				elapsed = data + (rn - cur) / 2;
+				elapsed = Math.min(data + (rn - cur) / 2, 158*1000); //we don't want to go past time
 				prevTick = rn;
 				startTime = rn - elapsed; //we should now be reset to correct time
 				console.log('new elapsed: ' + elapsed);
