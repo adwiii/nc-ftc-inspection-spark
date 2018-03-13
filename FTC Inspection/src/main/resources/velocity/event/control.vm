@@ -531,7 +531,7 @@ var obj = {};
 function endMatch(){
 	var startBtn = document.getElementById("startBtn");
 	startBtn.setAttribute("state","off");
-	startBtn.innerHTML = "Start Auto";
+	startBtn.innerHTML = "Start Match";
 	startBtn.disabled = true;
 	startBtn.setAttribute("onclick", "start()");
 	
