@@ -39,6 +39,9 @@
 	</li>
 	#if($INSPECTOR)
 	<li>
+		<a href="../inspect/sc">Sizing Cube</a>
+	</li>
+	<li>
 		<a href="../inspect/hw">Hardware Inspection</a>
 	</li><li>
 		<a href="../inspect/sw">Software Inspection</a>
@@ -86,7 +89,13 @@
 	</li><li>
 		<a href="../field/?ad=true">Field Display As Audience Display</a>
 	</li><li>
-		<a href="../field/?ad=true&overlay=true&color=$color">Video Overlay</a>
+		<a href="../overlay/?color=$color">Video Overlay</a>
+	</li><li>
+		<a href="../overlay/?color=$color&ad=true">Video Overlay (Permanent - no Preview or Results)</a>
+	</li><li>
+		<a href="../overlay/?color=$color&notimer=true">Video Overlay (No Timer)</a>
+	</li><li>
+		<a href="../overlay/?color=$color&notimer=true&ad=true">Video Overlay (Permanent & No Timer)</a>
 	</li>
 </ul>
 #end

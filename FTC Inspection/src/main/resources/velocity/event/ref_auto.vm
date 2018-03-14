@@ -166,16 +166,18 @@
 		obj = {};
 		//TODO make these parse calls inside the macro?
 		//obj.autoGlyphs = parseInt(document.getElementById('autoGlyphs').textContent);
-		obj.autoGlyphs = autoGlyphs;
 		obj.major = parseInt(document.getElementById('major').textContent);
 		obj.minor = parseInt(document.getElementById('minor').textContent);
-		obj.cryptoboxKeys = keys;
 		obj.cryptobox1 = getCryptoboxData(1);
 		obj.cryptobox2 = getCryptoboxData(2);
 		obj.cbKeys = getCryptoboxKeyEncoding();
+		obj.cryptoboxKeys = keys; //keys gets set in the above function
 		obj.parkedAuto = parked;
-		obj.cryptobox1 = getCryptoboxData(1);
-		obj.cryptobox2 = getCryptoboxData(2)
+		var cb1 = getCryptoboxData(1);
+		var cb2 = getCryptoboxData(2);
+		obj.cryptobox1 = cb1.encoding;
+		obj.cryptobox2 = cb2.encoding;
+		obj.autoGlyphs = cb1.glyphs + cb2.glyphs;
 		addJewelScore(1, obj);
 		addJewelScore(2, obj);
 		return obj;
@@ -234,12 +236,18 @@
 	}
 	function getCryptoboxData(cb){
 		var data = 0;
+		var cell;
+		var localAuto = 0;
 		for(var r = 0; r < 4; r++){
 			for(var c = 0; c < 3; c++){
-				data += getCell(rgb2hex(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor"))) << ((r * 6) + (2 * c));
+				cell = getCell(rgb2hex(document.getElementById("cb_"+cb+","+r+","+c).getAttribute("bgcolor")));
+				if (cell != 0) {
+					localAuto++;
+				}
+				data += cell << ((r * 6) + (2 * c));
 			}
 		}
-		return data;
+		return {encoding:data, glyphs:localAuto};
 	}
 	/**
 	similar format to cryptobox data, except the lower bit (val= 1) is for crypto1, the higher for cryto 2 (val = 2). both = 3, neither =0
@@ -248,16 +256,21 @@
 		var data = 0;
 		var border;
 		var slot;
-		for(var r = 0; r < 4; r++){
+		var localKeys = 0;
+		for(var r = 0; r < 4; r++){ //TODO we could just increment over the cb column...
 			for(var c = 0; c < 3; c++){
 				for(var cb = 1; cb <=2; cb++){
 					slot = document.getElementById("cb_"+cb+","+r+","+c)
 					border = rgb2hex(slot.style.borderColor);
-					if(border == "#FFD700") data +=  1 << ((r * 6) + (2 * c) + (cb - 1));
+					if(border == "#FFD700"){
+						data +=  1 << ((r * 6) + (2 * c) + (cb - 1));
+						localKeys++;
+					}
 				}
 			}
 		}
 		console.log(data.toString(2));
+		keys = localKeys;
 		return data;
 	}
 	
@@ -299,34 +312,32 @@ function hex(x) {
 			}
 		}
 		
-		if(bg == "#FFFFFF" && border == "#000000"){//white to brown
-			slot.setAttribute("bgcolor","#565C05");
-			slot.style.borderColor = "#000000";
-			autoGlyphs++;
-			//scoreUpdate({autoGlyphs:autoGlyphs});
-			scoreUpdate(getScoreObject());
-		} else if(bg == "#565C05" && border == "#000000"){//brown to gray
-			slot.setAttribute("bgcolor","#D6D6CB");
-			slot.style.borderColor = "#000000";
-		} else if (bg == "#D6D6CB" && border == "#000000" && keylocNum == c && !hasKey) {//gray to brown key
-			slot.setAttribute("bgcolor","#565C05");
-			slot.style.borderColor = "#FFD700";
-			keys++;
-			//scoreUpdate({cryptoboxKeys:keys});
-			scoreUpdate(getScoreObject());
-		} else if (bg == "#565C05" && border == "#FFD700" && keylocNum == c) {//brown key to gray key
-			slot.setAttribute("bgcolor","#D6D6CB");
-			slot.style.borderColor = "#FFD700";
-		} else {//gray key to white
-			slot.setAttribute("bgcolor","#FFFFFF");
-			slot.style.borderColor = "#000000";
-			if (isKey) { //we removed a key
-				keys--;
+		var set = false;
+		if (keylocNum == c) { //this is a key column, handle that progression
+			if (bg == "#FFFFFF" && border == "#000000" && !hasKey) { //empty to brown key
+				slot.setAttribute("bgcolor","#565C05");
+				slot.style.borderColor = "#FFD700";
+				set = true;
+			} else if (bg == "#565C05" && border == "#FFD700") {
+				slot.setAttribute("bgcolor","#D6D6CB");
+				slot.style.borderColor = "#FFD700";
+				set = true;
 			}
-			autoGlyphs--;
-			//scoreUpdate({cryptoboxKeys:keys,autoGlyphs:autoGlyphs});
-			scoreUpdate(getScoreObject());
 		}
+		if (!set) {
+			if((bg == "#FFFFFF" && border == "#000000") || (bg == "#D6D6CB" && border == "#FFD700")){//white to brown
+				slot.setAttribute("bgcolor","#565C05");
+				slot.style.borderColor = "#000000";
+			} else if(bg == "#565C05" && border == "#000000"){//brown to gray
+				slot.setAttribute("bgcolor","#D6D6CB");
+				slot.style.borderColor = "#000000";
+			} else {//gray to white
+				slot.setAttribute("bgcolor","#FFFFFF");
+				slot.style.borderColor = "#000000";
+			}
+		}		
+		
+		
 		var cbVal = getCryptoboxData(cb);
 		var cbKeys = getCryptoboxKeyEncoding();
 		//TODO Send update

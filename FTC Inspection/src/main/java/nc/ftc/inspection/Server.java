@@ -291,6 +291,9 @@ public class Server {
 		before(Path.Web.FIELD_DISPLAY, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.FIELD_DISPLAY, EventPages.serveFieldDisplay);
 		
+		before(Path.Web.OVERLAY, Filters.getAuthenticationFilter(User.ADMIN));
+		get(Path.Web.OVERLAY, EventPages.serveOverlay);
+		
 		before(Path.Web.MATCH_PREVIEW, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.MATCH_PREVIEW, EventPages.handleWaitForPreview);
 		post(Path.Web.MATCH_PREVIEW, EventPages.handleShowPreview);
