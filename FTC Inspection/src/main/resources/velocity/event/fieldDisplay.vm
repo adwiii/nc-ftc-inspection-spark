@@ -1708,6 +1708,10 @@
   	
   	function display(sec, color){
   	//THis is a ceiling becuase the value that needs to be floored is subtracted from a constant in the calling method
+  		#if($noTimer)
+  			if(1 + 1 > 1)return;
+  		#end
+  		
   		sec = Math.ceil(sec);
   		var d = document.getElementById("timer");
   		var min = Math.floor(sec / 60);
@@ -2092,7 +2096,7 @@
 		document.getElementById("preview").setAttribute("elims", elims ? "true" : "false");
 		
   		display( 150  , "W");
-  		#if($ad2 || $overlay)
+  		#if(($ad2 || $overlay) && !$noTimer)
   		document.getElementById("progress").style.width = '0%';
   		#end
   		#if($overlay)
