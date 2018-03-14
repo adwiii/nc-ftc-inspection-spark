@@ -803,7 +803,6 @@ public class EventPages {
 			if (match.getStatus() == MatchStatus.TELEOP) {
 				model.put("timeLeftInTeleop", 128 * 1000 - e.getTimer().elapsed());
 			}
-			model.put("alliance", request.params("alliance").toUpperCase());
 			switch(match.getStatus()){
 			case PRE_RANDOM:
 				template = Path.Template.REF_PRE_RANDOM;
