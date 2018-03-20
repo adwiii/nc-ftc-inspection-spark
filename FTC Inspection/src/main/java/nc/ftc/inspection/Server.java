@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,8 @@ public class Server {
 	public static final String GLOBAL_DB;// = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 	/**The database file containing all data related to inter-server communication. This database shoudl never be shared between instances.*/
 	public static final String CONFIG_DB;
+	/**The default port the web server runs on**/
+	private static final Integer FTCLIVE_DEFAULT_PORT = 80;
 	/**The firectory of all the resources files: audio, images, etc.*/
 	public static File publicDir;
 
@@ -117,18 +120,55 @@ public class Server {
 		GLOBAL_DB = "jdbc:sqlite:"+DB_PATH+"global.db"; 
 		CONFIG_DB = "jdbc:sqlite:"+DB_PATH+"config.db";
 	}
-	
+
+	protected static CommandLine parseOptions(String[] args) {
+
+		Options options = new Options();
+		Option port = new Option("p", "port", true, "port to run server on");
+		port.setRequired(false);
+		port.setType(Integer.class);
+		options.addOption(port);
+
+		CommandLineParser parser = new DefaultParser();
+		HelpFormatter helpFormatter = new HelpFormatter();
+		CommandLine cmd;
+
+		try {
+			cmd = parser.parse(options, args);
+			return cmd;
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			helpFormatter.printHelp("launch.bat", options);
+			System.exit(1);
+		}
+		return null;
+	}
+
 	/**
 	 * Run on startup. No parameters are passed to main this way. All parameters are passed via -D 
 	 * JVM parameters.
 	 * @param args Runtime arguments - none handled.
 	 */
 	public static void main(String[] args) {
+
+		Integer port = FTCLIVE_DEFAULT_PORT;
+
 		try {//idk, somethings up with gradle but this makes it work.
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
+
+		CommandLine cmd = parseOptions(args);
+		if (cmd.hasOption('p')) {
+			try {
+				port = Integer.parseInt(cmd.getOptionValue("port", Integer.toString(FTCLIVE_DEFAULT_PORT)));
+			} catch (NumberFormatException e) {
+				System.out.println("Port argument must be an integer, using 80 as default");
+			}
+		}
+		System.out.println("Starting server on port " + port);
+
 		ConfigDAO.runStartupCheck();
 		RemoteUpdater.getInstance();//force classloader
 		Runtime.getRuntime().addShutdownHook(RemoteUpdater.getHook());
@@ -160,7 +200,7 @@ public class Server {
 			System.out.println("Please terminate (CTRL+C in this window) and resolve the issue, then restart the server.");
 		}
 		);
-		port(80); //TODO make this a runtime argument.
+		port(port);
 		//Use the -Dlocation argument to determine if inside eclipse or running from a built .jar.
 		String loc = System.getProperty("location");
 		String publicLoc;
