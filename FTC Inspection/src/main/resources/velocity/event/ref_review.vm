@@ -215,6 +215,7 @@
 </style>
 <p class="${alliance}Alliance banner">Final Review</p>
 <table>
+<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels "4")jewel_count#end</td></tr>
 <tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs "24")autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
 	<td class="right nowrap absorbing-column">
@@ -224,7 +225,6 @@
 		<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="gk3"><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/>2</label></td></tr>
 	</table>
 	</td></tr>
-<tr><td class="left"><label>Jewel Count:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($jewels "4")jewel_count#end</td></tr>
 	
 <tr><td class="left"><label>Robots Parked (Auto):</label></td>
 	<td class="right nowrap absorbing-column">

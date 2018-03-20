@@ -29,7 +29,7 @@ public class Display {
 	
 	public DisplayCommand blockForNextCommand() throws InterruptedException {
 		synchronized(displayCommandLock) {
-			Thread.currentThread().setName("Display Command Response");
+			//Thread.currentThread().setName("Display Command Response");
 			displayCommandLock.wait();
 		}
 		return lastCommand;

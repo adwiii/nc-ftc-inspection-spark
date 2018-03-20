@@ -56,9 +56,9 @@
 	#breakdown($alliance)
 	<div id="${alliance}AutoScores" >
 		<fieldset class="breakdown">
-			<legend>Auto Scores</legend>						
+			<legend>Auto Scores</legend>					
+			#scoreField($alliance "jewels" "Jewels" "4")	
 			#scoreField($alliance "autoGlyphs" "Glyphs" "24")
-			#scoreField($alliance "jewels" "Jewels" "4")
 			#scoreField($alliance "cryptoboxKeys" "Keys" "2")
 			#scoreField($alliance "parkedAuto" "Parked" "2")
 		</fieldset>

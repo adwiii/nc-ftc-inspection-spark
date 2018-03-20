@@ -1277,6 +1277,10 @@ public class EventDAO {
 				e.rankingsCache.invalidate();
 				e.resultsCache.invalidate();
 				e.scheduleCache.invalidate();
+				if(new Double(p[0].toString()).intValue() == SET_STATUS_SQL.id) {
+					log.info("Inavlidating inspection cache");
+					e.teamStatusCache.invalidate();
+				}
 			}
 			return true;
 		} catch (SQLException e) {

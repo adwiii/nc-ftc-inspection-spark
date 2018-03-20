@@ -1254,6 +1254,12 @@
 	  	<img class="timerImage" id="colon" src="/digits/Wcolon.png" alt="colon">
 	  	<img class="timerImage" id="tensDigit" src="/digits/Wdigitoff.png" alt="DigitOff" >
 	  	<img class="timerImage" id="onesDigit" src="/digits/Wdigitoff.png" alt="DigitOff" > 
+	  	#if($noTimer)
+	  	<div style="width:320; height:185; background-color:white;">
+	  	<img style="max-width:100%; max-height:100%;" src = "/img/${eventCode}.png" onerror="if (this.src != '/img/logo.png') this.src = '/img/logo.png';" alt="event logo">
+	  	</div>
+	  	#end
+	  	
 	  	<div id="blueWing" teams="2">
 	  		<div id="blueWing1" class="wing blueWing wing1" card=false>
 	  			<div class="wingName">
@@ -1415,12 +1421,14 @@
   		<div id="matchBar">Match 1</div>
   		<div id="eventBar">$eventName</div>
   		<div id="progressBar" overlay="true">
-    		<div id="progress" style="width:0%"></div>
-			<div id="progressTime">
-				150
-			</div>
-			<div id="progressHighlight">
-			</div>
+  			#if(!$noTimer)
+	    		<div id="progress" style="width:0%"></div>
+				<div id="progressTime">
+					150
+				</div>
+				<div id="progressHighlight">
+				</div>
+			#end
   		</div>
   		<div id="blueOverlayWings" class="overlayWingSet" teams="2">
   			<div id="blueOverlayWing1" class="blueOverlayWing overlayWing overlayWing1">
@@ -1514,7 +1522,7 @@
 				// the data is the elapsed time in ms. We think the current elapsed time is actually
 				// what the server says plus half of the elapsed time to account for network lag
 				var rn = new Date().getTime();
-				elapsed = data + (rn - cur) / 2;
+				elapsed = Math.min(data + (rn - cur) / 2, 158*1000); //we don't want to go past time
 				prevTick = rn;
 				startTime = rn - elapsed; //we should now be reset to correct time
 				console.log('new elapsed: ' + elapsed);
@@ -1700,6 +1708,10 @@
   	
   	function display(sec, color){
   	//THis is a ceiling becuase the value that needs to be floored is subtracted from a constant in the calling method
+  		#if($noTimer)
+  			if(1 + 1 > 1)return;
+  		#end
+  		
   		sec = Math.ceil(sec);
   		var d = document.getElementById("timer");
   		var min = Math.floor(sec / 60);
@@ -1869,7 +1881,7 @@
             	if(data[0] == 'SHOW_RANDOM'){
             		resetScores();
             		showRandom();
-            		stopScores = true;
+               		stopScores = true;
             		#if(!$ad)getMatchInfo();#end
             	} else if(data[0] == 'SHOW_MATCH'){
             		getMatchInfo();
@@ -2084,7 +2096,7 @@
 		document.getElementById("preview").setAttribute("elims", elims ? "true" : "false");
 		
   		display( 150  , "W");
-  		#if($ad2 || $overlay)
+  		#if(($ad2 || $overlay) && !$noTimer)
   		document.getElementById("progress").style.width = '0%';
   		#end
   		#if($overlay)
@@ -2374,24 +2386,29 @@
                     rand=data.rand;
                     
                     #if($overlay)
-			  			document.getElementById("chroma").setAttribute("visible", "false");
+			  			#if($ad)
+			  				document.getElementById("chroma").setAttribute("visible", "false");			  			
+			  			#end
 			  			document.getElementById("progressBar").setAttribute("visible", "true");
 			  			document.getElementById("redOverlayWings").setAttribute("visible", "true");
 			  			document.getElementById("blueOverlayWings").setAttribute("visible", "true");
 			  		#end
-                    
-                    document.getElementById("timer").setAttribute("timeout", "false");
-                    document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
-                   	document.getElementById("preview").setAttribute("visible","false");
-                   	document.getElementById("scoreRed").setAttribute("visible","true");
-					document.getElementById("scoreBlue").setAttribute("visible","true");
-					document.getElementById("scoreBar").setAttribute("visible",#if($ad2)"false"#else"true"#end);
-					document.getElementById("result").setAttribute("visible","false");
-					document.getElementById("selection").setAttribute("visible","false");
-                    var r = document.getElementById("random");
-                    r.setAttribute("visible", "true");
-                    //TODO sizes?
-                    r.children[0].src = "/img/random"+rand+"_75.png";
+                    #if($overlay && !$ad)
+            			##permanent overlay should not show random.
+            		#else
+	                    document.getElementById("timer").setAttribute("timeout", "false");
+	                    document.getElementById("timer").setAttribute("visible",#if($ad2)"true"#else"false"#end);
+	                   	document.getElementById("preview").setAttribute("visible","false");
+	                   	document.getElementById("scoreRed").setAttribute("visible","true");
+						document.getElementById("scoreBlue").setAttribute("visible","true");
+						document.getElementById("scoreBar").setAttribute("visible",#if($ad2)"false"#else"true"#end);
+						document.getElementById("result").setAttribute("visible","false");
+						document.getElementById("selection").setAttribute("visible","false");
+	                    var r = document.getElementById("random");
+	                    r.setAttribute("visible", "true");
+	                    //TODO sizes?
+	                    r.children[0].src = "/img/random"+rand+"_75.png";
+                    #end
                     initJewels(rand);
                     showKeyColumn(rand);
                 },

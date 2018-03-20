@@ -291,7 +291,7 @@ public class EventPages {
 		}
 		model.put("teamsPerCol", teamsPerCol);
 		model.put("event", event);//TODO get the event name from db
-		String[] columns = new String[]{"ci", "hw", "sw", "fd"};//removed SC! hope it still works!
+		String[] columns = new String[]{"ci", "sc", "hw", "sw", "fd"};//removed SC! hope it still works!
 		model.put("headers", columns);
 
 		model.put("teams", teams);
@@ -573,7 +573,7 @@ public class EventPages {
 					red.updateScore("columns", redColumns);
 					red.updateScore("ciphers", redCiphers);
 					red.updateScore("relic1Zone", red1Z);
-					red.updateScore("relic1Standing", redUpright > 1);
+					red.updateScore("relic1Standing", redUpright >= 1);
 					red.updateScore("relic2Zone", red2Z);
 					red.updateScore("relic2Standing", redUpright == 2);
 					red.updateScore("balanced", redBalanced);
@@ -618,7 +618,7 @@ public class EventPages {
 					blue.updateScore("columns", blueColumns);
 					blue.updateScore("ciphers", blueCiphers);
 					blue.updateScore("relic1Zone", blue1Z);
-					blue.updateScore("relic1Standing", blueUpright > 1);
+					blue.updateScore("relic1Standing", blueUpright >= 1);
 					blue.updateScore("relic2Zone", blue2Z);
 					blue.updateScore("relic2Standing", blueUpright == 2);
 					blue.updateScore("balanced", blueBalanced);
@@ -873,6 +873,7 @@ public class EventPages {
 			}
 			model.put("match", match.getName());
 			model.put("field", (match.getNumber() + 1) % 2 + 1);
+			model.put("alliance", request.params("alliance").toUpperCase());
 			return render(request, model, Path.Template.REF_IDLE);			
 		};
 		
@@ -1973,6 +1974,9 @@ public class EventPages {
 			String muteStr = request.queryParams("mute");
 			String isFlip = request.queryParams("flip");
 			String isNoTimer = request.queryParams("notimer");
+			
+			String code = request.params("event");
+			
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			map.put("ad", true);
 			map.put("is43", is43Str == null ? false : Boolean.parseBoolean(is43Str));
@@ -1980,6 +1984,7 @@ public class EventPages {
 			map.put("ad2", true);
 			map.put("flip", isFlip == null ? false : Boolean.parseBoolean(isFlip));
 			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
+			map.put("eventCode", code);
 			return render(request, map, Path.Template.FIELD_DISPLAY);
 		};
 		
@@ -2184,6 +2189,7 @@ public class EventPages {
 			String muteStr = request.queryParams("mute");
 			String overlayStr = request.queryParams("overlay");
 			String colorStr = request.queryParams("color");
+			String isNoTimer = request.queryParams("notimer");
 			
 //			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
 			String code = request.params("event");
@@ -2204,10 +2210,44 @@ public class EventPages {
 			map.put("field", fieldStr == null ? null : (Integer.parseInt(fieldStr)%2));
 			map.put("ad2", ad2Str == null ? false : Boolean.parseBoolean(ad2Str));
 			map.put("overlay", overlayStr == null ? false : Boolean.parseBoolean(overlayStr));
+			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
+			map.put("eventCode", code);
 			map.put("bgColor", colorStr);
 			map.put("eventName", eventName);
 			return render(request, map, Path.Template.FIELD_DISPLAY);
-		};		
+		};	
+		
+		public static Route serveOverlay = (Request request, Response response) ->{
+			Map<String, Object> map = new HashMap<>();
+			String adStr = request.queryParams("ad");
+			String ad2Str = request.queryParams("ad2");
+			String muteStr = request.queryParams("mute");
+			String colorStr = request.queryParams("color");
+			String isNoTimer = request.queryParams("notimer");
+			
+//			System.out.println("Params: "+adStr+","+is43Str+","+fieldStr+","+muteStr);
+			String code = request.params("event");
+			String eventName = "";
+			if(code != null) {
+				Event e = Server.activeEvents.get(code);
+				if(e != null) {
+					eventName = e.getData().getName();
+				}
+				if(colorStr == null) {
+					colorStr = EventDAO.getProperty(code, "overlayDefault");
+				}
+			}
+			
+			map.put("ad", adStr == null ? false : Boolean.parseBoolean(adStr));
+			map.put("mute", muteStr == null ? false : Boolean.parseBoolean(muteStr));
+			map.put("ad2", false);
+			map.put("overlay", true);
+			map.put("noTimer", isNoTimer == null ? false : Boolean.parseBoolean(isNoTimer));
+			map.put("eventCode", code);
+			map.put("bgColor", colorStr);
+			map.put("eventName", eventName);
+			return render(request, map, Path.Template.FIELD_DISPLAY);
+		};
 		
 
 		//TODO request could send what it thinks the last command was, 
