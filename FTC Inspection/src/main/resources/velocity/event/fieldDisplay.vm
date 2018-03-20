@@ -340,7 +340,8 @@
 		position:absolute;
 		left:1470;
 		width:50px;
-		text-align:center
+		text-align:center;
+		display:none;
 	}
 	#result{
 		position:absolute;
@@ -1891,6 +1892,11 @@
             	}
             	
             		else if(data[0] == 'SHOW_PREVIEW'){
+            		stopScores = true;
+            		resetScores();
+            		#if($overlay)
+            			resetOverlay();
+            		#end
             			$.ajax({
 				  			url: "../match/",
 				  			type: "GET",
@@ -1898,7 +1904,6 @@
 				  			success: function(data){
 				  				#if($ad)
 				  					showPreview(data);
-				  					resetScores();
 				  				#else
 				  					fillWings(data);
 				  				#end
@@ -2072,7 +2077,8 @@
 				balanced:0,
 				teleopPoints:0,
 				autoPoints:0,
-				foulPoints:0
+				foulPoints:0,
+				cbRows: 0
 			},
 			blue:{
 				parkingPoints:0,
@@ -2083,29 +2089,17 @@
 				balanced:0,
 				teleopPoints:0,
 				autoPoints:0,
-				foulPoints:0
+				foulPoints:0,
+				cbRows: 0
 			}
 		}
 		updateScores(obj);
+		clearKey();
 	}
 	
-	function showPreview(data){
-		
-		var elims = typeof data.red3 !== 'undefined';
-		
-		document.getElementById("preview").setAttribute("elims", elims ? "true" : "false");
-		
-  		display( 150  , "W");
-  		#if(($ad2 || $overlay) && !$noTimer)
-  		document.getElementById("progress").style.width = '0%';
-  		#end
-  		#if($overlay)
-  			document.getElementById("chroma").setAttribute("visible", "false");
-  			document.getElementById("progressBar").setAttribute("visible", "false");
-  			document.getElementById("redOverlayWings").setAttribute("visible", "false");
-  			document.getElementById("blueOverlayWings").setAttribute("visible", "false");
-  			
-  			var balls = document.getElementsByClassName("ball");
+	//dont call if not overlay!!!
+	function resetOverlay(){
+			var balls = document.getElementsByClassName("ball");
   			var parking = document.getElementsByClassName("parking");
   			var balance = document.getElementsByClassName("balance");
   			var relics = document.getElementsByClassName("relic");
@@ -2122,6 +2116,27 @@
   			for(var i = 0; i < relics.length; i++){
   				relics[i].setAttribute("visible", "false");
   			}
+	
+	}
+	
+	function showPreview(data){
+		stopScores = true;
+		
+		var elims = typeof data.red3 !== 'undefined';
+		
+		document.getElementById("preview").setAttribute("elims", elims ? "true" : "false");
+		
+  		display( 150  , "W");
+  		#if(($ad2 || $overlay) && !$noTimer)
+  		document.getElementById("progress").style.width = '0%';
+  		#end
+  		#if($overlay)
+  			document.getElementById("chroma").setAttribute("visible", "false");
+  			document.getElementById("progressBar").setAttribute("visible", "false");
+  			document.getElementById("redOverlayWings").setAttribute("visible", "false");
+  			document.getElementById("blueOverlayWings").setAttribute("visible", "false");
+  			
+  			resetOverlay();
   		#end
 
 		document.getElementById("red1_number").innerHTML = data.red1;
@@ -2426,8 +2441,30 @@
 		redJewel2.src = src;
 	} 
 	
+	function clearKey(){
+		for(var index = 1; index <= 2; index++){
+			for(var row = 0; row < 4; row++){	
+				for(var c = 0; c < 3; c++){		
+					var cell = document.getElementById("blue_"+index+"_"+row+"_"+c);
+					cell.setAttribute("visible", "false");
+					cell = document.getElementById("red_"+index+"_"+row+"_"+c);
+					cell.setAttribute("visible", "false");	
+				}		
+			} 
+		}
+	}	
+
+	
 	function showKeyColumn(r){
+	
+	
+		//clear old key
+		clearKey();
+		
+	
+	
 		var col = (r-1) % 3;
+		console.log("Setting column to "+col);
 		for(var index = 1; index <= 2; index++){
 			for(var r = 0; r < 4; r++){			
 				var cell = document.getElementById("red_"+index+"_"+r+"_"+col);
@@ -2482,8 +2519,8 @@
   			},
   			success: function(data){  			
   				lastBreakdown = data.ts;
-  				updateScores(data);
   				if(!stopScores){
+  					updateScores(data);
   					window.setTimeout(function(){getScoreUpdate(true);}, 1000);
   				}
   			},
