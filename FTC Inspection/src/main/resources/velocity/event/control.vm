@@ -341,6 +341,11 @@
 	.matchControlButton[state="warn"]{
 		background-color: red;
 	}
+	.randomBtn{
+		margin:auto;
+		margin-top: 4px;
+		margin-bottom: 4px;
+	}
 	.tabButton{
 		background-color: #4CAF50; /* Green */
 		border: none;
@@ -927,10 +932,24 @@ function fillSelectionData(data){
 			<button class="tabButton" onclick="openTab(event, 'SelectionTab')">Alliance Selection</button>
 		</div>
 		<div class="tabContent" id="ScoreTab">
-			<div id="leftScores">
+			<div id="leftScores" style="width:47%;">
 				#scores("red")
 			</div>
-			<div id="rightScores">
+			<div id="midScores" style="width:6%; float:left; height:100%; background-color:white;text-align:center;">
+			
+				<div>
+					Ext. Rand.
+				</div>
+				<button class="randomBtn matchControlButton" id="rand1" onclick="randomize(1)">1</button><br>
+				<button class="randomBtn matchControlButton" id="rand2" onclick="randomize(2)">2</button><br>
+				<button class="randomBtn matchControlButton" id="rand3" onclick="randomize(3)">3</button><br>
+				<button class="randomBtn matchControlButton" id="rand4" onclick="randomize(4)">4</button><br>
+				<button class="randomBtn matchControlButton" id="rand5" onclick="randomize(5)">5</button><br>
+				<button class="randomBtn matchControlButton" id="rand6" onclick="randomize(6)">6</button>
+			
+			
+			</div>
+			<div id="rightScores"style="width:47%;">
 				#scores("blue")
 				
 			</div>
