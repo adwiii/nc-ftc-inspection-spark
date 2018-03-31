@@ -44,5 +44,11 @@ function onChange$bodyContent(cur){
 	scoreUpdate({$bodyContent:cur});
 }
 </script>
-<input type="button" class="counterButton nowrap counter" onClick="onDown$bodyContent()" value="-1"/><textarea id="$bodyContent" class="counter" style="width:20%;white-space:nowrap;border:none;overflow:visible;resize:none;text-align:center;vertical-align:bottom;" cols=3 disabled>#if($init)$init#else 0 #end</textarea><input class="counterButton nowrap counter" type="button" onClick="onUp$bodyContent()" value="+1"/>
+<input class="counterButton nowrap counter" type="button" onClick="onUp$bodyContent()" value="+1" style="width:100%"/>
+<br>
+<div id="$bodyContent" class="counter" style="width:100%;white-space:nowrap;border:none;overflow:visible;resize:none;text-align:center;" cols=3 disabled>
+#if($init)$init#else 0 #end
+</div>
+<br>
+<input type="button" class="counterButton nowrap counter" onClick="onDown$bodyContent()" value="-1" style="width:100%"/>
 #end
