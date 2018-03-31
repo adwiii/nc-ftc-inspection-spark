@@ -219,21 +219,15 @@
 <tr><td class="left"><label>Auto Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($autoGlyphs "24")autoGlyphs#end</td></tr>
 <tr><td class="left"><label id="glyphKeysLabel">Glyph Keys:</label></td>
 	<td class="right nowrap absorbing-column">
-	<table style="width:100%">
-		<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="gk1"><input id="gk1" type="radio" name="cryptoboxKeys" onclick="radioKeys(0)"  #if($cryptoboxKeys == 0)checked#end/>0</label></td></tr>
-		<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="gk2"><input id="gk2" type="radio" name="cryptoboxKeys" onclick="radioKeys(1)"  #if($cryptoboxKeys == 1)checked#end/>1</label></td></tr>
-		<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="gk3"><input id="gk3" type="radio" name="cryptoboxKeys" onclick="radioKeys(2)"  #if($cryptoboxKeys == 2)checked#end/>2</label></td></tr>
-	</table>
-	</td></tr>
+#parse("/velocity/counter_macro.vm")#@labelID($cryptoboxKeys "2")cryptoboxKeys#end
+</td>
+</tr>
 	
 <tr><td class="left"><label>Robots Parked (Auto):</label></td>
 	<td class="right nowrap absorbing-column">
-	<table style="width:100%">
-	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="park1"><input id="park1" type="radio" name="parked" onclick="radioParked(0)" #if($parkedAuto == 0)checked#end/>0</label></td></tr>
-	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="park2"><input id="park2" type="radio" name="parked" onclick="radioParked(1)" #if($parkedAuto == 1)checked#end/>1</label></td></tr>
-	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="park2"><input id="park3" type="radio" name="parked" onclick="radioParked(2)" #if($parkedAuto == 2)checked#end/>2</label></td></tr>
-	</table>
-</td></tr>
+#parse("/velocity/counter_macro.vm")#@labelID($parkedAuto "2")parkedAuto#end
+</td>
+</tr>
 
 <!-- TELEOP STUFF HERE-->
 <tr><td class="left"><label>Glyphs:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($glyphs "24")glyphs#end</td></tr>
@@ -241,35 +235,41 @@
 <tr><td class="left"><label>Columns:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($columns "6")columns#end</td></tr>
 <tr><td class="left"><label>Ciphers:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($ciphers "2")ciphers#end</td></tr>
 
-<tr><td class="left"><label>Relic 1 Zone:</label></td><td class="right nowrap" style="width: -webkit-fill-available;"><table  style="white-space:nowrap;width:100%"><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end/>0</label></td></tr><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label></td>
-	</tr><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic1" value="2" #if($relic1Zone == 2)checked#end/>2</label></td></tr><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic1" value="3" #if($relic1Zone == 3)checked#end/>3</label></td>
-	</tr><tr>
+<tr><td class="left"><label>Relic 1 Zone:</label></td>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label><input type="radio" name="relic1" value="0" #if($relic1Zone == 0)checked#end/>0</label></td></tr><tr>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic1" value="1" #if($relic1Zone == 1)checked#end/>1</label></td>
+	##</tr><tr>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;" ><label ><input type="radio" name="relic1" value="2" #if($relic1Zone == 2)checked#end/>2</label></td></tr><tr>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic1" value="3" #if($relic1Zone == 3)checked#end/>3</label></td>
+		<td class="right nowrap absorbing-column" colspan=2>
+			#parse("/velocity/counter_macro.vm")#@labelID($relic1Zone "3")relic1Zone#end
+		</td>
+	</tr>
+	<tr><td></td>
 	<td>
-	<input type="checkbox" id="relic1Upright" #if($relic1Standing == true)checked#end/></td><td><label for="relic1Upright">Upright?</label>
-	</td></tr></table></td></tr>
-<tr><td class="left"><label>Relic 2 Zone:</label></td><td class="right nowrap" style="width: -webkit-fill-available;"><table  style="white-space:nowrap;width:100%"><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label><input type="radio" name="relic2" value="0" #if($relic2Zone == 0)checked#end/>0</label></td></tr><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic2" value="1" #if($relic2Zone == 1)checked#end/>1</label></td>
-	</tr><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic2" value="2" #if($relic2Zone == 2)checked#end/>2</label></td></tr><tr>
-	<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic2" value="3" #if($relic2Zone == 3)checked#end/>3</label></td>
-	</tr><tr>
+	<table><tr><td class="fifty"><input type="checkbox" id="relic1Upright" #if($relic1Standing == true)checked#end/></td><td class="fifty"><label for="relic1Upright">Upright?</label></td></tr></table>
+	</td></tr>
+<tr><td class="left"><label>Relic 2 Zone:</label></td>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label><input type="radio" name="relic2" value="0" #if($relic2Zone == 0)checked#end/>0</label></td></tr><tr>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic2" value="1" #if($relic2Zone == 1)checked#end/>1</label></td>
+	##</tr><tr>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic2" value="2" #if($relic2Zone == 2)checked#end/>2</label></td></tr><tr>
+	##<td class="fifty" style="padding-top:0em; padding-bottom:0em;"><label ><input type="radio" name="relic2" value="3" #if($relic2Zone == 3)checked#end/>3</label></td>
+		<td class="right nowrap absorbing-column" style="width:100%" colspan=2>
+			#parse("/velocity/counter_macro.vm")#@labelID($relic2Zone "3")relic2Zone#end
+		</td>
+	</tr>
+	<tr>
+	<td></td>
 	<td>
-	<input type="checkbox" id="relic2Upright" #if($relic2Standing == true)checked#end/></td><td><label for="relic2Upright">Upright?</label>
-	</td></tr></table></td></tr>
+	<table><tr><td class="fifty"><input type="checkbox" id="relic2Upright" #if($relic2Standing == true)checked#end/></td><td class="fifty"><label for="relic2Upright">Upright?</label></td></tr></table>
+	</td></tr>
 
-<tr><td class="left"><label>Robots Balanced:</label></td>
+<tr><td class="left"><label>Robots Parked:</label></td>
 <td class="right nowrap absorbing-column">
-<table style="width:100%">
-	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="bal1"><input type="radio" id="bal1" name="balanced" value="0" #if($balanced == 0)checked#end/>0</label></td></tr>
-	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="bal2"><input type="radio" id="bal2" name="balanced" value="1" #if($balanced == 1)checked#end/>1</label></td></tr>
-	<tr><td class="nowrap" style="width:33%;padding-top:0em; padding-bottom:0em;"><label for="bal3"><input type="radio" id="bal3" name="balanced" value="2" #if($balanced == 2)checked#end/>2</label></td></tr>
-	</table>	
-</td></tr>
+#parse("/velocity/counter_macro.vm")#@labelID($parkedAuto "2")parkedAuto#end
+</td>
+</tr>
 <tr><td class="left"><label>Minor Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($minor "99999")minor#end</td></tr>
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major "99999")major#end</td></tr>
 </table>
