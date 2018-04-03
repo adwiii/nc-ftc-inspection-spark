@@ -47,6 +47,24 @@ function deletePhase(phase){
 		});	
 	}
 }
+
+function deleteMatches(mod){
+	if(confirm("Are you sure you want to delete these matches? This operation cannot be undone!")){
+		document.getElementById("deleteStatus").innerHTML = "";
+		$.ajax({
+			url:"deletematches/"+mod,
+			type: 'DELETE',
+			data: {},
+			success: function(data){
+				document.getElementById("deleteStatus").innerHTML = "Success";
+			},
+			fail: function(xhr, textStatus, error){
+				document.getElementById("deleteStatus").innerHTML = "Error";
+			}
+		});	
+	}
+}
+
 </script>
 
 <fieldset>
@@ -81,6 +99,14 @@ function deletePhase(phase){
 	</tr></table>
 	<div id="deleteStatus"></div>
 
+</fieldset>
+<fieldset>
+	<legend>Field Isolation</legend>
+	Use these buttons to delete half the matches.
+	<table><tr>
+		<td><button id='even' onclick="deleteMatches(0)">Delete Even Matches</button></td>
+		<td><button id='odd' onclick="deleteMatches(1)" >Delete Odd Matches</button></td>
+	</tr></table>
 </fieldset>
 
 #end

@@ -3387,4 +3387,18 @@ public class EventPages {
 			}
 			return "OK";
 		};
+		
+		public static Route handleDeleteMatches = (Request request, Response response)->{
+			String event = request.params("event");
+			String modResult = request.params("mod");
+			int mod = -1;
+			if(modResult != null) {
+				mod = Integer.parseInt(modResult);
+			}
+			EventDAO.deleteMatches(event, mod);
+			Server.activeEvents.get(event).rankingsCache.invalidate();
+			Server.activeEvents.get(event).resultsCache.invalidate();
+			Server.activeEvents.get(event).scheduleCache.invalidate();
+			return "OK";
+		};
 }
