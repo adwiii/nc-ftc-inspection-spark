@@ -1079,7 +1079,7 @@ public class EventPages {
 				Match match = Server.activeEvents.get(e).getCurrentMatch();
 				match.getAlliance(request.params("alliance")).setInReview(true);
 				if(match.isInReview()) {
-					Server.activeEvents.get(e).getDisplay().issueCommand(DisplayCommand.STOP_SCORE_UPDATES);
+					Server.activeEvents.get(e).getDisplay().issueCommand(DisplayCommand.IN_REVIEW);
 				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
 //				if(status == MatchStatus.AUTO) {
