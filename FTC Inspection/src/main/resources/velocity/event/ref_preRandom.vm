@@ -31,5 +31,10 @@ function pollServer()
     }
 }
 </script>
-<div id="d1">Waiting for match start. You are scoring the <span style="background-color:$alliance;color:white">$alliance alliance.</span></div>
+<div id="d1">Waiting for match start. You are scoring the <span style="background-color:$alliance;color:white">$alliance alliance.</span>
+<br>
+Teams:
+<br>
+$teams
+</div>
 #end

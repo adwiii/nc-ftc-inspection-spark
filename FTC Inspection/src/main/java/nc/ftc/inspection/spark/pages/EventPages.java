@@ -789,6 +789,7 @@ public class EventPages {
 			}
 			model.put("alliance", alliance);
 			Alliance a = match.getAlliance(alliance);
+			model.put("teams", getTeamsHTML(a));
 			if (match.getStatus() != MatchStatus.PRE_RANDOM) {
 				model.put("rand", match.getRandomization());
 			}
@@ -874,8 +875,20 @@ public class EventPages {
 			model.put("match", match.getName());
 			model.put("field", (match.getNumber() + 1) % 2 + 1);
 			model.put("alliance", request.params("alliance").toUpperCase());
+			model.put("teams", getTeamsHTML(match.getAlliance(request.params("alliance").toLowerCase())));
 			return render(request, model, Path.Template.REF_IDLE);			
 		};
+		
+		
+		public static String getTeamsHTML(Alliance alliance) {
+			String teams = "";
+			if (alliance.getTeam3() == 0) {
+				teams = alliance.getTeam1() + "<br>" + alliance.getTeam2();
+			} else {
+				teams = alliance.getTeam1() + "<br>" + alliance.getTeam2() + "<br>"  + alliance.getTeam3();
+			}
+			return teams;
+		}
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{
 			//TODO this is the call that will long-poll / websocket to simulate a push to 

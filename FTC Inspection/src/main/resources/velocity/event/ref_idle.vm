@@ -21,8 +21,13 @@ button{
 	}
 </style>
 
-<div id="d1" style="text-align:center;">Score Track <span style="background-color:$alliance;color:white">$alliance Alliance</span> for Match $match (Field $field)?</div>
+<div id="d1" style="text-align:center;">Score Track <span style="background-color:$alliance;color:white">$alliance Alliance</span> for Match $match (Field $field)?
+</div>
 <div style="text-align:center;">
 <button id="yes" onclick="location.href='../'">Yes</button><button id="refresh" onclick="location.reload(true)">No (Refresh)</button>
+<br>
+Teams:
+<br>
+$teams
 </div>
 #end

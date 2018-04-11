@@ -274,4 +274,8 @@
 <tr><td class="left"><label>Major Penalties:</label></td><td class="right nowrap absorbing-column">#parse("/velocity/counter_macro.vm")#@labelID($major "99999")major#end</td></tr>
 </table>
 <input type="submit" class="bad notification" value="Submit Final Score" onclick="submit()">
+<br>
+Teams:
+<br>
+$teams
 #end
