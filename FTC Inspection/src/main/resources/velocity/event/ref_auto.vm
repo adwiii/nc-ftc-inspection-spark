@@ -470,4 +470,8 @@ function hex(x) {
 </table>
 <input type="submit" value="Submit Auto" onclick="submit()">
 <div id="errmsg" align="center" color="red"></div>
+<br>
+Teams:
+<br>
+$teams
 #end

@@ -39,6 +39,7 @@ public class Path {
         public static final String SERVER_DATA_MANAGEMENT = "/server/";
         public static final String EVENT_SETTINGS = "/event/:event/settings/";
         public static final String DELETE_DATA = "/event/:event/settings/:phase/";
+        public static final String DELETE_MATCHES = "/event/:event/settings/deletematches/:mod/";
         public static final String DELETE_EVENT = "/server/event/";
         public static final String EXPORT_USERS = "/server/users/";
         public static final String IMPORT_TEAMS_TO_MASTER = "/server/teams/";

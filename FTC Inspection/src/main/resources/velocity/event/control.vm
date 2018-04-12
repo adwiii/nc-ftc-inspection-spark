@@ -341,6 +341,11 @@
 	.matchControlButton[state="warn"]{
 		background-color: red;
 	}
+	.randomBtn{
+		margin:auto;
+		margin-top: 4px;
+		margin-bottom: 4px;
+	}
 	.tabButton{
 		background-color: #4CAF50; /* Green */
 		border: none;
@@ -424,14 +429,14 @@ function randomize(r){
 		}
 		
 		//COMMENCE LOCKOUT
-		//Only force tab if not in score tab or settings tab
-		if(tabcontent[2].style.display == "none"){
-			openTab(null,'ScoreTab');//open score tab if not in settings tab (Stays in settings tab if already there. ~ force to scores at start of match)
-		}
+		//Only force tab if not in score tab or settings tab - No longer needed after move of random btns to score tab
+		//if(tabcontent[2].style.display == "none"){
+		//	openTab(null,'ScoreTab');//open score tab if not in settings tab (Stays in settings tab if already there. ~ force to scores at start of match)
+		//}
 		//lockout from change tab
   		var tabs = document.getElementsByClassName("tabButton");
   		for(var i = 0; i < tabs.length; i++){
-  			if(tabs[i].innerHTML != "Scores" && tabs[i].innerHTML != "Settings"){
+  			if(tabs[i].innerHTML != "Scores"){
 	  			tabs[i].setAttribute("state", "off");
 	  			tabs[i].disabled = true;
   			}
@@ -444,7 +449,7 @@ function randomize(r){
   			toBtns[i].setAttribute("state", "off");
   			toBtns[i].disabled = true;
   		}
-  		var randBtns = document.getElementById("externalRandomize").getElementsByClassName("matchControlButton");
+  		var randBtns = document.getElementsByClassName("randomBtn");
   		for(var i = 0; i < randBtns.length; i++){
   			randBtns[i].setAttribute("state", "warn");
   		}
@@ -560,10 +565,7 @@ function endMatch(){
   			toBtns[i].setAttribute("state", "ready");
   			toBtns[i].disabled = false;
   		}
-  		var randBtns = document.getElementById("externalRandomize").getElementsByClassName("matchControlButton");
-  		for(var i = 0; i < randBtns.length; i++){
-  			randBtns[i].setAttribute("state", "warn");
-  		}
+  		
 	
 	waitForRefReview();
 	
@@ -610,6 +612,12 @@ function start(){
 	  		tabs[i].disabled = true;
   		}
   		openTab(null,'ScoreTab'); //force score tab open
+  		
+  		var randBtns = document.getElementsByClassName("randomBtn");
+  		for(var i = 0; i < randBtns.length; i++){
+  			randBtns[i].setAttribute("state", "off");
+  			randBtns[i].disabled = true;
+  		}
   		
 		//TODO local timer control here
 		
@@ -691,6 +699,11 @@ function abort(){
   			tabs[i].setAttribute("state", "ready");
   			tabs[i].disabled = false;
   		}
+  		var randBtns = document.getElementsByClassName("randomBtn");
+  		for(var i = 0; i < randBtns.length; i++){
+  			randBtns[i].setAttribute("state", "warn");
+  			randBtns[i].disabled = false;
+  		}
   		
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
@@ -702,6 +715,11 @@ function showPreview(){
 	$.post("../display/preview/",postObj).done(function(data){
 		document.getElementById("randomBtn").setAttribute("state","ready");
 		document.getElementById("randomBtn").disabled = false;
+		var randBtns = document.getElementsByClassName("randomBtn");
+  		for(var i = 0; i < randBtns.length; i++){
+  			randBtns[i].setAttribute("state", "ready");
+  			randBtns[i].disabled = false;
+  		}
 	}).fail( function(xhr, textStatus, errorThrown) {
         console.log(textStatus);
     });
@@ -927,10 +945,24 @@ function fillSelectionData(data){
 			<button class="tabButton" onclick="openTab(event, 'SelectionTab')">Alliance Selection</button>
 		</div>
 		<div class="tabContent" id="ScoreTab">
-			<div id="leftScores">
+			<div id="leftScores" style="width:47%;">
 				#scores("red")
 			</div>
-			<div id="rightScores">
+			<div id="midScores" style="width:6%; float:left; height:100%; background-color:white;text-align:center;">
+			
+				<div>
+					Ext. Rand.
+				</div>
+				<button class="randomBtn matchControlButton" id="rand1" onclick="randomize(1)" disabled>1</button><br>
+				<button class="randomBtn matchControlButton" id="rand2" onclick="randomize(2)" disabled>2</button><br>
+				<button class="randomBtn matchControlButton" id="rand3" onclick="randomize(3)" disabled>3</button><br>
+				<button class="randomBtn matchControlButton" id="rand4" onclick="randomize(4)" disabled>4</button><br>
+				<button class="randomBtn matchControlButton" id="rand5" onclick="randomize(5)" disabled>5</button><br>
+				<button class="randomBtn matchControlButton" id="rand6" onclick="randomize(6)" disabled>6</button>
+			
+			
+			</div>
+			<div id="rightScores"style="width:47%;">
 				#scores("blue")
 				
 			</div>
@@ -964,6 +996,7 @@ function fillSelectionData(data){
 				<button class="matchControlButton" id="endTO" onclick="timeoutCommand('end')">End Timeout</button>
 				<button class="matchControlButton" id="showTO" onclick="timeoutCommand('show')">Display Timeout</button>
 			</fieldset>
+			<!--
 			<fieldset id="externalRandomize">
 				<legend>External Randomization</legend>
 				<button class="matchControlButton" id="rand1" onclick="randomize(1)">1</button>
@@ -973,6 +1006,7 @@ function fillSelectionData(data){
 				<button class="matchControlButton" id="rand5" onclick="randomize(5)">5</button>
 				<button class="matchControlButton" id="rand6" onclick="randomize(6)">6</button>
 			</fieldset>
+			-->
 			<fieldset>
 				<legend>Match Timer</legend>
 			</fieldset>

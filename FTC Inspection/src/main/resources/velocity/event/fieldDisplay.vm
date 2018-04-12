@@ -262,6 +262,20 @@
 		z-index:3;
 			
 	}
+	#underReview{
+		position:absolute;
+		font:45px "Arial Black", Arial, Helvetica, sans-serif;
+		z-index:3;
+		width:520;
+		height:30px;
+		top:-11;
+		text-align:center;		
+	}
+	
+	#underReview[visible="false"]{
+		display:none;
+	}
+	
 	#progressHighlight{
 		position:absolute;
 		width:100px;
@@ -276,6 +290,10 @@
 		
 		background-color:white;	
 		z-index:2;
+	}
+	
+	#progressHighlight[visible="false"]{
+		display:none;
 	}
 	
 	
@@ -777,7 +795,7 @@
 		#else
 		position:relative;
 		height:180px;
-		width: 100px;
+		width: 118px;
 		top:4px;
 		#end	
 	}
@@ -829,7 +847,7 @@
 		#else
 			position:relative;
 			height:180px;
-			width: 100px;
+			width: 140px;
 			top:5px;
 			/* left:10px; */
 			align:center;
@@ -1383,8 +1401,8 @@
 	  		#parking("blue" $pSize)
 	  		#if($overlay)
 		  		<div class="relics" id="blueRelicSet">		  		
-		  			<img class="relic" id="blueRelic1" src="/img/relic_black.png" alt="relic" visible="false" >
-		  			<img class="relic" id="blueRelic2" src="/img/relic_black.png" alt="relic" visible="false" >
+		  			<img class="relic" id="blueRelic1" src="/img/relic_black_blue.png" alt="relic" visible="false" >
+		  			<img class="relic" id="blueRelic2" src="/img/relic_black_blue.png" alt="relic" visible="false" >
 		  		</div>
 	  		#end
 	  		#balance("blue" $bSize)	
@@ -1427,7 +1445,10 @@
 				<div id="progressTime">
 					150
 				</div>
-				<div id="progressHighlight">
+				<div id="underReview" visible="false"> 
+					Match Under Review
+				</div>
+				<div id="progressHighlight" visible="true">
 				</div>
 			#end
   		</div>
@@ -1832,6 +1853,7 @@
   				buzzerSound.play();
   				#if($ad2 || $overlay)
   					document.getElementById("progress").classList.add('gameOverAnim');
+					document.getElementById("progress").style.borderRadius = "0px 0px 0px 0px";
   					setTimeout(function() {
 	  					document.getElementById("progress").classList.remove('gameOverAnim');
   						document.getElementById("progress").style.backgroundColor = "#FF0000";
@@ -1889,6 +1911,19 @@
             		showMatch();
             	} else if(data[0] == 'STOP_SCORE_UPDATES'){
             		stopScores = true;
+            	} else if(data[0] == 'IN_REVIEW'){
+            		stopScores = true;
+            		##if timer bar exists, show under review
+            		#if(($ad2 || $overlay) && !$noTimer)
+            			//kill animation if still in progress
+            			document.getElementById("progress").classList.remove('gameOverAnim');
+  						document.getElementById("progress").style.backgroundColor = "#FF0000";
+  						
+  						document.getElementById("progress").style.backgroundColor = "#FCFC00";
+  						document.getElementById("underReview").setAttribute("visible", "true");
+  						document.getElementById("progressHighlight").setAttribute("visible", "false");
+  						document.getElementById("progressTime").innerHTML = "";  						
+            		#end
             	}
             	
             		else if(data[0] == 'SHOW_PREVIEW'){
@@ -2408,6 +2443,14 @@
 			  			document.getElementById("redOverlayWings").setAttribute("visible", "true");
 			  			document.getElementById("blueOverlayWings").setAttribute("visible", "true");
 			  		#end
+			  		#if(($ad2 || $overlay) && !$noTimer)
+				  		document.getElementById("progress").style.width = '0%';
+				  		document.getElementById("progress").style.backgroundColor = "#FF0000";
+				  		document.getElementById("underReview").setAttribute("visible", "false");
+				  		document.getElementById("progressHighlight").setAttribute("visible", "true");
+				  		document.getElementById("progress").style.borderRadius = "0px 15px 15px 0px";
+				  		document.getElementById("progressTime").innerHTML = "30";  	
+			  		#end
                     #if($overlay && !$ad)
             			##permanent overlay should not show random.
             		#else
@@ -2694,7 +2737,7 @@
 	  		}
 	  		 relic = document.getElementById("blueRelic1");
 	  		if(obj.blue.relic1Zone == undefined || obj.blue.relic1Zone == 0){
-	  			relic.src = "/img/relic_black.png";
+	  			relic.src = "/img/relic_black_blue.png";
 	  		}else{
 	  			relicScored = true;
 	  			relic.setAttribute("visible", "true");
@@ -2702,7 +2745,7 @@
 	  		}
 	  		 relic = document.getElementById("blueRelic2");
 	  		if(obj.blue.relic2Zone == undefined || obj.blue.relic2Zone == 0){
-	  			relic.src = "/img/relic_black.png";
+	  			relic.src = "/img/relic_black_blue.png";
 	  		}else{
 	  			relicScored = true;
 	  			relic.setAttribute("visible", "true");

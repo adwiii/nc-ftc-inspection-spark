@@ -208,6 +208,7 @@ public class EventDAO {
 	static final String REMOVE_EVENT_SQL = "DELETE FROM events WHERE code=?;";
 	
 
+	static final String DELETE_MATCHES_SQL = "DELETE FROM quals WHERE match % 2 = ?;";
 	
 	
 	static {
@@ -1658,6 +1659,16 @@ public class EventDAO {
 		
 	}
 	
+	public static void deleteMatches(String event, int mod) {
+		try(Connection local = getLocalDB(event)){
+			PreparedStatement ps = local.prepareStatement(DELETE_MATCHES_SQL);
+			ps.setInt(1,  mod);
+			ps.executeUpdate();
+			log.info("Deleted matches where match % 2 = {} for {}", mod, event);
+		}catch(SQLException e) {
+			log.error("Error deleting quals for {}", event, e);
+		}
+	}
 	
 	
 }

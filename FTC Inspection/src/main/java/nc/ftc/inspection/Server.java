@@ -366,6 +366,8 @@ public class Server {
 		put(Path.Web.SET_OVERLAY_DEFAULT, EventPages.handleOverlayColorSet);
 		before(Path.Web.DELETE_DATA, Filters.getAuthenticationFilter(User.ADMIN));
 		delete(Path.Web.DELETE_DATA, EventPages.handleDeleteData);
+		before(Path.Web.DELETE_MATCHES, Filters.getAuthenticationFilter(User.ADMIN));
+		delete(Path.Web.DELETE_MATCHES, EventPages.handleDeleteMatches);
 		
 		before(Path.Web.ZIP_EVENT, Filters.getAuthenticationFilter(User.ADMIN));
 		get(Path.Web.ZIP_EVENT, EventPages.serveZipFile);

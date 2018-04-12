@@ -789,6 +789,7 @@ public class EventPages {
 			}
 			model.put("alliance", alliance);
 			Alliance a = match.getAlliance(alliance);
+			model.put("teams", getTeamsHTML(a));
 			if (match.getStatus() != MatchStatus.PRE_RANDOM) {
 				model.put("rand", match.getRandomization());
 			}
@@ -874,8 +875,20 @@ public class EventPages {
 			model.put("match", match.getName());
 			model.put("field", (match.getNumber() + 1) % 2 + 1);
 			model.put("alliance", request.params("alliance").toUpperCase());
+			model.put("teams", getTeamsHTML(match.getAlliance(request.params("alliance").toLowerCase())));
 			return render(request, model, Path.Template.REF_IDLE);			
 		};
+		
+		
+		public static String getTeamsHTML(Alliance alliance) {
+			String teams = "";
+			if (alliance.getTeam3() == 0) {
+				teams = alliance.getTeam1() + "<br>" + alliance.getTeam2();
+			} else {
+				teams = alliance.getTeam1() + "<br>" + alliance.getTeam2() + "<br>"  + alliance.getTeam3();
+			}
+			return teams;
+		}
 		
 		public static Route handleGetRandom = (Request request, Response response) ->{
 			//TODO this is the call that will long-poll / websocket to simulate a push to 
@@ -1079,7 +1092,7 @@ public class EventPages {
 				Match match = Server.activeEvents.get(e).getCurrentMatch();
 				match.getAlliance(request.params("alliance")).setInReview(true);
 				if(match.isInReview()) {
-					Server.activeEvents.get(e).getDisplay().issueCommand(DisplayCommand.STOP_SCORE_UPDATES);
+					Server.activeEvents.get(e).getDisplay().issueCommand(DisplayCommand.IN_REVIEW);
 				}
 				Server.activeEvents.get(request.params("event")).getCurrentMatch().getAlliance(request.params("alliance")).calculateGlyphs();
 //				if(status == MatchStatus.AUTO) {
@@ -3319,7 +3332,10 @@ public class EventPages {
 			matches.add(f2);
 			EventDAO.createElimsMatches(code, matches);
 			EventDAO.setEventStatus(code, EventData.ELIMS);
+			
 			Server.activeEvents.get(code).getData().setStatus(EventData.ELIMS);
+
+			Server.activeEvents.get(code).loadNextMatch();
 			
 			response.redirect("../teams"); 
 			return "OK";
@@ -3385,6 +3401,20 @@ public class EventPages {
 				Server.activeEvents.get(event).resultsCache.invalidate();
 				Server.activeEvents.get(event).scheduleCache.invalidate();
 			}
+			return "OK";
+		};
+		
+		public static Route handleDeleteMatches = (Request request, Response response)->{
+			String event = request.params("event");
+			String modResult = request.params("mod");
+			int mod = -1;
+			if(modResult != null) {
+				mod = Integer.parseInt(modResult);
+			}
+			EventDAO.deleteMatches(event, mod);
+			Server.activeEvents.get(event).rankingsCache.invalidate();
+			Server.activeEvents.get(event).resultsCache.invalidate();
+			Server.activeEvents.get(event).scheduleCache.invalidate();
 			return "OK";
 		};
 }
