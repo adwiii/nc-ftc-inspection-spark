@@ -791,7 +791,7 @@
 		#else
 		position:relative;
 		height:180px;
-		width: 100px;
+		width: 118px;
 		top:4px;
 		#end	
 	}
@@ -843,7 +843,7 @@
 		#else
 			position:relative;
 			height:180px;
-			width: 100px;
+			width: 140px;
 			top:5px;
 			/* left:10px; */
 			align:center;
