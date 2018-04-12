@@ -292,6 +292,10 @@
 		z-index:2;
 	}
 	
+	#progressHighlight[visible="false"]{
+		display:none;
+	}
+	
 	
 	div[overlay="true"] > #progress{
 	
@@ -1444,7 +1448,7 @@
 				<div id="underReview" visible="false"> 
 					Match Under Review
 				</div>
-				<div id="progressHighlight">
+				<div id="progressHighlight" visible="true">
 				</div>
 			#end
   		</div>
@@ -1849,6 +1853,7 @@
   				buzzerSound.play();
   				#if($ad2 || $overlay)
   					document.getElementById("progress").classList.add('gameOverAnim');
+					document.getElementById("progress").style.borderRadius = "0px 0px 0px 0px";
   					setTimeout(function() {
 	  					document.getElementById("progress").classList.remove('gameOverAnim');
   						document.getElementById("progress").style.backgroundColor = "#FF0000";
@@ -1916,6 +1921,7 @@
   						
   						document.getElementById("progress").style.backgroundColor = "#FCFC00";
   						document.getElementById("underReview").setAttribute("visible", "true");
+  						document.getElementById("progressHighlight").setAttribute("visible", "false");
   						document.getElementById("progressTime").innerHTML = "";  						
             		#end
             	}
@@ -2441,6 +2447,8 @@
 				  		document.getElementById("progress").style.width = '0%';
 				  		document.getElementById("progress").style.backgroundColor = "#FF0000";
 				  		document.getElementById("underReview").setAttribute("visible", "false");
+				  		document.getElementById("progressHighlight").setAttribute("visible", "true");
+				  		document.getElementById("progress").style.borderRadius = "0px 15px 15px 0px";
 				  		document.getElementById("progressTime").innerHTML = "30";  	
 			  		#end
                     #if($overlay && !$ad)
