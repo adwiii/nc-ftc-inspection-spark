@@ -3332,7 +3332,10 @@ public class EventPages {
 			matches.add(f2);
 			EventDAO.createElimsMatches(code, matches);
 			EventDAO.setEventStatus(code, EventData.ELIMS);
+			
 			Server.activeEvents.get(code).getData().setStatus(EventData.ELIMS);
+
+			Server.activeEvents.get(code).loadNextMatch();
 			
 			response.redirect("../teams"); 
 			return "OK";

@@ -1401,8 +1401,8 @@
 	  		#parking("blue" $pSize)
 	  		#if($overlay)
 		  		<div class="relics" id="blueRelicSet">		  		
-		  			<img class="relic" id="blueRelic1" src="/img/relic_black.png" alt="relic" visible="false" >
-		  			<img class="relic" id="blueRelic2" src="/img/relic_black.png" alt="relic" visible="false" >
+		  			<img class="relic" id="blueRelic1" src="/img/relic_black_blue.png" alt="relic" visible="false" >
+		  			<img class="relic" id="blueRelic2" src="/img/relic_black_blue.png" alt="relic" visible="false" >
 		  		</div>
 	  		#end
 	  		#balance("blue" $bSize)	
@@ -2737,7 +2737,7 @@
 	  		}
 	  		 relic = document.getElementById("blueRelic1");
 	  		if(obj.blue.relic1Zone == undefined || obj.blue.relic1Zone == 0){
-	  			relic.src = "/img/relic_black.png";
+	  			relic.src = "/img/relic_black_blue.png";
 	  		}else{
 	  			relicScored = true;
 	  			relic.setAttribute("visible", "true");
@@ -2745,7 +2745,7 @@
 	  		}
 	  		 relic = document.getElementById("blueRelic2");
 	  		if(obj.blue.relic2Zone == undefined || obj.blue.relic2Zone == 0){
-	  			relic.src = "/img/relic_black.png";
+	  			relic.src = "/img/relic_black_blue.png";
 	  		}else{
 	  			relicScored = true;
 	  			relic.setAttribute("visible", "true");
