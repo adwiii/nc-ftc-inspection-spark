@@ -793,10 +793,14 @@
 			width:848;
 			
 		#else
-		position:relative;
-		height:180px;
-		width: 118px;
-		top:4px;
+			position:relative;
+			height:180px;
+			#if($overlay)
+				width: 118px;
+			#else 
+				width: 100px; 
+			#end
+			top:4px;
 		#end	
 	}
 	.parking[visible="false"]{
@@ -847,7 +851,11 @@
 		#else
 			position:relative;
 			height:180px;
-			width: 140px;
+			#if($overlay)
+				width: 140px;
+			#else 
+				width: 100px;
+			#end
 			top:5px;
 			/* left:10px; */
 			align:center;
