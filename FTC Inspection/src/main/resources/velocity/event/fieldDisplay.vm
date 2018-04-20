@@ -1527,6 +1527,8 @@
   	var blueBalance1 = document.getElementById("balanceblue1");
   	var blueBalance2 = document.getElementById("balanceblue2");
   	
+  	var endAnimTimeout;
+  	
   	$().ready(function () {
   		var zoom = $("#body").width() / 1920;
   		$("#body").css("zoom", zoom);
@@ -1862,7 +1864,7 @@
   				#if($ad2 || $overlay)
   					document.getElementById("progress").classList.add('gameOverAnim');
 					document.getElementById("progress").style.borderRadius = "0px 0px 0px 0px";
-  					setTimeout(function() {
+  					endAnimTimeout = setTimeout(function() {
 	  					document.getElementById("progress").classList.remove('gameOverAnim');
   						document.getElementById("progress").style.backgroundColor = "#FF0000";
   					}, 6000);
@@ -1924,6 +1926,9 @@
             		##if timer bar exists, show under review
             		#if(($ad2 || $overlay) && !$noTimer)
             			//kill animation if still in progress
+            			if(endAnimTimeout){
+            			 	clearTimeout(endAnimTimeout);
+            			}
             			document.getElementById("progress").classList.remove('gameOverAnim');
   						document.getElementById("progress").style.backgroundColor = "#FF0000";
   						
@@ -2554,6 +2559,9 @@
   			document.getElementById("blueOverlayWings").setAttribute("visible", "true");
   		#end
 
+		#if(($ad2 || $overlay) && !$noTimer)
+			document.getElementById("underReview").setAttribute("visible", "false");
+		#end
 	}
 	
 	

@@ -2691,7 +2691,7 @@ public class EventPages {
 				list.add(json("blue3Name", blue3 == null ? "" : blue3.getName()));
 				
 				//put seeds here
-				list.add(json("redRank", mr.getRed().getRank()));
+				list.add(json("redRank", mr.getRed().getRank())); //'J'));
 				list.add(json("blueRank", mr.getBlue().getRank()));
 				
 				String isFDStr = EventDAO.getProperty(code, "isFinalsDivision");
