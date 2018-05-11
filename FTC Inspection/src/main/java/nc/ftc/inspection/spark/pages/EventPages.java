@@ -1757,7 +1757,7 @@ public class EventPages {
 				int redWin = 0;
 				int blueWin = 0;
 				for(MatchResult mr : series) {
-					if(mr.getStatus() == 1) {
+					if(mr.getStatus() == 1 && mr.getNumber() != m.getNumber()) {
 						if(mr.getWinChar() == 'R')redWin++;
 						if(mr.getWinChar() == 'B')blueWin++;
 					}
