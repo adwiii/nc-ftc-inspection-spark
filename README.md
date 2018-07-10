@@ -1,3 +1,5 @@
+This project reached end of life at the conclusion of the 2017-2018 FTC Season. This respository is no longer monitored/updated.
+
 # nc-ftc-inspection-spark
 --*Version 2.3 Change Log* --
 
